@@ -1,0 +1,12 @@
+{
+  "name": "use-story-data-store",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "test": "bun test"
+  },
+  "dependencies": {
+    "immer": "^10.1.1",
+    "zustand": "^5.0.6"
+  }
+}

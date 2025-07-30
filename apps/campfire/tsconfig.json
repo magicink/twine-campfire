@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "types": ["bun", "react", "react-dom", "../../matchers.d.ts"],
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/packages/*": ["../../packages/*"]
+    },
+    "allowImportingTsExtensions": false
+  },
+  "extends": "../../tsconfig.json",
+  "include": ["src/**/*", "lib/**/*"]
+}

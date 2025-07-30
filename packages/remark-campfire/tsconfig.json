@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "types": ["vite/client", "bun", "react", "react-dom"],
+    "baseUrl": ".",
+    "paths": {
+      "@/packages/*": ["../*"]
+    }
+  },
+  "extends": "../../tsconfig.json"
+}

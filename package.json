@@ -1,0 +1,42 @@
+{
+  "name": "campfire",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A custom story format for TwineJS that uses React.",
+  "exports": "./dist/format.js",
+  "main": "dist/format.js",
+  "module": "dist/format.js",
+  "files": [
+    "dist"
+  ],
+  "workspaces": [
+    "apps/campfire",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "rimraf apps/campfire/dist && bunx rollup -c apps/campfire/rollup.config.mjs && node build-format.mjs",
+    "prepare": "husky || true",
+    "typecheck": "tsc --noEmit"
+  },
+  "prettier": "@brandontom/prettier",
+  "dependencies": {
+    "turbo": "^2.5.5"
+  },
+  "devDependencies": {
+    "@brandontom/prettier": "^2.0.2",
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "@types/bun": "latest",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.2",
+    "prettier": "^3.6.2",
+    "release-please": "^17.1.1",
+    "rimraf": "^6.0.1",
+    "sort-package-json": "^3.4.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
