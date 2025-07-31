@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.6](https://github.com/magicink/twine-campfire/compare/v1.3.5...v1.3.6) (2025-07-31)
+
+
+### Bug Fixes
+
+* **template:** add absolute positioning classes to html and body for proper layout ([fd5907a](https://github.com/magicink/twine-campfire/commit/fd5907a3c2fb3d0b1a792d498ce4d23e6f634621))
+
 ## [1.3.5](https://github.com/magicink/twine-campfire/compare/v1.3.4...v1.3.5) (2025-07-31)
 
 
