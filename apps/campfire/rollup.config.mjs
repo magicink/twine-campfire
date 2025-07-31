@@ -8,6 +8,7 @@ import resolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import json from '@rollup/plugin-json'
 import alias from '@rollup/plugin-alias'
+import replace from '@rollup/plugin-replace'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -23,6 +24,12 @@ export default {
       entries: {
         '@/packages': path.resolve(__dirname, '../../packages')
       }
+    }),
+    replace({
+      preventAssignment: true,
+      'process.env.NODE_ENV': JSON.stringify(
+        process.env.NODE_ENV ?? 'production'
+      )
     }),
     commonjs(),
     json(),
