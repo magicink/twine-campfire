@@ -17,6 +17,12 @@ export interface GameState<T = Record<string, unknown>> {
   setLocale: (locale: string) => void
   /** Reset gameData to the initial state */
   reset: () => void
+  /** Keys that have been permanently set */
+  lockedKeys: Record<string, true>
+  /** Prevent further updates to a key */
+  lockKey: (key: keyof T | string) => void
+  /** Allow updates to a key */
+  unlockKey: (key: keyof T | string) => void
 }
 
 interface InternalState<T> extends GameState<T> {
@@ -29,6 +35,7 @@ export const useGameStore = create(
     gameData: {},
     _initialGameData: {},
     locale: 'en-US',
+    lockedKeys: {},
     init: data =>
       set(() => ({
         gameData: { ...data },
@@ -37,13 +44,31 @@ export const useGameStore = create(
     setGameData: data =>
       set(
         produce((state: InternalState<Record<string, unknown>>) => {
-          state.gameData = { ...state.gameData, ...data }
+          for (const [k, v] of Object.entries(data)) {
+            if (!state.lockedKeys[k]) {
+              ;(state.gameData as Record<string, unknown>)[k] = v
+            }
+          }
         })
       ),
     unsetGameData: key =>
       set(
         produce((state: InternalState<Record<string, unknown>>) => {
-          delete (state.gameData as Record<string, unknown>)[key as string]
+          const k = key as string
+          delete (state.gameData as Record<string, unknown>)[k]
+          delete state.lockedKeys[k]
+        })
+      ),
+    lockKey: key =>
+      set(
+        produce((state: InternalState<Record<string, unknown>>) => {
+          state.lockedKeys[key as string] = true
+        })
+      ),
+    unlockKey: key =>
+      set(
+        produce((state: InternalState<Record<string, unknown>>) => {
+          delete state.lockedKeys[key as string]
         })
       ),
     setLocale: locale =>
@@ -54,7 +79,8 @@ export const useGameStore = create(
       ),
     reset: () =>
       set(state => ({
-        gameData: { ...state._initialGameData }
+        gameData: { ...state._initialGameData },
+        lockedKeys: {}
       }))
   }))
 )

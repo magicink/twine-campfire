@@ -22,7 +22,7 @@ export function handleDirective(
   parent: Parent | undefined,
   index: number | undefined
 ): number | [typeof SKIP, number] | void {
-  if (directive.name === 'set') {
+  if (directive.name === 'set' || directive.name === 'setOnce') {
     const typeParam = (toString(directive).trim() || 'string').toLowerCase()
     const attrs = directive.attributes
     const safe: Record<string, unknown> = {}
@@ -97,7 +97,13 @@ export function handleDirective(
     }
 
     if (Object.keys(safe).length > 0) {
-      useGameStore.getState().setGameData(safe)
+      const state = useGameStore.getState()
+      state.setGameData(safe)
+      if (directive.name === 'setOnce') {
+        for (const key of Object.keys(safe)) {
+          state.lockKey(key)
+        }
+      }
     }
 
     if (parent && typeof index === 'number') {
