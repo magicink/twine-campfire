@@ -27,4 +27,25 @@ describe('initialize', () => {
     expect(result).toBeUndefined()
     expect(useStoryDataStore.getState().storyData).toEqual({})
   })
+
+  it('applies user styles and runs user script', () => {
+    const el = doc.createElement('tw-storydata')
+    const style = doc.createElement('style')
+    style.id = 'twine-user-stylesheet'
+    style.textContent = 'body { color: green; }'
+    el.appendChild(style)
+    const script = doc.createElement('script')
+    script.id = 'twine-user-script'
+    script.textContent = 'globalThis.initTest = 99'
+    el.appendChild(script)
+    doc.body.appendChild(el)
+
+    initialize(doc)
+
+    const applied = doc.head.querySelector('style[data-twine-user-stylesheet]')
+    expect(applied?.textContent).toBe('body { color: green; }')
+    expect((globalThis as { initTest?: number }).initTest).toBe(99)
+
+    delete (globalThis as { initTest?: number }).initTest
+  })
 })
