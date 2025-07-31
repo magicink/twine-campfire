@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.5](https://github.com/magicink/twine-campfire/compare/v1.3.4...v1.3.5) (2025-07-31)
+
+
+### Bug Fixes
+
+* **apps/campfire:** update root element ID in campfire main file ([9fa265c](https://github.com/magicink/twine-campfire/commit/9fa265caa5846624e098a3bb69a2dcc22f9c1370))
+
 ## [1.3.4](https://github.com/magicink/twine-campfire/compare/v1.3.3...v1.3.4) (2025-07-31)
 
 
