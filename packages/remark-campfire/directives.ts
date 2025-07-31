@@ -5,7 +5,14 @@ import type { Text, Parent } from 'mdast'
 import type { Node as UnistNode } from 'unist'
 import type { ContainerDirective } from 'mdast-util-directive'
 import { useGameStore } from '@/packages/use-game-store'
-import { resolveIf, isRange, clamp, parseRange } from './helpers'
+import {
+  resolveIf,
+  isRange,
+  clamp,
+  parseRange,
+  getRandomItem,
+  getRandomInt
+} from './helpers'
 import type { RangeValue, DirectiveNode } from './helpers'
 export function handleDirective(
   directive: DirectiveNode,
@@ -128,16 +135,15 @@ export function handleDirective(
 
     let value: unknown
 
-    const from = (attrs as Record<string, unknown>).from
-    if (typeof from === 'string') {
-      const options = from
+    const optionsAttr =
+      (attrs as Record<string, unknown>).options ??
+      (attrs as Record<string, unknown>).from
+    if (typeof optionsAttr === 'string') {
+      const options = optionsAttr
         .split(',')
         .map(s => s.trim())
         .filter(Boolean)
-      if (options.length > 0) {
-        const idx = Math.floor(Math.random() * options.length)
-        value = options[idx]
-      }
+      value = getRandomItem(options)
     } else {
       const minRaw = (attrs as Record<string, unknown>).min
       const maxRaw = (attrs as Record<string, unknown>).max
@@ -159,9 +165,7 @@ export function handleDirective(
         typeof max === 'number' &&
         !Number.isNaN(max)
       ) {
-        const low = Math.min(min, max)
-        const high = Math.max(min, max)
-        value = Math.floor(Math.random() * (high - low + 1)) + low
+        value = getRandomInt(min, max)
       }
     }
 

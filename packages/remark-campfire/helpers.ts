@@ -60,6 +60,23 @@ export const parseRange = (input: unknown): RangeValue => {
   return { lower: 0, upper: num, value: clamp(num, 0, num) }
 }
 
+/**
+ * Return a random integer between the two bounds, inclusive.
+ * Math.random() generates a value in [0,1). Multiplying by the range size
+ * (high - low + 1) allows the upper bound to be chosen, then we offset by the
+ * lower bound.
+ */
+export const getRandomInt = (min: number, max: number): number => {
+  const low = Math.min(min, max)
+  const high = Math.max(min, max)
+  return Math.floor(Math.random() * (high - low + 1)) + low
+}
+
+export const getRandomItem = <T>(items: T[]): T | undefined => {
+  if (!items.length) return undefined
+  return items[getRandomInt(0, items.length - 1)]
+}
+
 export type DirectiveNode = ContainerDirective | LeafDirective | TextDirective
 
 interface ParagraphLabel extends Paragraph {

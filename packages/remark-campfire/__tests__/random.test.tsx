@@ -7,7 +7,7 @@ import rehypeStringify from 'rehype-stringify'
 import remarkCampfire from '../index'
 import { useGameStore } from '@/packages/use-game-store'
 
-function createProcessor(stringify = true) {
+const createProcessor = (stringify = true) => {
   const processor = (unified() as any)
     .use(remarkParse)
     .use(remarkDirective)
@@ -46,7 +46,7 @@ describe('remarkCampfire random directive', () => {
     const originalRandom = Math.random
     Math.random = () => 0.25
     const md =
-      '::random{variable="loot" from="gold,silver,gems,artifact"}\n:get[loot]'
+      '::random{variable="loot" options="gold,silver,gems,artifact"}\n:get[loot]'
     const result = await processor.process(md)
     Math.random = originalRandom
     expect(result.toString().trim()).toBe('<p>silver</p>')
