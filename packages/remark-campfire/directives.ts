@@ -177,6 +177,66 @@ export function handleDirective(
       parent.children.splice(index, 1)
       return index
     }
+  } else if (directive.name === 'increment' || directive.name === 'decrement') {
+    const attrs = directive.attributes || {}
+    const variableRaw = (attrs as Record<string, unknown>).variable
+    const amountRaw = (attrs as Record<string, unknown>).amount
+    if (typeof variableRaw !== 'string') {
+      if (parent && typeof index === 'number') {
+        parent.children.splice(index, 1)
+        return index
+      }
+      return
+    }
+
+    let amount: number = 1
+    if (typeof amountRaw === 'number') {
+      amount = amountRaw
+    } else if (typeof amountRaw === 'string') {
+      let evaluated: unknown = amountRaw
+      try {
+        const fn = compile(amountRaw)
+        evaluated = fn(useGameStore.getState().gameData)
+      } catch {
+        // ignore
+      }
+      amount =
+        typeof evaluated === 'number'
+          ? evaluated
+          : (() => {
+              const num = parseFloat(String(evaluated))
+              return Number.isNaN(num) ? 1 : num
+            })()
+    }
+
+    if (directive.name === 'decrement') {
+      amount = -amount
+    }
+
+    const state = useGameStore.getState()
+    const current = state.gameData[variableRaw]
+    if (isRange(current)) {
+      state.setGameData({
+        [variableRaw]: {
+          ...current,
+          value: clamp(current.value + amount, current.lower, current.upper)
+        }
+      })
+    } else {
+      const base =
+        typeof current === 'number'
+          ? current
+          : (() => {
+              const num = parseFloat(String(current))
+              return Number.isNaN(num) ? 0 : num
+            })()
+      state.setGameData({ [variableRaw]: base + amount })
+    }
+
+    if (parent && typeof index === 'number') {
+      parent.children.splice(index, 1)
+      return index
+    }
   } else if (directive.name === 'if') {
     if (!parent || typeof index !== 'number') return
     const ifDirective = directive as ContainerDirective
