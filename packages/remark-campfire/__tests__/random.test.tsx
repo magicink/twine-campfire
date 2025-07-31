@@ -34,7 +34,7 @@ describe('remarkCampfire random directive', () => {
     const processor = createProcessor()
     const originalRandom = Math.random
     Math.random = () => 0.5
-    const md = '::random{variable="roll" min=1 max=10}\n:get[roll]'
+    const md = '::random{key="roll" min=1 max=10}\n:get[roll]'
     const result = await processor.process(md)
     Math.random = originalRandom
     expect(result.toString().trim()).toBe('<p>6</p>')
@@ -46,7 +46,7 @@ describe('remarkCampfire random directive', () => {
     const originalRandom = Math.random
     Math.random = () => 0.25
     const md =
-      '::random{variable="loot" options="gold,silver,gems,artifact"}\n:get[loot]'
+      '::random{key="loot" options="gold,silver,gems,artifact"}\n:get[loot]'
     const result = await processor.process(md)
     Math.random = originalRandom
     expect(result.toString().trim()).toBe('<p>silver</p>')

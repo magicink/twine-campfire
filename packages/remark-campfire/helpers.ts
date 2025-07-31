@@ -160,7 +160,7 @@ export const removeNode = (
   return undefined
 }
 
-export const ensureVariable = (
+export const ensureKey = (
   raw: unknown,
   parent: Parent | undefined,
   index: number | undefined

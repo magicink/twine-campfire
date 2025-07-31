@@ -33,7 +33,7 @@ describe('remarkCampfire increment and decrement directives', () => {
   it('increments numeric values', async () => {
     const processor = createProcessor()
     const md =
-      '::set[number]{score=5}\n::increment{variable="score" amount=3}\n:get[score]'
+      '::set[number]{score=5}\n::increment{key="score" amount=3}\n:get[score]'
     const result = await processor.process(md)
     expect(result.toString().trim()).toBe('<p>8</p>')
     expect(useGameStore.getState().gameData.score).toBe(8)
@@ -42,7 +42,7 @@ describe('remarkCampfire increment and decrement directives', () => {
   it('decrements numeric values', async () => {
     const processor = createProcessor()
     const md =
-      '::set[number]{health=10}\n::decrement{variable="health" amount=4}\n:get[health]'
+      '::set[number]{health=10}\n::decrement{key="health" amount=4}\n:get[health]'
     const result = await processor.process(md)
     expect(result.toString().trim()).toBe('<p>6</p>')
     expect(useGameStore.getState().gameData.health).toBe(6)
@@ -50,7 +50,7 @@ describe('remarkCampfire increment and decrement directives', () => {
 
   it('clamps range values when applying changes', async () => {
     const processor = createProcessor()
-    const md = `::set[range]{hp='{"lower":0,"upper":10,"value":5}'}\n::decrement{variable="hp" amount=7}\n:get[hp]`
+    const md = `::set[range]{hp='{"lower":0,"upper":10,"value":5}'}\n::decrement{key="hp" amount=7}\n:get[hp]`
     const result = await processor.process(md)
     expect(result.toString().trim()).toBe('<p>0</p>')
     expect(useGameStore.getState().gameData.hp).toEqual({
@@ -63,7 +63,7 @@ describe('remarkCampfire increment and decrement directives', () => {
   it('evaluates expressions for the amount value', async () => {
     const processor = createProcessor()
     const md =
-      '::set[number]{score=5}\n::increment{variable="score" amount="score * 2"}\n:get[score]'
+      '::set[number]{score=5}\n::increment{key="score" amount="score * 2"}\n:get[score]'
     const result = await processor.process(md)
     expect(result.toString().trim()).toBe('<p>15</p>')
     expect(useGameStore.getState().gameData.score).toBe(15)
