@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/magicink/twine-campfire/compare/v1.3.0...v1.3.1) (2025-07-31)
+
+
+### Bug Fixes
+
+* **remark-campfire:** replace variable attr with key ([#13](https://github.com/magicink/twine-campfire/issues/13)) ([c57be24](https://github.com/magicink/twine-campfire/commit/c57be24c20f0beae34a60f333dedc2f24fc0a03d))
+
 ## [1.3.0](https://github.com/magicink/twine-campfire/compare/v1.2.1...v1.3.0) (2025-07-31)
 
 
