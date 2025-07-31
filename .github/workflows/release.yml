@@ -33,3 +33,14 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+      - name: Build Format
+        if: ${{ steps.release.outputs.release_created }}
+        run: bun run build
+      - name: Verify story format exists
+        if: ${{ steps.release.outputs.release_created }}
+        run: test -f dist/format.js
+      - name: Upload story format
+        if: ${{ steps.release.outputs.release_created }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload ${{ steps.release.outputs.tag_name }} dist/format.js --clobber
