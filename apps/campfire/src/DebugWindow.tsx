@@ -14,6 +14,8 @@ export const DebugWindow = () => {
   const storyData = useStoryDataStore(
     (state: StoryDataState) => state.storyData
   )
+  const passages = useStoryDataStore(state => state.passages)
+  const currentPassageId = useStoryDataStore(state => state.currentPassageId)
   const gameData = useGameStore(state => state.gameData)
   const [visible, setVisible] = useState(true)
   const [minimized, setMinimized] = useState(false)
@@ -45,7 +47,9 @@ export const DebugWindow = () => {
       tabIndex={-1}
       role='dialog'
       aria-labelledby='debug-window-title'
-      className='fixed right-0 top-0 bottom-0 w-80 bg-white text-black shadow-lg text-xs overflow-y-auto'
+      className={`fixed right-0 top-0 ${
+        minimized ? '' : 'bottom-0 overflow-y-auto'
+      } w-80 bg-white text-black shadow-lg text-xs`}
     >
       <div className='flex items-center justify-between p-2 border-b'>
         <span id='debug-window-title' className='font-bold'>
@@ -92,9 +96,30 @@ export const DebugWindow = () => {
                 {JSON.stringify(gameData, null, 2)}
               </pre>
             ) : (
-              <pre className='whitespace-pre-wrap'>
-                {JSON.stringify(storyData, null, 2)}
-              </pre>
+              <div className='space-y-2'>
+                <pre className='whitespace-pre-wrap'>
+                  {JSON.stringify(storyData, null, 2)}
+                </pre>
+                <div>
+                  <p className='font-bold'>Passages</p>
+                  <ul className='list-disc pl-4'>
+                    {passages.map(p => {
+                      const id = String(p.properties?.pid ?? p.properties?.name)
+                      const name = String(
+                        p.properties?.name ?? p.properties?.pid
+                      )
+                      const isCurrent =
+                        currentPassageId === id || currentPassageId === name
+                      return (
+                        <li key={id} className={isCurrent ? 'font-bold' : ''}>
+                          {name}
+                          {isCurrent ? ' (current)' : ''}
+                        </li>
+                      )
+                    })}
+                  </ul>
+                </div>
+              </div>
             )}
           </div>
         </div>

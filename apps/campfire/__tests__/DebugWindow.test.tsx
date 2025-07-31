@@ -47,6 +47,18 @@ describe('DebugWindow', () => {
     expect(document.body.textContent).toBe('')
   })
 
+  it('minimizes the entire frame', () => {
+    useStoryDataStore.setState({ storyData: { options: 'debug' } })
+    render(<DebugWindow />)
+    const dialog = screen.getByRole('dialog')
+    expect(dialog.className).toContain('bottom-0')
+    const minimize = screen.getByRole('button', { name: 'Minimize' })
+    act(() => {
+      minimize.click()
+    })
+    expect(dialog.className).not.toContain('bottom-0')
+  })
+
   it('shows game data by default and switches tabs', () => {
     useStoryDataStore.setState({
       storyData: { options: 'debug', foo: 'bar' }
@@ -64,5 +76,33 @@ describe('DebugWindow', () => {
       storyTab.click()
     })
     expect(screen.getByText(/"foo": "bar"/)).toBeInTheDocument()
+  })
+
+  it('lists passages and highlights the current one', () => {
+    const start = {
+      type: 'element' as const,
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: []
+    }
+    const next = {
+      type: 'element' as const,
+      tagName: 'tw-passagedata',
+      properties: { pid: '2', name: 'Next' },
+      children: []
+    }
+    useStoryDataStore.setState({
+      storyData: { options: 'debug' },
+      passages: [start, next],
+      currentPassageId: '1'
+    })
+
+    render(<DebugWindow />)
+    const storyTab = screen.getByRole('button', { name: 'Story Data' })
+    act(() => {
+      storyTab.click()
+    })
+    expect(screen.getByText('Start (current)')).toBeInTheDocument()
+    expect(screen.getByText('Next')).toBeInTheDocument()
   })
 })
