@@ -28,6 +28,12 @@ export function extractStoryData(tree: Root): Element | undefined {
   return found
 }
 
+/**
+ * Executes the contents of the <code>#twine-user-script</code> element.
+ *
+ * @warning This will run arbitrary JavaScript using the <code>Function</code>
+ * constructor in the global scope. Only use this with trusted content.
+ */
 export function evaluateUserScript(
   doc: Document | undefined = typeof document === 'undefined'
     ? undefined
@@ -77,6 +83,8 @@ export function initialize(
   const tree = fromDom(el)
   const story = extractStoryData(tree as Root)
   extractPassages(tree as Root)
+  applyUserStyles(doc)
+  evaluateUserScript(doc)
   const start = story?.properties?.startnode as string | undefined
   if (start) {
     useStoryDataStore.getState().setCurrentPassage(start)
