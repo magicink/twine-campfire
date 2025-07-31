@@ -223,6 +223,19 @@ export function handleDirective(
 
     const removed = removeNode(parent, index)
     if (typeof removed === 'number') return removed
+  } else if (directive.name === 'unset') {
+    const attrs = directive.attributes || {}
+    const variable = ensureVariable(
+      (attrs as Record<string, unknown>).variable ?? toString(directive),
+      parent,
+      index
+    )
+    if (!variable) return index
+
+    useGameStore.getState().unsetGameData(variable)
+
+    const removed = removeNode(parent, index)
+    if (typeof removed === 'number') return removed
   } else if (directive.name === 'if') {
     if (!parent || typeof index !== 'number') return
     const ifDirective = directive as ContainerDirective

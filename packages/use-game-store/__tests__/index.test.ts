@@ -44,4 +44,10 @@ describe('useGameStore', () => {
     useGameStore.getState().setLocale('es-ES')
     expect(useGameStore.getState().locale).toBe('es-ES')
   })
+
+  it('unsets a key from the game data', () => {
+    useGameStore.getState().setGameData({ health: 10, mana: 5 })
+    useGameStore.getState().unsetGameData('mana')
+    expect(useGameStore.getState().gameData).toEqual({ health: 10 })
+  })
 })
