@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/magicink/twine-campfire/compare/v1.2.0...v1.2.1) (2025-07-31)
+
+
+### Bug Fixes
+
+* **test-env:** await happy-dom unregister ([#7](https://github.com/magicink/twine-campfire/issues/7)) ([41b46a4](https://github.com/magicink/twine-campfire/commit/41b46a42b3f3a5cf5170ab098da0b34d55ee5201))
+
 ## [1.2.0](https://github.com/magicink/twine-campfire/compare/v1.1.0...v1.2.0) (2025-07-31)
 
 ### Features
