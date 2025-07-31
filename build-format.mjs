@@ -33,7 +33,7 @@ const build = async () => {
     description: pkg.description,
     author: pkg.author,
     version: pkg.version,
-    source: JSON.stringify(html)
+    source: html
   }
 
   const output = `window.storyFormat(${JSON.stringify(formatData)})`
