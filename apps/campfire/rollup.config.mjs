@@ -1,8 +1,5 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import postcss from 'rollup-plugin-postcss'
-import tailwindcssPostcss from '@tailwindcss/postcss'
-import autoprefixer from 'autoprefixer'
 import esbuild from 'rollup-plugin-esbuild'
 import resolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
@@ -38,16 +35,6 @@ export default {
       target: 'esnext',
       jsx: 'automatic',
       minify: true
-    }),
-    postcss({
-      extract: false,
-      inject: true,
-      plugins: [
-        tailwindcssPostcss({
-          config: path.join(__dirname, 'tailwind.config.ts')
-        }),
-        autoprefixer()
-      ]
     })
   ]
 }
