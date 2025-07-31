@@ -11,6 +11,8 @@ export interface GameState<T = Record<string, unknown>> {
   init: (data: T) => void
   /** Merge partial data into existing gameData */
   setGameData: (data: Partial<T>) => void
+  /** Remove a key from gameData */
+  unsetGameData: (key: keyof T | string) => void
   /** Set the current locale */
   setLocale: (locale: string) => void
   /** Reset gameData to the initial state */
@@ -36,6 +38,12 @@ export const useGameStore = create(
       set(
         produce((state: InternalState<Record<string, unknown>>) => {
           state.gameData = { ...state.gameData, ...data }
+        })
+      ),
+    unsetGameData: key =>
+      set(
+        produce((state: InternalState<Record<string, unknown>>) => {
+          delete (state.gameData as Record<string, unknown>)[key as string]
         })
       ),
     setLocale: locale =>

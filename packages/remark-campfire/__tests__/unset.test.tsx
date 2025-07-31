@@ -1,0 +1,40 @@
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
+import { unified } from 'unified'
+import remarkParse from 'remark-parse'
+import remarkDirective from 'remark-directive'
+import remarkRehype from 'remark-rehype'
+import rehypeStringify from 'rehype-stringify'
+import remarkCampfire from '../index'
+import { useGameStore } from '@/packages/use-game-store'
+
+function createProcessor(stringify = true) {
+  const processor = (unified() as any)
+    .use(remarkParse)
+    .use(remarkDirective)
+    .use(remarkCampfire)
+    .use(remarkRehype)
+
+  if (stringify) {
+    processor.use(rehypeStringify)
+  }
+
+  return processor
+}
+
+beforeEach(() => {
+  useGameStore.setState({ gameData: {}, _initialGameData: {}, locale: 'en-US' })
+})
+
+afterEach(() => {
+  useGameStore.setState({ gameData: {}, _initialGameData: {}, locale: 'en-US' })
+})
+
+describe('remarkCampfire unset directive', () => {
+  it('removes a value from the store', async () => {
+    const processor = createProcessor()
+    const md = '::set{health=10}\n::unset{variable="health"}\n:get[health]'
+    const result = await processor.process(md)
+    expect(result.toString().trim()).toBe('<p></p>')
+    expect(useGameStore.getState().gameData.health).toBeUndefined()
+  })
+})
