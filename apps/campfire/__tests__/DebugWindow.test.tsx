@@ -25,20 +25,20 @@ describe('DebugWindow', () => {
   })
 
   it('does not render when debug option is false', () => {
-    useStoryDataStore.setState({ storyData: { options: { debug: false } } })
+    useStoryDataStore.setState({ storyData: { options: 'nope' } })
     render(<DebugWindow />)
     expect(document.body.textContent).toBe('')
   })
 
   it('renders when debug option is true', () => {
-    useStoryDataStore.setState({ storyData: { options: { debug: true } } })
+    useStoryDataStore.setState({ storyData: { options: 'debug' } })
     render(<DebugWindow />)
     const header = screen.getByText('Debug')
     expect(header).toBeInTheDocument()
   })
 
   it('can be dismissed', () => {
-    useStoryDataStore.setState({ storyData: { options: { debug: true } } })
+    useStoryDataStore.setState({ storyData: { options: 'debug' } })
     render(<DebugWindow />)
     const close = screen.getByRole('button', { name: 'Close' })
     act(() => {
@@ -49,7 +49,7 @@ describe('DebugWindow', () => {
 
   it('shows game data by default and switches tabs', () => {
     useStoryDataStore.setState({
-      storyData: { options: { debug: true }, foo: 'bar' }
+      storyData: { options: 'debug', foo: 'bar' }
     })
     useGameStore.setState(state => ({
       ...state,

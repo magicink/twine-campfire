@@ -14,8 +14,7 @@ export const DebugWindow = () => {
   const [minimized, setMinimized] = useState(false)
   const [tab, setTab] = useState<'game' | 'story'>('game')
 
-  const options = (storyData?.options ?? {}) as Record<string, unknown>
-  const debugEnabled = options.debug === true
+  const debugEnabled = storyData?.options === 'debug'
 
   if (!debugEnabled || !visible) return null
 
