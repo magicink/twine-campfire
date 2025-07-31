@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/magicink/twine-campfire/compare/v1.5.0...v1.5.1) (2025-07-31)
+
+
+### Bug Fixes
+
+* **apps/campfire:** include root template in tailwind ([#25](https://github.com/magicink/twine-campfire/issues/25)) ([c3be470](https://github.com/magicink/twine-campfire/commit/c3be470db7d1acc8a2ab6f41c1195acb8d5fdbf2))
+
 ## [1.5.0](https://github.com/magicink/twine-campfire/compare/v1.4.0...v1.5.0) (2025-07-31)
 
 
