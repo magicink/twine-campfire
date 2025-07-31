@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.0](https://github.com/magicink/twine-campfire/compare/v1.6.0...v1.7.0) (2025-07-31)
+
+
+### Features
+
+* **remark-campfire:** allow custom directive handlers ([#32](https://github.com/magicink/twine-campfire/issues/32)) ([27f1f57](https://github.com/magicink/twine-campfire/commit/27f1f571192a6dd3585e4efc3e362c8924ecfa4a))
+
 ## [1.6.0](https://github.com/magicink/twine-campfire/compare/v1.5.2...v1.6.0) (2025-07-31)
 
 
