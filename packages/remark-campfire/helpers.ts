@@ -142,3 +142,15 @@ export const resolveIf = (node: ContainerDirective): RootContent[] => {
   if (next.name === 'elseif') return resolveIf(next)
   return []
 }
+
+export const ensureVariable = (
+  raw: unknown,
+  parent: Parent | undefined,
+  index: number | undefined
+): string | undefined => {
+  if (typeof raw === 'string') return raw
+  if (parent && typeof index === 'number') {
+    parent.children.splice(index, 1)
+  }
+  return undefined
+}

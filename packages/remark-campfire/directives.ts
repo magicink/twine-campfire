@@ -11,7 +11,8 @@ import {
   clamp,
   parseRange,
   getRandomItem,
-  getRandomInt
+  getRandomInt,
+  ensureVariable
 } from './helpers'
 import type { RangeValue, DirectiveNode } from './helpers'
 export function handleDirective(
@@ -124,14 +125,12 @@ export function handleDirective(
     }
   } else if (directive.name === 'random') {
     const attrs = directive.attributes || {}
-    const variableRaw = (attrs as Record<string, unknown>).variable
-    if (typeof variableRaw !== 'string') {
-      if (parent && typeof index === 'number') {
-        parent.children.splice(index, 1)
-        return index
-      }
-      return
-    }
+    const variable = ensureVariable(
+      (attrs as Record<string, unknown>).variable,
+      parent,
+      index
+    )
+    if (!variable) return index
 
     let value: unknown
 
@@ -170,7 +169,7 @@ export function handleDirective(
     }
 
     if (value !== undefined) {
-      useGameStore.getState().setGameData({ [variableRaw]: value })
+      useGameStore.getState().setGameData({ [variable]: value })
     }
 
     if (parent && typeof index === 'number') {
@@ -179,15 +178,13 @@ export function handleDirective(
     }
   } else if (directive.name === 'increment' || directive.name === 'decrement') {
     const attrs = directive.attributes || {}
-    const variableRaw = (attrs as Record<string, unknown>).variable
+    const variable = ensureVariable(
+      (attrs as Record<string, unknown>).variable,
+      parent,
+      index
+    )
+    if (!variable) return index
     const amountRaw = (attrs as Record<string, unknown>).amount
-    if (typeof variableRaw !== 'string') {
-      if (parent && typeof index === 'number') {
-        parent.children.splice(index, 1)
-        return index
-      }
-      return
-    }
 
     let amount: number = 1
     if (typeof amountRaw === 'number') {
@@ -214,10 +211,10 @@ export function handleDirective(
     }
 
     const state = useGameStore.getState()
-    const current = state.gameData[variableRaw]
+    const current = state.gameData[variable]
     if (isRange(current)) {
       state.setGameData({
-        [variableRaw]: {
+        [variable]: {
           ...current,
           value: clamp(current.value + amount, current.lower, current.upper)
         }
@@ -230,7 +227,7 @@ export function handleDirective(
               const num = parseFloat(String(current))
               return Number.isNaN(num) ? 0 : num
             })()
-      state.setGameData({ [variableRaw]: base + amount })
+      state.setGameData({ [variable]: base + amount })
     }
 
     if (parent && typeof index === 'number') {
