@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/magicink/twine-campfire/compare/v1.5.2...v1.6.0) (2025-07-31)
+
+
+### Features
+
+* **apps/campfire:** run user code and styles on init ([#29](https://github.com/magicink/twine-campfire/issues/29)) ([193088e](https://github.com/magicink/twine-campfire/commit/193088e6e65e14ed2976ac0240735f8529d9beeb))
+
 ## [1.5.2](https://github.com/magicink/twine-campfire/compare/v1.5.1...v1.5.2) (2025-07-31)
 
 
