@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0](https://github.com/magicink/twine-campfire/compare/v1.1.0...v1.2.0) (2025-07-31)
+
+
+### Features
+
+* **remark-campfire:** add range type ([efcd995](https://github.com/magicink/twine-campfire/commit/efcd995ac6f8ab5edc6c193b281aba83d2d3ba15))
+
+
+### Bug Fixes
+
+* refine range parsing and update tests ([d5ae036](https://github.com/magicink/twine-campfire/commit/d5ae0368ac2fc10113284e6bf4bc04fbfaa097ef))
+
 ## [1.1.0](https://github.com/magicink/twine-campfire/compare/v1.0.0...v1.1.0) (2025-07-30)
 
 
