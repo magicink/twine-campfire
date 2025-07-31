@@ -48,5 +48,5 @@ jobs:
       - name: Upload story format
         if: ${{ steps.release.outputs.release_created }}
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: gh release upload ${{ steps.release.outputs.tag_name }} dist/format.js --clobber
