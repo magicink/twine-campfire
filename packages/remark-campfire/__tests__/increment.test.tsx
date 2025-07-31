@@ -59,4 +59,13 @@ describe('remarkCampfire increment and decrement directives', () => {
       value: 0
     })
   })
+
+  it('evaluates expressions for the amount value', async () => {
+    const processor = createProcessor()
+    const md =
+      '::set[number]{score=5}\n::increment{variable="score" amount="score * 2"}\n:get[score]'
+    const result = await processor.process(md)
+    expect(result.toString().trim()).toBe('<p>15</p>')
+    expect(useGameStore.getState().gameData.score).toBe(15)
+  })
 })
