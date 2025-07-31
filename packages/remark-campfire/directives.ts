@@ -115,6 +115,64 @@ export function handleDirective(
       parent.children.splice(index, 1, textNode)
       return index
     }
+  } else if (directive.name === 'random') {
+    const attrs = directive.attributes || {}
+    const variableRaw = (attrs as Record<string, unknown>).variable
+    if (typeof variableRaw !== 'string') {
+      if (parent && typeof index === 'number') {
+        parent.children.splice(index, 1)
+        return index
+      }
+      return
+    }
+
+    let value: unknown
+
+    const from = (attrs as Record<string, unknown>).from
+    if (typeof from === 'string') {
+      const options = from
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean)
+      if (options.length > 0) {
+        const idx = Math.floor(Math.random() * options.length)
+        value = options[idx]
+      }
+    } else {
+      const minRaw = (attrs as Record<string, unknown>).min
+      const maxRaw = (attrs as Record<string, unknown>).max
+      const min =
+        typeof minRaw === 'number'
+          ? minRaw
+          : minRaw == null
+            ? undefined
+            : parseFloat(String(minRaw))
+      const max =
+        typeof maxRaw === 'number'
+          ? maxRaw
+          : maxRaw == null
+            ? undefined
+            : parseFloat(String(maxRaw))
+      if (
+        typeof min === 'number' &&
+        !Number.isNaN(min) &&
+        typeof max === 'number' &&
+        !Number.isNaN(max)
+      ) {
+        const low = Math.min(min, max)
+        const high = Math.max(min, max)
+        value = Math.floor(Math.random() * (high - low + 1)) + low
+      }
+    }
+
+    if (value !== undefined) {
+      useGameStore.getState().setGameData({ [variableRaw]: value })
+    }
+
+    if (parent && typeof index === 'number') {
+      parent.children.splice(index, 1)
+      return index
+    }
   } else if (directive.name === 'if') {
     if (!parent || typeof index !== 'number') return
     const ifDirective = directive as ContainerDirective
