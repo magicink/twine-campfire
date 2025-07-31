@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/magicink/twine-campfire/compare/v1.4.0...v1.5.0) (2025-07-31)
+
+
+### Features
+
+* **apps/campfire:** add tabbed debug window ([#23](https://github.com/magicink/twine-campfire/issues/23)) ([8fe0ee2](https://github.com/magicink/twine-campfire/commit/8fe0ee2a6d1d83a8f14adc0a24775612aed4b562))
+
 ## [1.4.0](https://github.com/magicink/twine-campfire/compare/v1.3.6...v1.4.0) (2025-07-31)
 
 
