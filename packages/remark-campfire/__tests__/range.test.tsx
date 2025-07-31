@@ -62,4 +62,18 @@ describe('remarkCampfire range type', () => {
     const result = await processor.process(':get[energy]')
     expect(result.toString().trim()).toBe('<p>3</p>')
   })
+
+  it('updates numeric values with the range type', async () => {
+    const processor = createProcessor()
+    await processor.process(
+      `::set[range]{hp='{"lower":0,"upper":10,"value":5}'}`
+    )
+    const result = await processor.process('::set[range]{hp=12}\n:get[hp]')
+    expect(result.toString().trim()).toBe('<p>10</p>')
+    expect(useGameStore.getState().gameData.hp).toEqual({
+      lower: 0,
+      upper: 10,
+      value: 10
+    })
+  })
 })

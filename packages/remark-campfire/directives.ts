@@ -5,7 +5,7 @@ import type { Text, Parent } from 'mdast'
 import type { Node as UnistNode } from 'unist'
 import type { ContainerDirective } from 'mdast-util-directive'
 import { useGameStore } from '@/packages/use-game-store'
-import { resolveIf, isRange, clamp } from './helpers'
+import { resolveIf, isRange, clamp, parseRange } from './helpers'
 import type { RangeValue, DirectiveNode } from './helpers'
 export function handleDirective(
   directive: DirectiveNode,
@@ -42,29 +42,16 @@ export function handleDirective(
           }
         case 'range':
           try {
-            const obj = JSON.parse(value)
-            const lower =
-              typeof obj.lower === 'number'
-                ? obj.lower
-                : parseFloat(String(obj.lower))
-            const upper =
-              typeof obj.upper === 'number'
-                ? obj.upper
-                : parseFloat(String(obj.upper))
-            const valRaw = obj.value ?? lower
-            const val =
-              typeof valRaw === 'number' ? valRaw : parseFloat(String(valRaw))
-            return {
-              lower: Number.isNaN(lower) ? 0 : lower,
-              upper: Number.isNaN(upper) ? 0 : upper,
-              value: clamp(
-                Number.isNaN(val) ? 0 : val,
-                Number.isNaN(lower) ? 0 : lower,
-                Number.isNaN(upper) ? 0 : upper
-              )
-            } as RangeValue
+            const parsed = JSON.parse(value)
+            if (parsed && typeof parsed === 'object') {
+              return parseRange(parsed)
+            }
+            const num =
+              typeof parsed === 'number' ? parsed : parseFloat(String(parsed))
+            return Number.isNaN(num) ? 0 : num
           } catch {
-            return { lower: 0, upper: 0, value: 0 }
+            const num = parseFloat(value)
+            return Number.isNaN(num) ? 0 : num
           }
         case 'string':
         default:
@@ -77,10 +64,20 @@ export function handleDirective(
         if (typeof value === 'string') {
           const parsed = parseValue(value)
           const current = useGameStore.getState().gameData[key]
-          if (isRange(current) && typeof parsed === 'number') {
-            safe[key] = {
-              ...current,
-              value: clamp(parsed, current.lower, current.upper)
+          if (isRange(current)) {
+            if (typeof parsed === 'number') {
+              safe[key] = {
+                ...current,
+                value: clamp(parsed, current.lower, current.upper)
+              }
+            } else if (isRange(parsed)) {
+              safe[key] = {
+                lower: parsed.lower,
+                upper: parsed.upper,
+                value: clamp(parsed.value, parsed.lower, parsed.upper)
+              }
+            } else {
+              safe[key] = parsed
             }
           } else {
             safe[key] = parsed

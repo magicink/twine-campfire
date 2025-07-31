@@ -15,18 +15,50 @@ export interface RangeValue {
   value: number
 }
 
-export const isRange = (v: unknown): v is RangeValue =>
-  !!v &&
-  typeof v === 'object' &&
-  'lower' in v &&
-  'upper' in v &&
-  'value' in v &&
-  typeof (v as any).lower === 'number' &&
-  typeof (v as any).upper === 'number' &&
-  typeof (v as any).value === 'number'
+export const isRange = (v: unknown): v is RangeValue => {
+  if (!v || typeof v !== 'object') return false
+  const obj = v as Record<string, unknown>
+  return (
+    typeof obj.lower === 'number' &&
+    typeof obj.upper === 'number' &&
+    typeof obj.value === 'number'
+  )
+}
 
 export const clamp = (n: number, min: number, max: number) =>
   Math.min(Math.max(n, min), max)
+
+export const parseRange = (input: unknown): RangeValue => {
+  let obj: unknown = input
+  if (typeof input === 'string') {
+    try {
+      obj = JSON.parse(input)
+    } catch {
+      // fall back to numeric parsing below
+    }
+  }
+  if (obj && typeof obj === 'object') {
+    const data = obj as Record<string, unknown>
+    const lowerRaw = data.lower
+    const upperRaw = data.upper
+    const lower =
+      typeof lowerRaw === 'number' ? lowerRaw : parseFloat(String(lowerRaw))
+    const upper =
+      typeof upperRaw === 'number' ? upperRaw : parseFloat(String(upperRaw))
+    const l = Number.isNaN(lower) ? 0 : lower
+    const u = Number.isNaN(upper) ? 0 : upper
+    const valRaw = data.value ?? l
+    const val = typeof valRaw === 'number' ? valRaw : parseFloat(String(valRaw))
+    return {
+      lower: l,
+      upper: u,
+      value: clamp(Number.isNaN(val) ? 0 : val, l, u)
+    }
+  }
+  const n = typeof obj === 'number' ? obj : parseFloat(String(obj))
+  const num = Number.isNaN(n) ? 0 : n
+  return { lower: 0, upper: num, value: clamp(num, 0, num) }
+}
 
 export type DirectiveNode = ContainerDirective | LeafDirective | TextDirective
 
