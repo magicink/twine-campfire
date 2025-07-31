@@ -234,8 +234,7 @@ export function handleDirective(
 
     useGameStore.getState().unsetGameData(variable)
 
-    const removed = removeNode(parent, index)
-    if (typeof removed === 'number') return removed
+    return removeNode(parent, index)
   } else if (directive.name === 'if') {
     if (!parent || typeof index !== 'number') return
     const ifDirective = directive as ContainerDirective
