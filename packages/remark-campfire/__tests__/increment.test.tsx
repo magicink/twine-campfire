@@ -7,7 +7,7 @@ import rehypeStringify from 'rehype-stringify'
 import remarkCampfire from '../index'
 import { useGameStore } from '@/packages/use-game-store'
 
-function createProcessor(stringify = true) {
+const createProcessor = (stringify = true) => {
   const processor = (unified() as any)
     .use(remarkParse)
     .use(remarkDirective)

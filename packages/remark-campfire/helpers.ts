@@ -28,6 +28,12 @@ export const isRange = (v: unknown): v is RangeValue => {
 export const clamp = (n: number, min: number, max: number) =>
   Math.min(Math.max(n, min), max)
 
+export const parseNumericValue = (value: unknown, defaultValue = 0): number => {
+  if (typeof value === 'number') return value
+  const num = parseFloat(String(value))
+  return Number.isNaN(num) ? defaultValue : num
+}
+
 export const parseRange = (input: unknown): RangeValue => {
   let obj: unknown = input
   if (typeof input === 'string') {
@@ -143,14 +149,23 @@ export const resolveIf = (node: ContainerDirective): RootContent[] => {
   return []
 }
 
+export const removeNode = (
+  parent: Parent | undefined,
+  index: number | undefined
+): number | undefined => {
+  if (parent && typeof index === 'number') {
+    parent.children.splice(index, 1)
+    return index
+  }
+  return undefined
+}
+
 export const ensureVariable = (
   raw: unknown,
   parent: Parent | undefined,
   index: number | undefined
 ): string | undefined => {
   if (typeof raw === 'string') return raw
-  if (parent && typeof index === 'number') {
-    parent.children.splice(index, 1)
-  }
+  removeNode(parent, index)
   return undefined
 }

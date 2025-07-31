@@ -9,10 +9,12 @@ import {
   resolveIf,
   isRange,
   clamp,
+  parseNumericValue,
   parseRange,
   getRandomItem,
   getRandomInt,
-  ensureVariable
+  ensureVariable,
+  removeNode
 } from './helpers'
 import type { RangeValue, DirectiveNode } from './helpers'
 export function handleDirective(
@@ -172,10 +174,8 @@ export function handleDirective(
       useGameStore.getState().setGameData({ [variable]: value })
     }
 
-    if (parent && typeof index === 'number') {
-      parent.children.splice(index, 1)
-      return index
-    }
+    const removed = removeNode(parent, index)
+    if (typeof removed === 'number') return removed
   } else if (directive.name === 'increment' || directive.name === 'decrement') {
     const attrs = directive.attributes || {}
     const variable = ensureVariable(
@@ -200,10 +200,7 @@ export function handleDirective(
       amount =
         typeof evaluated === 'number'
           ? evaluated
-          : (() => {
-              const num = parseFloat(String(evaluated))
-              return Number.isNaN(num) ? 1 : num
-            })()
+          : parseNumericValue(evaluated, 1)
     }
 
     if (directive.name === 'decrement') {
@@ -220,20 +217,12 @@ export function handleDirective(
         }
       })
     } else {
-      const base =
-        typeof current === 'number'
-          ? current
-          : (() => {
-              const num = parseFloat(String(current))
-              return Number.isNaN(num) ? 0 : num
-            })()
+      const base = parseNumericValue(current, 0)
       state.setGameData({ [variable]: base + amount })
     }
 
-    if (parent && typeof index === 'number') {
-      parent.children.splice(index, 1)
-      return index
-    }
+    const removed = removeNode(parent, index)
+    if (typeof removed === 'number') return removed
   } else if (directive.name === 'if') {
     if (!parent || typeof index !== 'number') return
     const ifDirective = directive as ContainerDirective
