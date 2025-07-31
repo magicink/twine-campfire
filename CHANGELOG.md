@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.3](https://github.com/magicink/twine-campfire/compare/v1.3.2...v1.3.3) (2025-07-31)
+
+
+### Bug Fixes
+
+* **template:** remove double stringification ([de6c038](https://github.com/magicink/twine-campfire/commit/de6c038390d61afdd73b22a10dead46e372935c5))
+
 ## [1.3.2](https://github.com/magicink/twine-campfire/compare/v1.3.1...v1.3.2) (2025-07-31)
 
 
