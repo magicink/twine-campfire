@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/magicink/twine-campfire/compare/v1.2.1...v1.3.0) (2025-07-31)
+
+
+### Features
+
+* **remark-campfire:** support increment and decrement directives ([#10](https://github.com/magicink/twine-campfire/issues/10)) ([1755ec8](https://github.com/magicink/twine-campfire/commit/1755ec8200ba09716239f7ec4137b482313dce7e))
+
 ## [1.2.1](https://github.com/magicink/twine-campfire/compare/v1.2.0...v1.2.1) (2025-07-31)
 
 
