@@ -40,7 +40,7 @@ describe('DebugWindow', () => {
   it('can be dismissed', () => {
     useStoryDataStore.setState({ storyData: { options: 'debug' } })
     render(<DebugWindow />)
-    const close = screen.getByRole('button', { name: 'Close' })
+    const close = screen.getByRole('button', { name: 'Close debug window' })
     act(() => {
       close.click()
     })
