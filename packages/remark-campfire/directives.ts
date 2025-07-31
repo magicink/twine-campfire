@@ -5,7 +5,14 @@ import type { Text, Parent } from 'mdast'
 import type { Node as UnistNode } from 'unist'
 import type { ContainerDirective } from 'mdast-util-directive'
 import { useGameStore } from '@/packages/use-game-store'
-import { resolveIf, isRange, clamp, parseRange } from './helpers'
+import {
+  resolveIf,
+  isRange,
+  clamp,
+  parseRange,
+  getRandomItem,
+  getRandomInt
+} from './helpers'
 import type { RangeValue, DirectiveNode } from './helpers'
 export function handleDirective(
   directive: DirectiveNode,
@@ -113,6 +120,61 @@ export function handleDirective(
     }
     if (parent && typeof index === 'number') {
       parent.children.splice(index, 1, textNode)
+      return index
+    }
+  } else if (directive.name === 'random') {
+    const attrs = directive.attributes || {}
+    const variableRaw = (attrs as Record<string, unknown>).variable
+    if (typeof variableRaw !== 'string') {
+      if (parent && typeof index === 'number') {
+        parent.children.splice(index, 1)
+        return index
+      }
+      return
+    }
+
+    let value: unknown
+
+    const optionsAttr =
+      (attrs as Record<string, unknown>).options ??
+      (attrs as Record<string, unknown>).from
+    if (typeof optionsAttr === 'string') {
+      const options = optionsAttr
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean)
+      value = getRandomItem(options)
+    } else {
+      const minRaw = (attrs as Record<string, unknown>).min
+      const maxRaw = (attrs as Record<string, unknown>).max
+      const min =
+        typeof minRaw === 'number'
+          ? minRaw
+          : minRaw == null
+            ? undefined
+            : parseFloat(String(minRaw))
+      const max =
+        typeof maxRaw === 'number'
+          ? maxRaw
+          : maxRaw == null
+            ? undefined
+            : parseFloat(String(maxRaw))
+      if (
+        typeof min === 'number' &&
+        !Number.isNaN(min) &&
+        typeof max === 'number' &&
+        !Number.isNaN(max)
+      ) {
+        value = getRandomInt(min, max)
+      }
+    }
+
+    if (value !== undefined) {
+      useGameStore.getState().setGameData({ [variableRaw]: value })
+    }
+
+    if (parent && typeof index === 'number') {
+      parent.children.splice(index, 1)
       return index
     }
   } else if (directive.name === 'if') {
