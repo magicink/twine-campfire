@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/magicink/twine-campfire/compare/v1.3.6...v1.4.0) (2025-07-31)
+
+
+### Features
+
+* **remark-campfire:** add setOnce directive ([#21](https://github.com/magicink/twine-campfire/issues/21)) ([cce1839](https://github.com/magicink/twine-campfire/commit/cce1839470bc4120fc079eaf5892c1435ded5233))
+
 ## [1.3.6](https://github.com/magicink/twine-campfire/compare/v1.3.5...v1.3.6) (2025-07-31)
 
 
