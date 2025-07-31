@@ -32,7 +32,7 @@ afterEach(() => {
 describe('remarkCampfire unset directive', () => {
   it('removes a value from the store', async () => {
     const processor = createProcessor()
-    const md = '::set{health=10}\n::unset{variable="health"}\n:get[health]'
+    const md = '::set{health=10}\n::unset{key="health"}\n:get[health]'
     const result = await processor.process(md)
     expect(result.toString().trim()).toBe('<p></p>')
     expect(useGameStore.getState().gameData.health).toBeUndefined()

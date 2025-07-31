@@ -13,7 +13,7 @@ import {
   parseRange,
   getRandomItem,
   getRandomInt,
-  ensureVariable,
+  ensureKey,
   removeNode
 } from './helpers'
 import type { RangeValue, DirectiveNode } from './helpers'
@@ -127,12 +127,8 @@ export function handleDirective(
     }
   } else if (directive.name === 'random') {
     const attrs = directive.attributes || {}
-    const variable = ensureVariable(
-      (attrs as Record<string, unknown>).variable,
-      parent,
-      index
-    )
-    if (!variable) return index
+    const key = ensureKey((attrs as Record<string, unknown>).key, parent, index)
+    if (!key) return index
 
     let value: unknown
 
@@ -171,19 +167,15 @@ export function handleDirective(
     }
 
     if (value !== undefined) {
-      useGameStore.getState().setGameData({ [variable]: value })
+      useGameStore.getState().setGameData({ [key]: value })
     }
 
     const removed = removeNode(parent, index)
     if (typeof removed === 'number') return removed
   } else if (directive.name === 'increment' || directive.name === 'decrement') {
     const attrs = directive.attributes || {}
-    const variable = ensureVariable(
-      (attrs as Record<string, unknown>).variable,
-      parent,
-      index
-    )
-    if (!variable) return index
+    const key = ensureKey((attrs as Record<string, unknown>).key, parent, index)
+    if (!key) return index
     const amountRaw = (attrs as Record<string, unknown>).amount
 
     let amount: number = 1
@@ -208,31 +200,31 @@ export function handleDirective(
     }
 
     const state = useGameStore.getState()
-    const current = state.gameData[variable]
+    const current = state.gameData[key]
     if (isRange(current)) {
       state.setGameData({
-        [variable]: {
+        [key]: {
           ...current,
           value: clamp(current.value + amount, current.lower, current.upper)
         }
       })
     } else {
       const base = parseNumericValue(current, 0)
-      state.setGameData({ [variable]: base + amount })
+      state.setGameData({ [key]: base + amount })
     }
 
     const removed = removeNode(parent, index)
     if (typeof removed === 'number') return removed
   } else if (directive.name === 'unset') {
     const attrs = directive.attributes || {}
-    const variable = ensureVariable(
-      (attrs as Record<string, unknown>).variable ?? toString(directive),
+    const key = ensureKey(
+      (attrs as Record<string, unknown>).key ?? toString(directive),
       parent,
       index
     )
-    if (!variable) return index
+    if (!key) return index
 
-    useGameStore.getState().unsetGameData(variable)
+    useGameStore.getState().unsetGameData(key)
 
     return removeNode(parent, index)
   } else if (directive.name === 'if') {
