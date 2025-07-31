@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.2](https://github.com/magicink/twine-campfire/compare/v1.3.1...v1.3.2) (2025-07-31)
+
+
+### Bug Fixes
+
+* **template:** reorder story data for correct rendering ([1aadf66](https://github.com/magicink/twine-campfire/commit/1aadf667b1b6366e133a19ae670984675da4ac19))
+
 ## [1.3.1](https://github.com/magicink/twine-campfire/compare/v1.3.0...v1.3.1) (2025-07-31)
 
 
