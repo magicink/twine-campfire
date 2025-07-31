@@ -2,7 +2,8 @@ name: Publish Format
 
 on:
   release:
-    types: [published]
+    # Trigger when a release is initially created
+    types: [created]
 
 jobs:
   upload:
