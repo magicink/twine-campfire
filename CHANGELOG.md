@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.4](https://github.com/magicink/twine-campfire/compare/v1.3.3...v1.3.4) (2025-07-31)
+
+
+### Bug Fixes
+
+* **apps/campfire:** inject NODE_ENV for react ([#17](https://github.com/magicink/twine-campfire/issues/17)) ([5bab472](https://github.com/magicink/twine-campfire/commit/5bab472cf1f8a4360e0fc7c88fd188f80a278d41))
+
 ## [1.3.3](https://github.com/magicink/twine-campfire/compare/v1.3.2...v1.3.3) (2025-07-31)
 
 
