@@ -3,6 +3,6 @@ import { afterAll } from 'bun:test'
 
 GlobalRegistrator.register()
 
-afterAll(() => {
-  GlobalRegistrator.unregister()
+afterAll(async () => {
+  await GlobalRegistrator.unregister()
 })
