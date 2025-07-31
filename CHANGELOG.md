@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.2](https://github.com/magicink/twine-campfire/compare/v1.5.1...v1.5.2) (2025-07-31)
+
+
+### Bug Fixes
+
+* **apps/campfire:** inject tailwind via cdn ([#27](https://github.com/magicink/twine-campfire/issues/27)) ([ef1ac7c](https://github.com/magicink/twine-campfire/commit/ef1ac7c7f88a1dff6b5eebca5e91f7037d6d23f6))
+
 ## [1.5.1](https://github.com/magicink/twine-campfire/compare/v1.5.0...v1.5.1) (2025-07-31)
 
 
