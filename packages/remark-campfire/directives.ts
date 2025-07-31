@@ -5,8 +5,8 @@ import type { Text, Parent } from 'mdast'
 import type { Node as UnistNode } from 'unist'
 import type { ContainerDirective } from 'mdast-util-directive'
 import { useGameStore } from '@/packages/use-game-store'
-import { resolveIf } from './helpers'
-import type { DirectiveNode } from './helpers'
+import { resolveIf, isRange, clamp, parseRange } from './helpers'
+import type { RangeValue, DirectiveNode } from './helpers'
 export function handleDirective(
   directive: DirectiveNode,
   parent: Parent | undefined,
@@ -40,6 +40,19 @@ export function handleDirective(
           } catch {
             return {}
           }
+        case 'range':
+          try {
+            const parsed = JSON.parse(value)
+            if (parsed && typeof parsed === 'object') {
+              return parseRange(parsed)
+            }
+            const num =
+              typeof parsed === 'number' ? parsed : parseFloat(String(parsed))
+            return Number.isNaN(num) ? 0 : num
+          } catch {
+            const num = parseFloat(value)
+            return Number.isNaN(num) ? 0 : num
+          }
         case 'string':
         default:
           return value
@@ -49,7 +62,26 @@ export function handleDirective(
     if (attrs && typeof attrs === 'object') {
       for (const [key, value] of Object.entries(attrs)) {
         if (typeof value === 'string') {
-          safe[key] = parseValue(value)
+          const parsed = parseValue(value)
+          const current = useGameStore.getState().gameData[key]
+          if (isRange(current)) {
+            if (typeof parsed === 'number') {
+              safe[key] = {
+                ...current,
+                value: clamp(parsed, current.lower, current.upper)
+              }
+            } else if (isRange(parsed)) {
+              safe[key] = {
+                lower: parsed.lower,
+                upper: parsed.upper,
+                value: clamp(parsed.value, parsed.lower, parsed.upper)
+              }
+            } else {
+              safe[key] = parsed
+            }
+          } else {
+            safe[key] = parsed
+          }
         }
       }
     }
@@ -71,6 +103,9 @@ export function handleDirective(
       value = fn(useGameStore.getState().gameData)
     } catch {
       value = useGameStore.getState().gameData[expr]
+    }
+    if (isRange(value)) {
+      value = value.value
     }
     const textNode: Text = {
       type: 'text',
