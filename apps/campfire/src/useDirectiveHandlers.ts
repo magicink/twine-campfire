@@ -2,12 +2,10 @@ import { useMemo } from 'react'
 import { SKIP } from 'unist-util-visit'
 import { compile } from 'expression-eval'
 import { toString } from 'mdast-util-to-string'
-import type { Text, Parent } from 'mdast'
+import type { Text, Parent, RootContent } from 'mdast'
 import type { ContainerDirective } from 'mdast-util-directive'
 import { useGameStore } from '@/packages/use-game-store'
 import {
-  resolveIf,
-  evalCondition,
   isRange,
   clamp,
   parseNumericValue,
@@ -17,7 +15,9 @@ import {
   ensureKey,
   removeNode,
   type DirectiveNode,
-  type RangeValue
+  convertRanges,
+  getLabel,
+  stripLabel
 } from './directives/helpers'
 import type {
   DirectiveHandler,
@@ -25,6 +25,9 @@ import type {
 } from '@/packages/remark-campfire'
 
 export const useDirectiveHandlers = () => {
+  const gameData = useGameStore(state => state.gameData)
+  const setGameData = useGameStore(state => state.setGameData)
+  const unsetGameData = useGameStore(state => state.unsetGameData)
   const handleSet = (
     directive: DirectiveNode,
     parent: Parent | undefined,
@@ -41,7 +44,7 @@ export const useDirectiveHandlers = () => {
           let evaluated: unknown = value
           try {
             const fn = compile(value)
-            evaluated = fn(useGameStore.getState().gameData)
+            evaluated = fn(gameData)
           } catch {
             // fall back to raw value when evaluation fails
           }
@@ -80,7 +83,7 @@ export const useDirectiveHandlers = () => {
       for (const [key, value] of Object.entries(attrs)) {
         if (typeof value === 'string') {
           const parsed = parseValue(value)
-          const current = useGameStore.getState().gameData[key]
+          const current = gameData[key]
           if (isRange(current)) {
             if (typeof parsed === 'number') {
               safe[key] = {
@@ -119,15 +122,48 @@ export const useDirectiveHandlers = () => {
     }
   }
 
+  const evalCondition = (expr: string): boolean => {
+    try {
+      const fn = compile(expr)
+      const data = convertRanges(gameData)
+      return !!fn(data as any)
+    } catch (error) {
+      console.error('Error evaluating condition:', error)
+      return false
+    }
+  }
+
+  const resolveIf = (
+    node: ContainerDirective,
+    evalConditionFn: (expr: string) => boolean = evalCondition
+  ): RootContent[] => {
+    const children = node.children as RootContent[]
+    const expr = getLabel(node) || Object.keys(node.attributes || {})[0] || ''
+    let idx = 1
+    while (
+      idx < children.length &&
+      children[idx].type !== 'containerDirective'
+    ) {
+      idx++
+    }
+    const content = stripLabel(children.slice(0, idx))
+    if (expr && evalConditionFn(expr)) return content
+    const next = children[idx] as ContainerDirective | undefined
+    if (!next) return []
+    if (next.name === 'else') return stripLabel(next.children)
+    if (next.name === 'elseif') return resolveIf(next, evalConditionFn)
+    return []
+  }
+
   const handleGet: DirectiveHandler = (directive, parent, index) => {
     const expr: string =
       toString(directive) || Object.keys(directive.attributes || {})[0] || ''
     let value: unknown
     try {
       const fn = compile(expr)
-      value = fn(useGameStore.getState().gameData)
+      value = fn(gameData)
     } catch {
-      value = (useGameStore.getState().gameData as any)[expr]
+      value = (gameData as any)[expr]
     }
     if (isRange(value)) {
       value = value.value
@@ -184,7 +220,7 @@ export const useDirectiveHandlers = () => {
     }
 
     if (value !== undefined) {
-      useGameStore.getState().setGameData({ [key]: value })
+      setGameData({ [key]: value })
     }
 
     const removed = removeNode(parent, index)
@@ -209,7 +245,7 @@ export const useDirectiveHandlers = () => {
       let evaluated: unknown = amountRaw
       try {
         const fn = compile(amountRaw)
-        evaluated = fn(useGameStore.getState().gameData)
+        evaluated = fn(gameData)
       } catch {
         // ignore
       }
@@ -221,10 +257,9 @@ export const useDirectiveHandlers = () => {
 
     amount *= sign
 
-    const state = useGameStore.getState()
-    const current = state.gameData[key]
+    const current = gameData[key]
     if (isRange(current)) {
-      state.setGameData({
+      setGameData({
         [key]: {
           ...current,
           value: clamp(current.value + amount, current.lower, current.upper)
@@ -232,7 +267,7 @@ export const useDirectiveHandlers = () => {
       })
     } else {
       const base = parseNumericValue(current, 0)
-      state.setGameData({ [key]: base + amount })
+      setGameData({ [key]: base + amount })
     }
 
     const removed = removeNode(parent, index)
@@ -248,7 +283,7 @@ export const useDirectiveHandlers = () => {
     )
     if (!key) return index
 
-    useGameStore.getState().unsetGameData(key)
+    unsetGameData(key)
 
     return removeNode(parent, index)
   }

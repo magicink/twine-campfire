@@ -109,7 +109,7 @@ export const stripLabel = (children: RootContent[]): RootContent[] => {
   return children
 }
 
-const convertRanges = (obj: unknown): unknown => {
+export const convertRanges = (obj: unknown): unknown => {
   if (isRange(obj)) return obj.value
   if (Array.isArray(obj)) return obj.map(convertRanges)
   if (obj && typeof obj === 'object') {
@@ -120,36 +120,6 @@ const convertRanges = (obj: unknown): unknown => {
     return out
   }
   return obj
-}
-
-export const evalCondition = (expr: string): boolean => {
-  try {
-    const fn = compile(expr)
-    const data = convertRanges(useGameStore.getState().gameData)
-    return !!fn(data as any)
-  } catch (error) {
-    console.error('Error evaluating condition:', error)
-    return false
-  }
-}
-
-export const resolveIf = (
-  node: ContainerDirective,
-  evalConditionFn: (expr: string) => boolean = evalCondition
-): RootContent[] => {
-  const children = node.children as RootContent[]
-  const expr = getLabel(node) || Object.keys(node.attributes || {})[0] || ''
-  let idx = 1
-  while (idx < children.length && children[idx].type !== 'containerDirective') {
-    idx++
-  }
-  const content = stripLabel(children.slice(0, idx))
-  if (expr && evalConditionFn(expr)) return content
-  const next = children[idx] as ContainerDirective | undefined
-  if (!next) return []
-  if (next.name === 'else') return stripLabel(next.children)
-  if (next.name === 'elseif') return resolveIf(next, evalConditionFn)
-  return []
 }
 
 export const removeNode = (
