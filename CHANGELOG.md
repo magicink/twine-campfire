@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.1](https://github.com/magicink/twine-campfire/compare/v1.10.0...v1.10.1) (2025-08-01)
+
+
+### Bug Fixes
+
+* **apps/campfire:** ensure translations update only after i18next initialization ([#52](https://github.com/magicink/twine-campfire/issues/52)) ([172d2d8](https://github.com/magicink/twine-campfire/commit/172d2d8684a93c8041c2cd178ca52c69a0d0893d))
+
 ## [1.10.0](https://github.com/magicink/twine-campfire/compare/v1.9.0...v1.10.0) (2025-08-01)
 
 
