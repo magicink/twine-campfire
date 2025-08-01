@@ -6,7 +6,8 @@ beforeEach(() => {
   useStoryDataStore.setState({
     storyData: {},
     passages: [],
-    currentPassageId: undefined
+    currentPassageId: undefined,
+    locale: 'en-US'
   })
 })
 
@@ -48,5 +49,11 @@ describe('useStoryDataStore', () => {
     expect(
       useStoryDataStore.getState().getCurrentPassage()?.properties?.name
     ).toBe('Start')
+  })
+
+  it('sets and retrieves the locale', () => {
+    expect(useStoryDataStore.getState().locale).toBe('en-US')
+    useStoryDataStore.getState().setLocale('fr-FR')
+    expect(useStoryDataStore.getState().locale).toBe('fr-FR')
   })
 })

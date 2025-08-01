@@ -5,16 +5,12 @@ import { subscribeWithSelector } from 'zustand/middleware'
 export interface GameState<T = Record<string, unknown>> {
   /** Arbitrary game state */
   gameData: T
-  /** Current locale for the game */
-  locale: string
   /** Initialize gameData and remember the initial state */
   init: (data: T) => void
   /** Merge partial data into existing gameData */
   setGameData: (data: Partial<T>) => void
   /** Remove a key from gameData */
   unsetGameData: (key: keyof T | string) => void
-  /** Set the current locale */
-  setLocale: (locale: string) => void
   /** Reset gameData to the initial state */
   reset: () => void
   /** Keys that have been permanently set */
@@ -34,7 +30,6 @@ export const useGameStore = create(
   subscribeWithSelector<InternalState<Record<string, unknown>>>(set => ({
     gameData: {},
     _initialGameData: {},
-    locale: 'en-US',
     lockedKeys: {},
     init: data =>
       set(() => ({
@@ -69,12 +64,6 @@ export const useGameStore = create(
       set(
         produce((state: InternalState<Record<string, unknown>>) => {
           delete state.lockedKeys[key as string]
-        })
-      ),
-    setLocale: locale =>
-      set(
-        produce((state: InternalState<Record<string, unknown>>) => {
-          state.locale = locale
         })
       ),
     reset: () =>
