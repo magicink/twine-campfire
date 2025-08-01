@@ -6,6 +6,7 @@ import type { ContainerDirective } from 'mdast-util-directive'
 import { useGameStore } from '@/packages/use-game-store'
 import {
   resolveIf,
+  evalCondition,
   isRange,
   clamp,
   parseNumericValue,
@@ -236,7 +237,7 @@ export const handleDirective: DirectiveHandler = (directive, parent, index) => {
   } else if (directive.name === 'if') {
     if (!parent || typeof index !== 'number') return
     const ifDirective = directive as ContainerDirective
-    const replacement = resolveIf(ifDirective)
+    const replacement = resolveIf(ifDirective, evalCondition)
     parent.children.splice(index, 1, ...replacement)
     return [SKIP, index]
   }
