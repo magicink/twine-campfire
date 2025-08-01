@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import i18next from 'i18next'
 import { SKIP } from 'unist-util-visit'
 import { compile } from 'expression-eval'
 import { toString } from 'mdast-util-to-string'
@@ -319,6 +320,9 @@ export const useDirectiveHandlers = () => {
     }
     if (locale) {
       setLocale(locale)
+      if (i18next.isInitialized && i18next.language !== locale) {
+        void i18next.changeLanguage(locale)
+      }
     }
     return removeNode(parent, index)
   }
