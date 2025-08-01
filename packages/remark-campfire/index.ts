@@ -1,8 +1,16 @@
 import { visit } from 'unist-util-visit'
 import type { Root, Parent } from 'mdast'
 import type { Node } from 'unist'
+import type { SKIP } from 'unist-util-visit'
 import type { DirectiveNode } from './helpers'
-import { handleDirective, type DirectiveHandler } from './directives'
+
+export type DirectiveHandlerResult = number | [typeof SKIP, number] | void
+
+export type DirectiveHandler = (
+  directive: DirectiveNode,
+  parent: Parent | undefined,
+  index: number | undefined
+) => DirectiveHandlerResult
 
 export interface RemarkCampfireOptions {
   handlers?: Record<string, DirectiveHandler>
@@ -24,7 +32,6 @@ const remarkCampfire =
           if (handler) {
             return handler(directive, parent, index)
           }
-          return handleDirective(directive, parent, index)
         }
       }
     )
