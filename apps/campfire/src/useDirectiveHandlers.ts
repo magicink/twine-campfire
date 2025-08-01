@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import i18next from 'i18next'
 import { SKIP } from 'unist-util-visit'
 import { compile } from 'expression-eval'
 import { toString } from 'mdast-util-to-string'
@@ -35,6 +36,7 @@ export const useDirectiveHandlers = () => {
   const gameData = useGameStore(state => state.gameData)
   const setGameData = useGameStore(state => state.setGameData)
   const unsetGameData = useGameStore(state => state.unsetGameData)
+  const setLocale = useStoryDataStore(state => state.setLocale)
   const handleSet = (
     directive: DirectiveNode,
     parent: Parent | undefined,
@@ -303,6 +305,18 @@ export const useDirectiveHandlers = () => {
     return [SKIP, index]
   }
 
+  const handleLang: DirectiveHandler = (directive, parent, index) => {
+    const attrs = (directive.attributes || {}) as Record<string, unknown>
+    const locale = typeof attrs.locale === 'string' ? attrs.locale : undefined
+    if (locale) {
+      setLocale(locale)
+      if (i18next.isInitialized && i18next.resolvedLanguage !== locale) {
+        void i18next.changeLanguage(locale)
+      }
+    }
+    return removeNode(parent, index)
+  }
+
   let handlers: Record<string, DirectiveHandler>
 
   const getPassageById = useStoryDataStore(state => state.getPassageById)
@@ -378,6 +392,7 @@ export const useDirectiveHandlers = () => {
       ) => handleIncrement(d, p, i, -1),
       unset: handleUnset,
       if: handleIf,
+      lang: handleLang,
       include: handleInclude
     }
     return handlers

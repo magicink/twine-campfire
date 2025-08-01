@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { render, screen, waitFor } from '@testing-library/react'
+import i18next from 'i18next'
+import { initReactI18next } from 'react-i18next'
 import type { Element } from 'hast'
 import { Passage } from '../src/Passage'
 import { useStoryDataStore } from '@/packages/use-story-data-store'
@@ -20,9 +22,14 @@ const resetStore = () => {
 }
 
 describe('Passage', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     document.body.innerHTML = ''
     resetStore()
+    if (!i18next.isInitialized) {
+      await i18next.use(initReactI18next).init({ lng: 'en-US', resources: {} })
+    } else {
+      await i18next.changeLanguage('en-US')
+    }
   })
 
   it('renders the current passage', async () => {
@@ -303,5 +310,26 @@ describe('Passage', () => {
     const text = await screen.findByText('Shown')
     expect(text).toBeInTheDocument()
     expect(document.body.textContent).not.toContain('Hidden')
+  })
+
+  it('changes locale with lang directive', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':lang{locale=fr-FR}' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(useStoryDataStore.getState().locale).toBe('fr-FR')
+      expect(i18next.language).toBe('fr-FR')
+    })
   })
 })
