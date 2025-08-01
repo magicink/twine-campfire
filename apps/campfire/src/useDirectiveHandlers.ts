@@ -308,19 +308,17 @@ export const useDirectiveHandlers = () => {
   const handleLang: DirectiveHandler = (directive, parent, index) => {
     const raw = toString(directive).trim()
     const attrs = (directive.attributes || {}) as Record<string, unknown>
-    let locale = raw
+    let locale = raw || (typeof attrs.locale === 'string' ? attrs.locale : '')
     if (!locale) {
-      const attrLocale = attrs.locale
-      if (typeof attrLocale === 'string') {
-        locale = attrLocale
-      } else {
-        const firstKey = Object.keys(attrs)[0]
-        if (typeof firstKey === 'string') locale = firstKey
-      }
+      // When using the shorthand `:lang{en-US}` mdast parses `en-US` as an
+      // attribute key. In that case we grab the first attribute key as the
+      // locale value.
+      const firstKey = Object.keys(attrs)[0]
+      if (typeof firstKey === 'string') locale = firstKey
     }
     if (locale) {
       setLocale(locale)
-      if (i18next.isInitialized && i18next.language !== locale) {
+      if (i18next.isInitialized && i18next.resolvedLanguage !== locale) {
         void i18next.changeLanguage(locale)
       }
     }
