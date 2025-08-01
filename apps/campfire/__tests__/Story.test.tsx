@@ -3,15 +3,22 @@ import { Story } from '../src/Story'
 import { useStoryDataStore } from '@/packages/use-story-data-store'
 import { samplePassage } from './helpers'
 import { describe, it, expect, beforeEach } from 'bun:test'
+import i18next from 'i18next'
 
 describe('Story', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     document.body.innerHTML = ''
     useStoryDataStore.setState({
       storyData: {},
       passages: [],
       currentPassageId: undefined
     })
+    if (!i18next.isInitialized) {
+      await i18next.init({ lng: 'en-US', resources: {} })
+    } else {
+      await i18next.changeLanguage('en-US')
+      i18next.services.resourceStore.data = {}
+    }
   })
 
   it('renders nothing when no passage is set', () => {

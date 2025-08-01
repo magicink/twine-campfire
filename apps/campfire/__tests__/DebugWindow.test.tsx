@@ -3,25 +3,31 @@ import { render, screen, act } from '@testing-library/react'
 import { DebugWindow } from '../src/DebugWindow'
 import { useStoryDataStore } from '@/packages/use-story-data-store'
 import { useGameStore } from '@/packages/use-game-store'
+import i18next from 'i18next'
 
-const resetStores = () => {
+const resetStores = async () => {
   useStoryDataStore.setState({
     storyData: {},
     passages: [],
-    currentPassageId: undefined,
-    locale: 'en-US'
+    currentPassageId: undefined
   })
   useGameStore.setState({
     gameData: {},
     _initialGameData: {},
     lockedKeys: {}
   })
+  if (!i18next.isInitialized) {
+    await i18next.init({ lng: 'en-US', resources: {} })
+  } else {
+    await i18next.changeLanguage('en-US')
+    i18next.services.resourceStore.data = {}
+  }
 }
 
 describe('DebugWindow', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     document.body.innerHTML = ''
-    resetStores()
+    await resetStores()
   })
 
   it('does not render when debug option is false', () => {
@@ -68,5 +74,20 @@ describe('DebugWindow', () => {
       storyTab.click()
     })
     expect(screen.getByText(/"foo": "bar"/)).toBeInTheDocument()
+  })
+
+  it('shows translations from i18next', () => {
+    useStoryDataStore.setState({
+      storyData: { options: 'debug' }
+    })
+    i18next.addResource('en-US', 'translation', 'hello', 'Hello')
+
+    render(<DebugWindow />)
+
+    const transTab = screen.getByRole('button', { name: 'Translations' })
+    act(() => {
+      transTab.click()
+    })
+    expect(screen.getByText(/"hello"/)).toBeInTheDocument()
   })
 })

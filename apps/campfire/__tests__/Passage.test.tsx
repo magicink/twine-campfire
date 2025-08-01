@@ -11,8 +11,7 @@ const resetStore = () => {
   useStoryDataStore.setState({
     storyData: {},
     passages: [],
-    currentPassageId: undefined,
-    locale: 'en-US'
+    currentPassageId: undefined
   })
   useGameStore.setState({
     gameData: {},
@@ -29,6 +28,7 @@ describe('Passage', () => {
       await i18next.use(initReactI18next).init({ lng: 'en-US', resources: {} })
     } else {
       await i18next.changeLanguage('en-US')
+      i18next.services.resourceStore.data = {}
     }
   })
 
@@ -328,8 +328,27 @@ describe('Passage', () => {
     render(<Passage />)
 
     await waitFor(() => {
-      expect(useStoryDataStore.getState().locale).toBe('fr-FR')
       expect(i18next.language).toBe('fr-FR')
     })
+  })
+
+  it('retrieves translations with t directive', async () => {
+    i18next.addResource('en-US', 'translation', 'hello', 'Hello')
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':t{key=hello}' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    const text = await screen.findByText('Hello')
+    expect(text).toBeInTheDocument()
   })
 })

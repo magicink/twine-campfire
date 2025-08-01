@@ -36,7 +36,6 @@ export const useDirectiveHandlers = () => {
   const gameData = useGameStore(state => state.gameData)
   const setGameData = useGameStore(state => state.setGameData)
   const unsetGameData = useGameStore(state => state.unsetGameData)
-  const setLocale = useStoryDataStore(state => state.setLocale)
   const handleSet = (
     directive: DirectiveNode,
     parent: Parent | undefined,
@@ -308,13 +307,90 @@ export const useDirectiveHandlers = () => {
   const handleLang: DirectiveHandler = (directive, parent, index) => {
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const locale = typeof attrs.locale === 'string' ? attrs.locale : undefined
-    if (locale) {
-      setLocale(locale)
-      if (i18next.isInitialized && i18next.resolvedLanguage !== locale) {
-        void i18next.changeLanguage(locale)
+    if (
+      locale &&
+      i18next.isInitialized &&
+      i18next.resolvedLanguage !== locale
+    ) {
+      void i18next.changeLanguage(locale)
+    }
+    return removeNode(parent, index)
+  }
+
+  const handleNamespace: DirectiveHandler = (directive, parent, index) => {
+    const attrs = (directive.attributes || {}) as Record<string, unknown>
+    const ns =
+      typeof attrs.ns === 'string' ? attrs.ns : toString(directive).trim()
+    if (!ns) return removeNode(parent, index)
+    const locale =
+      typeof attrs.locale === 'string'
+        ? attrs.locale
+        : i18next.resolvedLanguage || i18next.language
+    let resources: Record<string, unknown> = {}
+    if (typeof attrs.data === 'string') {
+      try {
+        resources = JSON.parse(attrs.data)
+      } catch {
+        // ignore
+      }
+    }
+    if (!i18next.hasResourceBundle(locale, ns)) {
+      i18next.addResourceBundle(locale, ns, resources, true, true)
+    } else if (Object.keys(resources).length) {
+      for (const [k, v] of Object.entries(resources)) {
+        i18next.addResource(locale, ns, k, v as string)
       }
     }
     return removeNode(parent, index)
+  }
+
+  const handleTranslations: DirectiveHandler = (directive, parent, index) => {
+    const attrs = (directive.attributes || {}) as Record<string, unknown>
+    const ns = typeof attrs.ns === 'string' ? attrs.ns : 'translation'
+    const locale =
+      typeof attrs.locale === 'string'
+        ? attrs.locale
+        : i18next.resolvedLanguage || i18next.language
+    let resources: Record<string, unknown> = {}
+    if (typeof attrs.data === 'string') {
+      try {
+        resources = JSON.parse(attrs.data)
+      } catch {
+        // ignore
+      }
+    } else {
+      for (const [k, v] of Object.entries(attrs)) {
+        if (k === 'ns' || k === 'locale') continue
+        resources[k] = v
+      }
+    }
+    if (Object.keys(resources).length) {
+      for (const [k, v] of Object.entries(resources)) {
+        i18next.addResource(locale, ns, k, v as string)
+      }
+    }
+    return removeNode(parent, index)
+  }
+
+  const handleTranslate: DirectiveHandler = (directive, parent, index) => {
+    const attrs = (directive.attributes || {}) as Record<string, unknown>
+    const key =
+      typeof attrs.key === 'string' ? attrs.key : toString(directive).trim()
+    if (!key) return removeNode(parent, index)
+    const options: Record<string, unknown> = {}
+    if (typeof attrs.ns === 'string') options.ns = attrs.ns
+    if (attrs.count !== undefined) {
+      const n =
+        typeof attrs.count === 'number'
+          ? attrs.count
+          : parseFloat(String(attrs.count))
+      if (!Number.isNaN(n)) options.count = n
+    }
+    const text = i18next.t(key, options)
+    if (parent && typeof index === 'number') {
+      parent.children.splice(index, 1, { type: 'text', value: text })
+      return index
+    }
   }
 
   let handlers: Record<string, DirectiveHandler>
@@ -393,7 +469,10 @@ export const useDirectiveHandlers = () => {
       unset: handleUnset,
       if: handleIf,
       lang: handleLang,
-      include: handleInclude
+      include: handleInclude,
+      namespace: handleNamespace,
+      translations: handleTranslations,
+      t: handleTranslate
     }
     return handlers
   }, [])
