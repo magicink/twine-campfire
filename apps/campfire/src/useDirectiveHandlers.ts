@@ -12,7 +12,6 @@ import type { Text as MdText, Parent, RootContent } from 'mdast'
 import type { Text as HastText, ElementContent } from 'hast'
 import type { ContainerDirective } from 'mdast-util-directive'
 import { useStoryDataStore } from '@/packages/use-story-data-store'
-import { useTranslationLogStore } from '@/packages/use-translation-log-store'
 import { useGameStore } from '@/packages/use-game-store'
 import {
   isRange,
@@ -318,8 +317,6 @@ export const useDirectiveHandlers = () => {
     return removeNode(parent, index)
   }
 
-  const logTranslation = useTranslationLogStore(state => state.logTranslation)
-
   const handleNamespace: DirectiveHandler = (directive, parent, index) => {
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const ns =
@@ -390,9 +387,6 @@ export const useDirectiveHandlers = () => {
       if (!Number.isNaN(n)) options.count = n
     }
     const text = i18next.t(key, options)
-    logTranslation(key, text, {
-      count: options.count as number | undefined
-    })
     if (parent && typeof index === 'number') {
       parent.children.splice(index, 1, { type: 'text', value: text })
       return index

@@ -3,8 +3,8 @@ import {
   useStoryDataStore,
   type StoryDataState
 } from '@/packages/use-story-data-store'
-import { useTranslationLogStore } from '@/packages/use-translation-log-store'
 import { useGameStore } from '@/packages/use-game-store'
+import i18next from 'i18next'
 
 const DEBUG_OPTION = 'debug' as const
 const TAB_GAME = 'game' as const
@@ -16,7 +16,20 @@ export const DebugWindow = () => {
   const storyData = useStoryDataStore(
     (state: StoryDataState) => state.storyData
   )
-  const translations = useTranslationLogStore(state => state.entries)
+  const [translations, setTranslations] = useState<Record<string, unknown>>(
+    () => ({ ...i18next.store.data })
+  )
+  useEffect(() => {
+    const update = () => {
+      setTranslations({ ...i18next.store.data })
+    }
+    i18next.on('added', update)
+    i18next.on('removed', update)
+    return () => {
+      i18next.off('added', update)
+      i18next.off('removed', update)
+    }
+  }, [])
   const gameData = useGameStore(state => state.gameData)
   const [visible, setVisible] = useState(true)
   const [minimized, setMinimized] = useState(false)

@@ -1,19 +1,24 @@
 import { render, screen } from '@testing-library/react'
 import { Story } from '../src/Story'
 import { useStoryDataStore } from '@/packages/use-story-data-store'
-import { useTranslationLogStore } from '@/packages/use-translation-log-store'
 import { samplePassage } from './helpers'
 import { describe, it, expect, beforeEach } from 'bun:test'
+import i18next from 'i18next'
 
 describe('Story', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     document.body.innerHTML = ''
     useStoryDataStore.setState({
       storyData: {},
       passages: [],
       currentPassageId: undefined
     })
-    useTranslationLogStore.getState().reset()
+    if (!i18next.isInitialized) {
+      await i18next.init({ lng: 'en-US', resources: {} })
+    } else {
+      await i18next.changeLanguage('en-US')
+      i18next.services.resourceStore.data = {}
+    }
   })
 
   it('renders nothing when no passage is set', () => {

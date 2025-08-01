@@ -6,7 +6,6 @@ import type { Element } from 'hast'
 import { Passage } from '../src/Passage'
 import { useStoryDataStore } from '@/packages/use-story-data-store'
 import { useGameStore } from '@/packages/use-game-store'
-import { useTranslationLogStore } from '@/packages/use-translation-log-store'
 
 const resetStore = () => {
   useStoryDataStore.setState({
@@ -14,7 +13,6 @@ const resetStore = () => {
     passages: [],
     currentPassageId: undefined
   })
-  useTranslationLogStore.getState().reset()
   useGameStore.setState({
     gameData: {},
     _initialGameData: {},
@@ -30,6 +28,7 @@ describe('Passage', () => {
       await i18next.use(initReactI18next).init({ lng: 'en-US', resources: {} })
     } else {
       await i18next.changeLanguage('en-US')
+      i18next.services.resourceStore.data = {}
     }
   })
 
@@ -351,6 +350,5 @@ describe('Passage', () => {
 
     const text = await screen.findByText('Hello')
     expect(text).toBeInTheDocument()
-    expect(useTranslationLogStore.getState().entries[0].key).toBe('hello')
   })
 })
