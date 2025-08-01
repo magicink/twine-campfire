@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import type { Element } from 'hast'
 import { Passage } from '../src/Passage'
 import { useStoryDataStore } from '@/packages/use-story-data-store'
@@ -121,11 +121,11 @@ describe('Passage', () => {
 
     render(<Passage />)
 
-    await new Promise(resolve => setTimeout(resolve, 0))
-
-    expect(
-      (useGameStore.getState().gameData as Record<string, unknown>).visited
-    ).toBe('true')
+    await waitFor(() =>
+      expect(
+        (useGameStore.getState().gameData as Record<string, unknown>).visited
+      ).toBe('true')
+    )
   })
 
   it('executes the set directive', async () => {
@@ -143,11 +143,11 @@ describe('Passage', () => {
 
     render(<Passage />)
 
-    await new Promise(resolve => setTimeout(resolve, 0))
-
-    expect(
-      (useGameStore.getState().gameData as Record<string, unknown>).hp
-    ).toBe(5)
+    await waitFor(() =>
+      expect(
+        (useGameStore.getState().gameData as Record<string, unknown>).hp
+      ).toBe(5)
+    )
   })
 
   it('locks keys with setOnce', async () => {
@@ -165,11 +165,11 @@ describe('Passage', () => {
 
     render(<Passage />)
 
-    await new Promise(resolve => setTimeout(resolve, 0))
-
-    expect(
-      (useGameStore.getState().gameData as Record<string, unknown>).gold
-    ).toBe(10)
+    await waitFor(() =>
+      expect(
+        (useGameStore.getState().gameData as Record<string, unknown>).gold
+      ).toBe(10)
+    )
     expect(useGameStore.getState().lockedKeys.gold).toBe(true)
 
     useGameStore.getState().setGameData({ gold: 5 })
@@ -221,11 +221,11 @@ describe('Passage', () => {
 
     render(<Passage />)
 
-    await new Promise(resolve => setTimeout(resolve, 0))
-
-    expect(
-      (useGameStore.getState().gameData as Record<string, unknown>).count
-    ).toBe(3)
+    await waitFor(() =>
+      expect(
+        (useGameStore.getState().gameData as Record<string, unknown>).count
+      ).toBe(3)
+    )
   })
 
   it('decrements values', async () => {
@@ -247,11 +247,11 @@ describe('Passage', () => {
 
     render(<Passage />)
 
-    await new Promise(resolve => setTimeout(resolve, 0))
-
-    expect(
-      (useGameStore.getState().gameData as Record<string, unknown>).count
-    ).toBe(2)
+    await waitFor(() =>
+      expect(
+        (useGameStore.getState().gameData as Record<string, unknown>).count
+      ).toBe(2)
+    )
   })
 
   it('unsets game data with the unset directive', async () => {
@@ -273,11 +273,11 @@ describe('Passage', () => {
 
     render(<Passage />)
 
-    await new Promise(resolve => setTimeout(resolve, 0))
-
-    expect(
-      (useGameStore.getState().gameData as Record<string, unknown>).flag
-    ).toBeUndefined()
+    await waitFor(() =>
+      expect(
+        (useGameStore.getState().gameData as Record<string, unknown>).flag
+      ).toBeUndefined()
+    )
   })
 
   it('chooses the correct branch with the if directive', async () => {
