@@ -351,4 +351,30 @@ describe('Passage', () => {
     const text = await screen.findByText('Hello')
     expect(text).toBeInTheDocument()
   })
+
+  it('handles pluralization with t directive', async () => {
+    i18next.addResource('en-US', 'translation', 'apple_one', '{{count}} apple')
+    i18next.addResource(
+      'en-US',
+      'translation',
+      'apple_other',
+      '{{count}} apples'
+    )
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':t{key=apple count=2}' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    const text = await screen.findByText('2 apples')
+    expect(text).toBeInTheDocument()
+  })
 })

@@ -106,3 +106,11 @@ The directives below let you control languages and add translation data.
   ```md
   :t{key=hello ns=ui}
   ```
+
+To use plural forms, add separate `_one` and `_other` keys and supply a `count`
+attribute:
+
+```md
+:translations{ns=ui apple_one="1 apple" apple_other="{{count}} apples"}
+:t{key=apple count=2 ns=ui}
+```
