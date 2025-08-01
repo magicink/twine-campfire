@@ -18,6 +18,7 @@ export const Story = () => {
     if (!i18next.isInitialized) {
       void i18next.use(initReactI18next).init({
         lng: i18next.language || 'en-US',
+        fallbackLng: 'en-US',
         resources: {}
       })
     }

@@ -16,13 +16,12 @@ export const DebugWindow = () => {
   const storyData = useStoryDataStore(
     (state: StoryDataState) => state.storyData
   )
-  const [translations, setTranslations] = useState<Record<string, unknown>>(
-    () => ({ ...i18next.store.data })
-  )
+  const [translations, setTranslations] = useState<Record<string, unknown>>({})
   useEffect(() => {
     const update = () => {
       setTranslations({ ...i18next.store.data })
     }
+    update()
     i18next.on('added', update)
     i18next.on('removed', update)
     return () => {
