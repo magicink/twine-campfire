@@ -353,18 +353,18 @@ describe('Passage', () => {
   })
 
   it('handles pluralization with t directive', async () => {
-    i18next.addResource('en-US', 'translation', 'apple_one', '{{count}} apple')
-    i18next.addResource(
-      'en-US',
-      'translation',
-      'apple_other',
-      '{{count}} apples'
-    )
     const passage: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':t{key=apple count=2}' }]
+      children: [
+        {
+          type: 'text',
+          value:
+            ':translations{apple_one="1 apple" apple_other="{{count}} apples"}'
+        },
+        { type: 'text', value: ':t{key=apple count=2}' }
+      ]
     }
 
     useStoryDataStore.setState({
