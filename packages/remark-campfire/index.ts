@@ -1,6 +1,7 @@
 import { visit } from 'unist-util-visit'
 import type { Root, Parent } from 'mdast'
 import type { Node } from 'unist'
+import type { LeafDirective } from 'mdast-util-directive'
 import type { SKIP } from 'unist-util-visit'
 import type { DirectiveNode } from './helpers'
 
@@ -14,6 +15,18 @@ export type DirectiveHandler = (
 
 export interface RemarkCampfireOptions {
   handlers?: Record<string, DirectiveHandler>
+}
+
+export interface IncludeAttributes {
+  /** Passage name to include */
+  name?: string
+  /** Passage id to include */
+  pid?: string
+}
+
+export interface IncludeDirective extends Omit<LeafDirective, 'attributes'> {
+  name: 'include'
+  attributes?: IncludeAttributes
 }
 const remarkCampfire =
   (options: RemarkCampfireOptions = {}) =>
