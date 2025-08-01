@@ -31,12 +31,12 @@ export interface IncludeDirective extends Omit<LeafDirective, 'attributes'> {
 
 export interface LangAttributes {
   /** Locale code to activate */
-  locale?: string
+  locale: string
 }
 
 export interface LangDirective extends Omit<LeafDirective, 'attributes'> {
   name: 'lang'
-  attributes?: LangAttributes
+  attributes: LangAttributes
 }
 const remarkCampfire =
   (options: RemarkCampfireOptions = {}) =>
