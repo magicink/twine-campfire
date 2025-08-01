@@ -15,8 +15,8 @@ import {
   getRandomInt,
   ensureKey,
   removeNode
-} from './helpers'
-import type { RangeValue, DirectiveNode } from './helpers'
+} from '../helpers'
+import type { RangeValue, DirectiveNode } from '../helpers'
 
 export type DirectiveHandlerResult = number | [typeof SKIP, number] | void
 
@@ -246,4 +246,15 @@ export const handleDirective: DirectiveHandler = (directive, parent, index) => {
   }
 
   // all directive types handled above
+}
+
+export const handlers = {
+  set: handleDirective,
+  setOnce: handleDirective,
+  get: handleDirective,
+  random: handleDirective,
+  increment: handleDirective,
+  decrement: handleDirective,
+  unset: handleDirective,
+  if: handleDirective
 }

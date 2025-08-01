@@ -5,6 +5,7 @@ import remarkDirective from 'remark-directive'
 import remarkRehype from 'remark-rehype'
 import rehypeStringify from 'rehype-stringify'
 import remarkCampfire, { type RemarkCampfireOptions } from '../index'
+import { handlers } from './handlers'
 import { useGameStore } from '@/packages/use-game-store'
 
 const createProcessor = (opts: RemarkCampfireOptions, stringify = true) => {
@@ -37,7 +38,9 @@ describe('remarkCampfire custom handlers', () => {
         return index
       }
     }
-    const processor = createProcessor({ handlers: { get: customGet } })
+    const processor = createProcessor({
+      handlers: { ...handlers, get: customGet }
+    })
     const result = await processor.process(':get[any]')
     expect(result.toString().trim()).toBe('<p>CUSTOM</p>')
   })

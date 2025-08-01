@@ -5,13 +5,14 @@ import remarkDirective from 'remark-directive'
 import remarkRehype from 'remark-rehype'
 import rehypeStringify from 'rehype-stringify'
 import remarkCampfire from '../index'
+import { handlers } from './handlers'
 import { useGameStore } from '@/packages/use-game-store'
 
 const createProcessor = (stringify = true) => {
   const processor = (unified() as any)
     .use(remarkParse)
     .use(remarkDirective)
-    .use(remarkCampfire)
+    .use(remarkCampfire, { handlers })
     .use(remarkRehype)
 
   if (stringify) {
