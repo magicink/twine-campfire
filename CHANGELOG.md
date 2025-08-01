@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.0](https://github.com/magicink/twine-campfire/compare/v1.9.0...v1.10.0) (2025-08-01)
+
+
+### Features
+
+* add i18n directives and debug tab ([#50](https://github.com/magicink/twine-campfire/issues/50)) ([26722de](https://github.com/magicink/twine-campfire/commit/26722de04d54d8a57f261e56f40bb9a129310074))
+
 ## [1.9.0](https://github.com/magicink/twine-campfire/compare/v1.8.0...v1.9.0) (2025-08-01)
 
 
