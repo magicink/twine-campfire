@@ -8,12 +8,12 @@ const resetStores = () => {
   useStoryDataStore.setState({
     storyData: {},
     passages: [],
-    currentPassageId: undefined
+    currentPassageId: undefined,
+    locale: 'en-US'
   })
   useGameStore.setState({
     gameData: {},
     _initialGameData: {},
-    locale: 'en-US',
     lockedKeys: {}
   })
 }

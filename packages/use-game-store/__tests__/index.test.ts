@@ -32,19 +32,6 @@ describe('useGameStore', () => {
     expect(useGameStore.getState().gameData).toEqual({ health: 10 })
   })
 
-  it('sets and gets the locale', () => {
-    // Default locale should be en-US
-    expect(useGameStore.getState().locale).toBe('en-US')
-
-    // Change locale
-    useGameStore.getState().setLocale('fr-FR')
-    expect(useGameStore.getState().locale).toBe('fr-FR')
-
-    // Change locale again
-    useGameStore.getState().setLocale('es-ES')
-    expect(useGameStore.getState().locale).toBe('es-ES')
-  })
-
   it('unsets a key from the game data', () => {
     useGameStore.getState().setGameData({ health: 10, mana: 5 })
     useGameStore.getState().unsetGameData('mana')

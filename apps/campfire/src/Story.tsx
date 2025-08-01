@@ -13,15 +13,18 @@ export const Story = () => {
   const passage = useStoryDataStore((state: StoryDataState) =>
     state.getCurrentPassage()
   )
+  const locale = useStoryDataStore(state => state.locale)
   useEffect(() => {
     initialize()
     if (!i18next.isInitialized) {
       void i18next.use(initReactI18next).init({
-        lng: 'en',
+        lng: locale,
         resources: {}
       })
+    } else {
+      void i18next.changeLanguage(locale)
     }
-  }, [])
+  }, [locale])
 
   return (
     <div className={'absolute inset-0 overflow-y-auto overflow-x-hidden'}>
