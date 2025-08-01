@@ -77,6 +77,15 @@ Directives come in two forms:
   :include[Intro]
   ```
 
+### Harlowe-style links
+
+Campfire recognizes Twine's `[[Link]]` syntax. The text inside becomes a button
+that jumps to the target passage. Use an arrow to specify a different target:
+
+```md
+[[Display text->Passage name]]
+```
+
 ### Localization
 
 Campfire uses [i18next](https://www.i18next.com/) to manage translations. For a
@@ -105,6 +114,12 @@ The directives below let you control languages and add translation data.
 
   ```md
   :t{key=hello ns=ui}
+  ```
+
+  You can translate link text as well:
+
+  ```md
+  [[:t{key=next}->Next]]
   ```
 
 To use plural forms, add separate `_one` and `_other` keys and supply a `count`
