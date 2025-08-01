@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.0](https://github.com/magicink/twine-campfire/compare/v1.8.0...v1.9.0) (2025-08-01)
+
+
+### Features
+
+* **remark:** add lang directive ([#48](https://github.com/magicink/twine-campfire/issues/48)) ([20e2435](https://github.com/magicink/twine-campfire/commit/20e243578ef1273815e77b2226ca579f20854cc9))
+
 ## [1.8.0](https://github.com/magicink/twine-campfire/compare/v1.7.2...v1.8.0) (2025-08-01)
 
 
