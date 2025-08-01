@@ -2,6 +2,15 @@
 
 A cozy story format for Twine.
 
+## Harlowe-style links
+
+Campfire recognizes Twine's `[[Link]]` syntax. The text inside becomes a button
+that jumps to the target passage. Use an arrow to specify a different target:
+
+```md
+[[Display text->Passage name]]
+```
+
 ## Markdown Directives
 
 Campfire extends standard Markdown with [remark-directive](https://github.com/remarkjs/remark-directive) syntax. Directives begin with a colon and let passages interact with the game state.
@@ -43,6 +52,12 @@ Directives come in two forms:
   :random{key=loot,min=1,max=5}
   ```
 
+- `range` – create a numeric range object using the `set` directive
+
+  ```md
+  :set[range]{hp='{"lower":0,"upper":10,"value":5}'}
+  ```
+
 - `increment` – increase a numeric value
 
   ```md
@@ -71,20 +86,12 @@ Directives come in two forms:
   :::
   ```
 
-- `include` – insert another passage
+- `include` – insert another passage by name or id
 
   ```md
   :include[Intro]
+  :include[42]
   ```
-
-### Harlowe-style links
-
-Campfire recognizes Twine's `[[Link]]` syntax. The text inside becomes a button
-that jumps to the target passage. Use an arrow to specify a different target:
-
-```md
-[[Display text->Passage name]]
-```
 
 ### Localization
 
@@ -128,4 +135,17 @@ attribute:
 ```md
 :translations{ns=ui apple_one="1 apple" apple_other="{{count}} apples"}
 :t{key=apple count=2 ns=ui}
+```
+
+#### i18next namespaces
+
+i18next organizes translations into namespaces. Use the `namespace` directive to
+register a namespace and optionally provide initial data. The `translations`
+directive adds or updates keys within a namespace. Reference the namespace when
+translating strings:
+
+```md
+:namespace{ns=ui locale=fr data={"ok":"D'accord"}}
+:translations{ns=ui locale=fr cancel="Annuler"}
+:t{key=ok ns=ui}
 ```
