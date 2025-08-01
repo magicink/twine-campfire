@@ -19,12 +19,27 @@ export const DebugWindow = () => {
   const [translations, setTranslations] = useState<Record<string, unknown>>({})
   useEffect(() => {
     const update = () => {
-      setTranslations({ ...i18next.store.data })
+      // Only update translations if i18next is initialized and store exists
+      if (i18next.isInitialized && i18next.store) {
+        setTranslations({ ...i18next.store.data })
+      }
     }
-    update()
+
+    // If i18next is already initialized, update immediately
+    if (i18next.isInitialized) {
+      update()
+    }
+
+    // Listen for i18next initialization
+    const handleInitialized = () => {
+      update()
+    }
+
+    i18next.on('initialized', handleInitialized)
     i18next.on('added', update)
     i18next.on('removed', update)
     return () => {
+      i18next.off('initialized', handleInitialized)
       i18next.off('added', update)
       i18next.off('removed', update)
     }
