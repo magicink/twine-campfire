@@ -304,4 +304,24 @@ describe('Passage', () => {
     expect(text).toBeInTheDocument()
     expect(document.body.textContent).not.toContain('Hidden')
   })
+
+  it('changes locale with lang directive', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':lang{fr-FR}' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() =>
+      expect(useStoryDataStore.getState().locale).toBe('fr-FR')
+    )
+  })
 })
