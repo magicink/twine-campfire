@@ -17,14 +17,7 @@ import {
   removeNode
 } from '../helpers'
 import type { RangeValue, DirectiveNode } from '../helpers'
-
-export type DirectiveHandlerResult = number | [typeof SKIP, number] | void
-
-export type DirectiveHandler = (
-  directive: DirectiveNode,
-  parent: Parent | undefined,
-  index: number | undefined
-) => DirectiveHandlerResult
+import type { DirectiveHandlerResult, DirectiveHandler } from '../index'
 export const handleDirective: DirectiveHandler = (directive, parent, index) => {
   if (directive.name === 'set' || directive.name === 'setOnce') {
     const typeParam = (toString(directive).trim() || 'string').toLowerCase()
