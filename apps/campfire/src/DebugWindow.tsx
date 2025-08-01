@@ -45,6 +45,7 @@ export const DebugWindow = () => {
       tabIndex={-1}
       role='dialog'
       aria-labelledby='debug-window-title'
+      onClick={() => setMinimized(true)}
       className='fixed right-0 top-0 bottom-0 w-80 bg-white text-black shadow-lg text-xs overflow-y-auto'
     >
       <div className='flex items-center justify-between p-2 border-b'>
@@ -55,16 +56,12 @@ export const DebugWindow = () => {
           <button
             type='button'
             aria-expanded={!minimized}
-            onClick={() => setMinimized(m => !m)}
+            onClick={e => {
+              e.stopPropagation()
+              setMinimized(m => !m)
+            }}
           >
             {minimized ? 'Expand' : 'Minimize'}
-          </button>
-          <button
-            type='button'
-            aria-label='Close debug window'
-            onClick={() => setVisible(false)}
-          >
-            Close
           </button>
         </div>
       </div>
@@ -74,14 +71,20 @@ export const DebugWindow = () => {
             <button
               type='button'
               className={`flex-1 p-2 ${tab === TAB_GAME ? 'font-bold' : ''}`}
-              onClick={() => setTab(TAB_GAME)}
+              onClick={e => {
+                e.stopPropagation()
+                setTab(TAB_GAME)
+              }}
             >
               Game Data
             </button>
             <button
               type='button'
               className={`flex-1 p-2 ${tab === TAB_STORY ? 'font-bold' : ''}`}
-              onClick={() => setTab(TAB_STORY)}
+              onClick={e => {
+                e.stopPropagation()
+                setTab(TAB_STORY)
+              }}
             >
               Story Data
             </button>
