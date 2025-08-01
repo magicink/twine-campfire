@@ -1,3 +1,4 @@
+import { produce } from 'immer'
 import { create } from 'zustand'
 import type { Element } from 'hast'
 
@@ -22,21 +23,29 @@ export const useStoryDataStore = create<StoryDataState>((set, get) => ({
   currentPassageId: undefined,
   locale: 'en-US',
   setStoryData: data =>
-    set({
-      storyData: data
-    }),
+    set(
+      produce((state: StoryDataState) => {
+        state.storyData = data
+      })
+    ),
   setPassages: passages =>
-    set({
-      passages
-    }),
+    set(
+      produce((state: StoryDataState) => {
+        state.passages = passages
+      })
+    ),
   setCurrentPassage: id =>
-    set({
-      currentPassageId: id
-    }),
+    set(
+      produce((state: StoryDataState) => {
+        state.currentPassageId = id
+      })
+    ),
   setLocale: locale =>
-    set({
-      locale
-    }),
+    set(
+      produce((state: StoryDataState) => {
+        state.locale = locale
+      })
+    ),
   getCurrentPassage: () => {
     const state = get()
     const { currentPassageId } = state
