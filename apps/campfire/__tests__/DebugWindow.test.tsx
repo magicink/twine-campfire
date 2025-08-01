@@ -37,7 +37,7 @@ describe('DebugWindow', () => {
     expect(header).toBeInTheDocument()
   })
 
-  it('minimizes when clicked', () => {
+  it('toggles minimized state when clicked', () => {
     useStoryDataStore.setState({ storyData: { options: 'debug' } })
     render(<DebugWindow />)
     const container = screen.getByRole('dialog')
@@ -45,6 +45,10 @@ describe('DebugWindow', () => {
       container.click()
     })
     expect(screen.getByRole('button', { name: 'Expand' })).toBeInTheDocument()
+    act(() => {
+      container.click()
+    })
+    expect(screen.getByRole('button', { name: 'Minimize' })).toBeInTheDocument()
   })
 
   it('shows game data by default and switches tabs', () => {

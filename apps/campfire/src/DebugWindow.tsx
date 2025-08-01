@@ -45,7 +45,7 @@ export const DebugWindow = () => {
       tabIndex={-1}
       role='dialog'
       aria-labelledby='debug-window-title'
-      onClick={() => setMinimized(true)}
+      onClick={() => setMinimized(m => !m)}
       className='fixed right-0 top-0 bottom-0 w-80 bg-white text-black shadow-lg text-xs overflow-y-auto'
     >
       <div className='flex items-center justify-between p-2 border-b'>
