@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.1](https://github.com/magicink/twine-campfire/compare/v1.7.0...v1.7.1) (2025-08-01)
+
+
+### Bug Fixes
+
+* **apps/campfire:** refactor useGameStore references ([36af7ed](https://github.com/magicink/twine-campfire/commit/36af7edcefd5ec08afb10abb619588c5cf1d5973))
+
 ## [1.7.0](https://github.com/magicink/twine-campfire/compare/v1.6.0...v1.7.0) (2025-07-31)
 
 
