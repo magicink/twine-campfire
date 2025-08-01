@@ -2,8 +2,14 @@ import { useMemo } from 'react'
 import { SKIP } from 'unist-util-visit'
 import { compile } from 'expression-eval'
 import { toString } from 'mdast-util-to-string'
+import { unified } from 'unified'
+import remarkParse from 'remark-parse'
+import remarkGfm from 'remark-gfm'
+import remarkDirective from 'remark-directive'
+import remarkCampfire from '@/packages/remark-campfire'
 import type { Text, Parent, RootContent } from 'mdast'
 import type { ContainerDirective } from 'mdast-util-directive'
+import { useStoryDataStore } from '@/packages/use-story-data-store'
 import { useGameStore } from '@/packages/use-game-store'
 import {
   isRange,
@@ -296,8 +302,48 @@ export const useDirectiveHandlers = () => {
     return [SKIP, index]
   }
 
-  return useMemo(
-    () => ({
+  let handlers: Record<string, DirectiveHandler>
+
+  const handleInclude: DirectiveHandler = (directive, parent, index) => {
+    const target =
+      toString(directive).trim() ||
+      Object.keys(directive.attributes || {})[0] ||
+      ''
+
+    if (!parent || typeof index !== 'number' || !target) {
+      return removeNode(parent, index)
+    }
+
+    const store = useStoryDataStore.getState()
+    const passage = /^\d+$/.test(target)
+      ? store.getPassageById(target)
+      : store.getPassageByName(target)
+
+    if (!passage) return removeNode(parent, index)
+
+    const text = passage.children
+      .map((child: any) =>
+        child.type === 'text' && typeof child.value === 'string'
+          ? child.value
+          : ''
+      )
+      .join('')
+
+    const processor = unified()
+      .use(remarkParse)
+      .use(remarkGfm)
+      .use(remarkDirective)
+      .use(remarkCampfire, { handlers })
+
+    const tree = processor.parse(text)
+    processor.runSync(tree)
+
+    parent.children.splice(index, 1, ...(tree.children as RootContent[]))
+    return [SKIP, index]
+  }
+
+  return useMemo(() => {
+    handlers = {
       set: (d: DirectiveNode, p: Parent | undefined, i: number | undefined) =>
         handleSet(d, p, i, false),
       setOnce: (
@@ -318,8 +364,9 @@ export const useDirectiveHandlers = () => {
         i: number | undefined
       ) => handleIncrement(d, p, i, -1),
       unset: handleUnset,
-      if: handleIf
-    }),
-    []
-  )
+      if: handleIf,
+      include: handleInclude
+    }
+    return handlers
+  }, [])
 }
