@@ -10,7 +10,8 @@ describe('Story', () => {
     useStoryDataStore.setState({
       storyData: {},
       passages: [],
-      currentPassageId: undefined
+      currentPassageId: undefined,
+      translations: []
     })
   })
 
@@ -23,7 +24,8 @@ describe('Story', () => {
   it('renders the current passage when available', async () => {
     useStoryDataStore.setState({
       passages: [samplePassage],
-      currentPassageId: '1'
+      currentPassageId: '1',
+      translations: []
     })
 
     render(<Story />)

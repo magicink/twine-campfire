@@ -8,12 +8,14 @@ import { useGameStore } from '@/packages/use-game-store'
 const DEBUG_OPTION = 'debug' as const
 const TAB_GAME = 'game' as const
 const TAB_STORY = 'story' as const
-type Tab = typeof TAB_GAME | typeof TAB_STORY
+const TAB_TRANSLATIONS = 'translations' as const
+type Tab = typeof TAB_GAME | typeof TAB_STORY | typeof TAB_TRANSLATIONS
 
 export const DebugWindow = () => {
   const storyData = useStoryDataStore(
     (state: StoryDataState) => state.storyData
   )
+  const translations = useStoryDataStore(state => state.translations)
   const gameData = useGameStore(state => state.gameData)
   const [visible, setVisible] = useState(true)
   const [minimized, setMinimized] = useState(false)
@@ -88,15 +90,31 @@ export const DebugWindow = () => {
             >
               Story Data
             </button>
+            <button
+              type='button'
+              className={`flex-1 p-2 ${
+                tab === TAB_TRANSLATIONS ? 'font-bold' : ''
+              }`}
+              onClick={e => {
+                e.stopPropagation()
+                setTab(TAB_TRANSLATIONS)
+              }}
+            >
+              Translations
+            </button>
           </div>
           <div className='p-2'>
             {tab === TAB_GAME ? (
               <pre className='whitespace-pre-wrap'>
                 {JSON.stringify(gameData, null, 2)}
               </pre>
-            ) : (
+            ) : tab === TAB_STORY ? (
               <pre className='whitespace-pre-wrap'>
                 {JSON.stringify(storyData, null, 2)}
+              </pre>
+            ) : (
+              <pre className='whitespace-pre-wrap'>
+                {JSON.stringify(translations, null, 2)}
               </pre>
             )}
           </div>

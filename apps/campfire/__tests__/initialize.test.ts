@@ -6,7 +6,7 @@ let doc: Document
 
 beforeEach(() => {
   doc = document.implementation.createHTMLDocument('test')
-  useStoryDataStore.setState({ storyData: {} })
+  useStoryDataStore.setState({ storyData: {}, translations: [] })
 })
 
 describe('initialize', () => {

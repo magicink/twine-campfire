@@ -9,7 +9,8 @@ const resetStores = () => {
     storyData: {},
     passages: [],
     currentPassageId: undefined,
-    locale: 'en-US'
+    locale: 'en-US',
+    translations: []
   })
   useGameStore.setState({
     gameData: {},
@@ -68,5 +69,20 @@ describe('DebugWindow', () => {
       storyTab.click()
     })
     expect(screen.getByText(/"foo": "bar"/)).toBeInTheDocument()
+  })
+
+  it('shows translation log', () => {
+    useStoryDataStore.setState({
+      storyData: { options: 'debug' },
+      translations: [{ key: 'hello', result: 'Hello' }]
+    })
+
+    render(<DebugWindow />)
+
+    const transTab = screen.getByRole('button', { name: 'Translations' })
+    act(() => {
+      transTab.click()
+    })
+    expect(screen.getByText(/"hello"/)).toBeInTheDocument()
   })
 })

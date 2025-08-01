@@ -8,6 +8,13 @@ export interface StoryDataState {
   currentPassageId?: string
   /** Current locale for the story */
   locale: string
+  /** Log of translations */
+  translations: { key: string; result: string; count?: number }[]
+  logTranslation: (
+    key: string,
+    result: string,
+    options?: { count?: number }
+  ) => void
   setStoryData: (data: Record<string, unknown>) => void
   setPassages: (passages: Element[]) => void
   setCurrentPassage: (id: string | undefined) => void
@@ -22,6 +29,13 @@ export const useStoryDataStore = create<StoryDataState>((set, get) => ({
   passages: [],
   currentPassageId: undefined,
   locale: 'en-US',
+  translations: [],
+  logTranslation: (key, result, options) =>
+    set(
+      produce((state: StoryDataState) => {
+        state.translations.push({ key, result, count: options?.count })
+      })
+    ),
   setStoryData: data =>
     set(
       produce((state: StoryDataState) => {

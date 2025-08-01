@@ -7,7 +7,8 @@ beforeEach(() => {
     storyData: {},
     passages: [],
     currentPassageId: undefined,
-    locale: 'en-US'
+    locale: 'en-US',
+    translations: []
   })
 })
 
