@@ -133,7 +133,10 @@ export const evalCondition = (expr: string): boolean => {
   }
 }
 
-export const resolveIf = (node: ContainerDirective): RootContent[] => {
+export const resolveIf = (
+  node: ContainerDirective,
+  evalConditionFn: (expr: string) => boolean = evalCondition
+): RootContent[] => {
   const children = node.children as RootContent[]
   const expr = getLabel(node) || Object.keys(node.attributes || {})[0] || ''
   let idx = 1
@@ -141,11 +144,11 @@ export const resolveIf = (node: ContainerDirective): RootContent[] => {
     idx++
   }
   const content = stripLabel(children.slice(0, idx))
-  if (expr && evalCondition(expr)) return content
+  if (expr && evalConditionFn(expr)) return content
   const next = children[idx] as ContainerDirective | undefined
   if (!next) return []
   if (next.name === 'else') return stripLabel(next.children)
-  if (next.name === 'elseif') return resolveIf(next)
+  if (next.name === 'elseif') return resolveIf(next, evalConditionFn)
   return []
 }
 
