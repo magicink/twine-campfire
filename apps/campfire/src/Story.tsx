@@ -21,7 +21,7 @@ export const Story = () => {
         lng: locale,
         resources: {}
       })
-    } else {
+    } else if (i18next.language !== locale) {
       void i18next.changeLanguage(locale)
     }
   }, [locale])
