@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import type { Element } from 'hast'
 import { Passage } from '../src/Passage'
 import { useStoryDataStore } from '@/packages/use-story-data-store'
@@ -121,10 +121,187 @@ describe('Passage', () => {
 
     render(<Passage />)
 
-    await new Promise(resolve => setTimeout(resolve, 0))
+    await waitFor(() =>
+      expect(
+        (useGameStore.getState().gameData as Record<string, unknown>).visited
+      ).toBe('true')
+    )
+  })
+
+  it('executes the set directive', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':set[number]{hp=5}' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() =>
+      expect(
+        (useGameStore.getState().gameData as Record<string, unknown>).hp
+      ).toBe(5)
+    )
+  })
+
+  it('locks keys with setOnce', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':setOnce[number]{gold=10}' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() =>
+      expect(
+        (useGameStore.getState().gameData as Record<string, unknown>).gold
+      ).toBe(10)
+    )
+    expect(useGameStore.getState().lockedKeys.gold).toBe(true)
+
+    useGameStore.getState().setGameData({ gold: 5 })
 
     expect(
-      (useGameStore.getState().gameData as Record<string, unknown>).visited
-    ).toBe('true')
+      (useGameStore.getState().gameData as Record<string, unknown>).gold
+    ).toBe(10)
+  })
+
+  it('retrieves values with get directive', async () => {
+    useGameStore.setState(state => ({
+      ...state,
+      gameData: { score: 7 }
+    }))
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: 'Score: :get{score}' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    const text = await screen.findByText('Score: 7')
+    expect(text).toBeInTheDocument()
+  })
+
+  it('increments values', async () => {
+    useGameStore.setState(state => ({
+      ...state,
+      gameData: { count: 1 }
+    }))
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':increment{key=count amount=2}' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() =>
+      expect(
+        (useGameStore.getState().gameData as Record<string, unknown>).count
+      ).toBe(3)
+    )
+  })
+
+  it('decrements values', async () => {
+    useGameStore.setState(state => ({
+      ...state,
+      gameData: { count: 3 }
+    }))
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':decrement{key=count amount=1}' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() =>
+      expect(
+        (useGameStore.getState().gameData as Record<string, unknown>).count
+      ).toBe(2)
+    )
+  })
+
+  it('unsets game data with the unset directive', async () => {
+    useGameStore.setState(state => ({
+      ...state,
+      gameData: { flag: true }
+    }))
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':unset{key=flag}' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() =>
+      expect(
+        (useGameStore.getState().gameData as Record<string, unknown>).flag
+      ).toBeUndefined()
+    )
+  })
+
+  it('chooses the correct branch with the if directive', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':::if{true}\nShown\n:::else\nHidden\n:::'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    const text = await screen.findByText('Shown')
+    expect(text).toBeInTheDocument()
+    expect(document.body.textContent).not.toContain('Hidden')
   })
 })
