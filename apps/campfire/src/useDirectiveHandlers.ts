@@ -7,7 +7,8 @@ import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
 import remarkDirective from 'remark-directive'
 import remarkCampfire from '@/packages/remark-campfire'
-import type { Text, Parent, RootContent } from 'mdast'
+import type { Text as MdText, Parent, RootContent } from 'mdast'
+import type { Text as HastText, ElementContent } from 'hast'
 import type { ContainerDirective } from 'mdast-util-directive'
 import { useStoryDataStore } from '@/packages/use-story-data-store'
 import { useGameStore } from '@/packages/use-game-store'
@@ -174,7 +175,7 @@ export const useDirectiveHandlers = () => {
     if (isRange(value)) {
       value = value.value
     }
-    const textNode: Text = {
+    const textNode: MdText = {
       type: 'text',
       value: value == null ? '' : String(value)
     }
@@ -304,6 +305,12 @@ export const useDirectiveHandlers = () => {
 
   let handlers: Record<string, DirectiveHandler>
 
+  const getPassageById = useStoryDataStore(state => state.getPassageById)
+  const getPassageByName = useStoryDataStore(state => state.getPassageByName)
+
+  const MAX_INCLUDE_DEPTH = 10
+  let includeDepth = 0
+
   const handleInclude: DirectiveHandler = (directive, parent, index) => {
     const target =
       toString(directive).trim() ||
@@ -314,17 +321,21 @@ export const useDirectiveHandlers = () => {
       return removeNode(parent, index)
     }
 
-    const store = useStoryDataStore.getState()
+    if (includeDepth >= MAX_INCLUDE_DEPTH) {
+      console.warn('Max include depth reached')
+      return removeNode(parent, index)
+    }
+
     const passage = /^\d+$/.test(target)
-      ? store.getPassageById(target)
-      : store.getPassageByName(target)
+      ? getPassageById(target)
+      : getPassageByName(target)
 
     if (!passage) return removeNode(parent, index)
 
     const text = passage.children
-      .map((child: any) =>
-        child.type === 'text' && typeof child.value === 'string'
-          ? child.value
+      .map((child: ElementContent) =>
+        child.type === 'text' && typeof (child as HastText).value === 'string'
+          ? (child as HastText).value
           : ''
       )
       .join('')
@@ -335,8 +346,10 @@ export const useDirectiveHandlers = () => {
       .use(remarkDirective)
       .use(remarkCampfire, { handlers })
 
+    includeDepth++
     const tree = processor.parse(text)
     processor.runSync(tree)
+    includeDepth--
 
     parent.children.splice(index, 1, ...(tree.children as RootContent[]))
     return [SKIP, index]
