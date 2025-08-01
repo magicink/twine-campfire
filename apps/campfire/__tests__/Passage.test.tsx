@@ -351,4 +351,59 @@ describe('Passage', () => {
     const text = await screen.findByText('Hello')
     expect(text).toBeInTheDocument()
   })
+
+  it('handles pluralization with t directive', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            ':translations{apple_one="1 apple" apple_other="{{count}} apples"}'
+        },
+        { type: 'text', value: ':t{key=apple count=2}' }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    const text = await screen.findByText('2 apples')
+    expect(text).toBeInTheDocument()
+  })
+
+  it('resolves translations inside links', async () => {
+    const start: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        { type: 'text', value: ':translations{next="Next"}' },
+        { type: 'text', value: '[[:t{key=next}->Next]]' }
+      ]
+    }
+    const next: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '2', name: 'Next' },
+      children: []
+    }
+
+    useStoryDataStore.setState({
+      passages: [start, next],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    const button = await screen.findByRole('button', { name: 'Next' })
+    button.click()
+    expect(useStoryDataStore.getState().currentPassageId).toBe('Next')
+  })
 })
