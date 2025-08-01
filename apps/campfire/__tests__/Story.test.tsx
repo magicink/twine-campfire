@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { Story } from '../src/Story'
 import { useStoryDataStore } from '@/packages/use-story-data-store'
+import { useTranslationLogStore } from '@/packages/use-translation-log-store'
 import { samplePassage } from './helpers'
 import { describe, it, expect, beforeEach } from 'bun:test'
 
@@ -10,9 +11,9 @@ describe('Story', () => {
     useStoryDataStore.setState({
       storyData: {},
       passages: [],
-      currentPassageId: undefined,
-      translations: []
+      currentPassageId: undefined
     })
+    useTranslationLogStore.getState().reset()
   })
 
   it('renders nothing when no passage is set', () => {
@@ -24,8 +25,7 @@ describe('Story', () => {
   it('renders the current passage when available', async () => {
     useStoryDataStore.setState({
       passages: [samplePassage],
-      currentPassageId: '1',
-      translations: []
+      currentPassageId: '1'
     })
 
     render(<Story />)

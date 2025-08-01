@@ -6,15 +6,15 @@ import type { Element } from 'hast'
 import { Passage } from '../src/Passage'
 import { useStoryDataStore } from '@/packages/use-story-data-store'
 import { useGameStore } from '@/packages/use-game-store'
+import { useTranslationLogStore } from '@/packages/use-translation-log-store'
 
 const resetStore = () => {
   useStoryDataStore.setState({
     storyData: {},
     passages: [],
-    currentPassageId: undefined,
-    locale: 'en-US',
-    translations: []
+    currentPassageId: undefined
   })
+  useTranslationLogStore.getState().reset()
   useGameStore.setState({
     gameData: {},
     _initialGameData: {},
@@ -43,8 +43,7 @@ describe('Passage', () => {
 
     useStoryDataStore.setState({
       passages: [passage],
-      currentPassageId: '1',
-      translations: []
+      currentPassageId: '1'
     })
 
     render(<Passage />)
@@ -74,8 +73,7 @@ describe('Passage', () => {
 
     useStoryDataStore.setState({
       passages: [start, next],
-      currentPassageId: '1',
-      translations: []
+      currentPassageId: '1'
     })
 
     render(<Passage />)
@@ -101,8 +99,7 @@ describe('Passage', () => {
 
     useStoryDataStore.setState({
       passages: [start, second],
-      currentPassageId: '1',
-      translations: []
+      currentPassageId: '1'
     })
 
     render(<Passage />)
@@ -127,8 +124,7 @@ describe('Passage', () => {
 
     useStoryDataStore.setState({
       passages: [start, second],
-      currentPassageId: '1',
-      translations: []
+      currentPassageId: '1'
     })
 
     render(<Passage />)
@@ -150,8 +146,7 @@ describe('Passage', () => {
 
     useStoryDataStore.setState({
       passages: [passage],
-      currentPassageId: '1',
-      translations: []
+      currentPassageId: '1'
     })
 
     render(<Passage />)
@@ -173,8 +168,7 @@ describe('Passage', () => {
 
     useStoryDataStore.setState({
       passages: [passage],
-      currentPassageId: '1',
-      translations: []
+      currentPassageId: '1'
     })
 
     render(<Passage />)
@@ -207,8 +201,7 @@ describe('Passage', () => {
 
     useStoryDataStore.setState({
       passages: [passage],
-      currentPassageId: '1',
-      translations: []
+      currentPassageId: '1'
     })
 
     render(<Passage />)
@@ -231,8 +224,7 @@ describe('Passage', () => {
 
     useStoryDataStore.setState({
       passages: [passage],
-      currentPassageId: '1',
-      translations: []
+      currentPassageId: '1'
     })
 
     render(<Passage />)
@@ -258,8 +250,7 @@ describe('Passage', () => {
 
     useStoryDataStore.setState({
       passages: [passage],
-      currentPassageId: '1',
-      translations: []
+      currentPassageId: '1'
     })
 
     render(<Passage />)
@@ -285,8 +276,7 @@ describe('Passage', () => {
 
     useStoryDataStore.setState({
       passages: [passage],
-      currentPassageId: '1',
-      translations: []
+      currentPassageId: '1'
     })
 
     render(<Passage />)
@@ -313,8 +303,7 @@ describe('Passage', () => {
 
     useStoryDataStore.setState({
       passages: [passage],
-      currentPassageId: '1',
-      translations: []
+      currentPassageId: '1'
     })
 
     render(<Passage />)
@@ -334,14 +323,12 @@ describe('Passage', () => {
 
     useStoryDataStore.setState({
       passages: [passage],
-      currentPassageId: '1',
-      translations: []
+      currentPassageId: '1'
     })
 
     render(<Passage />)
 
     await waitFor(() => {
-      expect(useStoryDataStore.getState().locale).toBe('fr-FR')
       expect(i18next.language).toBe('fr-FR')
     })
   })
@@ -357,14 +344,13 @@ describe('Passage', () => {
 
     useStoryDataStore.setState({
       passages: [passage],
-      currentPassageId: '1',
-      translations: []
+      currentPassageId: '1'
     })
 
     render(<Passage />)
 
     const text = await screen.findByText('Hello')
     expect(text).toBeInTheDocument()
-    expect(useStoryDataStore.getState().translations[0].key).toBe('hello')
+    expect(useTranslationLogStore.getState().entries[0].key).toBe('hello')
   })
 })

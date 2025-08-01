@@ -3,6 +3,7 @@ import {
   useStoryDataStore,
   type StoryDataState
 } from '@/packages/use-story-data-store'
+import { useTranslationLogStore } from '@/packages/use-translation-log-store'
 import { useGameStore } from '@/packages/use-game-store'
 
 const DEBUG_OPTION = 'debug' as const
@@ -15,7 +16,7 @@ export const DebugWindow = () => {
   const storyData = useStoryDataStore(
     (state: StoryDataState) => state.storyData
   )
-  const translations = useStoryDataStore(state => state.translations)
+  const translations = useTranslationLogStore(state => state.entries)
   const gameData = useGameStore(state => state.gameData)
   const [visible, setVisible] = useState(true)
   const [minimized, setMinimized] = useState(false)

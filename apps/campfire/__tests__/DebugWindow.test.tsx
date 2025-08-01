@@ -3,15 +3,15 @@ import { render, screen, act } from '@testing-library/react'
 import { DebugWindow } from '../src/DebugWindow'
 import { useStoryDataStore } from '@/packages/use-story-data-store'
 import { useGameStore } from '@/packages/use-game-store'
+import { useTranslationLogStore } from '@/packages/use-translation-log-store'
 
 const resetStores = () => {
   useStoryDataStore.setState({
     storyData: {},
     passages: [],
-    currentPassageId: undefined,
-    locale: 'en-US',
-    translations: []
+    currentPassageId: undefined
   })
+  useTranslationLogStore.getState().reset()
   useGameStore.setState({
     gameData: {},
     _initialGameData: {},
@@ -73,9 +73,9 @@ describe('DebugWindow', () => {
 
   it('shows translation log', () => {
     useStoryDataStore.setState({
-      storyData: { options: 'debug' },
-      translations: [{ key: 'hello', result: 'Hello' }]
+      storyData: { options: 'debug' }
     })
+    useTranslationLogStore.getState().logTranslation('hello', 'Hello')
 
     render(<DebugWindow />)
 

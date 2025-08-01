@@ -12,6 +12,7 @@ import type { Text as MdText, Parent, RootContent } from 'mdast'
 import type { Text as HastText, ElementContent } from 'hast'
 import type { ContainerDirective } from 'mdast-util-directive'
 import { useStoryDataStore } from '@/packages/use-story-data-store'
+import { useTranslationLogStore } from '@/packages/use-translation-log-store'
 import { useGameStore } from '@/packages/use-game-store'
 import {
   isRange,
@@ -36,7 +37,6 @@ export const useDirectiveHandlers = () => {
   const gameData = useGameStore(state => state.gameData)
   const setGameData = useGameStore(state => state.setGameData)
   const unsetGameData = useGameStore(state => state.unsetGameData)
-  const setLocale = useStoryDataStore(state => state.setLocale)
   const handleSet = (
     directive: DirectiveNode,
     parent: Parent | undefined,
@@ -308,16 +308,17 @@ export const useDirectiveHandlers = () => {
   const handleLang: DirectiveHandler = (directive, parent, index) => {
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const locale = typeof attrs.locale === 'string' ? attrs.locale : undefined
-    if (locale) {
-      setLocale(locale)
-      if (i18next.isInitialized && i18next.resolvedLanguage !== locale) {
-        void i18next.changeLanguage(locale)
-      }
+    if (
+      locale &&
+      i18next.isInitialized &&
+      i18next.resolvedLanguage !== locale
+    ) {
+      void i18next.changeLanguage(locale)
     }
     return removeNode(parent, index)
   }
 
-  const logTranslation = useStoryDataStore(state => state.logTranslation)
+  const logTranslation = useTranslationLogStore(state => state.logTranslation)
 
   const handleNamespace: DirectiveHandler = (directive, parent, index) => {
     const attrs = (directive.attributes || {}) as Record<string, unknown>
@@ -327,7 +328,7 @@ export const useDirectiveHandlers = () => {
     const locale =
       typeof attrs.locale === 'string'
         ? attrs.locale
-        : useStoryDataStore.getState().locale
+        : i18next.resolvedLanguage || i18next.language
     let resources: Record<string, unknown> = {}
     if (typeof attrs.data === 'string') {
       try {
@@ -352,7 +353,7 @@ export const useDirectiveHandlers = () => {
     const locale =
       typeof attrs.locale === 'string'
         ? attrs.locale
-        : useStoryDataStore.getState().locale
+        : i18next.resolvedLanguage || i18next.language
     let resources: Record<string, unknown> = {}
     if (typeof attrs.data === 'string') {
       try {

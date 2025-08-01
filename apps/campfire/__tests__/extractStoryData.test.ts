@@ -23,7 +23,7 @@ const tree: Root = {
 }
 
 beforeEach(() => {
-  useStoryDataStore.setState({ storyData: {}, translations: [] })
+  useStoryDataStore.setState({ storyData: {} })
 })
 
 describe('extractStoryData', () => {
