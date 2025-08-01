@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.2](https://github.com/magicink/twine-campfire/compare/v1.7.1...v1.7.2) (2025-08-01)
+
+
+### Bug Fixes
+
+* **campfire:** make debug window minimize on click ([#40](https://github.com/magicink/twine-campfire/issues/40)) ([befd468](https://github.com/magicink/twine-campfire/commit/befd4689d2415cad2029b6fcd6ee490bbbfdd201))
+
 ## [1.7.1](https://github.com/magicink/twine-campfire/compare/v1.7.0...v1.7.1) (2025-08-01)
 
 
