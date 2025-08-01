@@ -377,4 +377,33 @@ describe('Passage', () => {
     const text = await screen.findByText('2 apples')
     expect(text).toBeInTheDocument()
   })
+
+  it('resolves translations inside links', async () => {
+    const start: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        { type: 'text', value: ':translations{next="Next"}' },
+        { type: 'text', value: '[[:t{key=next}->Next]]' }
+      ]
+    }
+    const next: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '2', name: 'Next' },
+      children: []
+    }
+
+    useStoryDataStore.setState({
+      passages: [start, next],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    const button = await screen.findByRole('button', { name: 'Next' })
+    button.click()
+    expect(useStoryDataStore.getState().currentPassageId).toBe('Next')
+  })
 })

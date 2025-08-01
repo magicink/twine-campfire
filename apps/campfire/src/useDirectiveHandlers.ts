@@ -389,7 +389,19 @@ export const useDirectiveHandlers = () => {
     const text = i18next.t(key, options)
     if (parent && typeof index === 'number') {
       parent.children.splice(index, 1, { type: 'text', value: text })
-      return index
+      let idx = index
+      const prev = parent.children[idx - 1] as MdText | undefined
+      if (prev && prev.type === 'text') {
+        prev.value += (parent.children[idx] as MdText).value
+        parent.children.splice(idx, 1)
+        idx--
+      }
+      const next = parent.children[idx + 1] as MdText | undefined
+      if (next && next.type === 'text') {
+        ;(parent.children[idx] as MdText).value += next.value
+        parent.children.splice(idx + 1, 1)
+      }
+      return idx
     }
   }
 
