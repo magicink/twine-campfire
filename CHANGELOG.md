@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.0](https://github.com/magicink/twine-campfire/compare/v1.10.1...v1.11.0) (2025-08-02)
+
+
+### Features
+
+* add math directive ([#56](https://github.com/magicink/twine-campfire/issues/56)) ([41abbf5](https://github.com/magicink/twine-campfire/commit/41abbf507d24675786efcd0968c2418869fdf9a9))
+
 ## [1.10.1](https://github.com/magicink/twine-campfire/compare/v1.10.0...v1.10.1) (2025-08-01)
 
 
