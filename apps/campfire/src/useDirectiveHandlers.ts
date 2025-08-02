@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import i18next from 'i18next'
 import { SKIP } from 'unist-util-visit'
 import { compile } from 'expression-eval'
@@ -38,27 +38,29 @@ export const useDirectiveHandlers = () => {
   const unsetGameData = useGameStore(state => state.unsetGameData)
   const markOnce = useGameStore(state => state.markOnce)
   const onceKeys = useGameStore(state => state.onceKeys)
-  let handlers: Record<string, DirectiveHandler>
-  let exitHandlers: RootContent[][] = []
-  let changeSubscriptions: Array<() => void> = []
+  const handlersRef = useRef<Record<string, DirectiveHandler>>({})
+  const exitHandlers = useRef<RootContent[][]>([])
+  const changeSubscriptions = useRef<Array<() => void>>([])
 
   const runBlock = (nodes: RootContent[]) => {
     const root = { type: 'root', children: nodes } as any
-    unified().use(remarkCampfire, { handlers }).runSync(root)
+    unified()
+      .use(remarkCampfire, { handlers: handlersRef.current })
+      .runSync(root)
   }
 
   useEffect(() => {
     let prev = useStoryDataStore.getState().currentPassageId
     const unsubscribe = useStoryDataStore.subscribe(state => {
       if (state.currentPassageId !== prev) {
-        for (const nodes of exitHandlers) {
+        for (const nodes of exitHandlers.current) {
           runBlock(nodes)
         }
-        exitHandlers = []
-        for (const fn of changeSubscriptions) {
+        exitHandlers.current = []
+        for (const fn of changeSubscriptions.current) {
           fn()
         }
-        changeSubscriptions = []
+        changeSubscriptions.current = []
         prev = state.currentPassageId
       }
     })
@@ -409,7 +411,7 @@ export const useDirectiveHandlers = () => {
     if (!parent || typeof index !== 'number') return
     const container = directive as ContainerDirective
     const content = stripLabel(container.children as RootContent[])
-    exitHandlers.push(content)
+    exitHandlers.current.push(content)
     return removeNode(parent, index)
   }
 
@@ -425,7 +427,7 @@ export const useDirectiveHandlers = () => {
         runBlock(content)
       }
     )
-    changeSubscriptions.push(unsub)
+    changeSubscriptions.current.push(unsub)
     return removeNode(parent, index)
   }
 
@@ -567,7 +569,7 @@ export const useDirectiveHandlers = () => {
       .use(remarkParse)
       .use(remarkGfm)
       .use(remarkDirective)
-      .use(remarkCampfire, { handlers })
+      .use(remarkCampfire, { handlers: handlersRef.current })
 
     includeDepth++
     const tree = processor.parse(text)
@@ -579,7 +581,7 @@ export const useDirectiveHandlers = () => {
   }
 
   return useMemo(() => {
-    handlers = {
+    const handlers = {
       set: (d: DirectiveNode, p: Parent | undefined, i: number | undefined) =>
         handleSet(d, p, i, false),
       setOnce: (
@@ -612,6 +614,7 @@ export const useDirectiveHandlers = () => {
       translations: handleTranslations,
       t: handleTranslate
     }
+    handlersRef.current = handlers
     return handlers
   }, [])
 }
