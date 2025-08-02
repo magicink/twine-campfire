@@ -155,6 +155,8 @@ export const Story = () => {
     }
   }, [])
 
+  if (!i18next.isInitialized) return null
+
   return (
     <div className={'absolute inset-0 overflow-y-auto overflow-x-hidden'}>
       {passage ? <Passage /> : null}
