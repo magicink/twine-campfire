@@ -2,150 +2,130 @@
 
 ## [1.11.0](https://github.com/magicink/twine-campfire/compare/v1.10.1...v1.11.0) (2025-08-02)
 
-
 ### Features
 
-* add math directive ([#56](https://github.com/magicink/twine-campfire/issues/56)) ([41abbf5](https://github.com/magicink/twine-campfire/commit/41abbf507d24675786efcd0968c2418869fdf9a9))
+- add math directive ([#56](https://github.com/magicink/twine-campfire/issues/56)) ([41abbf5](https://github.com/magicink/twine-campfire/commit/41abbf507d24675786efcd0968c2418869fdf9a9))
+- add once directive
 
 ## [1.10.1](https://github.com/magicink/twine-campfire/compare/v1.10.0...v1.10.1) (2025-08-01)
 
-
 ### Bug Fixes
 
-* **apps/campfire:** ensure translations update only after i18next initialization ([#52](https://github.com/magicink/twine-campfire/issues/52)) ([172d2d8](https://github.com/magicink/twine-campfire/commit/172d2d8684a93c8041c2cd178ca52c69a0d0893d))
+- **apps/campfire:** ensure translations update only after i18next initialization ([#52](https://github.com/magicink/twine-campfire/issues/52)) ([172d2d8](https://github.com/magicink/twine-campfire/commit/172d2d8684a93c8041c2cd178ca52c69a0d0893d))
 
 ## [1.10.0](https://github.com/magicink/twine-campfire/compare/v1.9.0...v1.10.0) (2025-08-01)
 
-
 ### Features
 
-* add i18n directives and debug tab ([#50](https://github.com/magicink/twine-campfire/issues/50)) ([26722de](https://github.com/magicink/twine-campfire/commit/26722de04d54d8a57f261e56f40bb9a129310074))
+- add i18n directives and debug tab ([#50](https://github.com/magicink/twine-campfire/issues/50)) ([26722de](https://github.com/magicink/twine-campfire/commit/26722de04d54d8a57f261e56f40bb9a129310074))
 
 ## [1.9.0](https://github.com/magicink/twine-campfire/compare/v1.8.0...v1.9.0) (2025-08-01)
 
-
 ### Features
 
-* **remark:** add lang directive ([#48](https://github.com/magicink/twine-campfire/issues/48)) ([20e2435](https://github.com/magicink/twine-campfire/commit/20e243578ef1273815e77b2226ca579f20854cc9))
+- **remark:** add lang directive ([#48](https://github.com/magicink/twine-campfire/issues/48)) ([20e2435](https://github.com/magicink/twine-campfire/commit/20e243578ef1273815e77b2226ca579f20854cc9))
 
 ## [1.8.0](https://github.com/magicink/twine-campfire/compare/v1.7.2...v1.8.0) (2025-08-01)
 
-
 ### Features
 
-* add include directive ([#42](https://github.com/magicink/twine-campfire/issues/42)) ([b73f234](https://github.com/magicink/twine-campfire/commit/b73f234744ba1792502e8d878c2663dab2816c41))
+- add include directive ([#42](https://github.com/magicink/twine-campfire/issues/42)) ([b73f234](https://github.com/magicink/twine-campfire/commit/b73f234744ba1792502e8d878c2663dab2816c41))
 
 ## [1.7.2](https://github.com/magicink/twine-campfire/compare/v1.7.1...v1.7.2) (2025-08-01)
 
-
 ### Bug Fixes
 
-* **campfire:** make debug window minimize on click ([#40](https://github.com/magicink/twine-campfire/issues/40)) ([befd468](https://github.com/magicink/twine-campfire/commit/befd4689d2415cad2029b6fcd6ee490bbbfdd201))
+- **campfire:** make debug window minimize on click ([#40](https://github.com/magicink/twine-campfire/issues/40)) ([befd468](https://github.com/magicink/twine-campfire/commit/befd4689d2415cad2029b6fcd6ee490bbbfdd201))
 
 ## [1.7.1](https://github.com/magicink/twine-campfire/compare/v1.7.0...v1.7.1) (2025-08-01)
 
-
 ### Bug Fixes
 
-* **apps/campfire:** refactor useGameStore references ([36af7ed](https://github.com/magicink/twine-campfire/commit/36af7edcefd5ec08afb10abb619588c5cf1d5973))
+- **apps/campfire:** refactor useGameStore references ([36af7ed](https://github.com/magicink/twine-campfire/commit/36af7edcefd5ec08afb10abb619588c5cf1d5973))
 
 ## [1.7.0](https://github.com/magicink/twine-campfire/compare/v1.6.0...v1.7.0) (2025-07-31)
 
-
 ### Features
 
-* **remark-campfire:** allow custom directive handlers ([#32](https://github.com/magicink/twine-campfire/issues/32)) ([27f1f57](https://github.com/magicink/twine-campfire/commit/27f1f571192a6dd3585e4efc3e362c8924ecfa4a))
+- **remark-campfire:** allow custom directive handlers ([#32](https://github.com/magicink/twine-campfire/issues/32)) ([27f1f57](https://github.com/magicink/twine-campfire/commit/27f1f571192a6dd3585e4efc3e362c8924ecfa4a))
 
 ## [1.6.0](https://github.com/magicink/twine-campfire/compare/v1.5.2...v1.6.0) (2025-07-31)
 
-
 ### Features
 
-* **apps/campfire:** run user code and styles on init ([#29](https://github.com/magicink/twine-campfire/issues/29)) ([193088e](https://github.com/magicink/twine-campfire/commit/193088e6e65e14ed2976ac0240735f8529d9beeb))
+- **apps/campfire:** run user code and styles on init ([#29](https://github.com/magicink/twine-campfire/issues/29)) ([193088e](https://github.com/magicink/twine-campfire/commit/193088e6e65e14ed2976ac0240735f8529d9beeb))
 
 ## [1.5.2](https://github.com/magicink/twine-campfire/compare/v1.5.1...v1.5.2) (2025-07-31)
 
-
 ### Bug Fixes
 
-* **apps/campfire:** inject tailwind via cdn ([#27](https://github.com/magicink/twine-campfire/issues/27)) ([ef1ac7c](https://github.com/magicink/twine-campfire/commit/ef1ac7c7f88a1dff6b5eebca5e91f7037d6d23f6))
+- **apps/campfire:** inject tailwind via cdn ([#27](https://github.com/magicink/twine-campfire/issues/27)) ([ef1ac7c](https://github.com/magicink/twine-campfire/commit/ef1ac7c7f88a1dff6b5eebca5e91f7037d6d23f6))
 
 ## [1.5.1](https://github.com/magicink/twine-campfire/compare/v1.5.0...v1.5.1) (2025-07-31)
 
-
 ### Bug Fixes
 
-* **apps/campfire:** include root template in tailwind ([#25](https://github.com/magicink/twine-campfire/issues/25)) ([c3be470](https://github.com/magicink/twine-campfire/commit/c3be470db7d1acc8a2ab6f41c1195acb8d5fdbf2))
+- **apps/campfire:** include root template in tailwind ([#25](https://github.com/magicink/twine-campfire/issues/25)) ([c3be470](https://github.com/magicink/twine-campfire/commit/c3be470db7d1acc8a2ab6f41c1195acb8d5fdbf2))
 
 ## [1.5.0](https://github.com/magicink/twine-campfire/compare/v1.4.0...v1.5.0) (2025-07-31)
 
-
 ### Features
 
-* **apps/campfire:** add tabbed debug window ([#23](https://github.com/magicink/twine-campfire/issues/23)) ([8fe0ee2](https://github.com/magicink/twine-campfire/commit/8fe0ee2a6d1d83a8f14adc0a24775612aed4b562))
+- **apps/campfire:** add tabbed debug window ([#23](https://github.com/magicink/twine-campfire/issues/23)) ([8fe0ee2](https://github.com/magicink/twine-campfire/commit/8fe0ee2a6d1d83a8f14adc0a24775612aed4b562))
 
 ## [1.4.0](https://github.com/magicink/twine-campfire/compare/v1.3.6...v1.4.0) (2025-07-31)
 
-
 ### Features
 
-* **remark-campfire:** add setOnce directive ([#21](https://github.com/magicink/twine-campfire/issues/21)) ([cce1839](https://github.com/magicink/twine-campfire/commit/cce1839470bc4120fc079eaf5892c1435ded5233))
+- **remark-campfire:** add setOnce directive ([#21](https://github.com/magicink/twine-campfire/issues/21)) ([cce1839](https://github.com/magicink/twine-campfire/commit/cce1839470bc4120fc079eaf5892c1435ded5233))
 
 ## [1.3.6](https://github.com/magicink/twine-campfire/compare/v1.3.5...v1.3.6) (2025-07-31)
 
-
 ### Bug Fixes
 
-* **template:** add absolute positioning classes to html and body for proper layout ([fd5907a](https://github.com/magicink/twine-campfire/commit/fd5907a3c2fb3d0b1a792d498ce4d23e6f634621))
+- **template:** add absolute positioning classes to html and body for proper layout ([fd5907a](https://github.com/magicink/twine-campfire/commit/fd5907a3c2fb3d0b1a792d498ce4d23e6f634621))
 
 ## [1.3.5](https://github.com/magicink/twine-campfire/compare/v1.3.4...v1.3.5) (2025-07-31)
 
-
 ### Bug Fixes
 
-* **apps/campfire:** update root element ID in campfire main file ([9fa265c](https://github.com/magicink/twine-campfire/commit/9fa265caa5846624e098a3bb69a2dcc22f9c1370))
+- **apps/campfire:** update root element ID in campfire main file ([9fa265c](https://github.com/magicink/twine-campfire/commit/9fa265caa5846624e098a3bb69a2dcc22f9c1370))
 
 ## [1.3.4](https://github.com/magicink/twine-campfire/compare/v1.3.3...v1.3.4) (2025-07-31)
 
-
 ### Bug Fixes
 
-* **apps/campfire:** inject NODE_ENV for react ([#17](https://github.com/magicink/twine-campfire/issues/17)) ([5bab472](https://github.com/magicink/twine-campfire/commit/5bab472cf1f8a4360e0fc7c88fd188f80a278d41))
+- **apps/campfire:** inject NODE_ENV for react ([#17](https://github.com/magicink/twine-campfire/issues/17)) ([5bab472](https://github.com/magicink/twine-campfire/commit/5bab472cf1f8a4360e0fc7c88fd188f80a278d41))
 
 ## [1.3.3](https://github.com/magicink/twine-campfire/compare/v1.3.2...v1.3.3) (2025-07-31)
 
-
 ### Bug Fixes
 
-* **template:** remove double stringification ([de6c038](https://github.com/magicink/twine-campfire/commit/de6c038390d61afdd73b22a10dead46e372935c5))
+- **template:** remove double stringification ([de6c038](https://github.com/magicink/twine-campfire/commit/de6c038390d61afdd73b22a10dead46e372935c5))
 
 ## [1.3.2](https://github.com/magicink/twine-campfire/compare/v1.3.1...v1.3.2) (2025-07-31)
 
-
 ### Bug Fixes
 
-* **template:** reorder story data for correct rendering ([1aadf66](https://github.com/magicink/twine-campfire/commit/1aadf667b1b6366e133a19ae670984675da4ac19))
+- **template:** reorder story data for correct rendering ([1aadf66](https://github.com/magicink/twine-campfire/commit/1aadf667b1b6366e133a19ae670984675da4ac19))
 
 ## [1.3.1](https://github.com/magicink/twine-campfire/compare/v1.3.0...v1.3.1) (2025-07-31)
 
-
 ### Bug Fixes
 
-* **remark-campfire:** replace variable attr with key ([#13](https://github.com/magicink/twine-campfire/issues/13)) ([c57be24](https://github.com/magicink/twine-campfire/commit/c57be24c20f0beae34a60f333dedc2f24fc0a03d))
+- **remark-campfire:** replace variable attr with key ([#13](https://github.com/magicink/twine-campfire/issues/13)) ([c57be24](https://github.com/magicink/twine-campfire/commit/c57be24c20f0beae34a60f333dedc2f24fc0a03d))
 
 ## [1.3.0](https://github.com/magicink/twine-campfire/compare/v1.2.1...v1.3.0) (2025-07-31)
 
-
 ### Features
 
-* **remark-campfire:** support increment and decrement directives ([#10](https://github.com/magicink/twine-campfire/issues/10)) ([1755ec8](https://github.com/magicink/twine-campfire/commit/1755ec8200ba09716239f7ec4137b482313dce7e))
+- **remark-campfire:** support increment and decrement directives ([#10](https://github.com/magicink/twine-campfire/issues/10)) ([1755ec8](https://github.com/magicink/twine-campfire/commit/1755ec8200ba09716239f7ec4137b482313dce7e))
 
 ## [1.2.1](https://github.com/magicink/twine-campfire/compare/v1.2.0...v1.2.1) (2025-07-31)
 
-
 ### Bug Fixes
 
-* **test-env:** await happy-dom unregister ([#7](https://github.com/magicink/twine-campfire/issues/7)) ([41b46a4](https://github.com/magicink/twine-campfire/commit/41b46a42b3f3a5cf5170ab098da0b34d55ee5201))
+- **test-env:** await happy-dom unregister ([#7](https://github.com/magicink/twine-campfire/issues/7)) ([41b46a4](https://github.com/magicink/twine-campfire/commit/41b46a42b3f3a5cf5170ab098da0b34d55ee5201))
 
 ## [1.2.0](https://github.com/magicink/twine-campfire/compare/v1.1.0...v1.2.0) (2025-07-31)
 

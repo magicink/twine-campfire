@@ -100,6 +100,14 @@ Directives come in two forms:
   :include[42]
   ```
 
+- `once` – execute a block only the first time it's encountered
+
+  ```md
+  :::once{intro}
+  This text appears only once.
+  :::
+  ```
+
 ### Localization
 
 Campfire uses [i18next](https://www.i18next.com/) to manage translations. For a
