@@ -367,6 +367,32 @@ describe('Passage', () => {
     )
   })
 
+  it('creates range values with set[range]', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        { type: 'text', value: ':set[range]{key=hp min=0 max=10 value=5}' }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(useGameStore.getState().gameData.hp).toEqual({
+        lower: 0,
+        upper: 10,
+        value: 5
+      })
+    })
+  })
+
   it('unsets game data with the unset directive', async () => {
     useGameStore.setState(state => ({
       ...state,
@@ -511,6 +537,29 @@ describe('Passage', () => {
     const button = await screen.findByRole('button', { name: 'Next' })
     button.click()
     expect(useStoryDataStore.getState().currentPassageId).toBe('Next')
+  })
+
+  it('creates namespaces from translations directive', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        { type: 'text', value: ':translations{ns=ui goodbye="Au revoir"}' },
+        { type: 'text', value: ':t{key=goodbye ns=ui}' }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    const text = await screen.findByText('Au revoir')
+    expect(text).toBeInTheDocument()
+    expect(i18next.hasResourceBundle('en-US', 'ui')).toBe(true)
   })
 
   it('runs onEnter and onExit blocks at the appropriate times', async () => {

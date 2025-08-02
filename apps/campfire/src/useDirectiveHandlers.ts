@@ -17,7 +17,6 @@ import {
   isRange,
   clamp,
   parseNumericValue,
-  parseRange,
   getRandomItem,
   getRandomInt,
   ensureKey,
@@ -70,6 +69,9 @@ export const useDirectiveHandlers = () => {
     const attrs = directive.attributes
     const safe: Record<string, unknown> = {}
 
+    const isRecord = (value: unknown): value is Record<string, unknown> =>
+      !!value && typeof value === 'object' && !Array.isArray(value)
+
     const parseValue = (value: string): unknown => {
       switch (typeParam) {
         case 'number': {
@@ -92,47 +94,63 @@ export const useDirectiveHandlers = () => {
           } catch {
             return {}
           }
-        case 'range':
-          try {
-            const parsed = JSON.parse(value)
-            if (parsed && typeof parsed === 'object') {
-              return parseRange(parsed)
-            }
-            const num =
-              typeof parsed === 'number' ? parsed : parseFloat(String(parsed))
-            return Number.isNaN(num) ? 0 : num
-          } catch {
-            const num = parseFloat(value)
-            return Number.isNaN(num) ? 0 : num
-          }
         case 'string':
         default:
           return value
       }
     }
 
-    if (attrs && typeof attrs === 'object') {
-      for (const [key, value] of Object.entries(attrs)) {
-        if (typeof value === 'string') {
-          const parsed = parseValue(value)
-          const current = gameData[key]
-          if (isRange(current)) {
-            if (typeof parsed === 'number') {
-              safe[key] = {
-                ...current,
-                value: clamp(parsed, current.lower, current.upper)
-              }
-            } else if (isRange(parsed)) {
-              safe[key] = {
-                lower: parsed.lower,
-                upper: parsed.upper,
-                value: clamp(parsed.value, parsed.lower, parsed.upper)
+    const parseNumber = (value: unknown): number => {
+      if (value == null) return 0
+      if (typeof value === 'number') return value
+      if (typeof value !== 'string') return parseNumericValue(value)
+      let evaluated: unknown = value
+      try {
+        const fn = compile(value)
+        evaluated = fn(gameData)
+      } catch {
+        // fall back to raw value when evaluation fails
+      }
+      if (evaluated == null) return 0
+      return parseNumericValue(evaluated)
+    }
+
+    if (isRecord(attrs)) {
+      if (typeParam === 'range') {
+        const key = typeof attrs.key === 'string' ? attrs.key : undefined
+        if (key) {
+          const lower = parseNumber(attrs.min)
+          const upper = parseNumber(attrs.max)
+          const val = parseNumber(attrs.value ?? lower)
+          safe[key] = {
+            lower,
+            upper,
+            value: clamp(val, lower, upper)
+          }
+        }
+      } else {
+        for (const [key, value] of Object.entries(attrs)) {
+          if (typeof value === 'string') {
+            const parsed = parseValue(value)
+            const current = gameData[key]
+            if (isRange(current)) {
+              if (typeof parsed === 'number') {
+                safe[key] = {
+                  ...current,
+                  value: clamp(parsed, current.lower, current.upper)
+                }
+              } else if (isRange(parsed)) {
+                safe[key] = {
+                  lower: parsed.lower,
+                  upper: parsed.upper,
+                  value: clamp(parsed.value, parsed.lower, parsed.upper)
+                }
+              } else {
+                safe[key] = parsed
               }
             } else {
               safe[key] = parsed
             }
-          } else {
-            safe[key] = parsed
           }
         }
       }
@@ -438,33 +456,6 @@ export const useDirectiveHandlers = () => {
     return removeNode(parent, index)
   }
 
-  const handleNamespace: DirectiveHandler = (directive, parent, index) => {
-    const attrs = (directive.attributes || {}) as Record<string, unknown>
-    const ns =
-      typeof attrs.ns === 'string' ? attrs.ns : toString(directive).trim()
-    if (!ns) return removeNode(parent, index)
-    const locale =
-      typeof attrs.locale === 'string'
-        ? attrs.locale
-        : i18next.resolvedLanguage || i18next.language
-    let resources: Record<string, unknown> = {}
-    if (typeof attrs.data === 'string') {
-      try {
-        resources = JSON.parse(attrs.data)
-      } catch {
-        // ignore
-      }
-    }
-    if (!i18next.hasResourceBundle(locale, ns)) {
-      i18next.addResourceBundle(locale, ns, resources, true, true)
-    } else if (Object.keys(resources).length) {
-      for (const [k, v] of Object.entries(resources)) {
-        i18next.addResource(locale, ns, k, v as string)
-      }
-    }
-    return removeNode(parent, index)
-  }
-
   const handleTranslations: DirectiveHandler = (directive, parent, index) => {
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const ns = typeof attrs.ns === 'string' ? attrs.ns : 'translation'
@@ -484,6 +475,9 @@ export const useDirectiveHandlers = () => {
         if (k === 'ns' || k === 'locale') continue
         resources[k] = v
       }
+    }
+    if (!i18next.hasResourceBundle(locale, ns)) {
+      i18next.addResourceBundle(locale, ns, {}, true, true)
     }
     if (Object.keys(resources).length) {
       for (const [k, v] of Object.entries(resources)) {
@@ -604,7 +598,6 @@ export const useDirectiveHandlers = () => {
       onChange: handleOnChange,
       lang: handleLang,
       include: handleInclude,
-      namespace: handleNamespace,
       translations: handleTranslations,
       t: handleTranslate
     }

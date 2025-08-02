@@ -141,13 +141,17 @@ export const Story = () => {
   }
 
   useEffect(() => {
-    initialize()
+    const story = initialize()
+    const debug = story?.properties?.options === 'debug'
     if (!i18next.isInitialized) {
       void i18next.use(initReactI18next).init({
         lng: i18next.language || 'en-US',
         fallbackLng: 'en-US',
-        resources: {}
+        resources: {},
+        debug
       })
+    } else {
+      i18next.options.debug = debug
     }
   }, [])
 
