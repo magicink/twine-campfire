@@ -186,6 +186,44 @@ export const useDirectiveHandlers = () => {
     }
   }
 
+  const handleMath: DirectiveHandler = (directive, parent, index) => {
+    const attrs = directive.attributes || {}
+    let expr = toString(directive).trim()
+    if (!expr) {
+      if (typeof (attrs as Record<string, unknown>).expr === 'string') {
+        expr = String((attrs as Record<string, unknown>).expr)
+      } else {
+        const first = Object.keys(attrs)[0]
+        expr = first && first !== 'key' ? first : ''
+      }
+    }
+
+    let value: unknown
+    try {
+      const fn = compile(expr)
+      value = fn(gameData)
+    } catch {
+      value = ''
+    }
+
+    const key =
+      typeof (attrs as Record<string, unknown>).key === 'string'
+        ? ((attrs as Record<string, unknown>).key as string)
+        : undefined
+    if (typeof key === 'string') {
+      setGameData({ [key]: value })
+    }
+
+    const textNode: MdText = {
+      type: 'text',
+      value: value == null ? '' : String(value)
+    }
+    if (parent && typeof index === 'number') {
+      parent.children.splice(index, 1, textNode)
+      return index
+    }
+  }
+
   const handleRandom: DirectiveHandler = (directive, parent, index) => {
     const attrs = directive.attributes || {}
     const key = ensureKey((attrs as Record<string, unknown>).key, parent, index)
@@ -467,6 +505,7 @@ export const useDirectiveHandlers = () => {
         i: number | undefined
       ) => handleSet(d, p, i, true),
       get: handleGet,
+      math: handleMath,
       random: handleRandom,
       increment: (
         d: DirectiveNode,

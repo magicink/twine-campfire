@@ -46,6 +46,13 @@ Directives come in two forms:
   HP: :get{hp}
   ```
 
+- `math` – evaluate an expression and insert the result. Add `key` to store it.
+
+  ```md
+  Result: :math[1 + 2]
+  :math[hp + 5]{key=hp}
+  ```
+
 - `random` – store a random number or choice in a key
 
   ```md

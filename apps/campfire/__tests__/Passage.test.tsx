@@ -209,6 +209,53 @@ describe('Passage', () => {
     expect(text).toBeInTheDocument()
   })
 
+  it('evaluates expressions with math directive', async () => {
+    useGameStore.setState(state => ({
+      ...state,
+      gameData: { x: 3 }
+    }))
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: 'Result: :math[x * 2]' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    const text = await screen.findByText('Result: 6')
+    expect(text).toBeInTheDocument()
+  })
+
+  it('can set state with math directive', async () => {
+    useGameStore.setState(state => ({
+      ...state,
+      gameData: { hp: 5 }
+    }))
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: 'HP: :math[hp + 1]{key=hp}' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    const text = await screen.findByText('HP: 6')
+    expect(text).toBeInTheDocument()
+    expect(useGameStore.getState().gameData.hp).toBe(6)
+  })
+
   it('increments values', async () => {
     useGameStore.setState(state => ({
       ...state,
