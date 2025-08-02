@@ -118,6 +118,13 @@ Directives come in two forms:
   :::
   ```
 
+- `goto` – jump to another passage by name or id
+
+  ```md
+  :goto[Intro]
+  :goto[42]
+  ```
+
 - `include` – insert another passage by name or id
 
   ```md
@@ -175,8 +182,38 @@ ignored inside passages brought in with `:include`.
   :restore
   ```
 
+- `clearCheckpoint` – remove a saved checkpoint. Without an `id`, all checkpoints are cleared.
+
+  ```md
+  :clearCheckpoint{id=save1}
+  :clearCheckpoint
+  ```
+
 Multiple checkpoints in the same passage are ignored and log an error. An error
 is also recorded if `restore` cannot find the requested checkpoint.
+
+### Persistence
+
+Store progress in the browser to resume later. These directives set the game
+state's `loading` flag while accessing local storage.
+
+- `save` – write the current game state and checkpoints to local storage. Optionally set a `key`.
+
+  ```md
+  :save{key=slot1}
+  ```
+
+- `load` – load game state and checkpoints from local storage using the same `key`.
+
+  ```md
+  :load{key=slot1}
+  ```
+
+- `clearSave` – remove a stored game state from local storage using the same `key`.
+
+  ```md
+  :clearSave{key=slot1}
+  ```
 
 ### Localization
 

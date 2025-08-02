@@ -12,7 +12,7 @@ import type { Text as MdText, Parent, RootContent, Root } from 'mdast'
 import type { Text as HastText, ElementContent } from 'hast'
 import type { ContainerDirective } from 'mdast-util-directive'
 import { useStoryDataStore } from '@/packages/use-story-data-store'
-import { useGameStore } from '@/packages/use-game-store'
+import { useGameStore, type Checkpoint } from '@/packages/use-game-store'
 import {
   isRange,
   clamp,
@@ -41,6 +41,7 @@ export const useDirectiveHandlers = () => {
   const saveCheckpoint = useGameStore(state => state.saveCheckpoint)
   const removeCheckpoint = useGameStore(state => state.removeCheckpoint)
   const restoreCheckpointFn = useGameStore(state => state.restoreCheckpoint)
+  const setLoading = useGameStore(state => state.setLoading)
   const addError = useGameStore(state => state.addError)
   const clearErrors = useGameStore(state => state.clearErrors)
   const currentPassageId = useStoryDataStore(state => state.currentPassageId)
@@ -543,6 +544,110 @@ export const useDirectiveHandlers = () => {
   const MAX_INCLUDE_DEPTH = 10
   let includeDepth = 0
 
+  const handleGoto: DirectiveHandler = (directive, parent, index) => {
+    const attrs = (directive.attributes || {}) as Record<string, unknown>
+    const target =
+      typeof attrs.pid === 'string'
+        ? attrs.pid
+        : typeof attrs.name === 'string'
+          ? attrs.name
+          : toString(directive).trim() || Object.keys(attrs)[0] || ''
+    if (target) {
+      const passage = /^\d+$/.test(target)
+        ? getPassageById(target)
+        : getPassageByName(target)
+      if (passage) {
+        setCurrentPassage(target)
+      } else {
+        const msg = `Passage not found: ${target}`
+        console.error(msg)
+        addError(msg)
+      }
+    }
+    return removeNode(parent, index)
+  }
+
+  const handleSave: DirectiveHandler = (directive, parent, index) => {
+    const attrs = (directive.attributes || {}) as Record<string, unknown>
+    const key = typeof attrs.key === 'string' ? attrs.key : 'campfire.save'
+    setLoading(true)
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const state = useGameStore.getState()
+        const data = {
+          gameData: { ...(state.gameData as Record<string, unknown>) },
+          lockedKeys: { ...state.lockedKeys },
+          onceKeys: { ...state.onceKeys },
+          checkpoints: { ...state.checkpoints },
+          currentPassageId
+        }
+        localStorage.setItem(key, JSON.stringify(data))
+      }
+    } catch (error) {
+      console.error('Error saving game state:', error)
+      addError('Failed to save game state')
+    } finally {
+      setLoading(false)
+    }
+    return removeNode(parent, index)
+  }
+
+  const handleLoad: DirectiveHandler = (directive, parent, index) => {
+    const attrs = (directive.attributes || {}) as Record<string, unknown>
+    const key = typeof attrs.key === 'string' ? attrs.key : 'campfire.save'
+    setLoading(true)
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const raw = localStorage.getItem(key)
+        if (raw) {
+          const data = JSON.parse(raw) as {
+            gameData?: Record<string, unknown>
+            lockedKeys?: Record<string, true>
+            onceKeys?: Record<string, true>
+            checkpoints?: Record<string, Checkpoint<Record<string, unknown>>>
+            currentPassageId?: string
+          }
+          useGameStore.setState({
+            gameData: { ...(data.gameData || {}) },
+            lockedKeys: { ...(data.lockedKeys || {}) },
+            onceKeys: { ...(data.onceKeys || {}) },
+            checkpoints: { ...(data.checkpoints || {}) }
+          })
+          if (data.currentPassageId) {
+            setCurrentPassage(data.currentPassageId)
+          } else {
+            const msg = 'Saved game state has no current passage'
+            console.error(msg)
+            addError(msg)
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error loading game state:', error)
+      addError('Failed to load game state')
+    } finally {
+      setLoading(false)
+    }
+    return removeNode(parent, index)
+  }
+
+  const handleClearSave: DirectiveHandler = (directive, parent, index) => {
+    const attrs = (directive.attributes || {}) as Record<string, unknown>
+    const key = typeof attrs.key === 'string' ? attrs.key : 'campfire.save'
+    setLoading(true)
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem(key)
+      }
+    } catch (error) {
+      console.error('Error clearing saved game state:', error)
+      addError('Failed to clear saved game state')
+    } finally {
+      setLoading(false)
+    }
+    return removeNode(parent, index)
+  }
+
   const handleCheckpoint: DirectiveHandler = (directive, parent, index) => {
     if (lastPassageIdRef.current !== currentPassageId) {
       resetCheckpointState()
@@ -583,6 +688,22 @@ export const useDirectiveHandlers = () => {
     const cp = restoreCheckpointFn(id)
     if (cp?.currentPassageId) {
       setCurrentPassage(cp.currentPassageId)
+    }
+    return removeNode(parent, index)
+  }
+
+  const handleClearCheckpoint: DirectiveHandler = (
+    directive,
+    parent,
+    index
+  ) => {
+    if (includeDepth > 0) return removeNode(parent, index)
+    const attrs = (directive.attributes || {}) as Record<string, unknown>
+    const id = typeof attrs.id === 'string' ? attrs.id : undefined
+    if (id) {
+      removeCheckpoint(id)
+    } else {
+      useGameStore.setState({ checkpoints: {} })
     }
     return removeNode(parent, index)
   }
@@ -664,7 +785,12 @@ export const useDirectiveHandlers = () => {
       onChange: handleOnChange,
       lang: handleLang,
       include: handleInclude,
+      goto: handleGoto,
+      save: handleSave,
+      load: handleLoad,
+      clearSave: handleClearSave,
       checkpoint: handleCheckpoint,
+      clearCheckpoint: handleClearCheckpoint,
       restore: handleRestore,
       clearErrors: handleClearErrors,
       translations: handleTranslations,
