@@ -916,6 +916,37 @@ describe('Passage', () => {
     })
   })
 
+  it('logs error when loaded state lacks current passage id', async () => {
+    const logged: unknown[] = []
+    const orig = console.error
+    console.error = (...args: unknown[]) => {
+      logged.push(args)
+    }
+
+    localStorage.setItem('slot1', JSON.stringify({ gameData: { hp: 7 } }))
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':load{key=slot1}' }]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect((useGameStore.getState().gameData as any).hp).toBe(7)
+      expect(useStoryDataStore.getState().currentPassageId).toBe('1')
+      expect(logged).toHaveLength(1)
+      expect(useGameStore.getState().errors).toEqual([
+        'Saved game state has no current passage'
+      ])
+    })
+
+    console.error = orig
+  })
+
   it('clears a checkpoint by id', async () => {
     const passage: Element = {
       type: 'element',

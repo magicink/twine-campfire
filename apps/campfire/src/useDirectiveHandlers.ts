@@ -608,7 +608,13 @@ export const useDirectiveHandlers = () => {
             onceKeys: { ...(data.onceKeys || {}) },
             checkpoints: { ...(data.checkpoints || {}) }
           })
-          setCurrentPassage(data.currentPassageId)
+          if (data.currentPassageId) {
+            setCurrentPassage(data.currentPassageId)
+          } else {
+            const msg = 'Saved game state has no current passage'
+            console.error(msg)
+            addError(msg)
+          }
         }
       }
     } catch (error) {
