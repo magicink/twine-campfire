@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.0](https://github.com/magicink/twine-campfire/compare/v1.13.0...v1.14.0) (2025-08-02)
+
+
+### Features
+
+* enhance translations and range directive ([#62](https://github.com/magicink/twine-campfire/issues/62)) ([240edf5](https://github.com/magicink/twine-campfire/commit/240edf521e32ec1b72794d34f6fd658b1fb30847))
+
 ## [1.13.0](https://github.com/magicink/twine-campfire/compare/v1.12.0...v1.13.0) (2025-08-02)
 
 
