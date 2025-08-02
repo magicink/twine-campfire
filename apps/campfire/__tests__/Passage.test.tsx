@@ -842,12 +842,17 @@ describe('Passage', () => {
     console.error = orig
   })
 
-  it('saves game state to local storage', async () => {
+  it('saves game state and checkpoints to local storage', async () => {
     const passage: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':set[number]{hp=5}:save{key=slot1}' }]
+      children: [
+        {
+          type: 'text',
+          value: ':set[number]{hp=5}:checkpoint{id=cp1}:save{key=slot1}'
+        }
+      ]
     }
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
     render(<Passage />)
@@ -857,16 +862,26 @@ describe('Passage', () => {
       const data = JSON.parse(raw || '{}')
       expect(data.gameData.hp).toBe(5)
       expect(data.currentPassageId).toBe('1')
+      expect(data.checkpoints.cp1).toBeDefined()
     })
   })
 
-  it('loads game state from local storage', async () => {
+  it('loads game state and checkpoints from local storage', async () => {
     localStorage.setItem(
       'slot1',
       JSON.stringify({
         gameData: { hp: 7 },
         lockedKeys: {},
         onceKeys: {},
+        checkpoints: {
+          cp1: {
+            gameData: { hp: 7 },
+            lockedKeys: {},
+            onceKeys: {},
+            currentPassageId: '2',
+            timestamp: 1
+          }
+        },
         currentPassageId: '2'
       })
     )
@@ -892,6 +907,10 @@ describe('Passage', () => {
 
     await waitFor(() => {
       expect((useGameStore.getState().gameData as any).hp).toBe(7)
+      expect(useGameStore.getState().checkpoints.cp1).toBeDefined()
+      expect(
+        (useGameStore.getState().checkpoints.cp1?.gameData as any).hp
+      ).toBe(7)
       expect(useStoryDataStore.getState().currentPassageId).toBe('2')
       expect(screen.getByText('Second text')).toBeInTheDocument()
     })

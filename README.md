@@ -189,13 +189,13 @@ is also recorded if `restore` cannot find the requested checkpoint.
 
 Store progress in the browser to resume later.
 
-- `save` – write the current game state to local storage. Optionally set a `key`.
+- `save` – write the current game state and checkpoints to local storage. Optionally set a `key`.
 
   ```md
   :save{key=slot1}
   ```
 
-- `load` – load game state from local storage using the same `key`.
+- `load` – load game state and checkpoints from local storage using the same `key`.
 
   ```md
   :load{key=slot1}

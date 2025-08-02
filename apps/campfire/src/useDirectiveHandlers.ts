@@ -12,7 +12,7 @@ import type { Text as MdText, Parent, RootContent, Root } from 'mdast'
 import type { Text as HastText, ElementContent } from 'hast'
 import type { ContainerDirective } from 'mdast-util-directive'
 import { useStoryDataStore } from '@/packages/use-story-data-store'
-import { useGameStore } from '@/packages/use-game-store'
+import { useGameStore, type Checkpoint } from '@/packages/use-game-store'
 import {
   isRange,
   clamp,
@@ -576,6 +576,7 @@ export const useDirectiveHandlers = () => {
           gameData: { ...(state.gameData as Record<string, unknown>) },
           lockedKeys: { ...state.lockedKeys },
           onceKeys: { ...state.onceKeys },
+          checkpoints: { ...state.checkpoints },
           currentPassageId
         }
         localStorage.setItem(key, JSON.stringify(data))
@@ -598,12 +599,14 @@ export const useDirectiveHandlers = () => {
             gameData?: Record<string, unknown>
             lockedKeys?: Record<string, true>
             onceKeys?: Record<string, true>
+            checkpoints?: Record<string, Checkpoint<Record<string, unknown>>>
             currentPassageId?: string
           }
           useGameStore.setState({
             gameData: { ...(data.gameData || {}) },
             lockedKeys: { ...(data.lockedKeys || {}) },
-            onceKeys: { ...(data.onceKeys || {}) }
+            onceKeys: { ...(data.onceKeys || {}) },
+            checkpoints: { ...(data.checkpoints || {}) }
           })
           setCurrentPassage(data.currentPassageId)
         }
