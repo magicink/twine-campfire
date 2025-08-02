@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import i18next from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import {
@@ -70,6 +70,7 @@ export const applyUserStyles = (
  * @component
  */
 export const Story = () => {
+  const [i18nInitialized, setI18nInitialized] = useState(i18next.isInitialized)
   const passage = useStoryDataStore((state: StoryDataState) =>
     state.getCurrentPassage()
   )
@@ -143,19 +144,26 @@ export const Story = () => {
   useEffect(() => {
     const story = initialize()
     const debug = story?.properties?.options === 'debug'
+
     if (!i18next.isInitialized) {
-      void i18next.use(initReactI18next).init({
-        lng: i18next.language || 'en-US',
-        fallbackLng: 'en-US',
-        resources: {},
-        debug
-      })
+      i18next
+        .use(initReactI18next)
+        .init({
+          lng: i18next.language || 'en-US',
+          fallbackLng: 'en-US',
+          resources: {},
+          debug
+        })
+        .then(() => {
+          setI18nInitialized(true)
+        })
     } else {
       i18next.options.debug = debug
+      setI18nInitialized(true)
     }
   }, [])
 
-  if (!i18next.isInitialized) return null
+  if (!i18nInitialized) return null
 
   return (
     <div className={'absolute inset-0 overflow-y-auto overflow-x-hidden'}>
