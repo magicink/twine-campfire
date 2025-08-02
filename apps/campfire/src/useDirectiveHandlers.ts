@@ -618,6 +618,20 @@ export const useDirectiveHandlers = () => {
     return removeNode(parent, index)
   }
 
+  const handleClearSave: DirectiveHandler = (directive, parent, index) => {
+    const attrs = (directive.attributes || {}) as Record<string, unknown>
+    const key = typeof attrs.key === 'string' ? attrs.key : 'campfire.save'
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem(key)
+      }
+    } catch (error) {
+      console.error('Error clearing saved game state:', error)
+      addError('Failed to clear saved game state')
+    }
+    return removeNode(parent, index)
+  }
+
   const handleCheckpoint: DirectiveHandler = (directive, parent, index) => {
     if (lastPassageIdRef.current !== currentPassageId) {
       resetCheckpointState()
@@ -658,6 +672,22 @@ export const useDirectiveHandlers = () => {
     const cp = restoreCheckpointFn(id)
     if (cp?.currentPassageId) {
       setCurrentPassage(cp.currentPassageId)
+    }
+    return removeNode(parent, index)
+  }
+
+  const handleClearCheckpoint: DirectiveHandler = (
+    directive,
+    parent,
+    index
+  ) => {
+    if (includeDepth > 0) return removeNode(parent, index)
+    const attrs = (directive.attributes || {}) as Record<string, unknown>
+    const id = typeof attrs.id === 'string' ? attrs.id : undefined
+    if (id) {
+      removeCheckpoint(id)
+    } else {
+      useGameStore.setState({ checkpoints: {} })
     }
     return removeNode(parent, index)
   }
@@ -742,7 +772,9 @@ export const useDirectiveHandlers = () => {
       goto: handleGoto,
       save: handleSave,
       load: handleLoad,
+      clearSave: handleClearSave,
       checkpoint: handleCheckpoint,
+      clearCheckpoint: handleClearCheckpoint,
       restore: handleRestore,
       clearErrors: handleClearErrors,
       translations: handleTranslations,

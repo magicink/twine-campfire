@@ -916,6 +916,78 @@ describe('Passage', () => {
     })
   })
 
+  it('clears a checkpoint by id', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':checkpoint{id=cp1}:clearCheckpoint{id=cp1}'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(useGameStore.getState().checkpoints).toEqual({})
+    })
+  })
+
+  it('clears all checkpoints when no id is provided', async () => {
+    const state = useGameStore.getState()
+    state.saveCheckpoint('cp1', {
+      gameData: {},
+      lockedKeys: {},
+      onceKeys: {},
+      currentPassageId: '1'
+    })
+    state.saveCheckpoint('cp2', {
+      gameData: {},
+      lockedKeys: {},
+      onceKeys: {},
+      currentPassageId: '1'
+    })
+
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':clearCheckpoint' }]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(useGameStore.getState().checkpoints).toEqual({})
+    })
+  })
+
+  it('clears saved data from local storage', async () => {
+    localStorage.setItem('slot1', 'test')
+
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':clearSave{key=slot1}' }]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(localStorage.getItem('slot1')).toBeNull()
+    })
+  })
+
   it('stores error when restore cannot find a checkpoint', async () => {
     const logged: unknown[] = []
     const orig = console.error
