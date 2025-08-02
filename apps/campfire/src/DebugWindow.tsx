@@ -76,7 +76,9 @@ export const DebugWindow = () => {
       role='dialog'
       aria-labelledby='debug-window-title'
       onClick={() => setMinimized(m => !m)}
-      className='fixed right-0 top-0 bottom-0 w-80 bg-white text-black shadow-lg text-xs overflow-y-auto'
+      className={`fixed right-0 top-0 w-80 bg-white text-black shadow-lg text-xs overflow-y-auto ${
+        minimized ? '' : 'bottom-0'
+      }`}
     >
       <div className='flex items-center justify-between p-2 border-b'>
         <span id='debug-window-title' className='font-bold'>
