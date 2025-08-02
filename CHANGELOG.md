@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.0](https://github.com/magicink/twine-campfire/compare/v1.15.0...v1.16.0) (2025-08-02)
+
+
+### Features
+
+* add goto, save, and load directives ([#69](https://github.com/magicink/twine-campfire/issues/69)) ([eb8af63](https://github.com/magicink/twine-campfire/commit/eb8af632c4991c74e105d16eeb2c92c864f2354f))
+
 ## [1.15.0](https://github.com/magicink/twine-campfire/compare/v1.14.3...v1.15.0) (2025-08-02)
 
 
