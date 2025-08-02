@@ -37,6 +37,7 @@ export const useDirectiveHandlers = () => {
   const unsetGameData = useGameStore(state => state.unsetGameData)
   const markOnce = useGameStore(state => state.markOnce)
   const onceKeys = useGameStore(state => state.onceKeys)
+  const lockKey = useGameStore(state => state.lockKey)
   const lockedKeys = useGameStore(state => state.lockedKeys)
   const saveCheckpoint = useGameStore(state => state.saveCheckpoint)
   const removeCheckpoint = useGameStore(state => state.removeCheckpoint)
@@ -46,13 +47,24 @@ export const useDirectiveHandlers = () => {
   const clearErrors = useGameStore(state => state.clearErrors)
   const currentPassageId = useStoryDataStore(state => state.currentPassageId)
   const setCurrentPassage = useStoryDataStore(state => state.setCurrentPassage)
+  const getPassageById = useStoryDataStore(state => state.getPassageById)
+  const getPassageByName = useStoryDataStore(state => state.getPassageByName)
   const handlersRef = useRef<Record<string, DirectiveHandler>>({})
   const exitHandlers = useRef<RootContent[][]>([])
   const changeSubscriptions = useRef<Array<() => void>>([])
+  const checkpoints = useGameStore(state => state.checkpoints)
   const checkpointIdRef = useRef<string | null>(null)
   const checkpointErrorRef = useRef(false)
   const lastPassageIdRef = useRef<string | undefined>(undefined)
 
+  const MAX_INCLUDE_DEPTH = 10
+  let includeDepth = 0
+
+  /**
+   * Processes a block of AST nodes using the unified processor with the remarkCampfire plugin.
+   *
+   * @param nodes - An array of RootContent nodes to process.
+   */
   const runBlock = (nodes: RootContent[]) => {
     const root: Root = { type: 'root', children: nodes }
     unified()
@@ -60,6 +72,10 @@ export const useDirectiveHandlers = () => {
       .runSync(root)
   }
 
+  /**
+   * Resets the checkpoint state by clearing the current checkpoint ID and error flag,
+   * and updating the lastPassageIdRef to the current passage ID.
+   */
   const resetCheckpointState = () => {
     checkpointIdRef.current = null
     checkpointErrorRef.current = false
@@ -77,6 +93,7 @@ export const useDirectiveHandlers = () => {
     changeSubscriptions.current = []
     resetCheckpointState()
   }, [currentPassageId])
+
   const handleSet = (
     directive: DirectiveNode,
     parent: Parent | undefined,
@@ -175,11 +192,10 @@ export const useDirectiveHandlers = () => {
     }
 
     if (Object.keys(safe).length > 0) {
-      const state = useGameStore.getState()
-      state.setGameData(safe)
+      setGameData(safe)
       if (lock) {
         for (const k of Object.keys(safe)) {
-          state.lockKey(k)
+          lockKey(k)
         }
       }
     }
@@ -538,12 +554,6 @@ export const useDirectiveHandlers = () => {
     }
   }
 
-  const getPassageById = useStoryDataStore(state => state.getPassageById)
-  const getPassageByName = useStoryDataStore(state => state.getPassageByName)
-
-  const MAX_INCLUDE_DEPTH = 10
-  let includeDepth = 0
-
   const handleGoto: DirectiveHandler = (directive, parent, index) => {
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const target =
@@ -573,12 +583,11 @@ export const useDirectiveHandlers = () => {
     setLoading(true)
     try {
       if (typeof localStorage !== 'undefined') {
-        const state = useGameStore.getState()
         const data = {
-          gameData: { ...(state.gameData as Record<string, unknown>) },
-          lockedKeys: { ...state.lockedKeys },
-          onceKeys: { ...state.onceKeys },
-          checkpoints: { ...state.checkpoints },
+          gameData: { ...(gameData as Record<string, unknown>) },
+          lockedKeys: { ...lockedKeys },
+          onceKeys: { ...onceKeys },
+          checkpoints: { ...checkpoints },
           currentPassageId
         }
         localStorage.setItem(key, JSON.stringify(data))
@@ -756,6 +765,7 @@ export const useDirectiveHandlers = () => {
   }
 
   return useMemo(() => {
+    // noinspection JSUnusedGlobalSymbols
     const handlers = {
       set: (d: DirectiveNode, p: Parent | undefined, i: number | undefined) =>
         handleSet(d, p, i, false),
