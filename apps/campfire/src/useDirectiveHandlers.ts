@@ -186,6 +186,16 @@ export const useDirectiveHandlers = () => {
     }
   }
 
+  /**
+   * Evaluates a mathematical or JavaScript expression in the context of the current game data.
+   * Optionally stores the result in the game data state if a 'key' attribute is provided.
+   * Replaces the directive node in the AST with a text node containing the result.
+   *
+   * @param {ContainerDirective} directive - The directive node containing the expression and optional attributes.
+   * @param {Parent | undefined} parent - The parent AST node, if available.
+   * @param {number | undefined} index - The index of the directive node within its parent's children array.
+   * @returns {number | undefined} The index at which the node was replaced, or undefined if not replaced.
+   */
   const handleMath: DirectiveHandler = (directive, parent, index) => {
     const attrs = directive.attributes || {}
     let expr = toString(directive).trim()
