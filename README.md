@@ -2,7 +2,7 @@
 
 A cozy story format for Twine.
 
-## Harlowe-style links
+## Twine links
 
 Campfire recognizes Twine's `[[Link]]` syntax. The text inside becomes a button
 that jumps to the target passage. Use an arrow to specify a different target:
@@ -10,6 +10,31 @@ that jumps to the target passage. Use an arrow to specify a different target:
 ```md
 [[Display text->Passage name]]
 ```
+
+## Markdown formatting
+
+Campfire accepts all standard Markdown formatting options provided by [remark-gfm](https://github.com/remarkjs/remark-gfm). This includes tables, strikethrough, task lists, autolinks, and more.
+
+**Examples:**
+
+- **Table:**
+
+  | Name  | HP  |
+  | ----- | --- |
+  | Alice | 10  |
+  | Bob   | 8   |
+
+- **Strikethrough:**
+
+  ~~This text is crossed out.~~
+
+- **Task list:**
+  - [x] Find the key
+  - [ ] Open the door
+
+- **Autolink:**
+
+  <https://twine-campfire.dev>
 
 ## Markdown Directives
 
@@ -150,12 +175,6 @@ ignored inside passages brought in with `:include`.
   :restore
   ```
 
-- `clearErrors` – remove all logged game errors
-
-  ```md
-  :clearErrors
-  ```
-
 Multiple checkpoints in the same passage are ignored and log an error. An error
 is also recorded if `restore` cannot find the requested checkpoint.
 
@@ -207,3 +226,11 @@ Reference the namespace when translating strings:
 :translations{ns=ui locale=fr cancel="Annuler"}
 :t{key=cancel ns=ui}
 ```
+
+## Error handling
+
+- `clearErrors` – remove all logged game errors
+
+  ```md
+  :clearErrors
+  ```
