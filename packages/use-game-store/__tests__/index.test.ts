@@ -8,7 +8,8 @@ beforeEach(() => {
     lockedKeys: {},
     onceKeys: {},
     checkpoints: {},
-    errors: []
+    errors: [],
+    loading: false
   })
   useGameStore.getState().init({})
 })

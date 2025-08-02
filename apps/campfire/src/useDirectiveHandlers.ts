@@ -41,6 +41,7 @@ export const useDirectiveHandlers = () => {
   const saveCheckpoint = useGameStore(state => state.saveCheckpoint)
   const removeCheckpoint = useGameStore(state => state.removeCheckpoint)
   const restoreCheckpointFn = useGameStore(state => state.restoreCheckpoint)
+  const setLoading = useGameStore(state => state.setLoading)
   const addError = useGameStore(state => state.addError)
   const clearErrors = useGameStore(state => state.clearErrors)
   const currentPassageId = useStoryDataStore(state => state.currentPassageId)
@@ -569,72 +570,90 @@ export const useDirectiveHandlers = () => {
   const handleSave: DirectiveHandler = (directive, parent, index) => {
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const key = typeof attrs.key === 'string' ? attrs.key : 'campfire.save'
-    try {
-      if (typeof localStorage !== 'undefined') {
-        const state = useGameStore.getState()
-        const data = {
-          gameData: { ...(state.gameData as Record<string, unknown>) },
-          lockedKeys: { ...state.lockedKeys },
-          onceKeys: { ...state.onceKeys },
-          checkpoints: { ...state.checkpoints },
-          currentPassageId
+    setLoading(true)
+    void Promise.resolve()
+      .then(() => {
+        if (typeof localStorage !== 'undefined') {
+          const state = useGameStore.getState()
+          const data = {
+            gameData: { ...(state.gameData as Record<string, unknown>) },
+            lockedKeys: { ...state.lockedKeys },
+            onceKeys: { ...state.onceKeys },
+            checkpoints: { ...state.checkpoints },
+            currentPassageId
+          }
+          localStorage.setItem(key, JSON.stringify(data))
         }
-        localStorage.setItem(key, JSON.stringify(data))
-      }
-    } catch (error) {
-      console.error('Error saving game state:', error)
-      addError('Failed to save game state')
-    }
+      })
+      .catch(error => {
+        console.error('Error saving game state:', error)
+        addError('Failed to save game state')
+      })
+      .finally(() => {
+        setLoading(false)
+      })
     return removeNode(parent, index)
   }
 
   const handleLoad: DirectiveHandler = (directive, parent, index) => {
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const key = typeof attrs.key === 'string' ? attrs.key : 'campfire.save'
-    try {
-      if (typeof localStorage !== 'undefined') {
-        const raw = localStorage.getItem(key)
-        if (raw) {
-          const data = JSON.parse(raw) as {
-            gameData?: Record<string, unknown>
-            lockedKeys?: Record<string, true>
-            onceKeys?: Record<string, true>
-            checkpoints?: Record<string, Checkpoint<Record<string, unknown>>>
-            currentPassageId?: string
-          }
-          useGameStore.setState({
-            gameData: { ...(data.gameData || {}) },
-            lockedKeys: { ...(data.lockedKeys || {}) },
-            onceKeys: { ...(data.onceKeys || {}) },
-            checkpoints: { ...(data.checkpoints || {}) }
-          })
-          if (data.currentPassageId) {
-            setCurrentPassage(data.currentPassageId)
-          } else {
-            const msg = 'Saved game state has no current passage'
-            console.error(msg)
-            addError(msg)
+    setLoading(true)
+    void Promise.resolve()
+      .then(() => {
+        if (typeof localStorage !== 'undefined') {
+          const raw = localStorage.getItem(key)
+          if (raw) {
+            const data = JSON.parse(raw) as {
+              gameData?: Record<string, unknown>
+              lockedKeys?: Record<string, true>
+              onceKeys?: Record<string, true>
+              checkpoints?: Record<string, Checkpoint<Record<string, unknown>>>
+              currentPassageId?: string
+            }
+            useGameStore.setState({
+              gameData: { ...(data.gameData || {}) },
+              lockedKeys: { ...(data.lockedKeys || {}) },
+              onceKeys: { ...(data.onceKeys || {}) },
+              checkpoints: { ...(data.checkpoints || {}) }
+            })
+            if (data.currentPassageId) {
+              setCurrentPassage(data.currentPassageId)
+            } else {
+              const msg = 'Saved game state has no current passage'
+              console.error(msg)
+              addError(msg)
+            }
           }
         }
-      }
-    } catch (error) {
-      console.error('Error loading game state:', error)
-      addError('Failed to load game state')
-    }
+      })
+      .catch(error => {
+        console.error('Error loading game state:', error)
+        addError('Failed to load game state')
+      })
+      .finally(() => {
+        setLoading(false)
+      })
     return removeNode(parent, index)
   }
 
   const handleClearSave: DirectiveHandler = (directive, parent, index) => {
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const key = typeof attrs.key === 'string' ? attrs.key : 'campfire.save'
-    try {
-      if (typeof localStorage !== 'undefined') {
-        localStorage.removeItem(key)
-      }
-    } catch (error) {
-      console.error('Error clearing saved game state:', error)
-      addError('Failed to clear saved game state')
-    }
+    setLoading(true)
+    void Promise.resolve()
+      .then(() => {
+        if (typeof localStorage !== 'undefined') {
+          localStorage.removeItem(key)
+        }
+      })
+      .catch(error => {
+        console.error('Error clearing saved game state:', error)
+        addError('Failed to clear saved game state')
+      })
+      .finally(() => {
+        setLoading(false)
+      })
     return removeNode(parent, index)
   }
 

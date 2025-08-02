@@ -194,7 +194,9 @@ is also recorded if `restore` cannot find the requested checkpoint.
 
 ### Persistence
 
-Store progress in the browser to resume later.
+Store progress in the browser to resume later. These directives run
+asynchronously and set the game state's `loading` flag while accessing local
+storage.
 
 - `save` – write the current game state and checkpoints to local storage. Optionally set a `key`.
 

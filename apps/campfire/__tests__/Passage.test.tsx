@@ -19,7 +19,8 @@ const resetStore = () => {
     lockedKeys: {},
     onceKeys: {},
     checkpoints: {},
-    errors: []
+    errors: [],
+    loading: false
   })
   localStorage.clear()
 }
@@ -856,6 +857,7 @@ describe('Passage', () => {
     }
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
     render(<Passage />)
+    expect(useGameStore.getState().loading).toBe(true)
     await waitFor(() => {
       const raw = localStorage.getItem('slot1')
       expect(raw).toBeTruthy()
@@ -864,6 +866,7 @@ describe('Passage', () => {
       expect(data.currentPassageId).toBe('1')
       expect(data.checkpoints.cp1).toBeDefined()
     })
+    expect(useGameStore.getState().loading).toBe(false)
   })
 
   it('loads game state and checkpoints from local storage', async () => {
@@ -904,6 +907,7 @@ describe('Passage', () => {
     })
 
     render(<Passage />)
+    expect(useGameStore.getState().loading).toBe(true)
 
     await waitFor(() => {
       expect((useGameStore.getState().gameData as any).hp).toBe(7)
@@ -914,6 +918,7 @@ describe('Passage', () => {
       expect(useStoryDataStore.getState().currentPassageId).toBe('2')
       expect(screen.getByText('Second text')).toBeInTheDocument()
     })
+    expect(useGameStore.getState().loading).toBe(false)
   })
 
   it('logs error when loaded state lacks current passage id', async () => {
@@ -1013,10 +1018,12 @@ describe('Passage', () => {
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
 
     render(<Passage />)
+    expect(useGameStore.getState().loading).toBe(true)
 
     await waitFor(() => {
       expect(localStorage.getItem('slot1')).toBeNull()
     })
+    expect(useGameStore.getState().loading).toBe(false)
   })
 
   it('stores error when restore cannot find a checkpoint', async () => {

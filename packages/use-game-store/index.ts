@@ -23,6 +23,10 @@ export interface GameState<T = Record<string, unknown>> {
   onceKeys: Record<string, true>
   /** Mark a once key as executed */
   markOnce: (key: string) => void
+  /** Indicates persistence operations are in progress */
+  loading: boolean
+  /** Set the loading state */
+  setLoading: (loading: boolean) => void
   /** Recorded errors */
   errors: string[]
   /** Add an error to the list */
@@ -63,6 +67,7 @@ export const useGameStore = create(
     _initialGameData: {},
     lockedKeys: {},
     onceKeys: {},
+    loading: false,
     errors: [],
     checkpoints: {},
     init: data =>
@@ -70,7 +75,8 @@ export const useGameStore = create(
         gameData: { ...data },
         _initialGameData: { ...data },
         onceKeys: {},
-        errors: []
+        errors: [],
+        loading: false
       })),
     setGameData: data =>
       set(
@@ -108,6 +114,7 @@ export const useGameStore = create(
           state.onceKeys[key] = true
         })
       ),
+    setLoading: loading => set({ loading }),
     addError: error =>
       set(
         produce((state: InternalState<Record<string, unknown>>) => {
@@ -161,7 +168,8 @@ export const useGameStore = create(
         gameData: { ...state._initialGameData },
         lockedKeys: {},
         onceKeys: {},
-        errors: []
+        errors: [],
+        loading: false
       }))
   }))
 )
