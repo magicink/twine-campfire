@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import i18next from 'i18next'
 import { SKIP } from 'unist-util-visit'
 import { compile } from 'expression-eval'
@@ -38,6 +38,32 @@ export const useDirectiveHandlers = () => {
   const unsetGameData = useGameStore(state => state.unsetGameData)
   const markOnce = useGameStore(state => state.markOnce)
   const onceKeys = useGameStore(state => state.onceKeys)
+  let handlers: Record<string, DirectiveHandler>
+  let exitHandlers: RootContent[][] = []
+  let changeSubscriptions: Array<() => void> = []
+
+  const runBlock = (nodes: RootContent[]) => {
+    const root = { type: 'root', children: nodes } as any
+    unified().use(remarkCampfire, { handlers }).runSync(root)
+  }
+
+  useEffect(() => {
+    let prev = useStoryDataStore.getState().currentPassageId
+    const unsubscribe = useStoryDataStore.subscribe(state => {
+      if (state.currentPassageId !== prev) {
+        for (const nodes of exitHandlers) {
+          runBlock(nodes)
+        }
+        exitHandlers = []
+        for (const fn of changeSubscriptions) {
+          fn()
+        }
+        changeSubscriptions = []
+        prev = state.currentPassageId
+      }
+    })
+    return unsubscribe
+  }, [])
   const handleSet = (
     directive: DirectiveNode,
     parent: Parent | undefined,
@@ -371,6 +397,38 @@ export const useDirectiveHandlers = () => {
     return [SKIP, index]
   }
 
+  const handleOnEnter: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    const container = directive as ContainerDirective
+    const content = stripLabel(container.children as RootContent[])
+    runBlock(content)
+    return removeNode(parent, index)
+  }
+
+  const handleOnExit: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    const container = directive as ContainerDirective
+    const content = stripLabel(container.children as RootContent[])
+    exitHandlers.push(content)
+    return removeNode(parent, index)
+  }
+
+  const handleOnChange: DirectiveHandler = (directive, parent, index) => {
+    const attrs = (directive.attributes || {}) as Record<string, unknown>
+    const key = ensureKey(attrs.key ?? toString(directive), parent, index)
+    if (!key) return index
+    const container = directive as ContainerDirective
+    const content = stripLabel(container.children as RootContent[])
+    const unsub = useGameStore.subscribe(
+      state => (state.gameData as Record<string, unknown>)[key],
+      () => {
+        runBlock(content)
+      }
+    )
+    changeSubscriptions.push(unsub)
+    return removeNode(parent, index)
+  }
+
   const handleLang: DirectiveHandler = (directive, parent, index) => {
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const locale = typeof attrs.locale === 'string' ? attrs.locale : undefined
@@ -472,8 +530,6 @@ export const useDirectiveHandlers = () => {
     }
   }
 
-  let handlers: Record<string, DirectiveHandler>
-
   const getPassageById = useStoryDataStore(state => state.getPassageById)
   const getPassageByName = useStoryDataStore(state => state.getPassageByName)
 
@@ -547,6 +603,9 @@ export const useDirectiveHandlers = () => {
       unset: handleUnset,
       if: handleIf,
       once: handleOnce,
+      onEnter: handleOnEnter,
+      onExit: handleOnExit,
+      onChange: handleOnChange,
       lang: handleLang,
       include: handleInclude,
       namespace: handleNamespace,
