@@ -190,18 +190,14 @@ export const useDirectiveHandlers = () => {
    * Evaluates a mathematical or JavaScript expression in the context of the current game data.
    * Optionally stores the result in the game data state if a 'key' attribute is provided.
    * Replaces the directive node in the AST with a text node containing the result.
-   *
-   * @param {ContainerDirective} directive - The directive node containing the expression and optional attributes.
-   * @param {Parent | undefined} parent - The parent AST node, if available.
-   * @param {number | undefined} index - The index of the directive node within its parent's children array.
-   * @returns {number | undefined} The index at which the node was replaced, or undefined if not replaced.
    */
   const handleMath: DirectiveHandler = (directive, parent, index) => {
     const attrs = directive.attributes || {}
+    const typedAttrs = attrs as Record<string, unknown>
     let expr = toString(directive).trim()
     if (!expr) {
-      if (typeof (attrs as Record<string, unknown>).expr === 'string') {
-        expr = String((attrs as Record<string, unknown>).expr)
+      if (typeof typedAttrs.expr === 'string') {
+        expr = String(typedAttrs.expr)
       } else {
         const first = Object.keys(attrs)[0]
         expr = first && first !== 'key' ? first : ''
@@ -213,13 +209,13 @@ export const useDirectiveHandlers = () => {
       const fn = compile(expr)
       value = fn(gameData)
     } catch (error) {
-      console.error('Error evaluating math expression:', expr, error);
+      console.error('Error evaluating math expression:', expr, error)
       value = ''
     }
 
     const key =
-      typeof (attrs as Record<string, unknown>).key === 'string'
-        ? ((attrs as Record<string, unknown>).key as string)
+      typeof typedAttrs.key === 'string'
+        ? (typedAttrs.key as string)
         : undefined
     if (typeof key === 'string') {
       setGameData({ [key]: value })
@@ -485,9 +481,7 @@ export const useDirectiveHandlers = () => {
 
     const text = passage.children
       .map((child: ElementContent) =>
-        child.type === 'text' && typeof (child as HastText).value === 'string'
-          ? (child as HastText).value
-          : ''
+        child.type === 'text' ? (child as HastText).value : ''
       )
       .join('')
 
