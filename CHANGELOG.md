@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.0](https://github.com/magicink/twine-campfire/compare/v1.14.3...v1.15.0) (2025-08-02)
+
+
+### Features
+
+* add checkpoint and restore directives ([#67](https://github.com/magicink/twine-campfire/issues/67)) ([8a81c46](https://github.com/magicink/twine-campfire/commit/8a81c468e73b24555f006d7ed3abba8a515bb713))
+
 ## [1.14.3](https://github.com/magicink/twine-campfire/compare/v1.14.2...v1.14.3) (2025-08-02)
 
 
