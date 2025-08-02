@@ -212,7 +212,8 @@ export const useDirectiveHandlers = () => {
     try {
       const fn = compile(expr)
       value = fn(gameData)
-    } catch {
+    } catch (error) {
+      console.error('Error evaluating math expression:', expr, error);
       value = ''
     }
 
