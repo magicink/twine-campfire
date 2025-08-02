@@ -36,6 +36,8 @@ export const useDirectiveHandlers = () => {
   const gameData = useGameStore(state => state.gameData)
   const setGameData = useGameStore(state => state.setGameData)
   const unsetGameData = useGameStore(state => state.unsetGameData)
+  const markOnce = useGameStore(state => state.markOnce)
+  const onceKeys = useGameStore(state => state.onceKeys)
   const handleSet = (
     directive: DirectiveNode,
     parent: Parent | undefined,
@@ -349,6 +351,26 @@ export const useDirectiveHandlers = () => {
     return [SKIP, index]
   }
 
+  const handleOnce: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    const container = directive as ContainerDirective
+    const attrs = container.attributes || {}
+    const key = ensureKey(
+      (attrs as Record<string, unknown>).key ??
+        (getLabel(container) || Object.keys(attrs)[0]),
+      parent,
+      index
+    )
+    if (!key) return [SKIP, index]
+    if (onceKeys[key]) {
+      return removeNode(parent, index)
+    }
+    markOnce(key)
+    const content = stripLabel(container.children as RootContent[])
+    parent.children.splice(index, 1, ...content)
+    return [SKIP, index]
+  }
+
   const handleLang: DirectiveHandler = (directive, parent, index) => {
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const locale = typeof attrs.locale === 'string' ? attrs.locale : undefined
@@ -524,6 +546,7 @@ export const useDirectiveHandlers = () => {
       ) => handleIncrement(d, p, i, -1),
       unset: handleUnset,
       if: handleIf,
+      once: handleOnce,
       lang: handleLang,
       include: handleInclude,
       namespace: handleNamespace,

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, act } from '@testing-library/react'
 import i18next from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import type { Element } from 'hast'
@@ -16,7 +16,8 @@ const resetStore = () => {
   useGameStore.setState({
     gameData: {},
     _initialGameData: {},
-    lockedKeys: {}
+    lockedKeys: {},
+    onceKeys: {}
   })
 }
 
@@ -133,6 +134,64 @@ describe('Passage', () => {
         (useGameStore.getState().gameData as Record<string, unknown>).visited
       ).toBe('true')
     )
+  })
+
+  it('executes once blocks only once', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':::once{intro}\nHello\n:::' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    const { rerender } = render(<Passage />)
+
+    const text = await screen.findByText('Hello')
+    expect(text).toBeInTheDocument()
+
+    act(() => {
+      useStoryDataStore.setState({ currentPassageId: undefined })
+    })
+    rerender(<Passage />)
+
+    act(() => {
+      useStoryDataStore.setState({ currentPassageId: '1' })
+    })
+    rerender(<Passage />)
+    await waitFor(() => {
+      expect(screen.queryByText('Hello')).toBeNull()
+    })
+  })
+
+  it('skips once blocks inside false if directives', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':::if{false}\n:::once{intro}\nHello\n:::\n:::'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(screen.queryByText('Hello')).toBeNull()
+      expect(useGameStore.getState().onceKeys.intro).toBeUndefined()
+    })
   })
 
   it('executes the set directive', async () => {

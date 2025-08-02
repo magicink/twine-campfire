@@ -19,6 +19,10 @@ export interface GameState<T = Record<string, unknown>> {
   lockKey: (key: keyof T | string) => void
   /** Allow updates to a key */
   unlockKey: (key: keyof T | string) => void
+  /** Blocks or directives that have run once */
+  onceKeys: Record<string, true>
+  /** Mark a once key as executed */
+  markOnce: (key: string) => void
 }
 
 interface InternalState<T> extends GameState<T> {
@@ -31,10 +35,12 @@ export const useGameStore = create(
     gameData: {},
     _initialGameData: {},
     lockedKeys: {},
+    onceKeys: {},
     init: data =>
       set(() => ({
         gameData: { ...data },
-        _initialGameData: { ...data }
+        _initialGameData: { ...data },
+        onceKeys: {}
       })),
     setGameData: data =>
       set(
@@ -66,10 +72,17 @@ export const useGameStore = create(
           delete state.lockedKeys[key as string]
         })
       ),
+    markOnce: key =>
+      set(
+        produce((state: InternalState<Record<string, unknown>>) => {
+          state.onceKeys[key] = true
+        })
+      ),
     reset: () =>
       set(state => ({
         gameData: { ...state._initialGameData },
-        lockedKeys: {}
+        lockedKeys: {},
+        onceKeys: {}
       }))
   }))
 )
