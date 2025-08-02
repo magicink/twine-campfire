@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, act } from '@testing-library/react'
 import i18next from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import type { Element } from 'hast'
@@ -154,6 +154,14 @@ describe('Passage', () => {
     const text = await screen.findByText('Hello')
     expect(text).toBeInTheDocument()
 
+    act(() => {
+      useStoryDataStore.setState({ currentPassageId: undefined })
+    })
+    rerender(<Passage />)
+
+    act(() => {
+      useStoryDataStore.setState({ currentPassageId: '1' })
+    })
     rerender(<Passage />)
     await waitFor(() => {
       expect(screen.queryByText('Hello')).toBeNull()
