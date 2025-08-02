@@ -3,7 +3,13 @@ import { describe, it, expect, beforeEach } from 'bun:test'
 
 // Reset store state before each test
 beforeEach(() => {
-  useGameStore.setState({ gameData: {}, lockedKeys: {}, onceKeys: {} })
+  useGameStore.setState({
+    gameData: {},
+    lockedKeys: {},
+    onceKeys: {},
+    checkpoints: {},
+    errors: []
+  })
   useGameStore.getState().init({})
 })
 
@@ -43,5 +49,68 @@ describe('useGameStore', () => {
     expect(useGameStore.getState().onceKeys).toEqual({ intro: true })
     useGameStore.getState().reset()
     expect(useGameStore.getState().onceKeys).toEqual({})
+  })
+
+  it('saves and restores checkpoints', () => {
+    useGameStore.getState().setGameData({ health: 10 })
+    useGameStore.getState().saveCheckpoint('cp1', {
+      gameData: { ...useGameStore.getState().gameData },
+      lockedKeys: { ...useGameStore.getState().lockedKeys },
+      onceKeys: { ...useGameStore.getState().onceKeys },
+      currentPassageId: '1',
+      label: 'Start'
+    })
+    useGameStore.getState().setGameData({ health: 5 })
+    const cp = useGameStore.getState().restoreCheckpoint('cp1')
+    expect(useGameStore.getState().gameData).toEqual({ health: 10 })
+    expect(cp?.currentPassageId).toBe('1')
+    expect(cp?.timestamp).toBeGreaterThan(0)
+  })
+
+  it('restores the most recent checkpoint when no id is provided', () => {
+    useGameStore.getState().setGameData({ health: 10 })
+    useGameStore.getState().saveCheckpoint('cp1', {
+      gameData: { ...useGameStore.getState().gameData },
+      lockedKeys: { ...useGameStore.getState().lockedKeys },
+      onceKeys: { ...useGameStore.getState().onceKeys },
+      currentPassageId: '1',
+      label: 'First'
+    })
+    useGameStore.getState().setGameData({ health: 5 })
+    useGameStore.getState().saveCheckpoint('cp2', {
+      gameData: { ...useGameStore.getState().gameData },
+      lockedKeys: { ...useGameStore.getState().lockedKeys },
+      onceKeys: { ...useGameStore.getState().onceKeys },
+      currentPassageId: '2',
+      label: 'Second'
+    })
+    const { cp1, cp2 } = useGameStore.getState().checkpoints
+    expect(cp1.timestamp).toBeLessThanOrEqual(cp2.timestamp)
+    useGameStore.getState().setGameData({ health: 1 })
+    const cp = useGameStore.getState().restoreCheckpoint()
+    expect(useGameStore.getState().gameData).toEqual({ health: 5 })
+    expect(cp?.label).toBe('Second')
+  })
+
+  it('logs and stores an error when restoring a nonexistent checkpoint', () => {
+    const errors: unknown[] = []
+    const orig = console.error
+    console.error = (...args: unknown[]) => {
+      errors.push(args)
+    }
+    const cp = useGameStore.getState().restoreCheckpoint('missing')
+    expect(cp).toBeUndefined()
+    expect(errors).toHaveLength(1)
+    expect(useGameStore.getState().errors).toEqual([
+      'Checkpoint not found: missing'
+    ])
+    console.error = orig
+  })
+
+  it('clears recorded errors', () => {
+    useGameStore.getState().addError('test')
+    expect(useGameStore.getState().errors).toEqual(['test'])
+    useGameStore.getState().clearErrors()
+    expect(useGameStore.getState().errors).toEqual([])
   })
 })

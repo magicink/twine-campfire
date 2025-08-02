@@ -14,7 +14,10 @@ const resetStores = async () => {
   useGameStore.setState({
     gameData: {},
     _initialGameData: {},
-    lockedKeys: {}
+    lockedKeys: {},
+    onceKeys: {},
+    checkpoints: {},
+    errors: []
   })
   if (!i18next.isInitialized) {
     await i18next.init({ lng: 'en-US', resources: {} })
@@ -89,5 +92,21 @@ describe('DebugWindow', () => {
       transTab.click()
     })
     expect(screen.getByText(/"hello"/)).toBeInTheDocument()
+  })
+
+  it('shows errors from the game store', () => {
+    useStoryDataStore.setState({ storyData: { options: 'debug' } })
+    useGameStore.setState(state => ({
+      ...state,
+      errors: ['something went wrong']
+    }))
+
+    render(<DebugWindow />)
+
+    const errTab = screen.getByRole('button', { name: 'Errors' })
+    act(() => {
+      errTab.click()
+    })
+    expect(screen.getByText('something went wrong')).toBeInTheDocument()
   })
 })

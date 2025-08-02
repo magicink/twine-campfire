@@ -132,6 +132,33 @@ Directives come in two forms:
   :::
   ```
 
+### Checkpoints
+
+Use checkpoints to let players save and restore progress. These directives are
+ignored inside passages brought in with `:include`.
+
+- `checkpoint` – save the current game state with an optional label
+
+  ```md
+  :checkpoint{id=save1 label="Start"}
+  ```
+
+- `restore` – load a saved state. If no `id` is supplied, the most recent checkpoint is restored.
+
+  ```md
+  :restore{id=save1}
+  :restore
+  ```
+
+- `clearErrors` – remove all logged game errors
+
+  ```md
+  :clearErrors
+  ```
+
+Multiple checkpoints in the same passage are ignored and log an error. An error
+is also recorded if `restore` cannot find the requested checkpoint.
+
 ### Localization
 
 Campfire uses [i18next](https://www.i18next.com/) to manage translations. For a

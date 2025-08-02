@@ -23,6 +23,20 @@ export interface GameState<T = Record<string, unknown>> {
   onceKeys: Record<string, true>
   /** Mark a once key as executed */
   markOnce: (key: string) => void
+  /** Recorded errors */
+  errors: string[]
+  /** Add an error to the list */
+  addError: (error: string) => void
+  /** Clear all errors */
+  clearErrors: () => void
+  /** Saved checkpoints */
+  checkpoints: Record<string, Checkpoint<T>>
+  /** Save a checkpoint */
+  saveCheckpoint: (id: string, checkpoint: CheckpointData<T>) => void
+  /** Restore a checkpoint and return its data */
+  restoreCheckpoint: (id?: string) => Checkpoint<T> | undefined
+  /** Remove a checkpoint */
+  removeCheckpoint: (id: string) => void
 }
 
 interface InternalState<T> extends GameState<T> {
@@ -30,17 +44,33 @@ interface InternalState<T> extends GameState<T> {
   _initialGameData: T
 }
 
+export interface CheckpointData<T = Record<string, unknown>> {
+  gameData: T
+  lockedKeys: Record<string, true>
+  onceKeys: Record<string, true>
+  currentPassageId?: string
+  label?: string
+}
+
+export interface Checkpoint<T = Record<string, unknown>>
+  extends CheckpointData<T> {
+  timestamp: number
+}
+
 export const useGameStore = create(
-  subscribeWithSelector<InternalState<Record<string, unknown>>>(set => ({
+  subscribeWithSelector<InternalState<Record<string, unknown>>>((set, get) => ({
     gameData: {},
     _initialGameData: {},
     lockedKeys: {},
     onceKeys: {},
+    errors: [],
+    checkpoints: {},
     init: data =>
       set(() => ({
         gameData: { ...data },
         _initialGameData: { ...data },
-        onceKeys: {}
+        onceKeys: {},
+        errors: []
       })),
     setGameData: data =>
       set(
@@ -78,11 +108,60 @@ export const useGameStore = create(
           state.onceKeys[key] = true
         })
       ),
+    addError: error =>
+      set(
+        produce((state: InternalState<Record<string, unknown>>) => {
+          state.errors.push(error)
+        })
+      ),
+    clearErrors: () => set({ errors: [] }),
+    saveCheckpoint: (id, checkpoint) =>
+      set(
+        produce((state: InternalState<Record<string, unknown>>) => {
+          state.checkpoints[id] = {
+            ...checkpoint,
+            timestamp: Date.now()
+          }
+        })
+      ),
+    removeCheckpoint: id =>
+      set(
+        produce((state: InternalState<Record<string, unknown>>) => {
+          delete state.checkpoints[id]
+        })
+      ),
+    restoreCheckpoint: id => {
+      const cps = get().checkpoints
+      const cp = id
+        ? cps[id]
+        : Object.values(cps).reduce<
+            Checkpoint<Record<string, unknown>> | undefined
+          >(
+            (latest, current) =>
+              !latest || current.timestamp >= latest.timestamp
+                ? current
+                : latest,
+            undefined
+          )
+      if (cp) {
+        set({
+          gameData: { ...cp.gameData },
+          lockedKeys: { ...cp.lockedKeys },
+          onceKeys: { ...cp.onceKeys }
+        })
+        return cp
+      }
+      const msg = `Checkpoint not found${id ? `: ${id}` : ''}`
+      console.error(msg)
+      get().addError(msg)
+      return undefined
+    },
     reset: () =>
       set(state => ({
         gameData: { ...state._initialGameData },
         lockedKeys: {},
-        onceKeys: {}
+        onceKeys: {},
+        errors: []
       }))
   }))
 )
