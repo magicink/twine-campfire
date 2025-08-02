@@ -583,6 +583,8 @@ export const useDirectiveHandlers = () => {
     setLoading(true)
     try {
       if (typeof localStorage !== 'undefined') {
+        const { gameData, lockedKeys, onceKeys, checkpoints } =
+          useGameStore.getState()
         const data = {
           gameData: { ...(gameData as Record<string, unknown>) },
           lockedKeys: { ...lockedKeys },

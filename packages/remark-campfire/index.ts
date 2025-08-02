@@ -1,5 +1,5 @@
 import { visit } from 'unist-util-visit'
-import type { Root, Parent } from 'mdast'
+import type { Root, Parent, Paragraph, Text } from 'mdast'
 import type { Node } from 'unist'
 import type { LeafDirective, ContainerDirective } from 'mdast-util-directive'
 import type { SKIP } from 'unist-util-visit'
@@ -77,6 +77,24 @@ const remarkCampfire =
           const handler = options.handlers?.[directive.name]
           if (handler) {
             return handler(directive, parent, index)
+          }
+        }
+      }
+    )
+
+    visit(
+      tree,
+      (node: Node, index: number | undefined, parent: Parent | undefined) => {
+        if (node.type === 'paragraph' && parent && typeof index === 'number') {
+          const paragraph = node as Paragraph
+          const hasContent = paragraph.children.some(child => {
+            return !(
+              child.type === 'text' && (child as Text).value.trim() === ''
+            )
+          })
+          if (!hasContent) {
+            parent.children.splice(index, 1)
+            return index
           }
         }
       }

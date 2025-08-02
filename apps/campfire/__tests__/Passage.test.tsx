@@ -274,6 +274,27 @@ describe('Passage', () => {
     )
   })
 
+  it('removes paragraphs left empty by directives', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':set[number]{hp=5}\n\nHello' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await screen.findByText('Hello')
+
+    const paragraphs = document.querySelectorAll('p')
+    expect(paragraphs).toHaveLength(1)
+  })
+
   it('locks keys with setOnce', async () => {
     const passage: Element = {
       type: 'element',
