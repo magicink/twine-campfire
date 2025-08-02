@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.0](https://github.com/magicink/twine-campfire/compare/v1.11.0...v1.12.0) (2025-08-02)
+
+
+### Features
+
+* add once directive ([#58](https://github.com/magicink/twine-campfire/issues/58)) ([1d06a15](https://github.com/magicink/twine-campfire/commit/1d06a15a7daef708f9ce1c200f0d6aca760a682a))
+
 ## [1.11.0](https://github.com/magicink/twine-campfire/compare/v1.10.1...v1.11.0) (2025-08-02)
 
 ### Features
