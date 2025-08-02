@@ -543,6 +543,78 @@ export const useDirectiveHandlers = () => {
   const MAX_INCLUDE_DEPTH = 10
   let includeDepth = 0
 
+  const handleGoto: DirectiveHandler = (directive, parent, index) => {
+    const attrs = (directive.attributes || {}) as Record<string, unknown>
+    const target =
+      typeof attrs.pid === 'string'
+        ? attrs.pid
+        : typeof attrs.name === 'string'
+          ? attrs.name
+          : toString(directive).trim() || Object.keys(attrs)[0] || ''
+    if (target) {
+      const passage = /^\d+$/.test(target)
+        ? getPassageById(target)
+        : getPassageByName(target)
+      if (passage) {
+        setCurrentPassage(target)
+      } else {
+        const msg = `Passage not found: ${target}`
+        console.error(msg)
+        addError(msg)
+      }
+    }
+    return removeNode(parent, index)
+  }
+
+  const handleSave: DirectiveHandler = (directive, parent, index) => {
+    const attrs = (directive.attributes || {}) as Record<string, unknown>
+    const key = typeof attrs.key === 'string' ? attrs.key : 'campfire.save'
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const state = useGameStore.getState()
+        const data = {
+          gameData: { ...(state.gameData as Record<string, unknown>) },
+          lockedKeys: { ...state.lockedKeys },
+          onceKeys: { ...state.onceKeys },
+          currentPassageId
+        }
+        localStorage.setItem(key, JSON.stringify(data))
+      }
+    } catch (error) {
+      console.error('Error saving game state:', error)
+      addError('Failed to save game state')
+    }
+    return removeNode(parent, index)
+  }
+
+  const handleLoad: DirectiveHandler = (directive, parent, index) => {
+    const attrs = (directive.attributes || {}) as Record<string, unknown>
+    const key = typeof attrs.key === 'string' ? attrs.key : 'campfire.save'
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const raw = localStorage.getItem(key)
+        if (raw) {
+          const data = JSON.parse(raw) as {
+            gameData?: Record<string, unknown>
+            lockedKeys?: Record<string, true>
+            onceKeys?: Record<string, true>
+            currentPassageId?: string
+          }
+          useGameStore.setState({
+            gameData: { ...(data.gameData || {}) },
+            lockedKeys: { ...(data.lockedKeys || {}) },
+            onceKeys: { ...(data.onceKeys || {}) }
+          })
+          setCurrentPassage(data.currentPassageId)
+        }
+      }
+    } catch (error) {
+      console.error('Error loading game state:', error)
+      addError('Failed to load game state')
+    }
+    return removeNode(parent, index)
+  }
+
   const handleCheckpoint: DirectiveHandler = (directive, parent, index) => {
     if (lastPassageIdRef.current !== currentPassageId) {
       resetCheckpointState()
@@ -664,6 +736,9 @@ export const useDirectiveHandlers = () => {
       onChange: handleOnChange,
       lang: handleLang,
       include: handleInclude,
+      goto: handleGoto,
+      save: handleSave,
+      load: handleLoad,
       checkpoint: handleCheckpoint,
       restore: handleRestore,
       clearErrors: handleClearErrors,

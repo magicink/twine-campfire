@@ -21,6 +21,7 @@ const resetStore = () => {
     checkpoints: {},
     errors: []
   })
+  localStorage.clear()
 }
 
 describe('Passage', () => {
@@ -83,6 +84,60 @@ describe('Passage', () => {
     const button = await screen.findByRole('button', { name: 'Next' })
     button.click()
     expect(useStoryDataStore.getState().currentPassageId).toBe('Next')
+  })
+
+  it('navigates to a passage by name with goto directive', async () => {
+    const start: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':goto[Second]' }]
+    }
+    const second: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '2', name: 'Second' },
+      children: [{ type: 'text', value: 'Second text' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [start, second],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(screen.getByText('Second text')).toBeInTheDocument()
+      expect(useStoryDataStore.getState().currentPassageId).toBe('Second')
+    })
+  })
+
+  it('navigates to a passage by pid with goto directive', async () => {
+    const start: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':goto[2]' }]
+    }
+    const second: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '2', name: 'Second' },
+      children: [{ type: 'text', value: 'Second text' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [start, second],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(screen.getByText('Second text')).toBeInTheDocument()
+      expect(useStoryDataStore.getState().currentPassageId).toBe('2')
+    })
   })
 
   it('renders included passage content', async () => {
@@ -785,6 +840,61 @@ describe('Passage', () => {
     })
 
     console.error = orig
+  })
+
+  it('saves game state to local storage', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':set[number]{hp=5}:save{key=slot1}' }]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    await waitFor(() => {
+      const raw = localStorage.getItem('slot1')
+      expect(raw).toBeTruthy()
+      const data = JSON.parse(raw || '{}')
+      expect(data.gameData.hp).toBe(5)
+      expect(data.currentPassageId).toBe('1')
+    })
+  })
+
+  it('loads game state from local storage', async () => {
+    localStorage.setItem(
+      'slot1',
+      JSON.stringify({
+        gameData: { hp: 7 },
+        lockedKeys: {},
+        onceKeys: {},
+        currentPassageId: '2'
+      })
+    )
+    const start: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':load{key=slot1}' }]
+    }
+    const second: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '2', name: 'Second' },
+      children: [{ type: 'text', value: 'Second text' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [start, second],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect((useGameStore.getState().gameData as any).hp).toBe(7)
+      expect(useStoryDataStore.getState().currentPassageId).toBe('2')
+      expect(screen.getByText('Second text')).toBeInTheDocument()
+    })
   })
 
   it('stores error when restore cannot find a checkpoint', async () => {

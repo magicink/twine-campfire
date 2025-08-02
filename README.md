@@ -118,6 +118,13 @@ Directives come in two forms:
   :::
   ```
 
+- `goto` – jump to another passage by name or id
+
+  ```md
+  :goto[Intro]
+  :goto[42]
+  ```
+
 - `include` – insert another passage by name or id
 
   ```md
@@ -177,6 +184,22 @@ ignored inside passages brought in with `:include`.
 
 Multiple checkpoints in the same passage are ignored and log an error. An error
 is also recorded if `restore` cannot find the requested checkpoint.
+
+### Persistence
+
+Store progress in the browser to resume later.
+
+- `save` – write the current game state to local storage. Optionally set a `key`.
+
+  ```md
+  :save{key=slot1}
+  ```
+
+- `load` – load game state from local storage using the same `key`.
+
+  ```md
+  :load{key=slot1}
+  ```
 
 ### Localization
 
