@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.0](https://github.com/magicink/twine-campfire/compare/v1.12.0...v1.13.0) (2025-08-02)
+
+
+### Features
+
+* add onEnter, onExit, and onChange directives ([#60](https://github.com/magicink/twine-campfire/issues/60)) ([85d0680](https://github.com/magicink/twine-campfire/commit/85d0680aaf6376dfa5730056ddb7351e83a736a2))
+
 ## [1.12.0](https://github.com/magicink/twine-campfire/compare/v1.11.0...v1.12.0) (2025-08-02)
 
 
