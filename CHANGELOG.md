@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.1](https://github.com/magicink/twine-campfire/compare/v1.16.0...v1.16.1) (2025-08-02)
+
+
+### Bug Fixes
+
+* remove empty paragraphs after directives ([#71](https://github.com/magicink/twine-campfire/issues/71)) ([48e430c](https://github.com/magicink/twine-campfire/commit/48e430c3a58aa86374a20148b7ef0750f9ef1cab))
+
 ## [1.16.0](https://github.com/magicink/twine-campfire/compare/v1.15.0...v1.16.0) (2025-08-02)
 
 
