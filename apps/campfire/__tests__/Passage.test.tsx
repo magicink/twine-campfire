@@ -17,7 +17,9 @@ const resetStore = () => {
     gameData: {},
     _initialGameData: {},
     lockedKeys: {},
-    onceKeys: {}
+    onceKeys: {},
+    checkpoints: {},
+    errors: []
   })
 }
 
@@ -653,5 +655,178 @@ describe('Passage', () => {
     })
 
     expect(useGameStore.getState().gameData.changed).toBeUndefined()
+  })
+
+  it('saves and restores game state with checkpoints', async () => {
+    const start: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        { type: 'text', value: ':set[number]{hp=5}:checkpoint{id=cp1}' }
+      ]
+    }
+    const second: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '2', name: 'Second' },
+      children: [{ type: 'text', value: ':set[number]{hp=1}:restore{id=cp1}' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [start, second],
+      currentPassageId: '1'
+    })
+
+    const { rerender } = render(<Passage />)
+    await waitFor(() =>
+      expect((useGameStore.getState().gameData as any).hp).toBe(5)
+    )
+
+    act(() => {
+      useStoryDataStore.setState({ currentPassageId: '2' })
+    })
+    rerender(<Passage />)
+
+    await waitFor(() => {
+      expect((useGameStore.getState().gameData as any).hp).toBe(5)
+      expect(useStoryDataStore.getState().currentPassageId).toBe('1')
+    })
+  })
+
+  it('uses translated text as checkpoint label', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        { type: 'text', value: ':translations{save="Save"}' },
+        { type: 'text', value: ':checkpoint{id=cp1 label=save}' }
+      ]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      const cp = useGameStore.getState().checkpoints.cp1
+      expect(cp?.label).toBe('Save')
+    })
+  })
+
+  it('ignores checkpoint and restore directives in included passages', async () => {
+    const start: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':set[number]{hp=2}:checkpoint{id=cp1}:include[Second]'
+        }
+      ]
+    }
+    const second: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '2', name: 'Second' },
+      children: [
+        {
+          type: 'text',
+          value: ':set[number]{hp=1}:restore{id=cp1}:checkpoint{id=cp2}'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [start, second],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect((useGameStore.getState().gameData as any).hp).toBe(1)
+      expect(useGameStore.getState().checkpoints.cp2).toBeUndefined()
+      expect(useGameStore.getState().checkpoints.cp1).toBeDefined()
+    })
+  })
+
+  it('stores error and creates no checkpoint when multiple checkpoints are in one passage', async () => {
+    const logged: unknown[] = []
+    const orig = console.error
+    console.error = (...args: unknown[]) => {
+      logged.push(args)
+    }
+
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':checkpoint{id=cp1}:set[number]{hp=1}:checkpoint{id=cp2}'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(Object.keys(useGameStore.getState().checkpoints)).toHaveLength(0)
+      expect(logged).toHaveLength(1)
+      expect(useGameStore.getState().errors).toEqual([
+        'Multiple checkpoints in a single passage are not allowed'
+      ])
+    })
+
+    console.error = orig
+  })
+
+  it('stores error when restore cannot find a checkpoint', async () => {
+    const logged: unknown[] = []
+    const orig = console.error
+    console.error = (...args: unknown[]) => {
+      logged.push(args)
+    }
+
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':restore{id=missing}' }]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(logged).toHaveLength(1)
+      expect(useGameStore.getState().errors).toEqual([
+        'Checkpoint not found: missing'
+      ])
+    })
+
+    console.error = orig
+  })
+
+  it('clears errors via directive', async () => {
+    useGameStore.setState({ errors: ['oops'] })
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':clearErrors' }]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    await waitFor(() => {
+      expect(useGameStore.getState().errors).toEqual([])
+    })
   })
 })

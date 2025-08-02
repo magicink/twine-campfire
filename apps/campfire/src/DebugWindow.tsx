@@ -10,7 +10,12 @@ const DEBUG_OPTION = 'debug' as const
 const TAB_GAME = 'game' as const
 const TAB_STORY = 'story' as const
 const TAB_TRANSLATIONS = 'translations' as const
-type Tab = typeof TAB_GAME | typeof TAB_STORY | typeof TAB_TRANSLATIONS
+const TAB_ERRORS = 'errors' as const
+type Tab =
+  | typeof TAB_GAME
+  | typeof TAB_STORY
+  | typeof TAB_TRANSLATIONS
+  | typeof TAB_ERRORS
 
 export const DebugWindow = () => {
   const storyData = useStoryDataStore(
@@ -45,6 +50,7 @@ export const DebugWindow = () => {
     }
   }, [])
   const gameData = useGameStore(state => state.gameData)
+  const errors = useGameStore(state => state.errors)
   const [visible, setVisible] = useState(true)
   const [minimized, setMinimized] = useState(false)
   const [tab, setTab] = useState<Tab>(TAB_GAME)
@@ -132,6 +138,16 @@ export const DebugWindow = () => {
             >
               Translations
             </button>
+            <button
+              type='button'
+              className={`flex-1 p-2 ${tab === TAB_ERRORS ? 'font-bold' : ''}`}
+              onClick={e => {
+                e.stopPropagation()
+                setTab(TAB_ERRORS)
+              }}
+            >
+              Errors
+            </button>
           </div>
           <div className='p-2'>
             {tab === TAB_GAME ? (
@@ -142,10 +158,12 @@ export const DebugWindow = () => {
               <pre className='whitespace-pre-wrap'>
                 {JSON.stringify(storyData, null, 2)}
               </pre>
-            ) : (
+            ) : tab === TAB_TRANSLATIONS ? (
               <pre className='whitespace-pre-wrap'>
                 {JSON.stringify(translations, null, 2)}
               </pre>
+            ) : (
+              <pre className='whitespace-pre-wrap'>{errors.join('\n')}</pre>
             )}
           </div>
         </div>

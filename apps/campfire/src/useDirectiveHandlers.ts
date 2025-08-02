@@ -37,16 +37,32 @@ export const useDirectiveHandlers = () => {
   const unsetGameData = useGameStore(state => state.unsetGameData)
   const markOnce = useGameStore(state => state.markOnce)
   const onceKeys = useGameStore(state => state.onceKeys)
+  const lockedKeys = useGameStore(state => state.lockedKeys)
+  const saveCheckpoint = useGameStore(state => state.saveCheckpoint)
+  const removeCheckpoint = useGameStore(state => state.removeCheckpoint)
+  const restoreCheckpointFn = useGameStore(state => state.restoreCheckpoint)
+  const addError = useGameStore(state => state.addError)
+  const clearErrors = useGameStore(state => state.clearErrors)
   const currentPassageId = useStoryDataStore(state => state.currentPassageId)
+  const setCurrentPassage = useStoryDataStore(state => state.setCurrentPassage)
   const handlersRef = useRef<Record<string, DirectiveHandler>>({})
   const exitHandlers = useRef<RootContent[][]>([])
   const changeSubscriptions = useRef<Array<() => void>>([])
+  const checkpointIdRef = useRef<string | null>(null)
+  const checkpointErrorRef = useRef(false)
+  const lastPassageIdRef = useRef<string | undefined>(undefined)
 
   const runBlock = (nodes: RootContent[]) => {
     const root: Root = { type: 'root', children: nodes }
     unified()
       .use(remarkCampfire, { handlers: handlersRef.current })
       .runSync(root)
+  }
+
+  const resetCheckpointState = () => {
+    checkpointIdRef.current = null
+    checkpointErrorRef.current = false
+    lastPassageIdRef.current = currentPassageId
   }
 
   useEffect(() => {
@@ -58,6 +74,7 @@ export const useDirectiveHandlers = () => {
       fn()
     }
     changeSubscriptions.current = []
+    resetCheckpointState()
   }, [currentPassageId])
   const handleSet = (
     directive: DirectiveNode,
@@ -526,6 +543,55 @@ export const useDirectiveHandlers = () => {
   const MAX_INCLUDE_DEPTH = 10
   let includeDepth = 0
 
+  const handleCheckpoint: DirectiveHandler = (directive, parent, index) => {
+    if (lastPassageIdRef.current !== currentPassageId) {
+      resetCheckpointState()
+    }
+    if (includeDepth > 0) return removeNode(parent, index)
+    const attrs = (directive.attributes || {}) as Record<string, unknown>
+    const id = ensureKey(attrs.id, parent, index)
+    if (!id) return index
+    if (checkpointErrorRef.current) {
+      return removeNode(parent, index)
+    }
+    if (checkpointIdRef.current) {
+      removeCheckpoint(checkpointIdRef.current)
+      checkpointIdRef.current = null
+      checkpointErrorRef.current = true
+      const msg = 'Multiple checkpoints in a single passage are not allowed'
+      console.error(msg)
+      addError(msg)
+      return removeNode(parent, index)
+    }
+    checkpointIdRef.current = id
+    const label =
+      typeof attrs.label === 'string' ? i18next.t(attrs.label) : undefined
+    saveCheckpoint(id, {
+      gameData: { ...(gameData as Record<string, unknown>) },
+      lockedKeys: { ...lockedKeys },
+      onceKeys: { ...onceKeys },
+      currentPassageId,
+      label
+    })
+    return removeNode(parent, index)
+  }
+
+  const handleRestore: DirectiveHandler = (directive, parent, index) => {
+    if (includeDepth > 0) return removeNode(parent, index)
+    const attrs = (directive.attributes || {}) as Record<string, unknown>
+    const id = typeof attrs.id === 'string' ? attrs.id : undefined
+    const cp = restoreCheckpointFn(id)
+    if (cp?.currentPassageId) {
+      setCurrentPassage(cp.currentPassageId)
+    }
+    return removeNode(parent, index)
+  }
+
+  const handleClearErrors: DirectiveHandler = (directive, parent, index) => {
+    clearErrors()
+    return removeNode(parent, index)
+  }
+
   const handleInclude: DirectiveHandler = (directive, parent, index) => {
     const target =
       toString(directive).trim() ||
@@ -598,6 +664,9 @@ export const useDirectiveHandlers = () => {
       onChange: handleOnChange,
       lang: handleLang,
       include: handleInclude,
+      checkpoint: handleCheckpoint,
+      restore: handleRestore,
+      clearErrors: handleClearErrors,
       translations: handleTranslations,
       t: handleTranslate
     }
