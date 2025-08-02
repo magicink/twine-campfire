@@ -59,6 +59,12 @@ export const useDirectiveHandlers = () => {
       .runSync(root)
   }
 
+  const resetCheckpointState = () => {
+    checkpointIdRef.current = null
+    checkpointErrorRef.current = false
+    lastPassageIdRef.current = currentPassageId
+  }
+
   useEffect(() => {
     for (const nodes of exitHandlers.current) {
       runBlock(nodes)
@@ -68,8 +74,7 @@ export const useDirectiveHandlers = () => {
       fn()
     }
     changeSubscriptions.current = []
-    checkpointIdRef.current = null
-    checkpointErrorRef.current = false
+    resetCheckpointState()
   }, [currentPassageId])
   const handleSet = (
     directive: DirectiveNode,
@@ -540,9 +545,7 @@ export const useDirectiveHandlers = () => {
 
   const handleCheckpoint: DirectiveHandler = (directive, parent, index) => {
     if (lastPassageIdRef.current !== currentPassageId) {
-      checkpointIdRef.current = null
-      checkpointErrorRef.current = false
-      lastPassageIdRef.current = currentPassageId
+      resetCheckpointState()
     }
     if (includeDepth > 0) return removeNode(parent, index)
     const attrs = (directive.attributes || {}) as Record<string, unknown>
