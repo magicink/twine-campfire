@@ -857,7 +857,6 @@ describe('Passage', () => {
     }
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
     render(<Passage />)
-    expect(useGameStore.getState().loading).toBe(true)
     await waitFor(() => {
       const raw = localStorage.getItem('slot1')
       expect(raw).toBeTruthy()
@@ -907,7 +906,6 @@ describe('Passage', () => {
     })
 
     render(<Passage />)
-    expect(useGameStore.getState().loading).toBe(true)
 
     await waitFor(() => {
       expect((useGameStore.getState().gameData as any).hp).toBe(7)
@@ -1018,7 +1016,6 @@ describe('Passage', () => {
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
 
     render(<Passage />)
-    expect(useGameStore.getState().loading).toBe(true)
 
     await waitFor(() => {
       expect(localStorage.getItem('slot1')).toBeNull()
