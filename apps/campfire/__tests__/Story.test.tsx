@@ -19,6 +19,7 @@ describe('Story', () => {
       await i18next.changeLanguage('en-US')
       i18next.services.resourceStore.data = {}
     }
+    i18next.options.debug = false
   })
 
   it('renders nothing when no passage is set', () => {
@@ -49,5 +50,15 @@ describe('Story', () => {
     expect(useStoryDataStore.getState().storyData).toEqual({
       name: 'Story Test'
     })
+  })
+
+  it('enables i18next debug when story options debug', () => {
+    const el = document.createElement('tw-storydata')
+    el.setAttribute('options', 'debug')
+    document.body.appendChild(el)
+
+    render(<Story />)
+
+    expect(i18next.options.debug).toBe(true)
   })
 })

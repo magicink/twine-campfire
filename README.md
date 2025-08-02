@@ -62,7 +62,7 @@ Directives come in two forms:
 - `range` – create a numeric range object using the `set` directive
 
   ```md
-  :set[range]{hp='{"lower":0,"upper":10,"value":5}'}
+  :set[range]{key=hp min=0 max=10 value=5}
   ```
 
 - `increment` – increase a numeric value
@@ -144,13 +144,7 @@ The directives below let you control languages and add translation data.
   :lang{locale=fr}
   ```
 
-- `namespace` – register a translation namespace
-
-  ```md
-  :namespace{ns=ui locale=fr data={"hello":"Bonjour"}}
-  ```
-
-- `translations` – add multiple translations
+- `translations` – add multiple translations. If a namespace (`ns`) is provided, it will be created if needed.
 
   ```md
   :translations{ns=ui locale=fr hello="Bonjour" bye="Au revoir"}
@@ -178,13 +172,11 @@ attribute:
 
 #### i18next namespaces
 
-i18next organizes translations into namespaces. Use the `namespace` directive to
-register a namespace and optionally provide initial data. The `translations`
-directive adds or updates keys within a namespace. Reference the namespace when
-translating strings:
+i18next organizes translations into namespaces. The `translations` directive
+creates a namespace when an `ns` attribute is provided and adds keys to it.
+Reference the namespace when translating strings:
 
 ```md
-:namespace{ns=ui locale=fr data={"ok":"D'accord"}}
 :translations{ns=ui locale=fr cancel="Annuler"}
-:t{key=ok ns=ui}
+:t{key=cancel ns=ui}
 ```
