@@ -694,6 +694,27 @@ describe('Passage', () => {
     })
   })
 
+  it('uses translated text as checkpoint label', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        { type: 'text', value: ':translations{save="Save"}' },
+        { type: 'text', value: ':checkpoint{id=cp1 label=save}' }
+      ]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      const cp = useGameStore.getState().checkpoints.cp1
+      expect(cp?.label).toBe('Save')
+    })
+  })
+
   it('ignores checkpoint and restore directives in included passages', async () => {
     const start: Element = {
       type: 'element',

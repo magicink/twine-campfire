@@ -564,7 +564,8 @@ export const useDirectiveHandlers = () => {
       return removeNode(parent, index)
     }
     checkpointIdRef.current = id
-    const label = typeof attrs.label === 'string' ? attrs.label : undefined
+    const label =
+      typeof attrs.label === 'string' ? i18next.t(attrs.label) : undefined
     saveCheckpoint(id, {
       gameData: { ...(gameData as Record<string, unknown>) },
       lockedKeys: { ...lockedKeys },
