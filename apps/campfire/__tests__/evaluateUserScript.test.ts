@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
-import { evaluateUserScript } from '../lib'
+
+import { evaluateUserScript } from '../src/Story.tsx'
 
 let mockDoc: Pick<Document, 'getElementById'>
 
