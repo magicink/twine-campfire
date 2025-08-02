@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import i18next from 'i18next'
 import { SKIP } from 'unist-util-visit'
 import { compile } from 'expression-eval'
@@ -8,7 +8,7 @@ import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
 import remarkDirective from 'remark-directive'
 import remarkCampfire from '@/packages/remark-campfire'
-import type { Text as MdText, Parent, RootContent } from 'mdast'
+import type { Text as MdText, Parent, RootContent, Root } from 'mdast'
 import type { Text as HastText, ElementContent } from 'hast'
 import type { ContainerDirective } from 'mdast-util-directive'
 import { useStoryDataStore } from '@/packages/use-story-data-store'
@@ -38,6 +38,28 @@ export const useDirectiveHandlers = () => {
   const unsetGameData = useGameStore(state => state.unsetGameData)
   const markOnce = useGameStore(state => state.markOnce)
   const onceKeys = useGameStore(state => state.onceKeys)
+  const currentPassageId = useStoryDataStore(state => state.currentPassageId)
+  const handlersRef = useRef<Record<string, DirectiveHandler>>({})
+  const exitHandlers = useRef<RootContent[][]>([])
+  const changeSubscriptions = useRef<Array<() => void>>([])
+
+  const runBlock = (nodes: RootContent[]) => {
+    const root: Root = { type: 'root', children: nodes }
+    unified()
+      .use(remarkCampfire, { handlers: handlersRef.current })
+      .runSync(root)
+  }
+
+  useEffect(() => {
+    for (const nodes of exitHandlers.current) {
+      runBlock(nodes)
+    }
+    exitHandlers.current = []
+    for (const fn of changeSubscriptions.current) {
+      fn()
+    }
+    changeSubscriptions.current = []
+  }, [currentPassageId])
   const handleSet = (
     directive: DirectiveNode,
     parent: Parent | undefined,
@@ -371,6 +393,38 @@ export const useDirectiveHandlers = () => {
     return [SKIP, index]
   }
 
+  const handleOnEnter: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    const container = directive as ContainerDirective
+    const content = stripLabel(container.children as RootContent[])
+    runBlock(content)
+    return removeNode(parent, index)
+  }
+
+  const handleOnExit: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    const container = directive as ContainerDirective
+    const content = stripLabel(container.children as RootContent[])
+    exitHandlers.current.push(content)
+    return removeNode(parent, index)
+  }
+
+  const handleOnChange: DirectiveHandler = (directive, parent, index) => {
+    const attrs = (directive.attributes || {}) as Record<string, unknown>
+    const key = ensureKey(attrs.key, parent, index)
+    if (!key) return index
+    const container = directive as ContainerDirective
+    const content = stripLabel(container.children as RootContent[])
+    const unsub = useGameStore.subscribe(
+      state => (state.gameData as Record<string, unknown>)[key],
+      () => {
+        runBlock(content)
+      }
+    )
+    changeSubscriptions.current.push(unsub)
+    return removeNode(parent, index)
+  }
+
   const handleLang: DirectiveHandler = (directive, parent, index) => {
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const locale = typeof attrs.locale === 'string' ? attrs.locale : undefined
@@ -472,8 +526,6 @@ export const useDirectiveHandlers = () => {
     }
   }
 
-  let handlers: Record<string, DirectiveHandler>
-
   const getPassageById = useStoryDataStore(state => state.getPassageById)
   const getPassageByName = useStoryDataStore(state => state.getPassageByName)
 
@@ -511,7 +563,7 @@ export const useDirectiveHandlers = () => {
       .use(remarkParse)
       .use(remarkGfm)
       .use(remarkDirective)
-      .use(remarkCampfire, { handlers })
+      .use(remarkCampfire, { handlers: handlersRef.current })
 
     includeDepth++
     const tree = processor.parse(text)
@@ -523,7 +575,7 @@ export const useDirectiveHandlers = () => {
   }
 
   return useMemo(() => {
-    handlers = {
+    const handlers = {
       set: (d: DirectiveNode, p: Parent | undefined, i: number | undefined) =>
         handleSet(d, p, i, false),
       setOnce: (
@@ -547,12 +599,16 @@ export const useDirectiveHandlers = () => {
       unset: handleUnset,
       if: handleIf,
       once: handleOnce,
+      onEnter: handleOnEnter,
+      onExit: handleOnExit,
+      onChange: handleOnChange,
       lang: handleLang,
       include: handleInclude,
       namespace: handleNamespace,
       translations: handleTranslations,
       t: handleTranslate
     }
+    handlersRef.current = handlers
     return handlers
   }, [])
 }

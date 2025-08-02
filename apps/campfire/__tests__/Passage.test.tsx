@@ -512,4 +512,97 @@ describe('Passage', () => {
     button.click()
     expect(useStoryDataStore.getState().currentPassageId).toBe('Next')
   })
+
+  it('runs onEnter and onExit blocks at the appropriate times', async () => {
+    const start: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            ':::onEnter\n:set{entered=true}\n:::\n:::onExit\n:set{exited=true}\n:::\n[[Next]]'
+        }
+      ]
+    }
+    const next: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '2', name: 'Next' },
+      children: []
+    }
+
+    useStoryDataStore.setState({
+      passages: [start, next],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(useGameStore.getState().gameData.entered).toBe('true')
+    })
+
+    const button = await screen.findByRole('button', { name: 'Next' })
+    act(() => {
+      button.click()
+    })
+
+    await waitFor(() => {
+      expect(useGameStore.getState().gameData.exited).toBe('true')
+    })
+  })
+
+  it('runs onChange blocks when a key updates and cleans up on exit', async () => {
+    const start: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':::onChange{key=hp}\n:set{changed=true}\n:::\n'
+        }
+      ]
+    }
+    const next: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '2', name: 'Next' },
+      children: []
+    }
+
+    useGameStore.setState({
+      gameData: { hp: 1 },
+      _initialGameData: { hp: 1 },
+      lockedKeys: {},
+      onceKeys: {}
+    })
+    useStoryDataStore.setState({
+      passages: [start, next],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    act(() => {
+      useGameStore.getState().setGameData({ hp: 2 })
+    })
+
+    await waitFor(() => {
+      expect(useGameStore.getState().gameData.changed).toBe('true')
+    })
+
+    act(() => {
+      useGameStore.getState().unsetGameData('changed')
+      useStoryDataStore.getState().setCurrentPassage('2')
+    })
+
+    act(() => {
+      useGameStore.getState().setGameData({ hp: 3 })
+    })
+
+    expect(useGameStore.getState().gameData.changed).toBeUndefined()
+  })
 })

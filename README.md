@@ -108,6 +108,30 @@ Directives come in two forms:
   :::
   ```
 
+- `onEnter` – run directives when entering a passage
+
+  ```md
+  :::onEnter
+  :set{visited=true}
+  :::
+  ```
+
+- `onExit` – run directives when leaving a passage
+
+  ```md
+  :::onExit
+  :set{visited=false}
+  :::
+  ```
+
+- `onChange` – run directives when a game data key changes
+
+  ```md
+  :::onChange{key=hp}
+  :set{warn=true}
+  :::
+  ```
+
 ### Localization
 
 Campfire uses [i18next](https://www.i18next.com/) to manage translations. For a
