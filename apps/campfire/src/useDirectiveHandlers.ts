@@ -66,8 +66,11 @@ export const useDirectiveHandlers = () => {
     lock = false
   ): DirectiveHandlerResult => {
     const typeParam = (toString(directive).trim() || 'string').toLowerCase()
-    const attrs = directive.attributes as Record<string, unknown> | undefined
+    const attrs = directive.attributes
     const safe: Record<string, unknown> = {}
+
+    const isRecord = (value: unknown): value is Record<string, unknown> =>
+      !!value && typeof value === 'object' && !Array.isArray(value)
 
     const parseValue = (value: string): unknown => {
       switch (typeParam) {
@@ -98,6 +101,7 @@ export const useDirectiveHandlers = () => {
     }
 
     const parseNumber = (value: unknown): number => {
+      if (value == null) return 0
       if (typeof value === 'number') return value
       if (typeof value !== 'string') return parseNumericValue(value)
       let evaluated: unknown = value
@@ -107,10 +111,11 @@ export const useDirectiveHandlers = () => {
       } catch {
         // fall back to raw value when evaluation fails
       }
+      if (evaluated == null) return 0
       return parseNumericValue(evaluated)
     }
 
-    if (attrs && typeof attrs === 'object') {
+    if (isRecord(attrs)) {
       if (typeParam === 'range') {
         const key = typeof attrs.key === 'string' ? attrs.key : undefined
         if (key) {
