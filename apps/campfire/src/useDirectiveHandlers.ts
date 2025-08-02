@@ -8,7 +8,7 @@ import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
 import remarkDirective from 'remark-directive'
 import remarkCampfire from '@/packages/remark-campfire'
-import type { Text as MdText, Parent, RootContent } from 'mdast'
+import type { Text as MdText, Parent, RootContent, Root } from 'mdast'
 import type { Text as HastText, ElementContent } from 'hast'
 import type { ContainerDirective } from 'mdast-util-directive'
 import { useStoryDataStore } from '@/packages/use-story-data-store'
@@ -38,34 +38,28 @@ export const useDirectiveHandlers = () => {
   const unsetGameData = useGameStore(state => state.unsetGameData)
   const markOnce = useGameStore(state => state.markOnce)
   const onceKeys = useGameStore(state => state.onceKeys)
+  const currentPassageId = useStoryDataStore(state => state.currentPassageId)
   const handlersRef = useRef<Record<string, DirectiveHandler>>({})
   const exitHandlers = useRef<RootContent[][]>([])
   const changeSubscriptions = useRef<Array<() => void>>([])
 
   const runBlock = (nodes: RootContent[]) => {
-    const root = { type: 'root', children: nodes } as any
+    const root: Root = { type: 'root', children: nodes }
     unified()
       .use(remarkCampfire, { handlers: handlersRef.current })
       .runSync(root)
   }
 
   useEffect(() => {
-    let prev = useStoryDataStore.getState().currentPassageId
-    const unsubscribe = useStoryDataStore.subscribe(state => {
-      if (state.currentPassageId !== prev) {
-        for (const nodes of exitHandlers.current) {
-          runBlock(nodes)
-        }
-        exitHandlers.current = []
-        for (const fn of changeSubscriptions.current) {
-          fn()
-        }
-        changeSubscriptions.current = []
-        prev = state.currentPassageId
-      }
-    })
-    return unsubscribe
-  }, [])
+    for (const nodes of exitHandlers.current) {
+      runBlock(nodes)
+    }
+    exitHandlers.current = []
+    for (const fn of changeSubscriptions.current) {
+      fn()
+    }
+    changeSubscriptions.current = []
+  }, [currentPassageId])
   const handleSet = (
     directive: DirectiveNode,
     parent: Parent | undefined,
@@ -417,7 +411,7 @@ export const useDirectiveHandlers = () => {
 
   const handleOnChange: DirectiveHandler = (directive, parent, index) => {
     const attrs = (directive.attributes || {}) as Record<string, unknown>
-    const key = ensureKey(attrs.key ?? toString(directive), parent, index)
+    const key = ensureKey(attrs.key, parent, index)
     if (!key) return index
     const container = directive as ContainerDirective
     const content = stripLabel(container.children as RootContent[])
