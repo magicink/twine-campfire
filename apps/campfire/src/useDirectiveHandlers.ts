@@ -37,6 +37,7 @@ export const useDirectiveHandlers = () => {
   const setGameData = useGameStore(state => state.setGameData)
   const unsetGameData = useGameStore(state => state.unsetGameData)
   const markOnce = useGameStore(state => state.markOnce)
+  const onceKeys = useGameStore(state => state.onceKeys)
   const handleSet = (
     directive: DirectiveNode,
     parent: Parent | undefined,
@@ -360,9 +361,8 @@ export const useDirectiveHandlers = () => {
       parent,
       index
     )
-    if (!key) return index
-    const state = useGameStore.getState()
-    if (state.onceKeys[key]) {
+    if (!key) return [SKIP, index]
+    if (onceKeys[key]) {
       return removeNode(parent, index)
     }
     markOnce(key)
