@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.3](https://github.com/magicink/twine-campfire/compare/v1.14.2...v1.14.3) (2025-08-02)
+
+
+### Bug Fixes
+
+* **apps/campfire:** adjust DebugWindow positioning based on the minimized state ([ccfc57d](https://github.com/magicink/twine-campfire/commit/ccfc57d919e6c745fdc6b2e56792250b6e12f6c5))
+
 ## [1.14.2](https://github.com/magicink/twine-campfire/compare/v1.14.1...v1.14.2) (2025-08-02)
 
 
