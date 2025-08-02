@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.2](https://github.com/magicink/twine-campfire/compare/v1.14.1...v1.14.2) (2025-08-02)
+
+
+### Bug Fixes
+
+* **apps/campfire:** ensure proper rendering state with i18next initialization ([cfd15ef](https://github.com/magicink/twine-campfire/commit/cfd15efce3feb98f6f6b6f88b4e62de0848f951c))
+
 ## [1.14.1](https://github.com/magicink/twine-campfire/compare/v1.14.0...v1.14.1) (2025-08-02)
 
 
