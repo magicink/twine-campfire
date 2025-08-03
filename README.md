@@ -4,358 +4,423 @@ A cozy story format for Twine.
 
 ## Twine links
 
-Campfire recognizes Twine's `[[Link]]` syntax. The text inside becomes a button
-that jumps to the target passage. Use an arrow to specify a different target:
+Campfire recognizes Twine's `[[Link]]` syntax. The text inside becomes a
+button that jumps to the target passage. Use an arrow to specify a different
+target.
 
 ```md
-[[Display text->Passage name]]
+[[DISPLAY TEXT->PASSAGE NAME]]
 ```
 
 > To style the button, update the `.campfire-link` class in your CSS.
 
 ## Markdown formatting
 
-Campfire accepts all the standard Markdown formatting options as well as additional ones provided by [remark-gfm](https://github.com/remarkjs/remark-gfm). This includes tables, strikethrough, task lists, autolinks, and more.
+Campfire accepts standard Markdown and extras from
+[remark-gfm](https://github.com/remarkjs/remark-gfm). This includes tables,
+strikethrough, task lists, autolinks and more.
 
-**Examples:**
+Examples:
 
-- **Table:**
+- **Table**
+
+  Precede and separate columns with `|`.
 
   ```md
-  | Name  | HP  |
+  | NAME  | HP  |
   | ----- | --- |
-  | Alice | 10  |
-  | Bob   | 8   |
+  | ALICE | 10  |
+  | BOB   | 8   |
   ```
 
-- **Strikethrough:**
+- **Strikethrough**
 
   ```md
-  ~~This text is crossed out.~~
+  ~~THIS TEXT IS CROSSED OUT~~
   ```
 
-- **Task list:**
+- **Task list**
 
   ```md
-  - [x] Find the key
-  - [ ] Open the door
+  - [x] FIND THE KEY
+  - [ ] OPEN THE DOOR
   ```
 
-- **Autolink:**
+- **Autolink**
 
   ```md
   <https://twine-campfire.dev>
   ```
 
-## Markdown Directives
+## Directives
 
-Campfire extends standard Markdown with [remark-directive](https://github.com/remarkjs/remark-directive) syntax. Directives begin with a colon and let passages interact with the game state.
+Campfire extends Markdown with
+[remark-directive](https://github.com/remarkjs/remark-directive) syntax.
+Directives begin with a colon and let passages interact with the game state.
+They come in leaf or container form.
 
-Directives come in two forms:
-
-- **Leaf/Text** – `:name[Label]{attr=value}` inline directives.
+- **Leaf/Text** – `:name[LABEL]{attr=VALUE}`
 - **Container** –
 
-  ```
-  :::name{attr=value}
-  content
+  ```md
+  :::name{attr=VALUE}
+  CONTENT
   :::
   ```
 
-### Supported directives
+Directives are grouped by purpose.
 
-- `set` – update game data
+### Variables & simple state
+
+Operations that set, update or remove scalar values.
+
+- `decrement`: Decrease a numeric key.
 
   ```md
-  :set[number]{hp=5}
+  :decrement{key=HP amount=VALUE}
   ```
 
-- `setOnce` – like `set` but locks the key after first use
+  Replace `HP` with the key to change and `VALUE` with the amount.
+
+- `increment`: Increase a numeric key.
+
+  ```md
+  :increment{key=HP amount=VALUE}
+  ```
+
+  Replace `HP` with the key to change and `VALUE` with the amount.
+
+- `random`: Assign a random integer.
+
+  ```md
+  :random{key=HP min=MIN max=MAX}
+  ```
+
+  Replace `HP` with the key and `MIN`/`MAX` with bounds.
+
+- `range`: Set a random integer within a range.
+
+  ```md
+  :range{key=HP start=MIN end=MAX}
+  ```
+
+  Replace `HP` with the key and `MIN`/`MAX` with bounds.
+
+- `set`: Assign a value to a key.
+
+  ```md
+  :set{hp=VALUE}
+  ```
+
+  Replace `VALUE` with the number or string to store.
+
+- `setOnce`: Set a key only if it has not been set.
 
   ```md
   :setOnce{visited=true}
   ```
 
-- `array` – store a list of values
+  Replace `visited` with the key to lock on first use.
+
+- `unset`: Remove a key from state.
 
   ```md
-  :array[number]{items=1,2,3}
+  :unset{key=HP}
   ```
 
-- `arrayOnce` – like `array` but locks the key after first use
+  Replace `HP` with the key to remove.
+
+### Arrays & collection management
+
+Create or modify lists of values.
+
+> Only use these directives for arrays—JavaScript's built-in methods can lead
+> to unpredictable behavior.
+
+- `array`: Create an array.
 
   ```md
-  :arrayOnce{visited=forest,cave}
+  :array{key=ITEMS values=1,2,3}
   ```
 
-  > **Note:** Do not manipulate arrays using JavaScript's built-in array methods (such as `push`, `pop`, `shift`, `unshift`, `splice`, etc.). Due to the way state is managed, doing so could result in unpredictable behavior. Always use the provided directives for array manipulation.
+  Replace `ITEMS` with the array name.
 
-- `push` – add one or more items to the end of an array
+- `arrayOnce`: Create an array only if it has not been set.
 
   ```md
-  :push{key=items value=newItem}
+  :arrayOnce{key=VISITED values=FOREST,CAVE}
   ```
 
-- `pop` – remove the last item from an array. Use `into` to store it.
+  Replace `VISITED` with the array name.
+
+- `concat`: Combine arrays.
 
   ```md
-  :pop{key=items into=last}
+  :concat{key=ITEMS value=MORE-ITEMS}
   ```
 
-- `shift` – remove the first item from an array. Use `into` to store it.
+  Replace `ITEMS` with the target array and `MORE-ITEMS` with the source.
+
+- `pop`: Remove the last item. Use `into` to store it.
 
   ```md
-  :shift{key=items into=first}
+  :pop{key=ITEMS into=LAST}
   ```
 
-- `unshift` – add one or more items to the start of an array
+  Replace `ITEMS` with the array and `LAST` with the storage key.
+
+- `push`: Add items to the end of an array.
 
   ```md
-  :unshift{key=items value=newItem}
+  :push{key=ITEMS value=NEW-ITEM}
   ```
 
-- `splice` – remove items at an index and optionally insert new ones. Use `into` to store removed items.
+  Replace `ITEMS` with the array and `NEW-ITEM` with items to add.
+
+- `shift`: Remove the first item. Use `into` to store it.
 
   ```md
-  :splice{key=items index=1 count=2 value=newItem into=removed}
+  :shift{key=ITEMS into=FIRST}
   ```
 
-- `concat` – combine arrays or values without mutating the originals (arrays are expanded into the result)
+  Replace `ITEMS` with the array and `FIRST` with the storage key.
+
+- `splice`: Remove items at an index and optionally insert new ones. Use `into`
+  to store removed items.
 
   ```md
-  :concat{key=items value=moreItems}
+  :splice{key=ITEMS index=VALUE count=VALUE into=REMOVED}
   ```
 
-- `get` – insert a value from the game data
+  Replace `ITEMS` with the array and adjust attributes as needed.
+
+- `unshift`: Add items to the start of an array.
 
   ```md
-  HP: :get{hp}
+  :unshift{key=ITEMS value=NEW-ITEM}
   ```
 
-- `defined` – check if a value or expression is defined
+  Replace `ITEMS` with the array and `NEW-ITEM` with items to add.
+
+### Data retrieval & evaluation
+
+Read or compute data without mutating state.
+
+- `defined`: Check if a key exists.
 
   ```md
-  :defined{hp}
-  :defined[player.name]
+  :defined{key=HP}
   ```
 
-- `math` – evaluate an expression and insert the result. Add `key` to store it.
+  Replace `HP` with the key to test.
+
+- `get`: Output a value.
 
   ```md
-  Result: :math[1 + 2]
-  :math[hp + 5]{key=hp}
+  :get{key=HP}
   ```
 
-- `random` – store a random number or choice in a key
+  Replace `HP` with the key to show.
+
+- `math`: Perform a calculation.
 
   ```md
-  :random{key=loot,min=1,max=5}
-  :random{key=treasure,options=[gold,silver,bronze]}
+  :math{into=RESULT expr="HP + VALUE"}
   ```
 
-- `range` – create a numeric range object using the `set` directive
+  Replace `RESULT` with the key to store and `HP`/`VALUE` with numbers or
+  keys.
+
+### Conditional logic
+
+Run content only when conditions hold.
+
+- `if`/`elseif`/`else`: Branch by condition.
 
   ```md
-  :set[range]{key=hp min=0 max=10 value=5}
-  ```
-
-- `increment` – increase a numeric value
-
-  ```md
-  :increment{key=score amount=2}
-  ```
-
-- `decrement` – decrease a numeric value
-
-  ```md
-  :decrement{key=hp amount=1}
-  ```
-
-- `unset` – remove a key
-
-  ```md
-  :unset{key=tempFlag}
-  ```
-
-- `if`/`elseif`/`else` – conditional blocks
-
-  ```md
-  :::if{hp > 0}
-  You live!
+  :::if{cond="HP > VALUE"}
+  CONTENT
+  :::elseif{cond="HP > OTHER"}
+  OTHER
   :::else
-  Game over
+  FALLBACK
   :::
   ```
 
-- `goto` – jump to another passage by name or id
+  Replace conditions and content as needed.
+
+- `once`: Run content once per key.
 
   ```md
-  :goto[Intro]
-  :goto[42]
-  ```
-
-- `include` – insert another passage by name or id
-
-  ```md
-  :include[Intro]
-  :include[42]
-  ```
-
-- `title` – override the page title for the current passage
-
-  ```md
-  :title[The Beginning]
-  ```
-
-- `once` – execute a block only the first time it's encountered
-
-  ```md
-  :::once{intro}
-  This text appears only once.
+  :::once{key=SCENE}
+  CONTENT
   :::
   ```
 
-- `onEnter` – run directives when entering a passage
+  Replace `SCENE` with a unique key for the block.
 
-  ```md
-  :::onEnter
-  :set{visited=true}
-  :::
-  ```
+### Event & trigger blocks
 
-- `onExit` – run directives when leaving a passage
+Run directives on specific passage events or group actions.
 
-  ```md
-  :::onExit
-  :set{visited=false}
-  :::
-  ```
-
-- `onChange` – run directives when a game data key changes
-
-  ```md
-  :::onChange{key=hp}
-  :set{warn=true}
-  :::
-  ```
-
-- `batch` – run multiple directives and apply all state changes together
+- `batch`: Apply multiple directives as a single update.
 
   ```md
   :::batch
-  :set{hp=5}
-  :increment{key=hp amount=2}
-  :unset{key=temp}
+  :set{hp=VALUE}
+  :increment{key=HP amount=VALUE}
   :::
   ```
 
-  All mutations inside the container apply to a temporary copy and commit in a
-  single update after the block, so change listeners run only once.
+  Replace values as needed.
 
-### Checkpoints
-
-Use checkpoints to let players save and restore progress. These directives are
-ignored inside passages brought in with `:include`.
-
-- `checkpoint` – save the current game state with an optional label
+- `onChange`: Trigger when a key changes.
 
   ```md
-  :checkpoint{id=save1 label="Start"}
+  :::onChange{key=HP}
+  CONTENT
+  :::
   ```
 
-- `restore` – load a saved state. If no `id` is supplied, the most recent checkpoint is restored.
+  Replace `HP` with the key to watch.
+
+- `onEnter`: Run when a passage loads.
 
   ```md
-  :restore{id=save1}
-  :restore
+  :::onEnter
+  CONTENT
+  :::
   ```
 
-- `clearCheckpoint` – remove a saved checkpoint. Without an `id`, all checkpoints are cleared.
+- `onExit`: Run when leaving a passage.
 
   ```md
-  :clearCheckpoint{id=save1}
-  :clearCheckpoint
+  :::onExit
+  CONTENT
+  :::
   ```
 
-Multiple checkpoints in the same passage are ignored and log an error. An error
-is also recorded if `restore` cannot find the requested checkpoint.
+### Navigation & composition
 
-### Persistence
+Control the flow between passages or how they appear.
 
-Store progress in the browser to resume later. These directives set the game
-state's `loading` flag while accessing local storage.
-
-- `save` – write the current game state and checkpoints to local storage. Optionally set a `key`.
+- `goto`: Jump to another passage.
 
   ```md
-  :save{key=slot1}
+  :goto{passage=PASSAGE-NAME}
   ```
 
-- `load` – load game state and checkpoints from local storage using the same `key`.
+  Replace `PASSAGE-NAME` with the target passage.
+
+- `include`: Embed another passage's content.
 
   ```md
-  :load{key=slot1}
+  :include{passage=PASSAGE-NAME}
   ```
 
-- `clearSave` – remove a stored game state from local storage using the same `key`.
+  Replace `PASSAGE-NAME` with the passage to include.
+
+- `title`: Set the document title.
 
   ```md
-  :clearSave{key=slot1}
+  :title{value=GAME-TITLE}
   ```
 
-### Localization
+  Replace `GAME-TITLE` with the text to display.
 
-Campfire uses [i18next](https://www.i18next.com/) to manage translations. For a
-full introduction, read the [i18next documentation](https://www.i18next.com/overview/introduction).
-The directives below let you control languages and add translation data.
+### Checkpoints & persistence
 
-- `lang` – switch the active locale
+Save and restore progress or store data in the browser.
+
+- `checkpoint`: Save the current game state.
 
   ```md
-  :lang{locale=fr}
+  :checkpoint{id=SAVE-ID label="LABEL"}
   ```
 
-- `translations` – add multiple translations. If a namespace (`ns`) is provided, it will be created if needed.
+  Replace `SAVE-ID` with a key and `LABEL` with a description.
+
+- `clearCheckpoint`: Remove a saved checkpoint.
 
   ```md
-  :translations{ns=ui locale=fr hello="Bonjour" bye="Au revoir"}
+  :clearCheckpoint{id=SAVE-ID}
   ```
 
-- `t` – output a translated string
+  Replace `SAVE-ID` with the checkpoint to remove.
+
+- `clearSave`: Remove a stored game state.
 
   ```md
-  :t{key=hello ns=ui}
+  :clearSave{key=SLOT}
   ```
 
-  You can translate link text as well:
+  Replace `SLOT` with the storage key.
+
+- `load`: Load state from local storage.
 
   ```md
-  [[:t{key=next}->Next]]
+  :load{key=SLOT}
   ```
 
-To use plural forms, add separate `_one` and `_other` keys and supply a `count`
-attribute:
+  Replace `SLOT` with the storage key.
 
-```md
-:translations{ns=ui apple_one="1 apple" apple_other="{{count}} apples"}
-:t{key=apple count=2 ns=ui}
-```
+- `restore`: Load a saved state.
 
-#### i18next namespaces
+  ```md
+  :restore{id=SAVE-ID}
+  ```
 
-i18next organizes translations into namespaces. The `translations` directive
-creates a namespace when an `ns` attribute is provided and adds keys to it.
-Reference the namespace when translating strings:
+  Replace `SAVE-ID` with the checkpoint to load.
 
-```md
-:translations{ns=ui locale=fr cancel="Annuler"}
-:t{key=cancel ns=ui}
-```
+- `save`: Write the current state to local storage.
 
-## Error handling
+  ```md
+  :save{key=SLOT}
+  ```
 
-- `clearErrors` – remove all logged game errors
+  Replace `SLOT` with the storage key.
+
+### Localization & internationalization
+
+Change language and handle translations.
+
+- `lang`: Switch the active locale.
+
+  ```md
+  :lang{locale=LANG-CODE}
+  ```
+
+  Replace `LANG-CODE` with a locale like `fr`.
+
+- `t`: Output a translated string.
+
+  ```md
+  :t{key=HELLO ns=UI}
+  ```
+
+  Replace `HELLO` and `UI` with your key and namespace.
+
+- `translations`: Add multiple translations.
+
+  ```md
+  :translations{ns=UI locale=LANG-CODE hello="BONJOUR"}
+  ```
+
+  Replace `UI` with the namespace, `LANG-CODE` with the locale and adjust
+  keys.
+
+### Error handling
+
+Clear logged errors.
+
+- `clearErrors`: Remove all game errors.
 
   ```md
   :clearErrors
   ```
+
+## Further reading
+
+- [Twine documentation](https://twinery.org/)
+- [remark-directive](https://github.com/remarkjs/remark-directive)
+- [i18next](https://www.i18next.com/)
