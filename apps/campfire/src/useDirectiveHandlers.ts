@@ -792,9 +792,13 @@ export const useDirectiveHandlers = () => {
     const originalLocks = { ...lockedKeys }
     const originalOnce = { ...onceKeys }
 
-    gameData = clone(originalData)
-    lockedKeys = { ...lockedKeys }
-    onceKeys = { ...onceKeys }
+    const tempData = clone(originalData)
+    const tempLocks = { ...lockedKeys }
+    const tempOnce = { ...onceKeys }
+
+    gameData = tempData
+    lockedKeys = tempLocks
+    onceKeys = tempOnce
     currentSetGameData = data => {
       for (const [k, v] of Object.entries(data)) {
         if (!lockedKeys[k]) {
