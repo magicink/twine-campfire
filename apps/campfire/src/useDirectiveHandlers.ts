@@ -13,6 +13,7 @@ import type { Text as HastText, ElementContent } from 'hast'
 import type { ContainerDirective } from 'mdast-util-directive'
 import { useStoryDataStore } from '@/packages/use-story-data-store'
 import { useGameStore, type Checkpoint } from '@/packages/use-game-store'
+import { markTitleOverridden } from './titleState'
 import {
   isRange,
   clamp,
@@ -1011,6 +1012,16 @@ export const useDirectiveHandlers = () => {
     return removeNode(parent, index)
   }
 
+  const handleTitle: DirectiveHandler = (directive, parent, index) => {
+    if (includeDepth > 0) return removeNode(parent, index)
+    const title = toString(directive).trim()
+    if (title) {
+      document.title = i18next.t(title)
+      markTitleOverridden()
+    }
+    return removeNode(parent, index)
+  }
+
   const handleInclude: DirectiveHandler = (directive, parent, index) => {
     const target =
       toString(directive).trim() ||
@@ -1098,6 +1109,7 @@ export const useDirectiveHandlers = () => {
       onChange: handleOnChange,
       lang: handleLang,
       include: handleInclude,
+      title: handleTitle,
       goto: handleGoto,
       save: handleSave,
       load: handleLoad,
