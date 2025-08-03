@@ -1738,4 +1738,28 @@ describe('Passage', () => {
       expect(useGameStore.getState().gameData.stopped).toBeUndefined()
     })
   })
+
+  it('respects disabled=false attribute', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':::trigger{label="Go" disabled=false}\n:set{go=true}\n:::'
+        }
+      ]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    const button = await screen.findByRole('button', { name: 'Go' })
+    expect(button).not.toBeDisabled()
+    act(() => {
+      button.click()
+    })
+    await waitFor(() => {
+      expect(useGameStore.getState().gameData.go).toBe('true')
+    })
+  })
 })

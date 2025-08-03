@@ -879,7 +879,7 @@ export const useDirectiveHandlers = () => {
     const disabled =
       typeof attrs.disabled === 'string'
         ? attrs.disabled !== 'false'
-        : attrs.disabled != null
+        : Boolean(attrs.disabled)
     const content = JSON.stringify(
       stripLabel(container.children as RootContent[])
     )

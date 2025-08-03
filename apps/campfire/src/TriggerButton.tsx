@@ -35,7 +35,6 @@ export const TriggerButton = ({
       className={['campfire-trigger', ...classes].join(' ')}
       disabled={disabled}
       onClick={() => {
-        if (disabled) return
         runBlock(clone(JSON.parse(content)))
       }}
     >
