@@ -206,6 +206,72 @@ export const useDirectiveHandlers = () => {
     }
   }
 
+  const handleArray = (
+    directive: DirectiveNode,
+    parent: Parent | undefined,
+    index: number | undefined,
+    lock = false
+  ): DirectiveHandlerResult => {
+    const typeParam = (toString(directive).trim() || 'string').toLowerCase()
+    const attrs = directive.attributes
+    const safe: Record<string, unknown[]> = {}
+
+    const isRecord = (value: unknown): value is Record<string, unknown> =>
+      !!value && typeof value === 'object' && !Array.isArray(value)
+
+    const parseValue = (value: string): unknown => {
+      switch (typeParam) {
+        case 'number': {
+          let evaluated: unknown = value
+          try {
+            const fn = compile(value)
+            evaluated = fn(gameData)
+          } catch {
+            // fall back to raw value when evaluation fails
+          }
+          if (typeof evaluated === 'number') return evaluated
+          const num = parseFloat(String(evaluated))
+          return Number.isNaN(num) ? 0 : num
+        }
+        case 'boolean':
+          return value === 'true'
+        case 'object':
+          try {
+            return JSON.parse(value)
+          } catch {
+            return {}
+          }
+        case 'string':
+        default:
+          return value
+      }
+    }
+
+    if (isRecord(attrs)) {
+      for (const [key, value] of Object.entries(attrs)) {
+        if (typeof value === 'string') {
+          const items = value
+            .split(',')
+            .map(s => s.trim())
+            .filter(Boolean)
+            .map(parseValue)
+          safe[key] = items
+        }
+      }
+    }
+
+    if (Object.keys(safe).length > 0) {
+      setGameData(safe)
+      if (lock) {
+        for (const k of Object.keys(safe)) {
+          lockKey(k)
+        }
+      }
+    }
+
+    return removeNode(parent, index)
+  }
+
   const evalCondition = (expr: string): boolean => {
     try {
       const fn = compile(expr)
@@ -318,11 +384,24 @@ export const useDirectiveHandlers = () => {
       (attrs as Record<string, unknown>).options ??
       (attrs as Record<string, unknown>).from
     if (typeof optionsAttr === 'string') {
-      const options = optionsAttr
-        .split(',')
-        .map(s => s.trim())
-        .filter(Boolean)
-      value = getRandomItem(options)
+      let evaluated: unknown
+      try {
+        const fn = compile(optionsAttr)
+        evaluated = fn(useGameStore.getState().gameData)
+      } catch {
+        // fall back to string parsing
+      }
+      if (Array.isArray(evaluated)) {
+        value = getRandomItem(evaluated)
+      } else {
+        const options = optionsAttr
+          .split(',')
+          .map(s => s.trim())
+          .filter(Boolean)
+        value = getRandomItem(options)
+      }
+    } else if (Array.isArray(optionsAttr)) {
+      value = getRandomItem(optionsAttr as unknown[])
     } else {
       const minRaw = (attrs as Record<string, unknown>).min
       const maxRaw = (attrs as Record<string, unknown>).max
@@ -776,6 +855,13 @@ export const useDirectiveHandlers = () => {
         p: Parent | undefined,
         i: number | undefined
       ) => handleSet(d, p, i, true),
+      array: (d: DirectiveNode, p: Parent | undefined, i: number | undefined) =>
+        handleArray(d, p, i, false),
+      arrayOnce: (
+        d: DirectiveNode,
+        p: Parent | undefined,
+        i: number | undefined
+      ) => handleArray(d, p, i, true),
       get: handleGet,
       math: handleMath,
       random: handleRandom,
