@@ -862,6 +862,44 @@ export const useDirectiveHandlers = () => {
     return removeNode(parent, index)
   }
 
+  const handleTrigger: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    const container = directive as ContainerDirective
+    const attrs = (directive.attributes || {}) as Record<string, unknown>
+    const label =
+      typeof attrs.label === 'string' ? attrs.label : getLabel(container)
+    const classAttr =
+      typeof attrs.class === 'string'
+        ? attrs.class
+        : typeof attrs.className === 'string'
+          ? attrs.className
+          : typeof attrs.classes === 'string'
+            ? attrs.classes
+            : ''
+    const disabled =
+      typeof attrs.disabled === 'string'
+        ? attrs.disabled !== 'false'
+        : attrs.disabled != null
+    const content = JSON.stringify(
+      stripLabel(container.children as RootContent[])
+    )
+    const classes = classAttr.split(/\s+/).filter(Boolean)
+    const node: Parent = {
+      type: 'paragraph',
+      children: [{ type: 'text', value: label || '' }],
+      data: {
+        hName: 'trigger',
+        hProperties: {
+          className: classes,
+          content,
+          disabled
+        }
+      }
+    }
+    parent.children.splice(index, 1, node as RootContent)
+    return [SKIP, index]
+  }
+
   const handleLang: DirectiveHandler = (directive, parent, index) => {
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const locale = typeof attrs.locale === 'string' ? attrs.locale : undefined
@@ -1212,6 +1250,7 @@ export const useDirectiveHandlers = () => {
       onExit: handleOnExit,
       onChange: handleOnChange,
       batch: handleBatch,
+      trigger: handleTrigger,
       lang: handleLang,
       include: handleInclude,
       title: handleTitle,

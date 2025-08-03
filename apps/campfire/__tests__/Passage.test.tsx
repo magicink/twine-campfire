@@ -1689,4 +1689,53 @@ describe('Passage', () => {
       expect(useGameStore.getState().errors).toEqual([])
     })
   })
+
+  it('executes trigger directives on button click', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':::trigger{label="Fire" class="extra"}\n:set{fired=true}\n:::'
+        }
+      ]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    const button = await screen.findByRole('button', { name: 'Fire' })
+    expect(button.className).toContain('campfire-trigger')
+    expect(button.className).toContain('extra')
+    act(() => {
+      button.click()
+    })
+    await waitFor(() => {
+      expect(useGameStore.getState().gameData.fired).toBe('true')
+    })
+  })
+
+  it('does not run directives when trigger is disabled', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':::trigger{label="Stop" disabled}\n:set{stopped=true}\n:::'
+        }
+      ]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    const button = await screen.findByRole('button', { name: 'Stop' })
+    expect(button).toBeDisabled()
+    act(() => {
+      button.click()
+    })
+    await waitFor(() => {
+      expect(useGameStore.getState().gameData.stopped).toBeUndefined()
+    })
+  })
 })
