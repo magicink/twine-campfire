@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.17.0](https://github.com/magicink/twine-campfire/compare/v1.16.1...v1.17.0) (2025-08-03)
+
+
+### Features
+
+* add array directives and random array support ([#73](https://github.com/magicink/twine-campfire/issues/73)) ([6d90c3c](https://github.com/magicink/twine-campfire/commit/6d90c3c242c590f839163dcd0c6fceddf84fa2c5))
+
 ## [1.16.1](https://github.com/magicink/twine-campfire/compare/v1.16.0...v1.16.1) (2025-08-02)
 
 
