@@ -328,6 +328,30 @@ export const useDirectiveHandlers = () => {
     }
   }
 
+  const handleDefined: DirectiveHandler = (directive, parent, index) => {
+    const expr: string =
+      toString(directive) || Object.keys(directive.attributes || {})[0] || ''
+    let defined = false
+    if (expr) {
+      try {
+        const fn = compile(expr)
+        const data = convertRanges(gameData)
+        const value = fn(data as any)
+        defined = typeof value !== 'undefined'
+      } catch {
+        defined = typeof (gameData as any)[expr] !== 'undefined'
+      }
+    }
+    const textNode: MdText = {
+      type: 'text',
+      value: defined ? 'true' : 'false'
+    }
+    if (parent && typeof index === 'number') {
+      parent.children.splice(index, 1, textNode)
+      return index
+    }
+  }
+
   /**
    * Evaluates a mathematical or JavaScript expression in the context of the current game data.
    * Optionally stores the result in the game data state if a 'key' attribute is provided.
@@ -433,6 +457,97 @@ export const useDirectiveHandlers = () => {
 
     const removed = removeNode(parent, index)
     if (typeof removed === 'number') return removed
+  }
+
+  const parseItems = (raw: string): unknown[] =>
+    raw
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean)
+      .map(item => {
+        try {
+          const fn = compile(item)
+          const evaluated = fn(gameData)
+          return evaluated === undefined ? item : evaluated
+        } catch {
+          return item
+        }
+      })
+
+  const handlePop: DirectiveHandler = (directive, parent, index) => {
+    const attrs = directive.attributes || {}
+    const key = ensureKey((attrs as Record<string, unknown>).key, parent, index)
+    if (!key) return index
+
+    const arr = Array.isArray(gameData[key])
+      ? [...(gameData[key] as unknown[])]
+      : []
+    const value = arr.pop()
+
+    const store = (attrs as Record<string, unknown>).into
+    const updates: Record<string, unknown> = { [key]: arr }
+    if (typeof store === 'string' && value !== undefined) {
+      updates[store] = value
+    }
+    setGameData(updates)
+
+    return removeNode(parent, index)
+  }
+
+  const handleShift: DirectiveHandler = (directive, parent, index) => {
+    const attrs = directive.attributes || {}
+    const key = ensureKey((attrs as Record<string, unknown>).key, parent, index)
+    if (!key) return index
+
+    const arr = Array.isArray(gameData[key])
+      ? [...(gameData[key] as unknown[])]
+      : []
+    const value = arr.shift()
+
+    const store = (attrs as Record<string, unknown>).into
+    const updates: Record<string, unknown> = { [key]: arr }
+    if (typeof store === 'string' && value !== undefined) {
+      updates[store] = value
+    }
+    setGameData(updates)
+
+    return removeNode(parent, index)
+  }
+
+  const handlePush: DirectiveHandler = (directive, parent, index) => {
+    const attrs = directive.attributes || {}
+    const key = ensureKey((attrs as Record<string, unknown>).key, parent, index)
+    if (!key) return index
+
+    const raw = (attrs as Record<string, unknown>).value
+    const values = typeof raw === 'string' ? parseItems(raw) : []
+    if (values.length > 0) {
+      const arr = Array.isArray(gameData[key])
+        ? [...(gameData[key] as unknown[])]
+        : []
+      arr.push(...values)
+      setGameData({ [key]: arr })
+    }
+
+    return removeNode(parent, index)
+  }
+
+  const handleUnshift: DirectiveHandler = (directive, parent, index) => {
+    const attrs = directive.attributes || {}
+    const key = ensureKey((attrs as Record<string, unknown>).key, parent, index)
+    if (!key) return index
+
+    const raw = (attrs as Record<string, unknown>).value
+    const values = typeof raw === 'string' ? parseItems(raw) : []
+    if (values.length > 0) {
+      const arr = Array.isArray(gameData[key])
+        ? [...(gameData[key] as unknown[])]
+        : []
+      arr.unshift(...values)
+      setGameData({ [key]: arr })
+    }
+
+    return removeNode(parent, index)
   }
 
   const handleIncrement = (
@@ -863,8 +978,13 @@ export const useDirectiveHandlers = () => {
         i: number | undefined
       ) => handleArray(d, p, i, true),
       get: handleGet,
+      defined: handleDefined,
       math: handleMath,
       random: handleRandom,
+      pop: handlePop,
+      push: handlePush,
+      shift: handleShift,
+      unshift: handleUnshift,
       increment: (
         d: DirectiveNode,
         p: Parent | undefined,

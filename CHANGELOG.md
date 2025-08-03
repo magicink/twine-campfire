@@ -1,67 +1,65 @@
 # Changelog
 
-## [1.16.1](https://github.com/magicink/twine-campfire/compare/v1.16.0...v1.16.1) (2025-08-02)
+## [1.17.0](https://github.com/magicink/twine-campfire/compare/v1.16.1...v1.17.0) (2025-08-02)
 
+### Features
+
+- add defined directive to check if a value exists
+- add pop, push, shift, and unshift directives for arrays
+
+## [1.16.1](https://github.com/magicink/twine-campfire/compare/v1.16.0...v1.16.1) (2025-08-02)
 
 ### Bug Fixes
 
-* remove empty paragraphs after directives ([#71](https://github.com/magicink/twine-campfire/issues/71)) ([48e430c](https://github.com/magicink/twine-campfire/commit/48e430c3a58aa86374a20148b7ef0750f9ef1cab))
+- remove empty paragraphs after directives ([#71](https://github.com/magicink/twine-campfire/issues/71)) ([48e430c](https://github.com/magicink/twine-campfire/commit/48e430c3a58aa86374a20148b7ef0750f9ef1cab))
 
 ## [1.16.0](https://github.com/magicink/twine-campfire/compare/v1.15.0...v1.16.0) (2025-08-02)
 
-
 ### Features
 
-* add goto, save, and load directives ([#69](https://github.com/magicink/twine-campfire/issues/69)) ([eb8af63](https://github.com/magicink/twine-campfire/commit/eb8af632c4991c74e105d16eeb2c92c864f2354f))
+- add goto, save, and load directives ([#69](https://github.com/magicink/twine-campfire/issues/69)) ([eb8af63](https://github.com/magicink/twine-campfire/commit/eb8af632c4991c74e105d16eeb2c92c864f2354f))
 
 ## [1.15.0](https://github.com/magicink/twine-campfire/compare/v1.14.3...v1.15.0) (2025-08-02)
 
-
 ### Features
 
-* add checkpoint and restore directives ([#67](https://github.com/magicink/twine-campfire/issues/67)) ([8a81c46](https://github.com/magicink/twine-campfire/commit/8a81c468e73b24555f006d7ed3abba8a515bb713))
+- add checkpoint and restore directives ([#67](https://github.com/magicink/twine-campfire/issues/67)) ([8a81c46](https://github.com/magicink/twine-campfire/commit/8a81c468e73b24555f006d7ed3abba8a515bb713))
 
 ## [1.14.3](https://github.com/magicink/twine-campfire/compare/v1.14.2...v1.14.3) (2025-08-02)
 
-
 ### Bug Fixes
 
-* **apps/campfire:** adjust DebugWindow positioning based on the minimized state ([ccfc57d](https://github.com/magicink/twine-campfire/commit/ccfc57d919e6c745fdc6b2e56792250b6e12f6c5))
+- **apps/campfire:** adjust DebugWindow positioning based on the minimized state ([ccfc57d](https://github.com/magicink/twine-campfire/commit/ccfc57d919e6c745fdc6b2e56792250b6e12f6c5))
 
 ## [1.14.2](https://github.com/magicink/twine-campfire/compare/v1.14.1...v1.14.2) (2025-08-02)
 
-
 ### Bug Fixes
 
-* **apps/campfire:** ensure proper rendering state with i18next initialization ([cfd15ef](https://github.com/magicink/twine-campfire/commit/cfd15efce3feb98f6f6b6f88b4e62de0848f951c))
+- **apps/campfire:** ensure proper rendering state with i18next initialization ([cfd15ef](https://github.com/magicink/twine-campfire/commit/cfd15efce3feb98f6f6b6f88b4e62de0848f951c))
 
 ## [1.14.1](https://github.com/magicink/twine-campfire/compare/v1.14.0...v1.14.1) (2025-08-02)
 
-
 ### Bug Fixes
 
-* **apps/campfire:** handle rendering while i18next initializes ([99ccc55](https://github.com/magicink/twine-campfire/commit/99ccc554abb0eea07ab9f2ec8a5f36b9aec5fcb2))
+- **apps/campfire:** handle rendering while i18next initializes ([99ccc55](https://github.com/magicink/twine-campfire/commit/99ccc554abb0eea07ab9f2ec8a5f36b9aec5fcb2))
 
 ## [1.14.0](https://github.com/magicink/twine-campfire/compare/v1.13.0...v1.14.0) (2025-08-02)
 
-
 ### Features
 
-* enhance translations and range directive ([#62](https://github.com/magicink/twine-campfire/issues/62)) ([240edf5](https://github.com/magicink/twine-campfire/commit/240edf521e32ec1b72794d34f6fd658b1fb30847))
+- enhance translations and range directive ([#62](https://github.com/magicink/twine-campfire/issues/62)) ([240edf5](https://github.com/magicink/twine-campfire/commit/240edf521e32ec1b72794d34f6fd658b1fb30847))
 
 ## [1.13.0](https://github.com/magicink/twine-campfire/compare/v1.12.0...v1.13.0) (2025-08-02)
 
-
 ### Features
 
-* add onEnter, onExit, and onChange directives ([#60](https://github.com/magicink/twine-campfire/issues/60)) ([85d0680](https://github.com/magicink/twine-campfire/commit/85d0680aaf6376dfa5730056ddb7351e83a736a2))
+- add onEnter, onExit, and onChange directives ([#60](https://github.com/magicink/twine-campfire/issues/60)) ([85d0680](https://github.com/magicink/twine-campfire/commit/85d0680aaf6376dfa5730056ddb7351e83a736a2))
 
 ## [1.12.0](https://github.com/magicink/twine-campfire/compare/v1.11.0...v1.12.0) (2025-08-02)
 
-
 ### Features
 
-* add once directive ([#58](https://github.com/magicink/twine-campfire/issues/58)) ([1d06a15](https://github.com/magicink/twine-campfire/commit/1d06a15a7daef708f9ce1c200f0d6aca760a682a))
+- add once directive ([#58](https://github.com/magicink/twine-campfire/issues/58)) ([1d06a15](https://github.com/magicink/twine-campfire/commit/1d06a15a7daef708f9ce1c200f0d6aca760a682a))
 
 ## [1.11.0](https://github.com/magicink/twine-campfire/compare/v1.10.1...v1.11.0) (2025-08-02)
 
