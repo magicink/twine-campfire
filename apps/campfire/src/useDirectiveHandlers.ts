@@ -11,6 +11,8 @@ import remarkCampfire from '@/packages/remark-campfire'
 import type { Text as MdText, Parent, RootContent, Root } from 'mdast'
 import type { Text as HastText, ElementContent } from 'hast'
 import type { ContainerDirective } from 'mdast-util-directive'
+import rfdc from 'rfdc'
+import deepEqual from 'fast-deep-equal'
 import { useStoryDataStore } from '@/packages/use-story-data-store'
 import { useGameStore, type Checkpoint } from '@/packages/use-game-store'
 import { markTitleOverridden } from './titleState'
@@ -31,6 +33,8 @@ import type {
   DirectiveHandler,
   DirectiveHandlerResult
 } from '@/packages/remark-campfire'
+
+const clone = rfdc()
 
 export const useDirectiveHandlers = () => {
   const storeGameData = useGameStore(state => state.gameData)
@@ -784,11 +788,11 @@ export const useDirectiveHandlers = () => {
     const container = directive as ContainerDirective
     const content = stripLabel(container.children as RootContent[])
 
-    const originalData = structuredClone(gameData as Record<string, unknown>)
+    const originalData = gameData as Record<string, unknown>
     const originalLocks = { ...lockedKeys }
     const originalOnce = { ...onceKeys }
 
-    gameData = structuredClone(gameData as Record<string, unknown>)
+    gameData = clone(originalData)
     lockedKeys = { ...lockedKeys }
     onceKeys = { ...onceKeys }
     currentSetGameData = data => {
@@ -812,22 +816,6 @@ export const useDirectiveHandlers = () => {
     }
 
     runBlock(content)
-
-    const deepEqual = (a: unknown, b: unknown): boolean => {
-      if (a === b) return true
-      if (typeof a !== typeof b) return false
-      if (a && b && typeof a === 'object') {
-        if (Array.isArray(a) !== Array.isArray(b)) return false
-        const aKeys = Object.keys(a as Record<string, unknown>)
-        const bKeys = Object.keys(b as Record<string, unknown>)
-        if (aKeys.length !== bKeys.length) return false
-        for (const key of aKeys) {
-          if (!deepEqual((a as any)[key], (b as any)[key])) return false
-        }
-        return true
-      }
-      return false
-    }
 
     const updated: Record<string, unknown> = {}
     for (const [k, v] of Object.entries(gameData as Record<string, unknown>)) {
