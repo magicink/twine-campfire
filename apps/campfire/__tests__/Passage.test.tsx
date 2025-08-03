@@ -507,6 +507,34 @@ describe('Passage', () => {
     )
   })
 
+  it('splices items with splice directive', async () => {
+    useGameStore.setState(state => ({
+      ...state,
+      gameData: { items: ['a', 'b', 'c', 'd'] }
+    }))
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':splice{key=items index=1 count=2 value=x,y into=removed}'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      const { gameData } = useGameStore.getState()
+      expect(gameData.items).toEqual(['a', 'x', 'y', 'd'])
+      expect(gameData.removed).toEqual(['b', 'c'])
+    })
+  })
+
   it('concats arrays with concat directive', async () => {
     useGameStore.setState(state => ({
       ...state,
@@ -677,6 +705,36 @@ describe('Passage', () => {
       expect((useGameStore.getState().gameData as any).bag.items).toEqual([
         'a',
         'b',
+        'c'
+      ])
+    )
+  })
+
+  it('splices items in nested arrays with splice directive', async () => {
+    useGameStore.setState(state => ({
+      ...state,
+      gameData: { bag: { items: ['a', 'b', 'c'] } }
+    }))
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':splice{key=bag.items index=1 count=1 value=x}'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+
+    render(<Passage />)
+
+    await waitFor(() =>
+      expect((useGameStore.getState().gameData as any).bag.items).toEqual([
+        'a',
+        'x',
         'c'
       ])
     )

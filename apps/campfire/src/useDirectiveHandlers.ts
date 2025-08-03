@@ -585,6 +585,46 @@ export const useDirectiveHandlers = () => {
     return removeNode(parent, index)
   }
 
+  const handleSplice: DirectiveHandler = (directive, parent, index) => {
+    const attrs = directive.attributes || {}
+    const key = ensureKey((attrs as Record<string, unknown>).key, parent, index)
+    if (!key) return index
+
+    const parseNum = (value: unknown, defaultValue = 0): number => {
+      if (typeof value === 'number') return value
+      if (typeof value === 'string') {
+        let evaluated: unknown = value
+        try {
+          const fn = compile(value)
+          evaluated = fn(gameData)
+        } catch {
+          // ignore
+        }
+        return parseNumericValue(evaluated, defaultValue)
+      }
+      return defaultValue
+    }
+
+    const start = parseNum((attrs as Record<string, unknown>).index, 0)
+    const count = parseNum((attrs as Record<string, unknown>).count, 0)
+
+    const raw = (attrs as Record<string, unknown>).value
+    const values = typeof raw === 'string' ? parseItems(raw) : []
+
+    const arr = Array.isArray(getValue(key))
+      ? [...(getValue(key) as unknown[])]
+      : []
+    const removed = arr.splice(start, count, ...values)
+    setValue(key, arr)
+
+    const store = (attrs as Record<string, unknown>).into
+    if (typeof store === 'string') {
+      setValue(store, removed)
+    }
+
+    return removeNode(parent, index)
+  }
+
   const handleConcat: DirectiveHandler = (directive, parent, index) => {
     const attrs = directive.attributes || {}
     const key = ensureKey((attrs as Record<string, unknown>).key, parent, index)
@@ -1038,6 +1078,7 @@ export const useDirectiveHandlers = () => {
       push: handlePush,
       shift: handleShift,
       unshift: handleUnshift,
+      splice: handleSplice,
       concat: handleConcat,
       increment: (
         d: DirectiveNode,
