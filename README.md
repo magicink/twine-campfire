@@ -77,10 +77,47 @@ Directives come in two forms:
   :arrayOnce{visited=forest,cave}
   ```
 
+- `push` – add one or more items to the end of an array
+
+  ```md
+  :push{key=items value=newItem}
+  ```
+
+- `pop` – remove the last item from an array. Use `into` to store it.
+
+  ```md
+  :pop{key=items into=last}
+  ```
+
+- `shift` – remove the first item from an array. Use `into` to store it.
+
+  ```md
+  :shift{key=items into=first}
+  ```
+
+- `unshift` – add one or more items to the start of an array
+
+  ```md
+  :unshift{key=items value=newItem}
+  ```
+
+- `concat` – combine arrays or values without mutating the originals (arrays are expanded into the result)
+
+  ```md
+  :concat{key=items value=moreItems}
+  ```
+
 - `get` – insert a value from the game data
 
   ```md
   HP: :get{hp}
+  ```
+
+- `defined` – check if a value or expression is defined
+
+  ```md
+  :defined{hp}
+  :defined[player.name]
   ```
 
 - `math` – evaluate an expression and insert the result. Add `key` to store it.

@@ -328,6 +328,30 @@ export const useDirectiveHandlers = () => {
     }
   }
 
+  const handleDefined: DirectiveHandler = (directive, parent, index) => {
+    const expr: string =
+      toString(directive) || Object.keys(directive.attributes || {})[0] || ''
+    let defined = false
+    if (expr) {
+      try {
+        const fn = compile(expr)
+        const data = convertRanges(gameData)
+        const value = fn(data as any)
+        defined = typeof value !== 'undefined'
+      } catch {
+        defined = typeof (gameData as any)[expr] !== 'undefined'
+      }
+    }
+    const textNode: MdText = {
+      type: 'text',
+      value: defined ? 'true' : 'false'
+    }
+    if (parent && typeof index === 'number') {
+      parent.children.splice(index, 1, textNode)
+      return index
+    }
+  }
+
   /**
    * Evaluates a mathematical or JavaScript expression in the context of the current game data.
    * Optionally stores the result in the game data state if a 'key' attribute is provided.
@@ -428,11 +452,155 @@ export const useDirectiveHandlers = () => {
     }
 
     if (value !== undefined) {
-      setGameData({ [key]: value })
+      setValue(key, value)
     }
 
     const removed = removeNode(parent, index)
     if (typeof removed === 'number') return removed
+  }
+
+  const parseItems = (raw: string): unknown[] =>
+    raw
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean)
+      .flatMap(item => {
+        try {
+          const fn = compile(item)
+          const evaluated = fn(gameData)
+          if (evaluated === undefined) return [item]
+          return Array.isArray(evaluated) ? evaluated : [evaluated]
+        } catch {
+          return [item]
+        }
+      })
+
+  const getValue = (path: string): unknown =>
+    path.split('.').reduce<unknown>((acc, part) => {
+      if (acc == null) return undefined
+      return (acc as Record<string, unknown>)[part]
+    }, gameData)
+
+  const setValue = (path: string, value: unknown) => {
+    const parts = path.split('.')
+    const topKey = parts[0]
+    if (parts.length === 1) {
+      setGameData({ [topKey]: value })
+      return
+    }
+
+    const base =
+      typeof gameData[topKey] === 'object' && gameData[topKey] !== null
+        ? { ...(gameData[topKey] as Record<string, unknown>) }
+        : {}
+
+    let curr = base
+    for (let i = 1; i < parts.length - 1; i++) {
+      const part = parts[i]
+      curr[part] =
+        typeof curr[part] === 'object' && curr[part] !== null
+          ? { ...(curr[part] as Record<string, unknown>) }
+          : {}
+      curr = curr[part] as Record<string, unknown>
+    }
+    curr[parts[parts.length - 1]] = value
+    setGameData({ [topKey]: base })
+  }
+
+  const handlePop: DirectiveHandler = (directive, parent, index) => {
+    const attrs = directive.attributes || {}
+    const key = ensureKey((attrs as Record<string, unknown>).key, parent, index)
+    if (!key) return index
+
+    const arr = Array.isArray(getValue(key))
+      ? [...(getValue(key) as unknown[])]
+      : []
+    const value = arr.pop()
+
+    const store = (attrs as Record<string, unknown>).into
+    setValue(key, arr)
+    if (typeof store === 'string' && value !== undefined) {
+      setValue(store, value)
+    }
+
+    return removeNode(parent, index)
+  }
+
+  const handleShift: DirectiveHandler = (directive, parent, index) => {
+    const attrs = directive.attributes || {}
+    const key = ensureKey((attrs as Record<string, unknown>).key, parent, index)
+    if (!key) return index
+
+    const arr = Array.isArray(getValue(key))
+      ? [...(getValue(key) as unknown[])]
+      : []
+    const value = arr.shift()
+
+    const store = (attrs as Record<string, unknown>).into
+    setValue(key, arr)
+    if (typeof store === 'string' && value !== undefined) {
+      setValue(store, value)
+    }
+
+    return removeNode(parent, index)
+  }
+
+  const handlePush: DirectiveHandler = (directive, parent, index) => {
+    const attrs = directive.attributes || {}
+    const key = ensureKey((attrs as Record<string, unknown>).key, parent, index)
+    if (!key) return index
+
+    const raw = (attrs as Record<string, unknown>).value
+    const values = typeof raw === 'string' ? parseItems(raw) : []
+    if (values.length > 0) {
+      const arr = Array.isArray(getValue(key))
+        ? [...(getValue(key) as unknown[])]
+        : []
+      for (const v of values) {
+        arr.push(v)
+      }
+      setValue(key, arr)
+    }
+
+    return removeNode(parent, index)
+  }
+
+  const handleUnshift: DirectiveHandler = (directive, parent, index) => {
+    const attrs = directive.attributes || {}
+    const key = ensureKey((attrs as Record<string, unknown>).key, parent, index)
+    if (!key) return index
+
+    const raw = (attrs as Record<string, unknown>).value
+    const values = typeof raw === 'string' ? parseItems(raw) : []
+    if (values.length > 0) {
+      const arr = Array.isArray(getValue(key))
+        ? [...(getValue(key) as unknown[])]
+        : []
+      for (let i = values.length - 1; i >= 0; i--) {
+        arr.unshift(values[i])
+      }
+      setValue(key, arr)
+    }
+
+    return removeNode(parent, index)
+  }
+
+  const handleConcat: DirectiveHandler = (directive, parent, index) => {
+    const attrs = directive.attributes || {}
+    const key = ensureKey((attrs as Record<string, unknown>).key, parent, index)
+    if (!key) return index
+
+    const raw = (attrs as Record<string, unknown>).value
+    const values = typeof raw === 'string' ? parseItems(raw) : []
+    if (values.length > 0) {
+      const arr = Array.isArray(getValue(key))
+        ? [...(getValue(key) as unknown[])]
+        : []
+      const result = arr.concat(values)
+      setValue(key, result)
+    }
+
+    return removeNode(parent, index)
   }
 
   const handleIncrement = (
@@ -863,8 +1031,14 @@ export const useDirectiveHandlers = () => {
         i: number | undefined
       ) => handleArray(d, p, i, true),
       get: handleGet,
+      defined: handleDefined,
       math: handleMath,
       random: handleRandom,
+      pop: handlePop,
+      push: handlePush,
+      shift: handleShift,
+      unshift: handleUnshift,
+      concat: handleConcat,
       increment: (
         d: DirectiveNode,
         p: Parent | undefined,
