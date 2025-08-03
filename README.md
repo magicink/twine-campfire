@@ -15,7 +15,7 @@ that jumps to the target passage. Use an arrow to specify a different target:
 
 ## Markdown formatting
 
-Campfire accepts all standard Markdown formatting options provided by [remark-gfm](https://github.com/remarkjs/remark-gfm). This includes tables, strikethrough, task lists, autolinks, and more.
+Campfire accepts all the standard Markdown formatting options as well as additional ones provided by [remark-gfm](https://github.com/remarkjs/remark-gfm). This includes tables, strikethrough, task lists, autolinks, and more.
 
 **Examples:**
 
