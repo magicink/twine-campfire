@@ -324,6 +324,51 @@ describe('Passage', () => {
     ).toBe(10)
   })
 
+  it('sets arrays with array directive', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':array[number]{nums=1,2,3}' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() =>
+      expect(useGameStore.getState().gameData.nums).toEqual([1, 2, 3])
+    )
+  })
+
+  it('locks keys with arrayOnce', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':arrayOnce[number]{nums=1,2}' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() =>
+      expect(useGameStore.getState().gameData.nums).toEqual([1, 2])
+    )
+    expect(useGameStore.getState().lockedKeys.nums).toBe(true)
+
+    useGameStore.getState().setGameData({ nums: [3] })
+
+    expect(useGameStore.getState().gameData.nums).toEqual([1, 2])
+  })
+
   it('retrieves values with get directive', async () => {
     useGameStore.setState(state => ({
       ...state,

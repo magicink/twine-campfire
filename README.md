@@ -65,6 +65,18 @@ Directives come in two forms:
   :setOnce{visited=true}
   ```
 
+- `array` – store a list of values
+
+  ```md
+  :array[number]{items=1,2,3}
+  ```
+
+- `arrayOnce` – like `array` but locks the key after first use
+
+  ```md
+  :arrayOnce{visited=forest,cave}
+  ```
+
 - `get` – insert a value from the game data
 
   ```md
@@ -82,6 +94,7 @@ Directives come in two forms:
 
   ```md
   :random{key=loot,min=1,max=5}
+  :random{key=treasure,options=[gold,silver,bronze]}
   ```
 
 - `range` – create a numeric range object using the `set` directive
