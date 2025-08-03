@@ -9,7 +9,7 @@ interface LinkButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   'data-name'?: string
 }
 
-export const LinkButton = ({ children, ...rest }: LinkButtonProps) => {
+export const LinkButton = ({ children, onClick, ...rest }: LinkButtonProps) => {
   const setCurrent = useStoryDataStore(
     (state: StoryDataState) => state.setCurrentPassage
   )
@@ -19,7 +19,9 @@ export const LinkButton = ({ children, ...rest }: LinkButtonProps) => {
     <button
       type='button'
       {...rest}
-      onClick={() => {
+      onClick={e => {
+        onClick?.(e)
+        if (e.defaultPrevented) return
         const target = pid ?? name
         if (target) {
           setCurrent(target)

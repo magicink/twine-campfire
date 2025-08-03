@@ -274,6 +274,16 @@ Run directives on specific passage events or group actions.
 
   Replace values as needed.
 
+- `trigger`: Render a button that runs directives when clicked.
+
+  ```md
+  :::trigger{label="Do it" class="primary" disabled}
+  :set{key=value}
+  :::
+  ```
+
+  Replace the label, classes, disabled state, and directives as needed.
+
 - `onChange`: Trigger when a key changes.
 
   ```md
