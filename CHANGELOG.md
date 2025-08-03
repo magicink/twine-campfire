@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.20.0](https://github.com/magicink/twine-campfire/compare/v1.19.0...v1.20.0) (2025-08-03)
+
+
+### Features
+
+* allow overriding page title ([#79](https://github.com/magicink/twine-campfire/issues/79)) ([d97a24a](https://github.com/magicink/twine-campfire/commit/d97a24a394bc7f3b7bb11dfb6b1aaef86e3217be))
+
 ## [1.19.0](https://github.com/magicink/twine-campfire/compare/v1.18.0...v1.19.0) (2025-08-03)
 
 
