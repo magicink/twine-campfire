@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.22.0](https://github.com/magicink/twine-campfire/compare/v1.21.0...v1.22.0) (2025-08-03)
+
+
+### Features
+
+* add trigger directive for interactive buttons ([#84](https://github.com/magicink/twine-campfire/issues/84)) ([bf354b5](https://github.com/magicink/twine-campfire/commit/bf354b59a61363eeb8d5fdf884a88d2987365aee))
+
 ## [1.21.0](https://github.com/magicink/twine-campfire/compare/v1.20.0...v1.21.0) (2025-08-03)
 
 
