@@ -11,6 +11,8 @@ import remarkCampfire from '@/packages/remark-campfire'
 import type { Text as MdText, Parent, RootContent, Root } from 'mdast'
 import type { Text as HastText, ElementContent } from 'hast'
 import type { ContainerDirective } from 'mdast-util-directive'
+import rfdc from 'rfdc'
+import deepEqual from 'fast-deep-equal'
 import { useStoryDataStore } from '@/packages/use-story-data-store'
 import { useGameStore, type Checkpoint } from '@/packages/use-game-store'
 import { markTitleOverridden } from './titleState'
@@ -32,14 +34,30 @@ import type {
   DirectiveHandlerResult
 } from '@/packages/remark-campfire'
 
+const clone = rfdc()
+
 export const useDirectiveHandlers = () => {
-  const gameData = useGameStore(state => state.gameData)
-  const setGameData = useGameStore(state => state.setGameData)
-  const unsetGameData = useGameStore(state => state.unsetGameData)
-  const markOnce = useGameStore(state => state.markOnce)
-  const onceKeys = useGameStore(state => state.onceKeys)
-  const lockKey = useGameStore(state => state.lockKey)
-  const lockedKeys = useGameStore(state => state.lockedKeys)
+  const storeGameData = useGameStore(state => state.gameData)
+  const realSetGameData = useGameStore(state => state.setGameData)
+  const realUnsetGameData = useGameStore(state => state.unsetGameData)
+  const realMarkOnce = useGameStore(state => state.markOnce)
+  const storeOnceKeys = useGameStore(state => state.onceKeys)
+  const realLockKey = useGameStore(state => state.lockKey)
+  const storeLockedKeys = useGameStore(state => state.lockedKeys)
+
+  let gameData = storeGameData
+  let lockedKeys = storeLockedKeys
+  let onceKeys = storeOnceKeys
+  let currentSetGameData = realSetGameData
+  let currentUnsetGameData = realUnsetGameData
+  let currentMarkOnce = realMarkOnce
+  let currentLockKey = realLockKey
+
+  const setGameData = (data: Record<string, unknown>) =>
+    currentSetGameData(data)
+  const unsetGameData = (key: string) => currentUnsetGameData(key)
+  const markOnce = (key: string) => currentMarkOnce(key)
+  const lockKey = (key: string) => currentLockKey(key)
   const saveCheckpoint = useGameStore(state => state.saveCheckpoint)
   const removeCheckpoint = useGameStore(state => state.removeCheckpoint)
   const restoreCheckpointFn = useGameStore(state => state.restoreCheckpoint)
@@ -53,7 +71,7 @@ export const useDirectiveHandlers = () => {
   const handlersRef = useRef<Record<string, DirectiveHandler>>({})
   const exitHandlers = useRef<RootContent[][]>([])
   const changeSubscriptions = useRef<Array<() => void>>([])
-  const checkpoints = useGameStore(state => state.checkpoints)
+  const storeCheckpoints = useGameStore(state => state.checkpoints)
   const checkpointIdRef = useRef<string | null>(null)
   const checkpointErrorRef = useRef(false)
   const lastPassageIdRef = useRef<string | undefined>(undefined)
@@ -412,7 +430,7 @@ export const useDirectiveHandlers = () => {
       let evaluated: unknown
       try {
         const fn = compile(optionsAttr)
-        evaluated = fn(useGameStore.getState().gameData)
+        evaluated = fn(gameData)
       } catch {
         // fall back to string parsing
       }
@@ -765,6 +783,85 @@ export const useDirectiveHandlers = () => {
     return removeNode(parent, index)
   }
 
+  const handleBatch: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    const container = directive as ContainerDirective
+    const content = stripLabel(container.children as RootContent[])
+
+    const originalData = gameData as Record<string, unknown>
+    const originalLocks = { ...lockedKeys }
+    const originalOnce = { ...onceKeys }
+
+    const tempData = clone(originalData)
+    const tempLocks = { ...lockedKeys }
+    const tempOnce = { ...onceKeys }
+
+    gameData = tempData
+    lockedKeys = tempLocks
+    onceKeys = tempOnce
+    currentSetGameData = data => {
+      for (const [k, v] of Object.entries(data)) {
+        if (!lockedKeys[k]) {
+          ;(gameData as Record<string, unknown>)[k] = v
+        }
+      }
+    }
+    currentUnsetGameData = key => {
+      const k = String(key)
+      delete (gameData as Record<string, unknown>)[k]
+      delete lockedKeys[k]
+      delete onceKeys[k]
+    }
+    currentLockKey = key => {
+      lockedKeys[String(key)] = true
+    }
+    currentMarkOnce = key => {
+      onceKeys[key] = true
+    }
+
+    runBlock(content)
+
+    const updated: Record<string, unknown> = {}
+    for (const [k, v] of Object.entries(gameData as Record<string, unknown>)) {
+      if (!deepEqual((originalData as Record<string, unknown>)[k], v)) {
+        updated[k] = v
+      }
+    }
+    const removed: string[] = []
+    for (const k of Object.keys(originalData)) {
+      if (!(k in (gameData as Record<string, unknown>))) {
+        removed.push(k)
+      }
+    }
+    const newLocks = Object.keys(lockedKeys).filter(k => !originalLocks[k])
+    const newOnce = Object.keys(onceKeys).filter(k => !originalOnce[k])
+
+    currentSetGameData = realSetGameData
+    currentUnsetGameData = realUnsetGameData
+    currentLockKey = realLockKey
+    currentMarkOnce = realMarkOnce
+
+    if (Object.keys(updated).length > 0) {
+      realSetGameData(updated)
+    }
+    for (const k of removed) {
+      realUnsetGameData(k)
+    }
+    for (const k of newLocks) {
+      realLockKey(k)
+    }
+    for (const k of newOnce) {
+      realMarkOnce(k)
+    }
+
+    const state = useGameStore.getState()
+    gameData = state.gameData
+    lockedKeys = state.lockedKeys
+    onceKeys = state.onceKeys
+
+    return removeNode(parent, index)
+  }
+
   const handleLang: DirectiveHandler = (directive, parent, index) => {
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const locale = typeof attrs.locale === 'string' ? attrs.locale : undefined
@@ -871,13 +968,20 @@ export const useDirectiveHandlers = () => {
     setLoading(true)
     try {
       if (typeof localStorage !== 'undefined') {
-        const { gameData, lockedKeys, onceKeys, checkpoints } =
-          useGameStore.getState()
+        const state =
+          currentSetGameData === realSetGameData
+            ? useGameStore.getState()
+            : {
+                gameData,
+                lockedKeys,
+                onceKeys,
+                checkpoints: storeCheckpoints
+              }
         const data = {
-          gameData: { ...(gameData as Record<string, unknown>) },
-          lockedKeys: { ...lockedKeys },
-          onceKeys: { ...onceKeys },
-          checkpoints: { ...checkpoints },
+          gameData: { ...(state.gameData as Record<string, unknown>) },
+          lockedKeys: { ...state.lockedKeys },
+          onceKeys: { ...state.onceKeys },
+          checkpoints: { ...state.checkpoints },
           currentPassageId
         }
         localStorage.setItem(key, JSON.stringify(data))
@@ -1107,6 +1211,7 @@ export const useDirectiveHandlers = () => {
       onEnter: handleOnEnter,
       onExit: handleOnExit,
       onChange: handleOnChange,
+      batch: handleBatch,
       lang: handleLang,
       include: handleInclude,
       title: handleTitle,
