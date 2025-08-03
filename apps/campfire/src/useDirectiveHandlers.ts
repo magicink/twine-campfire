@@ -1011,6 +1011,15 @@ export const useDirectiveHandlers = () => {
     return removeNode(parent, index)
   }
 
+  const handleTitle: DirectiveHandler = (directive, parent, index) => {
+    if (includeDepth > 0) return removeNode(parent, index)
+    const title = toString(directive).trim()
+    if (title) {
+      document.title = i18next.t(title)
+    }
+    return removeNode(parent, index)
+  }
+
   const handleInclude: DirectiveHandler = (directive, parent, index) => {
     const target =
       toString(directive).trim() ||
@@ -1098,6 +1107,7 @@ export const useDirectiveHandlers = () => {
       onChange: handleOnChange,
       lang: handleLang,
       include: handleInclude,
+      title: handleTitle,
       goto: handleGoto,
       save: handleSave,
       load: handleLoad,

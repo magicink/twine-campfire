@@ -28,6 +28,7 @@ const resetStore = () => {
 describe('Passage', () => {
   beforeEach(async () => {
     document.body.innerHTML = ''
+    document.title = ''
     resetStore()
     if (!i18next.isInitialized) {
       await i18next.use(initReactI18next).init({ lng: 'en-US', resources: {} })
@@ -59,6 +60,63 @@ describe('Passage', () => {
   it('renders nothing when no passage is set', () => {
     render(<Passage />)
     expect(document.body.textContent).toBe('')
+  })
+
+  it('sets document title to passage name', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: 'Hello' }]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(document.title).toBe('Start')
+    })
+  })
+
+  it('overrides title with title directive', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':title[Custom]' }]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(document.title).toBe('Custom')
+    })
+  })
+
+  it('ignores title directive in included passages', async () => {
+    const start: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':include[Second]' }]
+    }
+    const second: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '2', name: 'Second' },
+      children: [{ type: 'text', value: ':title[Other]' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [start, second],
+      currentPassageId: '1'
+    })
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(document.title).toBe('Start')
+    })
   })
 
   it('navigates to the linked passage when a button is clicked', async () => {

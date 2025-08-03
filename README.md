@@ -201,6 +201,12 @@ Directives come in two forms:
   :include[42]
   ```
 
+- `title` – override the page title for the current passage
+
+  ```md
+  :title[The Beginning]
+  ```
+
 - `once` – execute a block only the first time it's encountered
 
   ```md

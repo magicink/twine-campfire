@@ -44,6 +44,17 @@ export const Passage = () => {
   const [content, setContent] = useState<ReactNode>(null)
 
   useEffect(() => {
+    if (!passage) return
+    const name =
+      typeof passage.properties?.name === 'string'
+        ? passage.properties.name
+        : undefined
+    if (name) {
+      document.title = name
+    }
+  }, [passage])
+
+  useEffect(() => {
     const run = async () => {
       if (!passage) {
         setContent(null)
