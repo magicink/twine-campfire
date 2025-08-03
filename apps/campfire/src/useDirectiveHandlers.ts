@@ -555,7 +555,9 @@ export const useDirectiveHandlers = () => {
       const arr = Array.isArray(getValue(key))
         ? [...(getValue(key) as unknown[])]
         : []
-      arr.push(...values)
+      for (const v of values) {
+        arr.push(v)
+      }
       setValue(key, arr)
     }
 
@@ -573,7 +575,9 @@ export const useDirectiveHandlers = () => {
       const arr = Array.isArray(getValue(key))
         ? [...(getValue(key) as unknown[])]
         : []
-      arr.unshift(...values)
+      for (let i = values.length - 1; i >= 0; i--) {
+        arr.unshift(values[i])
+      }
       setValue(key, arr)
     }
 
@@ -591,7 +595,7 @@ export const useDirectiveHandlers = () => {
       const arr = Array.isArray(getValue(key))
         ? [...(getValue(key) as unknown[])]
         : []
-      const result = arr.concat(...values)
+      const result = arr.concat(values)
       setValue(key, result)
     }
 

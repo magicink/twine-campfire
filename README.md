@@ -101,7 +101,7 @@ Directives come in two forms:
   :unshift{key=items value=newItem}
   ```
 
-- `concat` – combine arrays or values without mutating the originals
+- `concat` – combine arrays or values without mutating the originals (arrays are appended as single elements)
 
   ```md
   :concat{key=items value=moreItems}
