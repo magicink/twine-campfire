@@ -5,7 +5,7 @@
 ### Features
 
 - add defined directive to check if a value exists
-- add pop, push, shift, and unshift directives for arrays
+- add pop, push, shift, unshift, and concat directives for arrays
 
 ## [1.16.1](https://github.com/magicink/twine-campfire/compare/v1.16.0...v1.16.1) (2025-08-02)
 

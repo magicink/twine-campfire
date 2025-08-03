@@ -550,6 +550,24 @@ export const useDirectiveHandlers = () => {
     return removeNode(parent, index)
   }
 
+  const handleConcat: DirectiveHandler = (directive, parent, index) => {
+    const attrs = directive.attributes || {}
+    const key = ensureKey((attrs as Record<string, unknown>).key, parent, index)
+    if (!key) return index
+
+    const raw = (attrs as Record<string, unknown>).value
+    const values = typeof raw === 'string' ? parseItems(raw) : []
+    if (values.length > 0) {
+      const arr = Array.isArray(gameData[key])
+        ? [...(gameData[key] as unknown[])]
+        : []
+      const result = arr.concat(...values)
+      setGameData({ [key]: result })
+    }
+
+    return removeNode(parent, index)
+  }
+
   const handleIncrement = (
     directive: DirectiveNode,
     parent: Parent | undefined,
@@ -985,6 +1003,7 @@ export const useDirectiveHandlers = () => {
       push: handlePush,
       shift: handleShift,
       unshift: handleUnshift,
+      concat: handleConcat,
       increment: (
         d: DirectiveNode,
         p: Parent | undefined,

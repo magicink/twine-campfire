@@ -507,31 +507,31 @@ describe('Passage', () => {
     )
   })
 
-  it('concats arrays with get directive', async () => {
+  it('concats arrays with concat directive', async () => {
     useGameStore.setState(state => ({
       ...state,
-      gameData: { items: ['a', 'b', 'c'] }
+      gameData: { items: ['a', 'b', 'c'], more: ['d', 'e'] }
     }))
     const passage: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [
-        {
-          type: 'text',
-          value: "Concat: :get[items.concat(['d','e'])]"
-        }
-      ]
+      children: [{ type: 'text', value: ':concat{key=items value=more}' }]
     }
 
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
 
     render(<Passage />)
 
-    await waitFor(() => {
-      expect(screen.getByText('Concat: a,b,c,d,e')).toBeInTheDocument()
-      expect(useGameStore.getState().gameData.items).toEqual(['a', 'b', 'c'])
-    })
+    await waitFor(() =>
+      expect(useGameStore.getState().gameData.items).toEqual([
+        'a',
+        'b',
+        'c',
+        'd',
+        'e'
+      ])
+    )
   })
 
   it('joins arrays with get directive', async () => {

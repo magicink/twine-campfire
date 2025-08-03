@@ -101,6 +101,12 @@ Directives come in two forms:
   :unshift{key=items value=newItem}
   ```
 
+- `concat` – combine arrays or values without mutating the originals
+
+  ```md
+  :concat{key=items value=moreItems}
+  ```
+
 - `get` – insert a value from the game data
 
   ```md
