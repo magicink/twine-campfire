@@ -584,6 +584,178 @@ describe('Passage', () => {
     })
   })
 
+  it('pops items from nested arrays with pop directive', async () => {
+    useGameStore.setState(state => ({
+      ...state,
+      gameData: { bag: { items: ['a', 'b', 'c'] } }
+    }))
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':pop{key=bag.items}' }]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+
+    render(<Passage />)
+
+    await waitFor(() =>
+      expect((useGameStore.getState().gameData as any).bag.items).toEqual([
+        'a',
+        'b'
+      ])
+    )
+  })
+
+  it('shifts items from nested arrays with shift directive', async () => {
+    useGameStore.setState(state => ({
+      ...state,
+      gameData: { bag: { items: ['a', 'b', 'c'] } }
+    }))
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':shift{key=bag.items}' }]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+
+    render(<Passage />)
+
+    await waitFor(() =>
+      expect((useGameStore.getState().gameData as any).bag.items).toEqual([
+        'b',
+        'c'
+      ])
+    )
+  })
+
+  it('pushes items into nested arrays with push directive', async () => {
+    useGameStore.setState(state => ({
+      ...state,
+      gameData: { bag: { items: ['a', 'b'] } }
+    }))
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':push{key=bag.items value=c}' }]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+
+    render(<Passage />)
+
+    await waitFor(() =>
+      expect((useGameStore.getState().gameData as any).bag.items).toEqual([
+        'a',
+        'b',
+        'c'
+      ])
+    )
+  })
+
+  it('unshifts items into nested arrays with unshift directive', async () => {
+    useGameStore.setState(state => ({
+      ...state,
+      gameData: { bag: { items: ['b', 'c'] } }
+    }))
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':unshift{key=bag.items value=a}' }]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+
+    render(<Passage />)
+
+    await waitFor(() =>
+      expect((useGameStore.getState().gameData as any).bag.items).toEqual([
+        'a',
+        'b',
+        'c'
+      ])
+    )
+  })
+
+  it('concats nested arrays with concat directive', async () => {
+    useGameStore.setState(state => ({
+      ...state,
+      gameData: { bag: { items: ['a'], more: ['b', 'c'] } }
+    }))
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        { type: 'text', value: ':concat{key=bag.items value=bag.more}' }
+      ]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+
+    render(<Passage />)
+
+    await waitFor(() =>
+      expect((useGameStore.getState().gameData as any).bag.items).toEqual([
+        'a',
+        'b',
+        'c'
+      ])
+    )
+  })
+
+  it('joins nested arrays with get directive', async () => {
+    useGameStore.setState(state => ({
+      ...state,
+      gameData: { bag: { items: ['a', 'b', 'c'] } }
+    }))
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: "Joined: :get[bag.items.join('-')]"
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+
+    render(<Passage />)
+
+    await waitFor(() =>
+      expect(screen.getByText('Joined: a-b-c')).toBeInTheDocument()
+    )
+  })
+
+  it('slices nested arrays with get directive', async () => {
+    useGameStore.setState(state => ({
+      ...state,
+      gameData: { bag: { items: ['a', 'b', 'c'] } }
+    }))
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: 'Slice: :get[bag.items.slice(1)]' }]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+
+    render(<Passage />)
+
+    await waitFor(() =>
+      expect(screen.getByText('Slice: b,c')).toBeInTheDocument()
+    )
+  })
+
   it('evaluates defined directive', async () => {
     useGameStore.setState(state => ({
       ...state,

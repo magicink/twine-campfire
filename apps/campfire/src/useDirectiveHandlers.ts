@@ -452,7 +452,7 @@ export const useDirectiveHandlers = () => {
     }
 
     if (value !== undefined) {
-      setGameData({ [key]: value })
+      setValue(key, value)
     }
 
     const removed = removeNode(parent, index)
@@ -474,22 +474,53 @@ export const useDirectiveHandlers = () => {
         }
       })
 
+  const getValue = (path: string): unknown =>
+    path.split('.').reduce<unknown>((acc, part) => {
+      if (acc == null) return undefined
+      return (acc as Record<string, unknown>)[part]
+    }, gameData)
+
+  const setValue = (path: string, value: unknown) => {
+    const parts = path.split('.')
+    const topKey = parts[0]
+    if (parts.length === 1) {
+      setGameData({ [topKey]: value })
+      return
+    }
+
+    const base =
+      typeof gameData[topKey] === 'object' && gameData[topKey] !== null
+        ? { ...(gameData[topKey] as Record<string, unknown>) }
+        : {}
+
+    let curr = base
+    for (let i = 1; i < parts.length - 1; i++) {
+      const part = parts[i]
+      curr[part] =
+        typeof curr[part] === 'object' && curr[part] !== null
+          ? { ...(curr[part] as Record<string, unknown>) }
+          : {}
+      curr = curr[part] as Record<string, unknown>
+    }
+    curr[parts[parts.length - 1]] = value
+    setGameData({ [topKey]: base })
+  }
+
   const handlePop: DirectiveHandler = (directive, parent, index) => {
     const attrs = directive.attributes || {}
     const key = ensureKey((attrs as Record<string, unknown>).key, parent, index)
     if (!key) return index
 
-    const arr = Array.isArray(gameData[key])
-      ? [...(gameData[key] as unknown[])]
+    const arr = Array.isArray(getValue(key))
+      ? [...(getValue(key) as unknown[])]
       : []
     const value = arr.pop()
 
     const store = (attrs as Record<string, unknown>).into
-    const updates: Record<string, unknown> = { [key]: arr }
+    setValue(key, arr)
     if (typeof store === 'string' && value !== undefined) {
-      updates[store] = value
+      setValue(store, value)
     }
-    setGameData(updates)
 
     return removeNode(parent, index)
   }
@@ -499,17 +530,16 @@ export const useDirectiveHandlers = () => {
     const key = ensureKey((attrs as Record<string, unknown>).key, parent, index)
     if (!key) return index
 
-    const arr = Array.isArray(gameData[key])
-      ? [...(gameData[key] as unknown[])]
+    const arr = Array.isArray(getValue(key))
+      ? [...(getValue(key) as unknown[])]
       : []
     const value = arr.shift()
 
     const store = (attrs as Record<string, unknown>).into
-    const updates: Record<string, unknown> = { [key]: arr }
+    setValue(key, arr)
     if (typeof store === 'string' && value !== undefined) {
-      updates[store] = value
+      setValue(store, value)
     }
-    setGameData(updates)
 
     return removeNode(parent, index)
   }
@@ -522,11 +552,11 @@ export const useDirectiveHandlers = () => {
     const raw = (attrs as Record<string, unknown>).value
     const values = typeof raw === 'string' ? parseItems(raw) : []
     if (values.length > 0) {
-      const arr = Array.isArray(gameData[key])
-        ? [...(gameData[key] as unknown[])]
+      const arr = Array.isArray(getValue(key))
+        ? [...(getValue(key) as unknown[])]
         : []
       arr.push(...values)
-      setGameData({ [key]: arr })
+      setValue(key, arr)
     }
 
     return removeNode(parent, index)
@@ -540,11 +570,11 @@ export const useDirectiveHandlers = () => {
     const raw = (attrs as Record<string, unknown>).value
     const values = typeof raw === 'string' ? parseItems(raw) : []
     if (values.length > 0) {
-      const arr = Array.isArray(gameData[key])
-        ? [...(gameData[key] as unknown[])]
+      const arr = Array.isArray(getValue(key))
+        ? [...(getValue(key) as unknown[])]
         : []
       arr.unshift(...values)
-      setGameData({ [key]: arr })
+      setValue(key, arr)
     }
 
     return removeNode(parent, index)
@@ -558,11 +588,11 @@ export const useDirectiveHandlers = () => {
     const raw = (attrs as Record<string, unknown>).value
     const values = typeof raw === 'string' ? parseItems(raw) : []
     if (values.length > 0) {
-      const arr = Array.isArray(gameData[key])
-        ? [...(gameData[key] as unknown[])]
+      const arr = Array.isArray(getValue(key))
+        ? [...(getValue(key) as unknown[])]
         : []
       const result = arr.concat(...values)
-      setGameData({ [key]: result })
+      setValue(key, result)
     }
 
     return removeNode(parent, index)
