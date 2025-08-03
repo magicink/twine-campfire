@@ -19,22 +19,31 @@ Campfire accepts all standard Markdown formatting options provided by [remark-gf
 
 - **Table:**
 
+  ```md
   | Name  | HP  |
   | ----- | --- |
   | Alice | 10  |
   | Bob   | 8   |
+  ```
 
 - **Strikethrough:**
 
+  ```md
   ~~This text is crossed out.~~
+  ```
 
 - **Task list:**
+
+  ```md
   - [x] Find the key
   - [ ] Open the door
+  ```
 
 - **Autolink:**
 
+  ```md
   <https://twine-campfire.dev>
+  ```
 
 ## Markdown Directives
 
@@ -76,6 +85,8 @@ Directives come in two forms:
   ```md
   :arrayOnce{visited=forest,cave}
   ```
+
+  > **Note:** Do not manipulate arrays using JavaScript's built-in array methods (such as `push`, `pop`, `shift`, `unshift`, `splice`, etc.). Due to the way state is managed, doing so could result in unpredictable behavior. Always use the provided directives for array manipulation.
 
 - `push` – add one or more items to the end of an array
 
