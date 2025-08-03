@@ -23,12 +23,12 @@ const resetStore = () => {
     loading: false
   })
   localStorage.clear()
+  document.title = ''
 }
 
 describe('Passage', () => {
   beforeEach(async () => {
     document.body.innerHTML = ''
-    document.title = ''
     resetStore()
     if (!i18next.isInitialized) {
       await i18next.use(initReactI18next).init({ lng: 'en-US', resources: {} })

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import * as runtime from 'react/jsx-runtime'
 import { jsxDEV } from 'react/jsx-dev-runtime'
 import { unified } from 'unified'
@@ -11,6 +11,7 @@ import rehypeCampfire from '@/packages/rehype-campfire'
 import rehypeReact from 'rehype-react'
 import type { Text, Content } from 'hast'
 import { useDirectiveHandlers } from './useDirectiveHandlers'
+import { isTitleOverridden, clearTitleOverride } from './titleState'
 import {
   useStoryDataStore,
   type StoryDataState
@@ -42,14 +43,24 @@ export const Passage = () => {
     state.getCurrentPassage()
   )
   const [content, setContent] = useState<ReactNode>(null)
+  const prevPassageId = useRef<string | undefined>(undefined)
 
   useEffect(() => {
     if (!passage) return
+    const id =
+      typeof passage.properties?.pid === 'string'
+        ? passage.properties.pid
+        : undefined
+    const isNewPassage = prevPassageId.current !== id
+    if (isNewPassage) {
+      prevPassageId.current = id
+      clearTitleOverride()
+    }
     const name =
       typeof passage.properties?.name === 'string'
         ? passage.properties.name
         : undefined
-    if (name) {
+    if (name && !isTitleOverridden()) {
       document.title = name
     }
   }, [passage])
