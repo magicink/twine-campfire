@@ -464,13 +464,14 @@ export const useDirectiveHandlers = () => {
       .split(',')
       .map(s => s.trim())
       .filter(Boolean)
-      .map(item => {
+      .flatMap(item => {
         try {
           const fn = compile(item)
           const evaluated = fn(gameData)
-          return evaluated === undefined ? item : evaluated
+          if (evaluated === undefined) return [item]
+          return Array.isArray(evaluated) ? evaluated : [evaluated]
         } catch {
-          return item
+          return [item]
         }
       })
 

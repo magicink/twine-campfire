@@ -528,7 +528,8 @@ describe('Passage', () => {
         'a',
         'b',
         'c',
-        ['d', 'e']
+        'd',
+        'e'
       ])
     )
   })
@@ -702,7 +703,8 @@ describe('Passage', () => {
     await waitFor(() =>
       expect((useGameStore.getState().gameData as any).bag.items).toEqual([
         'a',
-        ['b', 'c']
+        'b',
+        'c'
       ])
     )
   })
