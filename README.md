@@ -112,6 +112,12 @@ Directives come in two forms:
   :unshift{key=items value=newItem}
   ```
 
+- `splice` – remove items at an index and optionally insert new ones. Use `into` to store removed items.
+
+  ```md
+  :splice{key=items index=1 count=2 value=newItem into=removed}
+  ```
+
 - `concat` – combine arrays or values without mutating the originals (arrays are expanded into the result)
 
   ```md
