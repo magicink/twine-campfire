@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.18.0](https://github.com/magicink/twine-campfire/compare/v1.17.0...v1.18.0) (2025-08-03)
+
+
+### Features
+
+* add defined and array mutation directives ([#75](https://github.com/magicink/twine-campfire/issues/75)) ([9af69c9](https://github.com/magicink/twine-campfire/commit/9af69c9ebf1e33af10bd7058b26f4d1d7742c9ad))
+
 ## [1.17.0](https://github.com/magicink/twine-campfire/compare/v1.16.1...v1.17.0) (2025-08-02)
 
 ### Features
