@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.19.0](https://github.com/magicink/twine-campfire/compare/v1.18.0...v1.19.0) (2025-08-03)
+
+
+### Features
+
+* add splice directive ([#77](https://github.com/magicink/twine-campfire/issues/77)) ([c370bfb](https://github.com/magicink/twine-campfire/commit/c370bfbb9b65c8b223055560aef71353dddd4318))
+
 ## [1.18.0](https://github.com/magicink/twine-campfire/compare/v1.17.0...v1.18.0) (2025-08-03)
 
 
