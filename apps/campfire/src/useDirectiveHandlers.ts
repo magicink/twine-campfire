@@ -42,12 +42,18 @@ export const useDirectiveHandlers = () => {
   const storeLockedKeys = useGameStore(state => state.lockedKeys)
 
   let gameData = storeGameData
-  let setGameData = realSetGameData
-  let unsetGameData = realUnsetGameData
-  let markOnce = realMarkOnce
-  let onceKeys = storeOnceKeys
-  let lockKey = realLockKey
   let lockedKeys = storeLockedKeys
+  let onceKeys = storeOnceKeys
+  let currentSetGameData = realSetGameData
+  let currentUnsetGameData = realUnsetGameData
+  let currentMarkOnce = realMarkOnce
+  let currentLockKey = realLockKey
+
+  const setGameData = (data: Record<string, unknown>) =>
+    currentSetGameData(data)
+  const unsetGameData = (key: string) => currentUnsetGameData(key)
+  const markOnce = (key: string) => currentMarkOnce(key)
+  const lockKey = (key: string) => currentLockKey(key)
   const saveCheckpoint = useGameStore(state => state.saveCheckpoint)
   const removeCheckpoint = useGameStore(state => state.removeCheckpoint)
   const restoreCheckpointFn = useGameStore(state => state.restoreCheckpoint)
@@ -61,7 +67,7 @@ export const useDirectiveHandlers = () => {
   const handlersRef = useRef<Record<string, DirectiveHandler>>({})
   const exitHandlers = useRef<RootContent[][]>([])
   const changeSubscriptions = useRef<Array<() => void>>([])
-  const checkpoints = useGameStore(state => state.checkpoints)
+  const storeCheckpoints = useGameStore(state => state.checkpoints)
   const checkpointIdRef = useRef<string | null>(null)
   const checkpointErrorRef = useRef(false)
   const lastPassageIdRef = useRef<string | undefined>(undefined)
@@ -778,41 +784,54 @@ export const useDirectiveHandlers = () => {
     const container = directive as ContainerDirective
     const content = stripLabel(container.children as RootContent[])
 
-    const originalData = gameData
-    const originalLocks = lockedKeys
-    const originalOnce = onceKeys
+    const originalData = structuredClone(gameData as Record<string, unknown>)
+    const originalLocks = { ...lockedKeys }
+    const originalOnce = { ...onceKeys }
 
-    const tempData = { ...(gameData as Record<string, unknown>) }
-    const tempLocks = { ...lockedKeys }
-    const tempOnce = { ...onceKeys }
-
-    gameData = tempData
-    lockedKeys = tempLocks
-    onceKeys = tempOnce
-    setGameData = data => {
+    gameData = structuredClone(gameData as Record<string, unknown>)
+    lockedKeys = { ...lockedKeys }
+    onceKeys = { ...onceKeys }
+    currentSetGameData = data => {
       for (const [k, v] of Object.entries(data)) {
         if (!lockedKeys[k]) {
           ;(gameData as Record<string, unknown>)[k] = v
         }
       }
     }
-    unsetGameData = key => {
-      const k = key as string
+    currentUnsetGameData = key => {
+      const k = String(key)
       delete (gameData as Record<string, unknown>)[k]
       delete lockedKeys[k]
+      delete onceKeys[k]
     }
-    lockKey = key => {
-      lockedKeys[key as string] = true
+    currentLockKey = key => {
+      lockedKeys[String(key)] = true
     }
-    markOnce = key => {
+    currentMarkOnce = key => {
       onceKeys[key] = true
     }
 
     runBlock(content)
 
+    const deepEqual = (a: unknown, b: unknown): boolean => {
+      if (a === b) return true
+      if (typeof a !== typeof b) return false
+      if (a && b && typeof a === 'object') {
+        if (Array.isArray(a) !== Array.isArray(b)) return false
+        const aKeys = Object.keys(a as Record<string, unknown>)
+        const bKeys = Object.keys(b as Record<string, unknown>)
+        if (aKeys.length !== bKeys.length) return false
+        for (const key of aKeys) {
+          if (!deepEqual((a as any)[key], (b as any)[key])) return false
+        }
+        return true
+      }
+      return false
+    }
+
     const updated: Record<string, unknown> = {}
     for (const [k, v] of Object.entries(gameData as Record<string, unknown>)) {
-      if (originalData[k] !== v) {
+      if (!deepEqual((originalData as Record<string, unknown>)[k], v)) {
         updated[k] = v
       }
     }
@@ -825,13 +844,10 @@ export const useDirectiveHandlers = () => {
     const newLocks = Object.keys(lockedKeys).filter(k => !originalLocks[k])
     const newOnce = Object.keys(onceKeys).filter(k => !originalOnce[k])
 
-    gameData = originalData
-    lockedKeys = originalLocks
-    onceKeys = originalOnce
-    setGameData = realSetGameData
-    unsetGameData = realUnsetGameData
-    lockKey = realLockKey
-    markOnce = realMarkOnce
+    currentSetGameData = realSetGameData
+    currentUnsetGameData = realUnsetGameData
+    currentLockKey = realLockKey
+    currentMarkOnce = realMarkOnce
 
     if (Object.keys(updated).length > 0) {
       realSetGameData(updated)
@@ -845,6 +861,11 @@ export const useDirectiveHandlers = () => {
     for (const k of newOnce) {
       realMarkOnce(k)
     }
+
+    const state = useGameStore.getState()
+    gameData = state.gameData
+    lockedKeys = state.lockedKeys
+    onceKeys = state.onceKeys
 
     return removeNode(parent, index)
   }
@@ -956,13 +977,13 @@ export const useDirectiveHandlers = () => {
     try {
       if (typeof localStorage !== 'undefined') {
         const state =
-          setGameData === realSetGameData
+          currentSetGameData === realSetGameData
             ? useGameStore.getState()
             : {
                 gameData,
                 lockedKeys,
                 onceKeys,
-                checkpoints
+                checkpoints: storeCheckpoints
               }
         const data = {
           gameData: { ...(state.gameData as Record<string, unknown>) },
