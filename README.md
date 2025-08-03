@@ -239,6 +239,19 @@ Directives come in two forms:
   :::
   ```
 
+- `batch` – run multiple directives and apply all state changes together
+
+  ```md
+  :::batch
+  :set{hp=5}
+  :increment{key=hp amount=2}
+  :unset{key=temp}
+  :::
+  ```
+
+  All mutations inside the container apply to a temporary copy and commit in a
+  single update after the block, so change listeners run only once.
+
 ### Checkpoints
 
 Use checkpoints to let players save and restore progress. These directives are

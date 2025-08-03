@@ -353,6 +353,55 @@ describe('Passage', () => {
     expect(paragraphs).toHaveLength(1)
   })
 
+  it('batches state updates into one change', async () => {
+    const unsetCalls: string[] = []
+    const origUnset = useGameStore.getState().unsetGameData
+    useGameStore.setState({
+      unsetGameData: key => {
+        unsetCalls.push(String(key))
+        origUnset(key)
+      }
+    })
+    useGameStore.setState({
+      gameData: { hp: 1, items: [], old: true },
+      _initialGameData: {},
+      lockedKeys: {},
+      onceKeys: {},
+      checkpoints: {},
+      errors: [],
+      loading: false
+    })
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            ':::batch\\n:setOnce[boolean]{visited=true}\\n:increment{key=hp amount=2}\\n:push{key=items value=sword}\\n:unset{key=old}\\n:::\n'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      const data = useGameStore.getState().gameData as Record<string, unknown>
+      expect(data.hp).toBe(3)
+      expect(data.items).toEqual(['sword'])
+      expect(data.visited).toBe(true)
+      expect('old' in data).toBe(false)
+    })
+    expect(useGameStore.getState().lockedKeys.visited).toBe(true)
+    expect(unsetCalls).toEqual(['old'])
+    useGameStore.setState({ unsetGameData: origUnset })
+  })
   it('locks keys with setOnce', async () => {
     const passage: Element = {
       type: 'element',

@@ -33,13 +33,21 @@ import type {
 } from '@/packages/remark-campfire'
 
 export const useDirectiveHandlers = () => {
-  const gameData = useGameStore(state => state.gameData)
-  const setGameData = useGameStore(state => state.setGameData)
-  const unsetGameData = useGameStore(state => state.unsetGameData)
-  const markOnce = useGameStore(state => state.markOnce)
-  const onceKeys = useGameStore(state => state.onceKeys)
-  const lockKey = useGameStore(state => state.lockKey)
-  const lockedKeys = useGameStore(state => state.lockedKeys)
+  const storeGameData = useGameStore(state => state.gameData)
+  const realSetGameData = useGameStore(state => state.setGameData)
+  const realUnsetGameData = useGameStore(state => state.unsetGameData)
+  const realMarkOnce = useGameStore(state => state.markOnce)
+  const storeOnceKeys = useGameStore(state => state.onceKeys)
+  const realLockKey = useGameStore(state => state.lockKey)
+  const storeLockedKeys = useGameStore(state => state.lockedKeys)
+
+  let gameData = storeGameData
+  let setGameData = realSetGameData
+  let unsetGameData = realUnsetGameData
+  let markOnce = realMarkOnce
+  let onceKeys = storeOnceKeys
+  let lockKey = realLockKey
+  let lockedKeys = storeLockedKeys
   const saveCheckpoint = useGameStore(state => state.saveCheckpoint)
   const removeCheckpoint = useGameStore(state => state.removeCheckpoint)
   const restoreCheckpointFn = useGameStore(state => state.restoreCheckpoint)
@@ -412,7 +420,7 @@ export const useDirectiveHandlers = () => {
       let evaluated: unknown
       try {
         const fn = compile(optionsAttr)
-        evaluated = fn(useGameStore.getState().gameData)
+        evaluated = fn(gameData)
       } catch {
         // fall back to string parsing
       }
@@ -765,6 +773,82 @@ export const useDirectiveHandlers = () => {
     return removeNode(parent, index)
   }
 
+  const handleBatch: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    const container = directive as ContainerDirective
+    const content = stripLabel(container.children as RootContent[])
+
+    const originalData = gameData
+    const originalLocks = lockedKeys
+    const originalOnce = onceKeys
+
+    const tempData = { ...(gameData as Record<string, unknown>) }
+    const tempLocks = { ...lockedKeys }
+    const tempOnce = { ...onceKeys }
+
+    gameData = tempData
+    lockedKeys = tempLocks
+    onceKeys = tempOnce
+    setGameData = data => {
+      for (const [k, v] of Object.entries(data)) {
+        if (!lockedKeys[k]) {
+          ;(gameData as Record<string, unknown>)[k] = v
+        }
+      }
+    }
+    unsetGameData = key => {
+      const k = key as string
+      delete (gameData as Record<string, unknown>)[k]
+      delete lockedKeys[k]
+    }
+    lockKey = key => {
+      lockedKeys[key as string] = true
+    }
+    markOnce = key => {
+      onceKeys[key] = true
+    }
+
+    runBlock(content)
+
+    const updated: Record<string, unknown> = {}
+    for (const [k, v] of Object.entries(gameData as Record<string, unknown>)) {
+      if (originalData[k] !== v) {
+        updated[k] = v
+      }
+    }
+    const removed: string[] = []
+    for (const k of Object.keys(originalData)) {
+      if (!(k in (gameData as Record<string, unknown>))) {
+        removed.push(k)
+      }
+    }
+    const newLocks = Object.keys(lockedKeys).filter(k => !originalLocks[k])
+    const newOnce = Object.keys(onceKeys).filter(k => !originalOnce[k])
+
+    gameData = originalData
+    lockedKeys = originalLocks
+    onceKeys = originalOnce
+    setGameData = realSetGameData
+    unsetGameData = realUnsetGameData
+    lockKey = realLockKey
+    markOnce = realMarkOnce
+
+    if (Object.keys(updated).length > 0) {
+      realSetGameData(updated)
+    }
+    for (const k of removed) {
+      realUnsetGameData(k)
+    }
+    for (const k of newLocks) {
+      realLockKey(k)
+    }
+    for (const k of newOnce) {
+      realMarkOnce(k)
+    }
+
+    return removeNode(parent, index)
+  }
+
   const handleLang: DirectiveHandler = (directive, parent, index) => {
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const locale = typeof attrs.locale === 'string' ? attrs.locale : undefined
@@ -871,13 +955,20 @@ export const useDirectiveHandlers = () => {
     setLoading(true)
     try {
       if (typeof localStorage !== 'undefined') {
-        const { gameData, lockedKeys, onceKeys, checkpoints } =
-          useGameStore.getState()
+        const state =
+          setGameData === realSetGameData
+            ? useGameStore.getState()
+            : {
+                gameData,
+                lockedKeys,
+                onceKeys,
+                checkpoints
+              }
         const data = {
-          gameData: { ...(gameData as Record<string, unknown>) },
-          lockedKeys: { ...lockedKeys },
-          onceKeys: { ...onceKeys },
-          checkpoints: { ...checkpoints },
+          gameData: { ...(state.gameData as Record<string, unknown>) },
+          lockedKeys: { ...state.lockedKeys },
+          onceKeys: { ...state.onceKeys },
+          checkpoints: { ...state.checkpoints },
           currentPassageId
         }
         localStorage.setItem(key, JSON.stringify(data))
@@ -1107,6 +1198,7 @@ export const useDirectiveHandlers = () => {
       onEnter: handleOnEnter,
       onExit: handleOnExit,
       onChange: handleOnChange,
+      batch: handleBatch,
       lang: handleLang,
       include: handleInclude,
       title: handleTitle,
