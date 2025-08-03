@@ -11,6 +11,8 @@ that jumps to the target passage. Use an arrow to specify a different target:
 [[Display text->Passage name]]
 ```
 
+> To style the button, update the `.campfire-link` class in your CSS.
+
 ## Markdown formatting
 
 Campfire accepts all standard Markdown formatting options provided by [remark-gfm](https://github.com/remarkjs/remark-gfm). This includes tables, strikethrough, task lists, autolinks, and more.
