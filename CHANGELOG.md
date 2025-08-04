@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.23.5](https://github.com/magicink/twine-campfire/compare/v1.23.4...v1.23.5) (2025-08-04)
+
+
+### Bug Fixes
+
+* cover if directive after trigger updates ([#97](https://github.com/magicink/twine-campfire/issues/97)) ([d7d02c9](https://github.com/magicink/twine-campfire/commit/d7d02c99e65b35b996523e0e765ec59eaa955344))
+
 ## [1.23.4](https://github.com/magicink/twine-campfire/compare/v1.23.3...v1.23.4) (2025-08-04)
 
 
