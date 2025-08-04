@@ -1149,11 +1149,30 @@ export const useDirectiveHandlers = () => {
     return removeNode(parent, index)
   }
 
-  const handleClearErrors: DirectiveHandler = (directive, parent, index) => {
+  /**
+   * Handles the `:clearErrors` directive, which removes all logged game errors.
+   * Calls the clearErrors function to reset the error state.
+   *
+   * @param _directive - The directive node representing the clearErrors directive (unused).
+   * @param parent - The parent AST node containing this directive.
+   * @param index - The index of the directive node within its parent.
+   * @returns The new index after removal.
+   */
+  const handleClearErrors: DirectiveHandler = (_directive, parent, index) => {
     clearErrors()
     return removeNode(parent, index)
   }
 
+  /**
+   * Handles the `:title` directive, which overrides the page title for the current passage.
+   * If the directive is used inside an included passage, it is ignored.
+   * Updates the document title and marks the title as overridden.
+   *
+   * @param directive - The directive node representing the title directive.
+   * @param parent - The parent AST node containing this directive.
+   * @param index - The index of the directive node within its parent.
+   * @returns The new index after replacement, or removes the node if not found or on error.
+   */
   const handleTitle: DirectiveHandler = (directive, parent, index) => {
     if (includeDepth > 0) return removeNode(parent, index)
     const title = toString(directive).trim()
@@ -1164,6 +1183,15 @@ export const useDirectiveHandlers = () => {
     return removeNode(parent, index)
   }
 
+  /**
+   * Handles the `:include` directive, which inserts the content of another passage by name or id.
+   * Prevents infinite recursion by limiting the include depth.
+   *
+   * @param directive - The directive node representing the include directive.
+   * @param parent - The parent AST node containing this directive.
+   * @param index - The index of the directive node within its parent.
+   * @returns The new index after replacement, or removes the node if not found or on error.
+   */
   const handleInclude: DirectiveHandler = (directive, parent, index) => {
     const target =
       toString(directive).trim() ||
