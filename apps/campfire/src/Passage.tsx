@@ -48,7 +48,7 @@ export const Passage = () => {
   )
   const [content, setContent] = useState<ReactNode>(null)
   const prevPassageId = useRef<string | undefined>(undefined)
-  const renderIdRef = useRef(0)
+  const abortRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
     if (!passage) return
@@ -71,10 +71,12 @@ export const Passage = () => {
   }, [passage])
 
   useEffect(() => {
-    const id = ++renderIdRef.current
+    const controller = new AbortController()
+    abortRef.current?.abort()
+    abortRef.current = controller
     const render = async () => {
       if (!passage) {
-        setContent(null)
+        if (!controller.signal.aborted) setContent(null)
         return
       }
       const text = passage.children
@@ -85,11 +87,14 @@ export const Passage = () => {
         )
         .join('')
       const file = await processor.process(text)
-      if (renderIdRef.current === id) {
+      if (!controller.signal.aborted) {
         setContent(file.result as ReactNode)
       }
     }
     void render()
+    return () => {
+      controller.abort()
+    }
   }, [passage, processor])
 
   return <>{content}</>
