@@ -48,6 +48,15 @@ export const Passage = () => {
   )
   const [content, setContent] = useState<ReactNode>(null)
   const prevPassageId = useRef<string | undefined>(undefined)
+  const [version, setVersion] = useState(0)
+
+  useEffect(() => {
+    const rerender = () => setVersion(v => v + 1)
+    window.addEventListener('campfire-statechange', rerender)
+    return () => {
+      window.removeEventListener('campfire-statechange', rerender)
+    }
+  }, [])
 
   useEffect(() => {
     if (!passage) return
@@ -86,7 +95,7 @@ export const Passage = () => {
       setContent(file.result as ReactNode)
     }
     void run()
-  }, [passage])
+  }, [passage, version])
 
   return <>{content}</>
 }
