@@ -36,6 +36,9 @@ export const TriggerButton = ({
       disabled={disabled}
       onClick={() => {
         runBlock(clone(JSON.parse(content)))
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('campfire-statechange'))
+        })
       }}
     >
       {children}
