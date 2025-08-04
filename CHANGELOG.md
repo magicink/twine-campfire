@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.24.0](https://github.com/magicink/twine-campfire/compare/v1.23.5...v1.24.0) (2025-08-04)
+
+
+### Features
+
+* hash game data for passage re-render ([#99](https://github.com/magicink/twine-campfire/issues/99)) ([fc8470f](https://github.com/magicink/twine-campfire/commit/fc8470fa6fe27ae68f6133cb40574b1e28263e91))
+
 ## [1.23.5](https://github.com/magicink/twine-campfire/compare/v1.23.4...v1.23.5) (2025-08-04)
 
 
