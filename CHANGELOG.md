@@ -1,53 +1,34 @@
 # Changelog
 
-## [1.23.1](https://github.com/magicink/twine-campfire/compare/v1.23.0...v1.23.1) (2025-08-04)
-
-
-### Bug Fixes
-
-* **modal:** prevent infinite loop when rendering the modal ([#88](https://github.com/magicink/twine-campfire/issues/88)) ([e8c6ac4](https://github.com/magicink/twine-campfire/commit/e8c6ac49adb12ab9171671c91b056e81074164cd))
-
-## [1.23.0](https://github.com/magicink/twine-campfire/compare/v1.22.0...v1.23.0) (2025-08-04)
-
-
-### Features
-
-* add modal directive ([#86](https://github.com/magicink/twine-campfire/issues/86)) ([fdd1c42](https://github.com/magicink/twine-campfire/commit/fdd1c424112372e6a92d9f0d274ff2ba5a972963))
-
 ## [1.22.0](https://github.com/magicink/twine-campfire/compare/v1.21.0...v1.22.0) (2025-08-03)
 
-
 ### Features
 
-* add trigger directive for interactive buttons ([#84](https://github.com/magicink/twine-campfire/issues/84)) ([bf354b5](https://github.com/magicink/twine-campfire/commit/bf354b59a61363eeb8d5fdf884a88d2987365aee))
+- add trigger directive for interactive buttons ([#84](https://github.com/magicink/twine-campfire/issues/84)) ([bf354b5](https://github.com/magicink/twine-campfire/commit/bf354b59a61363eeb8d5fdf884a88d2987365aee))
 
 ## [1.21.0](https://github.com/magicink/twine-campfire/compare/v1.20.0...v1.21.0) (2025-08-03)
 
-
 ### Features
 
-* add batch directive ([#81](https://github.com/magicink/twine-campfire/issues/81)) ([af9f650](https://github.com/magicink/twine-campfire/commit/af9f650de0aad5a734701549460538c4bc26af9b))
+- add batch directive ([#81](https://github.com/magicink/twine-campfire/issues/81)) ([af9f650](https://github.com/magicink/twine-campfire/commit/af9f650de0aad5a734701549460538c4bc26af9b))
 
 ## [1.20.0](https://github.com/magicink/twine-campfire/compare/v1.19.0...v1.20.0) (2025-08-03)
 
-
 ### Features
 
-* allow overriding page title ([#79](https://github.com/magicink/twine-campfire/issues/79)) ([d97a24a](https://github.com/magicink/twine-campfire/commit/d97a24a394bc7f3b7bb11dfb6b1aaef86e3217be))
+- allow overriding page title ([#79](https://github.com/magicink/twine-campfire/issues/79)) ([d97a24a](https://github.com/magicink/twine-campfire/commit/d97a24a394bc7f3b7bb11dfb6b1aaef86e3217be))
 
 ## [1.19.0](https://github.com/magicink/twine-campfire/compare/v1.18.0...v1.19.0) (2025-08-03)
 
-
 ### Features
 
-* add splice directive ([#77](https://github.com/magicink/twine-campfire/issues/77)) ([c370bfb](https://github.com/magicink/twine-campfire/commit/c370bfbb9b65c8b223055560aef71353dddd4318))
+- add splice directive ([#77](https://github.com/magicink/twine-campfire/issues/77)) ([c370bfb](https://github.com/magicink/twine-campfire/commit/c370bfbb9b65c8b223055560aef71353dddd4318))
 
 ## [1.18.0](https://github.com/magicink/twine-campfire/compare/v1.17.0...v1.18.0) (2025-08-03)
 
-
 ### Features
 
-* add defined and array mutation directives ([#75](https://github.com/magicink/twine-campfire/issues/75)) ([9af69c9](https://github.com/magicink/twine-campfire/commit/9af69c9ebf1e33af10bd7058b26f4d1d7742c9ad))
+- add defined and array mutation directives ([#75](https://github.com/magicink/twine-campfire/issues/75)) ([9af69c9](https://github.com/magicink/twine-campfire/commit/9af69c9ebf1e33af10bd7058b26f4d1d7742c9ad))
 
 ## [1.17.0](https://github.com/magicink/twine-campfire/compare/v1.16.1...v1.17.0) (2025-08-02)
 
