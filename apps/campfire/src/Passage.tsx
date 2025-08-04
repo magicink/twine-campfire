@@ -48,6 +48,7 @@ export const Passage = () => {
   )
   const [content, setContent] = useState<ReactNode>(null)
   const prevPassageId = useRef<string | undefined>(undefined)
+  const renderIdRef = useRef(0)
 
   useEffect(() => {
     if (!passage) return
@@ -69,7 +70,6 @@ export const Passage = () => {
     }
   }, [passage])
 
-  const renderIdRef = useRef(0)
   useEffect(() => {
     const id = ++renderIdRef.current
     const render = async () => {
