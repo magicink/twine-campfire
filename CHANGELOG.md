@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.23.4](https://github.com/magicink/twine-campfire/compare/v1.23.3...v1.23.4) (2025-08-04)
+
+
+### Bug Fixes
+
+* reprocess passage when game state changes ([#94](https://github.com/magicink/twine-campfire/issues/94)) ([618610a](https://github.com/magicink/twine-campfire/commit/618610a5737e36e317b87c4e5c85e9547f3d24af))
+
 ## [1.23.3](https://github.com/magicink/twine-campfire/compare/v1.23.2...v1.23.3) (2025-08-04)
 
 
