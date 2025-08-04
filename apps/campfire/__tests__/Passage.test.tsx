@@ -1126,6 +1126,57 @@ describe('Passage', () => {
     expect(document.body.textContent).not.toContain('Hidden')
   })
 
+  it('evaluates if directives with attribute comparisons', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            ':set[boolean]{openModal=false}\n:::if{openModal=false}\nhello!\n:::'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    const text = await screen.findByText('hello!')
+    expect(text).toBeInTheDocument()
+  })
+
+  it('skips content when attribute comparison fails', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            ':set[boolean]{openModal=true}\n:::if{openModal=false}\nhello!\n:::'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(screen.queryByText('hello!')).toBeNull()
+    })
+  })
+
   it('changes locale with lang directive', async () => {
     const passage: Element = {
       type: 'element',

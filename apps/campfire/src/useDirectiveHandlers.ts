@@ -217,6 +217,7 @@ export const useDirectiveHandlers = () => {
           lockKey(k)
         }
       }
+      gameData = { ...gameData, ...safe }
     }
 
     if (parent && typeof index === 'number') {
@@ -286,6 +287,7 @@ export const useDirectiveHandlers = () => {
           lockKey(k)
         }
       }
+      gameData = { ...gameData, ...safe }
     }
 
     return removeNode(parent, index)
@@ -307,7 +309,25 @@ export const useDirectiveHandlers = () => {
     evalConditionFn: (expr: string) => boolean = evalCondition
   ): RootContent[] => {
     const children = node.children as RootContent[]
-    const expr = getLabel(node) || Object.keys(node.attributes || {})[0] || ''
+    let expr = getLabel(node) || ''
+    if (!expr) {
+      const attrs = node.attributes || {}
+      const [firstKey, firstValue] = Object.entries(attrs)[0] || []
+      if (firstKey) {
+        if (firstValue === '' || typeof firstValue === 'undefined') {
+          expr = firstKey
+        } else {
+          const valStr = String(firstValue).trim()
+          const valueExpr =
+            valStr === 'true' ||
+            valStr === 'false' ||
+            /^-?\d+(?:\.\d+)?$/.test(valStr)
+              ? valStr
+              : JSON.stringify(valStr)
+          expr = `${firstKey}==${valueExpr}`
+        }
+      }
+    }
     let idx = 1
     while (
       idx < children.length &&
