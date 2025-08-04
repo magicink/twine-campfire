@@ -21,18 +21,20 @@ export const Modal = ({ open, className, children }: ModalProps) => {
       : []
   const dialogRef = useRef<HTMLDialogElement>(null)
   const handleClick = (e: MouseEvent<HTMLDialogElement>) => {
-    if (e.target === e.currentTarget && open) {
-      if (
-        dialogRef.current?.open &&
-        typeof dialogRef.current.close === 'function'
-      ) {
+    if (e.target === e.currentTarget) {
+      const dialog = dialogRef.current
+      if (!dialog) return
+      if (dialog.open && typeof dialog.close === 'function') {
         try {
-          dialogRef.current.close()
+          dialog.close()
         } catch {
-          dialogRef.current.removeAttribute('open')
+          dialog.removeAttribute('open')
+          dialog.dispatchEvent(new Event('close'))
         }
+      } else {
+        dialog.removeAttribute('open')
+        dialog.dispatchEvent(new Event('close'))
       }
-      setGameData({ [open]: false })
     }
   }
   useEffect(() => {
@@ -65,6 +67,19 @@ export const Modal = ({ open, className, children }: ModalProps) => {
       }
     }
   }, [isOpen])
+
+  useEffect(() => {
+    const dialog = dialogRef.current
+    if (!dialog || !open) return
+
+    const handleClose = () => setGameData({ [open]: false })
+    dialog.addEventListener('close', handleClose)
+    dialog.addEventListener('cancel', handleClose)
+    return () => {
+      dialog.removeEventListener('close', handleClose)
+      dialog.removeEventListener('cancel', handleClose)
+    }
+  }, [open, setGameData])
 
   return (
     <>
