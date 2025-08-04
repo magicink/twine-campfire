@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.23.3](https://github.com/magicink/twine-campfire/compare/v1.23.2...v1.23.3) (2025-08-04)
+
+
+### Bug Fixes
+
+* support attribute comparisons in if directive ([#92](https://github.com/magicink/twine-campfire/issues/92)) ([b08d18c](https://github.com/magicink/twine-campfire/commit/b08d18c87d021e1aa2e06138eafc881ea57c203e))
+
 ## [1.23.2](https://github.com/magicink/twine-campfire/compare/v1.23.1...v1.23.2) (2025-08-04)
 
 
