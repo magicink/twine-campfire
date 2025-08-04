@@ -59,6 +59,8 @@ export const Passage = () => {
   const prevPassageId = useRef<string | undefined>(undefined)
   const processingRef = useRef(false)
   const renderIdRef = useRef(0)
+  const pendingRef = useRef(false)
+  const renderRef = useRef<(() => Promise<void>) | null>(null)
 
   useEffect(() => {
     if (!passage) return
@@ -81,12 +83,17 @@ export const Passage = () => {
   }, [passage])
 
   const renderPassage = useCallback(async () => {
-    if (processingRef.current) return
+    if (processingRef.current) {
+      pendingRef.current = true
+      return
+    }
     processingRef.current = true
+    pendingRef.current = false
     const id = ++renderIdRef.current
     if (!passage) {
       setContent(null)
       processingRef.current = false
+      if (pendingRef.current && renderRef.current) void renderRef.current()
       return
     }
     const text = passage.children
@@ -101,7 +108,12 @@ export const Passage = () => {
       setContent(file.result as ReactNode)
     }
     processingRef.current = false
+    if (pendingRef.current && renderRef.current) void renderRef.current()
   }, [passage, processor])
+
+  useEffect(() => {
+    renderRef.current = renderPassage
+  }, [renderPassage])
 
   useEffect(() => {
     void renderPassage()
