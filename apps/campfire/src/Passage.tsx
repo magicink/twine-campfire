@@ -18,7 +18,6 @@ import {
 } from '@/packages/use-story-data-store'
 import { LinkButton } from './LinkButton'
 import { TriggerButton } from './TriggerButton'
-import { Modal } from './Modal'
 
 export const Passage = () => {
   const handlers = useDirectiveHandlers()
@@ -39,8 +38,7 @@ export const Passage = () => {
           development: process.env.NODE_ENV === 'development',
           components: {
             button: LinkButton,
-            trigger: TriggerButton,
-            modal: Modal
+            trigger: TriggerButton
           }
         }),
     [handlers]

@@ -900,36 +900,6 @@ export const useDirectiveHandlers = () => {
     return [SKIP, index]
   }
 
-  const handleModal: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
-    const container = directive as ContainerDirective
-    const attrs = (directive.attributes || {}) as Record<string, unknown>
-    const open =
-      typeof attrs.open === 'string'
-        ? attrs.open
-        : getLabel(container) || Object.keys(attrs)[0] || ''
-    const classAttr =
-      typeof attrs.class === 'string'
-        ? attrs.class
-        : typeof attrs.className === 'string'
-          ? attrs.className
-          : typeof attrs.classes === 'string'
-            ? attrs.classes
-            : ''
-    const classes = classAttr.split(/\s+/).filter(Boolean)
-    const content = stripLabel(container.children as RootContent[])
-    container.data = {
-      hName: 'modal',
-      hProperties: {
-        className: classes,
-        open
-      }
-    }
-    container.children = content as unknown as any
-    parent.children.splice(index, 1, container as unknown as RootContent)
-    return [SKIP, index]
-  }
-
   const handleLang: DirectiveHandler = (directive, parent, index) => {
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const locale = typeof attrs.locale === 'string' ? attrs.locale : undefined
@@ -1281,7 +1251,6 @@ export const useDirectiveHandlers = () => {
       onChange: handleOnChange,
       batch: handleBatch,
       trigger: handleTrigger,
-      modal: handleModal,
       lang: handleLang,
       include: handleInclude,
       title: handleTitle,
