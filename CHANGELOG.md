@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.23.2](https://github.com/magicink/twine-campfire/compare/v1.23.1...v1.23.2) (2025-08-04)
+
+
+### Bug Fixes
+
+* remove modal directive and component ([#90](https://github.com/magicink/twine-campfire/issues/90)) ([e7e8fb8](https://github.com/magicink/twine-campfire/commit/e7e8fb813d4762ebadea010363f5cad55c4192ee))
+
 ## [1.22.0](https://github.com/magicink/twine-campfire/compare/v1.21.0...v1.22.0) (2025-08-03)
 
 ### Features
