@@ -1,4 +1,11 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useCallback,
+  type ReactNode
+} from 'react'
 import * as runtime from 'react/jsx-runtime'
 import { jsxDEV } from 'react/jsx-dev-runtime'
 import { unified } from 'unified'
@@ -16,6 +23,7 @@ import {
   useStoryDataStore,
   type StoryDataState
 } from '@/packages/use-story-data-store'
+import { useGameStore } from '@/packages/use-game-store'
 import { LinkButton } from './LinkButton'
 import { TriggerButton } from './TriggerButton'
 
@@ -46,8 +54,10 @@ export const Passage = () => {
   const passage = useStoryDataStore((state: StoryDataState) =>
     state.getCurrentPassage()
   )
+  const hash = useGameStore(state => state.hash)
   const [content, setContent] = useState<ReactNode>(null)
   const prevPassageId = useRef<string | undefined>(undefined)
+  const processingRef = useRef(false)
 
   useEffect(() => {
     if (!passage) return
@@ -69,24 +79,32 @@ export const Passage = () => {
     }
   }, [passage])
 
-  useEffect(() => {
-    const run = async () => {
-      if (!passage) {
-        setContent(null)
-        return
-      }
-      const text = passage.children
-        .map((child: Content) =>
-          child.type === 'text' && typeof child.value === 'string'
-            ? (child as Text).value
-            : ''
-        )
-        .join('')
-      const file = await processor.process(text)
-      setContent(file.result as ReactNode)
+  const renderPassage = useCallback(async () => {
+    if (!passage) {
+      setContent(null)
+      return
     }
-    void run()
-  }, [passage])
+    processingRef.current = true
+    const text = passage.children
+      .map((child: Content) =>
+        child.type === 'text' && typeof child.value === 'string'
+          ? (child as Text).value
+          : ''
+      )
+      .join('')
+    const file = await processor.process(text)
+    setContent(file.result as ReactNode)
+    processingRef.current = false
+  }, [passage, processor])
+
+  useEffect(() => {
+    void renderPassage()
+  }, [renderPassage])
+
+  useEffect(() => {
+    if (processingRef.current) return
+    void renderPassage()
+  }, [hash, renderPassage])
 
   return <>{content}</>
 }

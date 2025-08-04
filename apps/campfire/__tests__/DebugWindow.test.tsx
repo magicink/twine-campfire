@@ -17,7 +17,9 @@ const resetStores = async () => {
     lockedKeys: {},
     onceKeys: {},
     checkpoints: {},
-    errors: []
+    errors: [],
+    loading: false,
+    hash: 0
   })
   if (!i18next.isInitialized) {
     await i18next.init({ lng: 'en-US', resources: {} })
