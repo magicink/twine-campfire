@@ -1813,4 +1813,31 @@ describe('Passage', () => {
       expect(useGameStore.getState().gameData.go).toBe('true')
     })
   })
+
+  it('updates if content when trigger changes game state', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            ':::if{fired}\nFired!\n:::else\nNot fired\n:::\n:::trigger{label="Fire"}\n:set[boolean]{fired=true}\n:::'
+        }
+      ]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    const { rerender } = render(<Passage key='start' />)
+    await screen.findByText('Not fired')
+    const button = await screen.findByRole('button', { name: 'Fire' })
+    act(() => {
+      button.click()
+    })
+    rerender(<Passage key='updated' />)
+    await screen.findByText('Fired!')
+    await waitFor(() => {
+      expect(screen.queryByText('Not fired')).toBeNull()
+    })
+  })
 })
