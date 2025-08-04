@@ -69,8 +69,9 @@ export const Passage = () => {
     }
   }, [passage])
 
+  const renderIdRef = useRef(0)
   useEffect(() => {
-    let cancelled = false
+    const id = ++renderIdRef.current
     const render = async () => {
       if (!passage) {
         setContent(null)
@@ -84,14 +85,11 @@ export const Passage = () => {
         )
         .join('')
       const file = await processor.process(text)
-      if (!cancelled) {
+      if (renderIdRef.current === id) {
         setContent(file.result as ReactNode)
       }
     }
     void render()
-    return () => {
-      cancelled = true
-    }
   }, [passage, processor])
 
   return <>{content}</>
