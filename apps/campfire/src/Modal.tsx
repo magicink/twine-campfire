@@ -49,6 +49,7 @@ export const Modal = ({ open, className, children }: ModalProps) => {
         }
       } else {
         dialog.setAttribute('open', '')
+        dialog.open = true
       }
     } else if (dialog.open) {
       if (typeof dialog.close === 'function') {
@@ -56,9 +57,11 @@ export const Modal = ({ open, className, children }: ModalProps) => {
           dialog.close()
         } catch {
           dialog.removeAttribute('open')
+          dialog.open = false
         }
       } else {
         dialog.removeAttribute('open')
+        dialog.open = false
       }
     }
   }, [isOpen])
@@ -67,14 +70,17 @@ export const Modal = ({ open, className, children }: ModalProps) => {
     <>
       <dialog
         ref={dialogRef}
-        className={['campfire-modal', 'bg-white', 'rounded', ...classes].join(
-          ' '
-        )}
+        className={[
+          'campfire-modal',
+          'bg-white',
+          'rounded',
+          'backdrop:black/50',
+          ...classes
+        ].join(' ')}
         onClick={handleClick}
       >
         {children}
       </dialog>
-      <style>{`dialog.campfire-modal::backdrop{background-color:rgba(0,0,0,0.5);}`}</style>
     </>
   )
 }
