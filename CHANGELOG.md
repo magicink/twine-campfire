@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.23.0](https://github.com/magicink/twine-campfire/compare/v1.22.0...v1.23.0) (2025-08-04)
+
+
+### Features
+
+* add modal directive ([#86](https://github.com/magicink/twine-campfire/issues/86)) ([fdd1c42](https://github.com/magicink/twine-campfire/commit/fdd1c424112372e6a92d9f0d274ff2ba5a972963))
+
 ## [1.22.0](https://github.com/magicink/twine-campfire/compare/v1.21.0...v1.22.0) (2025-08-03)
 
 
