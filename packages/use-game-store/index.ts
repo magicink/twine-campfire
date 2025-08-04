@@ -1,22 +1,15 @@
 import { produce } from 'immer'
 import { create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
+import { hash as hashObject } from 'ohash'
 
-const fastHash = (obj: Record<string, unknown>): number => {
-  const str = JSON.stringify(obj)
-  let hash = 2166136261
-  for (let i = 0; i < str.length; i++) {
-    hash ^= str.charCodeAt(i)
-    hash = Math.imul(hash, 16777619)
-  }
-  return hash >>> 0
-}
+const EMPTY_HASH = hashObject({})
 
 export interface GameState<T = Record<string, unknown>> {
   /** Arbitrary game state */
   gameData: T
   /** Fast hash of the current game data */
-  hash: number
+  hash: string
   /** Initialize gameData and remember the initial state */
   init: (data: T) => void
   /** Merge partial data into existing gameData */
@@ -82,7 +75,7 @@ export const useGameStore = create(
     loading: false,
     errors: [],
     checkpoints: {},
-    hash: fastHash({}),
+    hash: EMPTY_HASH,
     init: data =>
       set(() => ({
         gameData: { ...data },
@@ -90,7 +83,7 @@ export const useGameStore = create(
         onceKeys: {},
         errors: [],
         loading: false,
-        hash: fastHash(data as Record<string, unknown>)
+        hash: hashObject(data as Record<string, unknown>)
       })),
     setGameData: data =>
       set(
@@ -100,7 +93,7 @@ export const useGameStore = create(
               ;(state.gameData as Record<string, unknown>)[k] = v
             }
           }
-          state.hash = fastHash(state.gameData)
+          state.hash = hashObject(state.gameData)
         })
       ),
     unsetGameData: key =>
@@ -109,7 +102,7 @@ export const useGameStore = create(
           const k = key as string
           delete (state.gameData as Record<string, unknown>)[k]
           delete state.lockedKeys[k]
-          state.hash = fastHash(state.gameData)
+          state.hash = hashObject(state.gameData)
         })
       ),
     lockKey: key =>
@@ -171,7 +164,7 @@ export const useGameStore = create(
           gameData: { ...cp.gameData },
           lockedKeys: { ...cp.lockedKeys },
           onceKeys: { ...cp.onceKeys },
-          hash: fastHash(cp.gameData)
+          hash: hashObject(cp.gameData)
         })
         return cp
       }
@@ -187,7 +180,7 @@ export const useGameStore = create(
         onceKeys: {},
         errors: [],
         loading: false,
-        hash: fastHash(state._initialGameData as Record<string, unknown>)
+        hash: hashObject(state._initialGameData as Record<string, unknown>)
       }))
   }))
 )

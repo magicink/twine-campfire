@@ -1,5 +1,6 @@
 import { useGameStore } from '../index'
 import { describe, it, expect, beforeEach } from 'bun:test'
+import { hash as hashObject } from 'ohash'
 
 // Reset store state before each test
 beforeEach(() => {
@@ -10,7 +11,7 @@ beforeEach(() => {
     checkpoints: {},
     errors: [],
     loading: false,
-    hash: 0
+    hash: hashObject({})
   })
   useGameStore.getState().init({})
 })

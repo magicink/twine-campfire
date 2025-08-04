@@ -58,6 +58,7 @@ export const Passage = () => {
   const [content, setContent] = useState<ReactNode>(null)
   const prevPassageId = useRef<string | undefined>(undefined)
   const processingRef = useRef(false)
+  const renderIdRef = useRef(0)
 
   useEffect(() => {
     if (!passage) return
@@ -80,11 +81,14 @@ export const Passage = () => {
   }, [passage])
 
   const renderPassage = useCallback(async () => {
+    if (processingRef.current) return
+    processingRef.current = true
+    const id = ++renderIdRef.current
     if (!passage) {
       setContent(null)
+      processingRef.current = false
       return
     }
-    processingRef.current = true
     const text = passage.children
       .map((child: Content) =>
         child.type === 'text' && typeof child.value === 'string'
@@ -93,7 +97,9 @@ export const Passage = () => {
       )
       .join('')
     const file = await processor.process(text)
-    setContent(file.result as ReactNode)
+    if (renderIdRef.current === id) {
+      setContent(file.result as ReactNode)
+    }
     processingRef.current = false
   }, [passage, processor])
 

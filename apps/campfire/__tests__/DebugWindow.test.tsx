@@ -3,6 +3,7 @@ import { render, screen, act } from '@testing-library/react'
 import { DebugWindow } from '../src/DebugWindow'
 import { useStoryDataStore } from '@/packages/use-story-data-store'
 import { useGameStore } from '@/packages/use-game-store'
+import { hash as hashObject } from 'ohash'
 import i18next from 'i18next'
 
 const resetStores = async () => {
@@ -19,7 +20,7 @@ const resetStores = async () => {
     checkpoints: {},
     errors: [],
     loading: false,
-    hash: 0
+    hash: hashObject({})
   })
   if (!i18next.isInitialized) {
     await i18next.init({ lng: 'en-US', resources: {} })

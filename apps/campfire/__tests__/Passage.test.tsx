@@ -6,6 +6,7 @@ import type { Element } from 'hast'
 import { Passage } from '../src/Passage'
 import { useStoryDataStore } from '@/packages/use-story-data-store'
 import { useGameStore } from '@/packages/use-game-store'
+import { hash as hashObject } from 'ohash'
 
 const resetStore = () => {
   useStoryDataStore.setState({
@@ -21,7 +22,7 @@ const resetStore = () => {
     checkpoints: {},
     errors: [],
     loading: false,
-    hash: 0
+    hash: hashObject({})
   })
   localStorage.clear()
   document.title = ''
