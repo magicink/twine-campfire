@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.23.1](https://github.com/magicink/twine-campfire/compare/v1.23.0...v1.23.1) (2025-08-04)
+
+
+### Bug Fixes
+
+* **modal:** prevent infinite loop when rendering the modal ([#88](https://github.com/magicink/twine-campfire/issues/88)) ([e8c6ac4](https://github.com/magicink/twine-campfire/commit/e8c6ac49adb12ab9171671c91b056e81074164cd))
+
 ## [1.23.0](https://github.com/magicink/twine-campfire/compare/v1.22.0...v1.23.0) (2025-08-04)
 
 
