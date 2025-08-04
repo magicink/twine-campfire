@@ -6,6 +6,7 @@ import type { Element } from 'hast'
 import { Passage } from '../src/Passage'
 import { useStoryDataStore } from '@/packages/use-story-data-store'
 import { useGameStore } from '@/packages/use-game-store'
+import { hash as hashObject } from 'ohash'
 
 const resetStore = () => {
   useStoryDataStore.setState({
@@ -20,7 +21,8 @@ const resetStore = () => {
     onceKeys: {},
     checkpoints: {},
     errors: [],
-    loading: false
+    loading: false,
+    hash: hashObject({})
   })
   localStorage.clear()
   document.title = ''
@@ -362,15 +364,8 @@ describe('Passage', () => {
         origUnset(key)
       }
     })
-    useGameStore.setState({
-      gameData: { hp: 1, items: [], old: true },
-      _initialGameData: {},
-      lockedKeys: {},
-      onceKeys: {},
-      checkpoints: {},
-      errors: [],
-      loading: false
-    })
+    useGameStore.getState().init({})
+    useGameStore.getState().setGameData({ hp: 1, items: [], old: true })
     const passage: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
@@ -1355,12 +1350,7 @@ describe('Passage', () => {
       children: []
     }
 
-    useGameStore.setState({
-      gameData: { hp: 1 },
-      _initialGameData: { hp: 1 },
-      lockedKeys: {},
-      onceKeys: {}
-    })
+    useGameStore.getState().init({ hp: 1 })
     useStoryDataStore.setState({
       passages: [start, next],
       currentPassageId: '1'
@@ -1831,7 +1821,7 @@ describe('Passage', () => {
     const { rerender } = render(<Passage key='start' />)
     await screen.findByText('Not fired')
     const button = await screen.findByRole('button', { name: 'Fire' })
-    act(() => {
+    await act(async () => {
       button.click()
     })
     rerender(<Passage key='updated' />)

@@ -1,5 +1,6 @@
 import { useGameStore } from '../index'
 import { describe, it, expect, beforeEach } from 'bun:test'
+import { hash as hashObject } from 'ohash'
 
 // Reset store state before each test
 beforeEach(() => {
@@ -9,7 +10,8 @@ beforeEach(() => {
     onceKeys: {},
     checkpoints: {},
     errors: [],
-    loading: false
+    loading: false,
+    hash: hashObject({})
   })
   useGameStore.getState().init({})
 })
@@ -43,6 +45,15 @@ describe('useGameStore', () => {
     useGameStore.getState().setGameData({ health: 10, mana: 5 })
     useGameStore.getState().unsetGameData('mana')
     expect(useGameStore.getState().gameData).toEqual({ health: 10 })
+  })
+
+  it('updates hash when game data changes', () => {
+    const initial = useGameStore.getState().hash
+    useGameStore.getState().setGameData({ health: 1 })
+    const afterSet = useGameStore.getState().hash
+    expect(afterSet).not.toBe(initial)
+    useGameStore.getState().unsetGameData('health')
+    expect(useGameStore.getState().hash).not.toBe(afterSet)
   })
 
   it('marks once keys and clears on reset', () => {

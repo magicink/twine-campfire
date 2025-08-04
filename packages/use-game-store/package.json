@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "immer": "^10.1.1",
+    "ohash": "^2.0.11",
     "zustand": "^5.0.6"
   }
 }
