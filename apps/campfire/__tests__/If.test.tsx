@@ -1,12 +1,28 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { render, screen } from '@testing-library/react'
+import { unified } from 'unified'
+import remarkParse from 'remark-parse'
+import remarkDirective from 'remark-directive'
+import type { RootContent } from 'mdast'
 import { If } from '../src/If'
 import { useGameStore } from '@/packages/use-game-store'
 
+/**
+ * Serializes plain text into a JSON string representing markdown nodes.
+ */
 const makeContent = (text: string) =>
   JSON.stringify([
     { type: 'paragraph', children: [{ type: 'text', value: text }] }
   ])
+
+/**
+ * Parses markdown with directives into a serialized node array.
+ */
+const makeMixedContent = (md: string) =>
+  JSON.stringify(
+    unified().use(remarkParse).use(remarkDirective).parse(md)
+      .children as RootContent[]
+  )
 
 describe('If', () => {
   beforeEach(() => {
@@ -86,5 +102,12 @@ describe('If', () => {
     }))
     render(<If test='typeof key_a !== "string"' content={makeContent('Yes')} />)
     expect(screen.getByText('Yes')).toBeInTheDocument()
+  })
+
+  it('mixes content and directives', () => {
+    const content = makeMixedContent('Start :set{hp=2} HP: :get{hp}!')
+    render(<If test='true' content={content} />)
+    expect(screen.getByText(/Start\s+HP: 2!/)).toBeInTheDocument()
+    expect(useGameStore.getState().gameData.hp).toBe('2')
   })
 })

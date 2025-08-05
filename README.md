@@ -263,6 +263,12 @@ Run content only when conditions hold.
   :::else
   FALLBACK CONTENT
   :::
+
+  :::if{has_key}
+  You unlock the door.
+  :set{door_opened=true}
+  [[Enter->Hallway]]
+  :::
   ```
 
   Replace the keys with those from your game data.
