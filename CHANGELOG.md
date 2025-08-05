@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.25.4](https://github.com/magicink/twine-campfire/compare/v1.25.3...v1.25.4) (2025-08-05)
+
+
+### Bug Fixes
+
+* if directives do not render ([#115](https://github.com/magicink/twine-campfire/issues/115)) ([37a1910](https://github.com/magicink/twine-campfire/commit/37a191025154be229eb11ebb0946f74c16c249a1))
+
 ## [1.25.3](https://github.com/magicink/twine-campfire/compare/v1.25.2...v1.25.3) (2025-08-05)
 
 
