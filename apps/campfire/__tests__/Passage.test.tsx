@@ -199,7 +199,7 @@ describe('Passage', () => {
     })
   })
 
-  it('renders the latest passage when state changes quickly', async () => {
+  it('cancels an in-flight render when passage changes quickly', async () => {
     const first: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
@@ -219,14 +219,17 @@ describe('Passage', () => {
     })
 
     const { rerender } = render(<Passage />)
+    await new Promise(resolve => setTimeout(resolve, 10))
     act(() => {
       useStoryDataStore.setState({ currentPassageId: '2' })
     })
     rerender(<Passage />)
 
     await waitFor(() => {
+      expect(screen.queryByText('First text')).toBeNull()
       expect(screen.getByText('Second text')).toBeInTheDocument()
     })
+    await new Promise(resolve => setTimeout(resolve, 10))
     expect(screen.queryByText('First text')).toBeNull()
   })
 
