@@ -22,6 +22,18 @@ import { TriggerButton } from './TriggerButton'
 import { If } from './If'
 
 /**
+ * Converts legacy if directive syntax using braces into label-based directives.
+ *
+ * Remark's directive parser only accepts attribute names with characters valid
+ * in HTML. Expressions like `!open` or `a < b` therefore cause the `:::if`
+ * block to be treated as plain text. By converting `:::if{expr}` to
+ * `:::if[expr]`, the expression is moved into the directive label where any
+ * characters are allowed, enabling complex JavaScript conditions.
+ */
+const normalizeIfDirectives = (input: string): string =>
+  input.replace(/^:::if\{([^}]+)\}/gm, ':::if[$1]')
+
+/**
  * Renders the current passage from the story data store.
  * The passage text is processed with Remark and Rehype plugins
  * to support Campfire directives and custom components.
@@ -93,8 +105,9 @@ export const Passage = () => {
             : ''
         )
         .join('')
+      const normalized = normalizeIfDirectives(text)
       if (controller.signal.aborted) return
-      const file = await processor.process(text)
+      const file = await processor.process(normalized)
       if (controller.signal.aborted) return
       setContent(file.result as ReactNode)
     })()
