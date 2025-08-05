@@ -75,10 +75,10 @@ export const Passage = () => {
     const controller = new AbortController()
     abortRef.current = controller
     prevController?.abort()
-    const render = async () => {
+    ;(async () => {
       if (controller.signal.aborted) return
       if (!passage) {
-        if (!controller.signal.aborted) setContent(null)
+        setContent(null)
         return
       }
       const text = passage.children
@@ -92,12 +92,10 @@ export const Passage = () => {
       const file = await processor.process(text)
       if (controller.signal.aborted) return
       setContent(file.result as ReactNode)
-    }
-    void render()
-    return () => {
-      controller.abort()
-    }
+    })()
   }, [passage, processor])
+
+  useEffect(() => () => abortRef.current?.abort(), [])
 
   return <>{content}</>
 }
