@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.26.0](https://github.com/magicink/twine-campfire/compare/v1.25.4...v1.26.0) (2025-08-05)
+
+
+### Features
+
+* **campfire:** add copy button to passage debug tab ([#117](https://github.com/magicink/twine-campfire/issues/117)) ([0ea109b](https://github.com/magicink/twine-campfire/commit/0ea109b0f04f8618eea56bf6594946125127c0ba))
+
 ## [1.25.4](https://github.com/magicink/twine-campfire/compare/v1.25.3...v1.25.4) (2025-08-05)
 
 
