@@ -87,6 +87,8 @@ const remarkCampfire =
       (node: Node, index: number | undefined, parent: Parent | undefined) => {
         if (node.type === 'paragraph' && parent && typeof index === 'number') {
           const paragraph = node as Paragraph
+          // Preserve paragraphs transformed into custom elements
+          if (paragraph.data?.hName) return
           const hasContent = paragraph.children.some(child => {
             return !(
               child.type === 'text' && (child as Text).value.trim() === ''
