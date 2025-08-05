@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.25.0](https://github.com/magicink/twine-campfire/compare/v1.24.1...v1.25.0) (2025-08-05)
+
+
+### Features
+
+* **campfire:** add if directive ([#107](https://github.com/magicink/twine-campfire/issues/107)) ([961ca93](https://github.com/magicink/twine-campfire/commit/961ca93cfd0e01fb1a727f0cf2a6c9d8c73ddb3c))
+
 ## [1.24.1](https://github.com/magicink/twine-campfire/compare/v1.24.0...v1.24.1) (2025-08-05)
 
 ### Bug Fixes
