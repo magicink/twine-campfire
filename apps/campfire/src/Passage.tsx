@@ -1,11 +1,4 @@
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  useCallback,
-  type ReactNode
-} from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import * as runtime from 'react/jsx-runtime'
 import { jsxDEV } from 'react/jsx-dev-runtime'
 import { unified } from 'unified'
@@ -23,7 +16,6 @@ import {
   useStoryDataStore,
   type StoryDataState
 } from '@/packages/use-story-data-store'
-import { useGameStore } from '@/packages/use-game-store'
 import { LinkButton } from './LinkButton'
 import { TriggerButton } from './TriggerButton'
 
@@ -54,13 +46,8 @@ export const Passage = () => {
   const passage = useStoryDataStore((state: StoryDataState) =>
     state.getCurrentPassage()
   )
-  const hash = useGameStore(state => state.hash)
   const [content, setContent] = useState<ReactNode>(null)
   const prevPassageId = useRef<string | undefined>(undefined)
-  const processingRef = useRef(false)
-  const renderIdRef = useRef(0)
-  const pendingRef = useRef(false)
-  const renderRef = useRef<(() => Promise<void>) | null>(null)
 
   useEffect(() => {
     if (!passage) return
@@ -82,47 +69,28 @@ export const Passage = () => {
     }
   }, [passage])
 
-  const renderPassage = useCallback(async () => {
-    if (processingRef.current) {
-      pendingRef.current = true
-      return
-    }
-    processingRef.current = true
-    pendingRef.current = false
-    const id = ++renderIdRef.current
-    if (!passage) {
-      setContent(null)
-      processingRef.current = false
-      if (pendingRef.current && renderRef.current) void renderRef.current()
-      return
-    }
-    const text = passage.children
-      .map((child: Content) =>
-        child.type === 'text' && typeof child.value === 'string'
-          ? (child as Text).value
-          : ''
-      )
-      .join('')
-    const file = await processor.process(text)
-    if (renderIdRef.current === id) {
+  useEffect(() => {
+    const controller = new AbortController()
+    ;(async () => {
+      if (controller.signal.aborted) return
+      if (!passage) {
+        setContent(null)
+        return
+      }
+      const text = passage.children
+        .map((child: Content) =>
+          child.type === 'text' && typeof child.value === 'string'
+            ? (child as Text).value
+            : ''
+        )
+        .join('')
+      if (controller.signal.aborted) return
+      const file = await processor.process(text)
+      if (controller.signal.aborted) return
       setContent(file.result as ReactNode)
-    }
-    processingRef.current = false
-    if (pendingRef.current && renderRef.current) void renderRef.current()
+    })()
+    return () => controller.abort()
   }, [passage, processor])
-
-  useEffect(() => {
-    renderRef.current = renderPassage
-  }, [renderPassage])
-
-  useEffect(() => {
-    void renderPassage()
-  }, [renderPassage])
-
-  useEffect(() => {
-    if (processingRef.current) return
-    void renderPassage()
-  }, [hash, renderPassage])
 
   return <>{content}</>
 }

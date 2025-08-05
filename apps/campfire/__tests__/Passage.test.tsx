@@ -6,7 +6,6 @@ import type { Element } from 'hast'
 import { Passage } from '../src/Passage'
 import { useStoryDataStore } from '@/packages/use-story-data-store'
 import { useGameStore } from '@/packages/use-game-store'
-import { hash as hashObject } from 'ohash'
 
 const resetStore = () => {
   useStoryDataStore.setState({
@@ -21,8 +20,7 @@ const resetStore = () => {
     onceKeys: {},
     checkpoints: {},
     errors: [],
-    loading: false,
-    hash: hashObject({})
+    loading: false
   })
   localStorage.clear()
   document.title = ''
@@ -199,6 +197,40 @@ describe('Passage', () => {
       expect(screen.getByText('Second text')).toBeInTheDocument()
       expect(useStoryDataStore.getState().currentPassageId).toBe('2')
     })
+  })
+
+  it('cancels an in-flight render when passage changes quickly', async () => {
+    const first: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'First' },
+      children: [{ type: 'text', value: 'First text' }]
+    }
+    const second: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '2', name: 'Second' },
+      children: [{ type: 'text', value: 'Second text' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [first, second],
+      currentPassageId: '1'
+    })
+
+    const { rerender } = render(<Passage />)
+    await new Promise(resolve => setTimeout(resolve, 10))
+    act(() => {
+      useStoryDataStore.setState({ currentPassageId: '2' })
+    })
+    rerender(<Passage />)
+
+    await waitFor(() => {
+      expect(screen.queryByText('First text')).toBeNull()
+      expect(screen.getByText('Second text')).toBeInTheDocument()
+    })
+    await new Promise(resolve => setTimeout(resolve, 10))
+    expect(screen.queryByText('First text')).toBeNull()
   })
 
   it('renders included passage content', async () => {

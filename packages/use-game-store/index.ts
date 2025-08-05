@@ -1,15 +1,10 @@
 import { produce } from 'immer'
 import { create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
-import { hash as hashObject } from 'ohash'
-
-const EMPTY_HASH = hashObject({})
 
 export interface GameState<T = Record<string, unknown>> {
   /** Arbitrary game state */
   gameData: T
-  /** Fast hash of the current game data */
-  hash: string
   /** Initialize gameData and remember the initial state */
   init: (data: T) => void
   /** Merge partial data into existing gameData */
@@ -75,15 +70,13 @@ export const useGameStore = create(
     loading: false,
     errors: [],
     checkpoints: {},
-    hash: EMPTY_HASH,
     init: data =>
       set(() => ({
         gameData: { ...data },
         _initialGameData: { ...data },
         onceKeys: {},
         errors: [],
-        loading: false,
-        hash: hashObject(data as Record<string, unknown>)
+        loading: false
       })),
     setGameData: data =>
       set(
@@ -93,7 +86,6 @@ export const useGameStore = create(
               ;(state.gameData as Record<string, unknown>)[k] = v
             }
           }
-          state.hash = hashObject(state.gameData)
         })
       ),
     unsetGameData: key =>
@@ -102,7 +94,6 @@ export const useGameStore = create(
           const k = key as string
           delete (state.gameData as Record<string, unknown>)[k]
           delete state.lockedKeys[k]
-          state.hash = hashObject(state.gameData)
         })
       ),
     lockKey: key =>
@@ -163,8 +154,7 @@ export const useGameStore = create(
         set({
           gameData: { ...cp.gameData },
           lockedKeys: { ...cp.lockedKeys },
-          onceKeys: { ...cp.onceKeys },
-          hash: hashObject(cp.gameData)
+          onceKeys: { ...cp.onceKeys }
         })
         return cp
       }
@@ -179,8 +169,7 @@ export const useGameStore = create(
         lockedKeys: {},
         onceKeys: {},
         errors: [],
-        loading: false,
-        hash: hashObject(state._initialGameData as Record<string, unknown>)
+        loading: false
       }))
   }))
 )
