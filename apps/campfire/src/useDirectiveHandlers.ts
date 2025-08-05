@@ -293,57 +293,6 @@ export const useDirectiveHandlers = () => {
     return removeNode(parent, index)
   }
 
-  const evalCondition = (expr: string): boolean => {
-    try {
-      const fn = compile(expr)
-      const data = convertRanges(gameData)
-      return !!fn(data as any)
-    } catch (error) {
-      console.error('Error evaluating condition:', error)
-      return false
-    }
-  }
-
-  const resolveIf = (
-    node: ContainerDirective,
-    evalConditionFn: (expr: string) => boolean = evalCondition
-  ): RootContent[] => {
-    const children = node.children as RootContent[]
-    let expr = getLabel(node) || ''
-    if (!expr) {
-      const attrs = node.attributes || {}
-      const [firstKey, firstValue] = Object.entries(attrs)[0] || []
-      if (firstKey) {
-        if (firstValue === '' || typeof firstValue === 'undefined') {
-          expr = firstKey
-        } else {
-          const valStr = String(firstValue).trim()
-          const valueExpr =
-            valStr === 'true' ||
-            valStr === 'false' ||
-            /^-?\d+(?:\.\d+)?$/.test(valStr)
-              ? valStr
-              : JSON.stringify(valStr)
-          expr = `${firstKey}==${valueExpr}`
-        }
-      }
-    }
-    let idx = 1
-    while (
-      idx < children.length &&
-      children[idx].type !== 'containerDirective'
-    ) {
-      idx++
-    }
-    const content = stripLabel(children.slice(0, idx))
-    if (expr && evalConditionFn(expr)) return content
-    const next = children[idx] as ContainerDirective | undefined
-    if (!next) return []
-    if (next.name === 'else') return stripLabel(next.children)
-    if (next.name === 'elseif') return resolveIf(next, evalConditionFn)
-    return []
-  }
-
   const handleGet: DirectiveHandler = (directive, parent, index) => {
     const expr: string =
       toString(directive) || Object.keys(directive.attributes || {})[0] || ''
@@ -741,14 +690,6 @@ export const useDirectiveHandlers = () => {
     unsetGameData(key)
 
     return removeNode(parent, index)
-  }
-
-  const handleIf: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
-    const ifDirective = directive as ContainerDirective
-    const replacement = resolveIf(ifDirective, evalCondition)
-    parent.children.splice(index, 1, ...replacement)
-    return [SKIP, index]
   }
 
   const handleOnce: DirectiveHandler = (directive, parent, index) => {
@@ -1292,7 +1233,6 @@ export const useDirectiveHandlers = () => {
         i: number | undefined
       ) => handleIncrement(d, p, i, -1),
       unset: handleUnset,
-      if: handleIf,
       once: handleOnce,
       onEnter: handleOnEnter,
       onExit: handleOnExit,

@@ -317,33 +317,6 @@ describe('Passage', () => {
       expect(screen.queryByText('Hello')).toBeNull()
     })
   })
-
-  it('skips once blocks inside false if directives', async () => {
-    const passage: Element = {
-      type: 'element',
-      tagName: 'tw-passagedata',
-      properties: { pid: '1', name: 'Start' },
-      children: [
-        {
-          type: 'text',
-          value: ':::if{false}\n:::once{intro}\nHello\n:::\n:::'
-        }
-      ]
-    }
-
-    useStoryDataStore.setState({
-      passages: [passage],
-      currentPassageId: '1'
-    })
-
-    render(<Passage />)
-
-    await waitFor(() => {
-      expect(screen.queryByText('Hello')).toBeNull()
-      expect(useGameStore.getState().onceKeys.intro).toBeUndefined()
-    })
-  })
-
   it('executes the set directive', async () => {
     const passage: Element = {
       type: 'element',
@@ -1128,140 +1101,6 @@ describe('Passage', () => {
     )
   })
 
-  it('chooses the correct branch with the if directive', async () => {
-    const passage: Element = {
-      type: 'element',
-      tagName: 'tw-passagedata',
-      properties: { pid: '1', name: 'Start' },
-      children: [
-        {
-          type: 'text',
-          value: ':::if{true}\nShown\n:::else\nHidden\n:::'
-        }
-      ]
-    }
-
-    useStoryDataStore.setState({
-      passages: [passage],
-      currentPassageId: '1'
-    })
-
-    render(<Passage />)
-
-    const text = await screen.findByText('Shown')
-    expect(text).toBeInTheDocument()
-    expect(document.body.textContent).not.toContain('Hidden')
-  })
-
-  it('evaluates if directives with attribute comparisons', async () => {
-    const passage: Element = {
-      type: 'element',
-      tagName: 'tw-passagedata',
-      properties: { pid: '1', name: 'Start' },
-      children: [
-        {
-          type: 'text',
-          value:
-            ':set[boolean]{openModal=false}\n:::if{openModal=false}\nhello!\n:::'
-        }
-      ]
-    }
-
-    useStoryDataStore.setState({
-      passages: [passage],
-      currentPassageId: '1'
-    })
-
-    render(<Passage />)
-
-    const text = await screen.findByText('hello!')
-    expect(text).toBeInTheDocument()
-  })
-
-  it('skips content when attribute comparison fails', async () => {
-    const passage: Element = {
-      type: 'element',
-      tagName: 'tw-passagedata',
-      properties: { pid: '1', name: 'Start' },
-      children: [
-        {
-          type: 'text',
-          value:
-            ':set[boolean]{openModal=true}\n:::if{openModal=false}\nhello!\n:::'
-        }
-      ]
-    }
-
-    useStoryDataStore.setState({
-      passages: [passage],
-      currentPassageId: '1'
-    })
-
-    render(<Passage />)
-
-    await waitFor(() => {
-      expect(screen.queryByText('hello!')).toBeNull()
-    })
-  })
-
-  it('skips content for negated key expression', async () => {
-    useGameStore.setState(state => ({
-      ...state,
-      gameData: { some_key: true }
-    }))
-    const passage: Element = {
-      type: 'element',
-      tagName: 'tw-passagedata',
-      properties: { pid: '1', name: 'Start' },
-      children: [
-        {
-          type: 'text',
-          value: ':::if{!some_key}\nShown\n:::else\nHidden\n:::'
-        }
-      ]
-    }
-
-    useStoryDataStore.setState({
-      passages: [passage],
-      currentPassageId: '1'
-    })
-
-    render(<Passage />)
-
-    const text = await screen.findByText('Hidden')
-    expect(text).toBeInTheDocument()
-    expect(screen.queryByText('Shown')).toBeNull()
-  })
-
-  it('skips content for negated defined directive expression', async () => {
-    useGameStore.setState(state => ({
-      ...state,
-      gameData: { some_key: 1 }
-    }))
-    const passage: Element = {
-      type: 'element',
-      tagName: 'tw-passagedata',
-      properties: { pid: '1', name: 'Start' },
-      children: [
-        {
-          type: 'text',
-          value: ':::if{!:defined{key=some_key}}\nShown\n:::else\nHidden\n:::'
-        }
-      ]
-    }
-
-    useStoryDataStore.setState({
-      passages: [passage],
-      currentPassageId: '1'
-    })
-
-    render(<Passage />)
-
-    const text = await screen.findByText('Hidden')
-    expect(text).toBeInTheDocument()
-    expect(screen.queryByText('Shown')).toBeNull()
-  })
-
   it('changes locale with lang directive', async () => {
     const passage: Element = {
       type: 'element',
@@ -1891,33 +1730,6 @@ describe('Passage', () => {
     })
     await waitFor(() => {
       expect(useGameStore.getState().gameData.go).toBe('true')
-    })
-  })
-
-  it('updates if content when trigger changes game state', async () => {
-    const passage: Element = {
-      type: 'element',
-      tagName: 'tw-passagedata',
-      properties: { pid: '1', name: 'Start' },
-      children: [
-        {
-          type: 'text',
-          value:
-            ':::if{fired}\nFired!\n:::else\nNot fired\n:::\n:::trigger{label="Fire"}\n:set[boolean]{fired=true}\n:::'
-        }
-      ]
-    }
-    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-    const { rerender } = render(<Passage key='start' />)
-    await screen.findByText('Not fired')
-    const button = await screen.findByRole('button', { name: 'Fire' })
-    await act(async () => {
-      button.click()
-    })
-    rerender(<Passage key='updated' />)
-    await screen.findByText('Fired!')
-    await waitFor(() => {
-      expect(screen.queryByText('Not fired')).toBeNull()
     })
   })
 })

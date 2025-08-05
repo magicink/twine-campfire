@@ -235,20 +235,6 @@ Read or compute data without mutating state.
 
 Run content only when conditions hold.
 
-- `if`/`elseif`/`else`: Branch by condition.
-
-  ```md
-  :::if{cond="HP > VALUE"}
-  CONTENT
-  :::elseif{cond="HP > OTHER"}
-  OTHER
-  :::else
-  FALLBACK
-  :::
-  ```
-
-  Replace conditions and content as needed.
-
 - `once`: Run content once per key.
 
   ```md
