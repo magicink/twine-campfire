@@ -76,6 +76,7 @@ export const Passage = () => {
     abortRef.current = controller
     prevController?.abort()
     const render = async () => {
+      if (controller.signal.aborted) return
       if (!passage) {
         if (!controller.signal.aborted) setContent(null)
         return
@@ -87,10 +88,10 @@ export const Passage = () => {
             : ''
         )
         .join('')
+      if (controller.signal.aborted) return
       const file = await processor.process(text)
-      if (!controller.signal.aborted) {
-        setContent(file.result as ReactNode)
-      }
+      if (controller.signal.aborted) return
+      setContent(file.result as ReactNode)
     }
     void render()
     return () => {
