@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.25.2](https://github.com/magicink/twine-campfire/compare/v1.25.1...v1.25.2) (2025-08-05)
+
+
+### Bug Fixes
+
+* parse if directives after break conversion ([#111](https://github.com/magicink/twine-campfire/issues/111)) ([9ac0ad7](https://github.com/magicink/twine-campfire/commit/9ac0ad7be21d602c83b677cb9294441263465377))
+
 ## [1.25.1](https://github.com/magicink/twine-campfire/compare/v1.25.0...v1.25.1) (2025-08-05)
 
 
