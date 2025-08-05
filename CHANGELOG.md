@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.25.3](https://github.com/magicink/twine-campfire/compare/v1.25.2...v1.25.3) (2025-08-05)
+
+
+### Bug Fixes
+
+* support complex if expressions ([#113](https://github.com/magicink/twine-campfire/issues/113)) ([8e0f866](https://github.com/magicink/twine-campfire/commit/8e0f86603c278e8cf2c001741a4f6807bb55101b))
+
 ## [1.25.2](https://github.com/magicink/twine-campfire/compare/v1.25.1...v1.25.2) (2025-08-05)
 
 
