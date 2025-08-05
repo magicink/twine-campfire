@@ -57,6 +57,25 @@ describe('Passage', () => {
     expect(text).toBeInTheDocument()
   })
 
+  it('preserves line breaks in passage text', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: 'Line one\nLine two' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    const text = await screen.findByText(/Line one/)
+    expect(text.textContent).toBe('Line one\nLine two')
+  })
+
   it('renders nothing when no passage is set', () => {
     render(<Passage />)
     expect(document.body.textContent).toBe('')
