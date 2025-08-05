@@ -71,9 +71,10 @@ export const Passage = () => {
   }, [passage])
 
   useEffect(() => {
+    const prevController = abortRef.current
     const controller = new AbortController()
-    abortRef.current?.abort()
     abortRef.current = controller
+    prevController?.abort()
     const render = async () => {
       if (!passage) {
         if (!controller.signal.aborted) setContent(null)
