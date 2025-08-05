@@ -4,6 +4,7 @@ import { jsxDEV } from 'react/jsx-dev-runtime'
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
+import remarkBreaks from 'remark-breaks'
 import remarkDirective from 'remark-directive'
 import remarkCampfire from '@/packages/remark-campfire'
 import remarkRehype from 'remark-rehype'
@@ -20,6 +21,11 @@ import { LinkButton } from './LinkButton'
 import { TriggerButton } from './TriggerButton'
 import { If } from './If'
 
+/**
+ * Renders the current passage from the story data store.
+ * The passage text is processed with Remark and Rehype plugins
+ * to support Campfire directives and custom components.
+ */
 export const Passage = () => {
   const handlers = useDirectiveHandlers()
   const processor = useMemo(
@@ -27,6 +33,7 @@ export const Passage = () => {
       unified()
         .use(remarkParse)
         .use(remarkGfm)
+        .use(remarkBreaks)
         .use(remarkDirective)
         .use(remarkCampfire, { handlers })
         .use(remarkRehype)
