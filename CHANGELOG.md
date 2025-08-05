@@ -2,45 +2,39 @@
 
 ## [1.24.1](https://github.com/magicink/twine-campfire/compare/v1.24.0...v1.24.1) (2025-08-05)
 
-
 ### Bug Fixes
 
-* remove hash-based game state tracking ([#101](https://github.com/magicink/twine-campfire/issues/101)) ([3d733e7](https://github.com/magicink/twine-campfire/commit/3d733e7304b985679cb0a99c5556c1ab38610587))
+- remove hash-based game state tracking ([#101](https://github.com/magicink/twine-campfire/issues/101)) ([3d733e7](https://github.com/magicink/twine-campfire/commit/3d733e7304b985679cb0a99c5556c1ab38610587))
 
 ## [1.24.0](https://github.com/magicink/twine-campfire/compare/v1.23.5...v1.24.0) (2025-08-04)
 
-
 ### Features
 
-* hash game data for passage re-render ([#99](https://github.com/magicink/twine-campfire/issues/99)) ([fc8470f](https://github.com/magicink/twine-campfire/commit/fc8470fa6fe27ae68f6133cb40574b1e28263e91))
+- hash game data for passage re-render ([#99](https://github.com/magicink/twine-campfire/issues/99)) ([fc8470f](https://github.com/magicink/twine-campfire/commit/fc8470fa6fe27ae68f6133cb40574b1e28263e91))
 
 ## [1.23.5](https://github.com/magicink/twine-campfire/compare/v1.23.4...v1.23.5) (2025-08-04)
 
-
 ### Bug Fixes
 
-* cover if directive after trigger updates ([#97](https://github.com/magicink/twine-campfire/issues/97)) ([d7d02c9](https://github.com/magicink/twine-campfire/commit/d7d02c99e65b35b996523e0e765ec59eaa955344))
+- cover if directive after trigger updates ([#97](https://github.com/magicink/twine-campfire/issues/97)) ([d7d02c9](https://github.com/magicink/twine-campfire/commit/d7d02c99e65b35b996523e0e765ec59eaa955344))
 
 ## [1.23.4](https://github.com/magicink/twine-campfire/compare/v1.23.3...v1.23.4) (2025-08-04)
 
-
 ### Bug Fixes
 
-* reprocess passage when game state changes ([#94](https://github.com/magicink/twine-campfire/issues/94)) ([618610a](https://github.com/magicink/twine-campfire/commit/618610a5737e36e317b87c4e5c85e9547f3d24af))
+- reprocess passage when game state changes ([#94](https://github.com/magicink/twine-campfire/issues/94)) ([618610a](https://github.com/magicink/twine-campfire/commit/618610a5737e36e317b87c4e5c85e9547f3d24af))
 
 ## [1.23.3](https://github.com/magicink/twine-campfire/compare/v1.23.2...v1.23.3) (2025-08-04)
 
-
 ### Bug Fixes
 
-* support attribute comparisons in if directive ([#92](https://github.com/magicink/twine-campfire/issues/92)) ([b08d18c](https://github.com/magicink/twine-campfire/commit/b08d18c87d021e1aa2e06138eafc881ea57c203e))
+- support attribute comparisons in if directive ([#92](https://github.com/magicink/twine-campfire/issues/92)) ([b08d18c](https://github.com/magicink/twine-campfire/commit/b08d18c87d021e1aa2e06138eafc881ea57c203e))
 
 ## [1.23.2](https://github.com/magicink/twine-campfire/compare/v1.23.1...v1.23.2) (2025-08-04)
 
-
 ### Bug Fixes
 
-* remove modal directive and component ([#90](https://github.com/magicink/twine-campfire/issues/90)) ([e7e8fb8](https://github.com/magicink/twine-campfire/commit/e7e8fb813d4762ebadea010363f5cad55c4192ee))
+- remove modal directive and component ([#90](https://github.com/magicink/twine-campfire/issues/90)) ([e7e8fb8](https://github.com/magicink/twine-campfire/commit/e7e8fb813d4762ebadea010363f5cad55c4192ee))
 
 ## [1.22.0](https://github.com/magicink/twine-campfire/compare/v1.21.0...v1.22.0) (2025-08-03)
 

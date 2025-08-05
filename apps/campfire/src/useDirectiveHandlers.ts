@@ -692,6 +692,56 @@ export const useDirectiveHandlers = () => {
     return removeNode(parent, index)
   }
 
+  const handleIf: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    const container = directive as ContainerDirective
+    const children = container.children as RootContent[]
+    let expr = getLabel(container) || ''
+    if (!expr) {
+      const attrs = container.attributes || {}
+      const [firstKey, firstValue] = Object.entries(attrs)[0] || []
+      if (firstKey) {
+        if (firstValue === '' || typeof firstValue === 'undefined') {
+          expr = firstKey
+        } else {
+          const valStr = String(firstValue).trim()
+          const valueExpr =
+            valStr === 'true' ||
+            valStr === 'false' ||
+            /^-?\d+(?:\.\d+)?$/.test(valStr)
+              ? valStr
+              : JSON.stringify(valStr)
+          expr = `${firstKey}==${valueExpr}`
+        }
+      }
+    }
+    let idx = 1
+    while (
+      idx < children.length &&
+      children[idx].type !== 'containerDirective'
+    ) {
+      idx++
+    }
+    const content = JSON.stringify(stripLabel(children.slice(0, idx)))
+    const next = children[idx] as ContainerDirective | undefined
+    let fallback: string | undefined
+    if (next && next.name === 'else') {
+      fallback = JSON.stringify(stripLabel(next.children as RootContent[]))
+    }
+    const node: Parent = {
+      type: 'paragraph',
+      children: [{ type: 'text', value: '' }],
+      data: {
+        hName: 'if',
+        hProperties: fallback
+          ? { test: expr, content, fallback }
+          : { test: expr, content }
+      }
+    }
+    parent.children.splice(index, 1, node as RootContent)
+    return [SKIP, index]
+  }
+
   const handleOnce: DirectiveHandler = (directive, parent, index) => {
     if (!parent || typeof index !== 'number') return
     const container = directive as ContainerDirective
@@ -1233,6 +1283,7 @@ export const useDirectiveHandlers = () => {
         i: number | undefined
       ) => handleIncrement(d, p, i, -1),
       unset: handleUnset,
+      if: handleIf,
       once: handleOnce,
       onEnter: handleOnEnter,
       onExit: handleOnExit,
