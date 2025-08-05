@@ -48,7 +48,6 @@ export const Passage = () => {
   )
   const [content, setContent] = useState<ReactNode>(null)
   const prevPassageId = useRef<string | undefined>(undefined)
-  const abortRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
     if (!passage) return
@@ -71,10 +70,7 @@ export const Passage = () => {
   }, [passage])
 
   useEffect(() => {
-    const prevController = abortRef.current
     const controller = new AbortController()
-    abortRef.current = controller
-    prevController?.abort()
     ;(async () => {
       if (controller.signal.aborted) return
       if (!passage) {
@@ -93,9 +89,8 @@ export const Passage = () => {
       if (controller.signal.aborted) return
       setContent(file.result as ReactNode)
     })()
+    return () => controller.abort()
   }, [passage, processor])
-
-  useEffect(() => () => abortRef.current?.abort(), [])
 
   return <>{content}</>
 }
