@@ -1204,6 +1204,64 @@ describe('Passage', () => {
     })
   })
 
+  it('skips content for negated key expression', async () => {
+    useGameStore.setState(state => ({
+      ...state,
+      gameData: { some_key: true }
+    }))
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':::if{!some_key}\nShown\n:::else\nHidden\n:::'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    const text = await screen.findByText('Hidden')
+    expect(text).toBeInTheDocument()
+    expect(screen.queryByText('Shown')).toBeNull()
+  })
+
+  it('skips content for negated defined directive expression', async () => {
+    useGameStore.setState(state => ({
+      ...state,
+      gameData: { some_key: 1 }
+    }))
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':::if{!:defined{key=some_key}}\nShown\n:::else\nHidden\n:::'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    const text = await screen.findByText('Hidden')
+    expect(text).toBeInTheDocument()
+    expect(screen.queryByText('Shown')).toBeNull()
+  })
+
   it('changes locale with lang directive', async () => {
     const passage: Element = {
       type: 'element',
