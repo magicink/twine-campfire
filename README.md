@@ -235,6 +235,38 @@ Read or compute data without mutating state.
 
 Run content only when conditions hold.
 
+- `if`: Render a block when a JavaScript expression against game data is truthy. Add an `else` container for fallback content.
+
+  ```md
+  :::if{some_key}
+  CONTENT WHEN `some_key` IS TRUTHY
+  :::
+
+  :::if{!some_key}
+  CONTENT WHEN `some_key` IS FALSY
+  :::
+
+  :::if{!!some_key}
+  CONTENT WHEN `some_key` COERCES TO TRUE
+  :::
+
+  :::if{key_a < key_b}
+  CONTENT WHEN `key_a` IS LESS THAN `key_b`
+  :::
+
+  :::if{typeof key_a !== "string"}
+  CONTENT WHEN `key_a` IS NOT A STRING
+  :::
+
+  :::if{some_key}
+  TRUTHY CONTENT
+  :::else
+  FALLBACK CONTENT
+  :::
+  ```
+
+  Replace the keys with those from your game data.
+
 - `once`: Run content once per key.
 
   ```md
