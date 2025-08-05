@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.24.1](https://github.com/magicink/twine-campfire/compare/v1.24.0...v1.24.1) (2025-08-05)
+
+
+### Bug Fixes
+
+* remove hash-based game state tracking ([#101](https://github.com/magicink/twine-campfire/issues/101)) ([3d733e7](https://github.com/magicink/twine-campfire/commit/3d733e7304b985679cb0a99c5556c1ab38610587))
+
 ## [1.24.0](https://github.com/magicink/twine-campfire/compare/v1.23.5...v1.24.0) (2025-08-04)
 
 
