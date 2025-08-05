@@ -1,6 +1,7 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, act, waitFor } from '@testing-library/react'
 import { Story } from '../src/Story'
 import { useStoryDataStore } from '@/packages/use-story-data-store'
+import { useGameStore } from '@/packages/use-game-store'
 import { samplePassage } from './helpers'
 import { describe, it, expect, beforeEach } from 'bun:test'
 import i18next from 'i18next'
@@ -13,6 +14,16 @@ describe('Story', () => {
       passages: [],
       currentPassageId: undefined
     })
+    useGameStore.setState({
+      gameData: {},
+      _initialGameData: {},
+      lockedKeys: {},
+      onceKeys: {},
+      checkpoints: {},
+      errors: [],
+      loading: false
+    })
+    localStorage.clear()
     if (!i18next.isInitialized) {
       await i18next.init({ lng: 'en-US', resources: {} })
     } else {
@@ -60,5 +71,49 @@ describe('Story', () => {
     render(<Story />)
 
     expect(i18next.options.debug).toBe(true)
+  })
+
+  it('renders content based on if directives', async () => {
+    document.body.innerHTML = `
+<tw-storydata name="Story" startnode="1">
+  <tw-passagedata pid="1" name="Start">:set[boolean]{open=true}
+
+:::trigger{label="open"}
+:set[boolean]{open=false}
+:::
+
+:::if{!open}
+not open
+:::
+
+:::if{open}
+is open!
+:::</tw-passagedata>
+</tw-storydata>
+    `
+    render(<Story />)
+    await screen.findByText('is open!')
+    expect(screen.queryByText('not open')).toBeNull()
+    const button = await screen.findByRole('button', { name: 'open' })
+    act(() => {
+      button.click()
+    })
+    await screen.findByText('not open')
+    expect(screen.queryByText('is open!')).toBeNull()
+  })
+
+  it('parses if directives after blank lines', async () => {
+    document.body.innerHTML = `
+<tw-storydata name="Story" startnode="1">
+  <tw-passagedata pid="1" name="Start">:set[boolean]{open=true}
+
+:::if{!open}
+not open
+:::</tw-passagedata>
+</tw-storydata>
+    `
+    render(<Story />)
+    await waitFor(() => expect(screen.queryByText('not open')).toBeNull())
+    expect(screen.queryByText(':::if{!open}')).toBeNull()
   })
 })
