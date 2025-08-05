@@ -7,7 +7,6 @@ import remarkRehype from 'remark-rehype'
 import rehypeCampfire from '@/packages/rehype-campfire'
 import rehypeReact from 'rehype-react'
 import type { RootContent, Root } from 'mdast'
-import { compile } from 'expression-eval'
 import { useGameStore } from '@/packages/use-game-store'
 import { useDirectiveHandlers } from './useDirectiveHandlers'
 import { LinkButton } from './LinkButton'
@@ -19,6 +18,11 @@ interface IfProps {
   fallback?: string
 }
 
+/**
+ * Evaluates a JavaScript expression against game data and renders
+ * serialized nodes when the expression is truthy or an optional
+ * fallback when it is falsy.
+ */
 export const If = ({ test, content, fallback }: IfProps) => {
   const handlers = useDirectiveHandlers()
   const processor = useMemo(
@@ -40,8 +44,14 @@ export const If = ({ test, content, fallback }: IfProps) => {
   const gameData = useGameStore(state => state.gameData)
   let condition = false
   try {
-    const fn = compile(test)
-    condition = !!fn(gameData as any)
+    const fn = new Function('data', `with (data) { return (${test}) }`) as (
+      data: Record<string, unknown>
+    ) => unknown
+    const proxy = new Proxy(gameData as Record<string, unknown>, {
+      has: () => true,
+      get: (obj, key) => (obj as Record<string, unknown>)[key as string]
+    })
+    condition = !!fn(proxy)
   } catch {
     condition = false
   }

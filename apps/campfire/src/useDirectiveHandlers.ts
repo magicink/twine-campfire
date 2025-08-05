@@ -692,6 +692,11 @@ export const useDirectiveHandlers = () => {
     return removeNode(parent, index)
   }
 
+  /**
+   * Serializes `:::if` directive blocks into `<if>` components that
+   * evaluate a test expression against game data and render optional
+   * fallback content when the expression is falsy.
+   */
   const handleIf: DirectiveHandler = (directive, parent, index) => {
     if (!parent || typeof index !== 'number') return
     const container = directive as ContainerDirective
