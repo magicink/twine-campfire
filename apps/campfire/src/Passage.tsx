@@ -4,7 +4,6 @@ import { jsxDEV } from 'react/jsx-dev-runtime'
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
-import remarkBreaks from 'remark-breaks'
 import remarkDirective from 'remark-directive'
 import remarkCampfire from '@/packages/remark-campfire'
 import remarkRehype from 'remark-rehype'
@@ -47,7 +46,6 @@ export const Passage = () => {
         .use(remarkGfm)
         .use(remarkDirective)
         .use(remarkCampfire, { handlers })
-        .use(remarkBreaks)
         .use(remarkRehype)
         .use(rehypeCampfire)
         .use(rehypeReact, {
