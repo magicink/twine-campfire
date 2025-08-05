@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.25.1](https://github.com/magicink/twine-campfire/compare/v1.25.0...v1.25.1) (2025-08-05)
+
+
+### Bug Fixes
+
+* **passage:** preserve line breaks ([#109](https://github.com/magicink/twine-campfire/issues/109)) ([97e79de](https://github.com/magicink/twine-campfire/commit/97e79de4ad356b6e64954d04ff14ca26b28bd120))
+
 ## [1.25.0](https://github.com/magicink/twine-campfire/compare/v1.24.1...v1.25.0) (2025-08-05)
 
 
