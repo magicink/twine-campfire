@@ -33,9 +33,9 @@ export const Passage = () => {
       unified()
         .use(remarkParse)
         .use(remarkGfm)
-        .use(remarkBreaks)
         .use(remarkDirective)
         .use(remarkCampfire, { handlers })
+        .use(remarkBreaks)
         .use(remarkRehype)
         .use(rehypeCampfire)
         .use(rehypeReact, {

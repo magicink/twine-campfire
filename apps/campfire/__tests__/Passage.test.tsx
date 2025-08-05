@@ -1751,4 +1751,22 @@ describe('Passage', () => {
       expect(useGameStore.getState().gameData.go).toBe('true')
     })
   })
+
+  it('parses if directives after blank lines', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':set[boolean]{open=true}\n\n:::if{!open}\nnot open\n:::'
+        }
+      ]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    await waitFor(() => expect(screen.queryByText('not open')).toBeNull())
+    expect(screen.queryByText(':::if{!open}')).toBeNull()
+  })
 })
