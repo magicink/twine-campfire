@@ -5,22 +5,51 @@ import {
 } from '@/packages/use-story-data-store'
 import { useGameStore } from '@/packages/use-game-store'
 import i18next from 'i18next'
+import type { Element, Text, Content } from 'hast'
 
 const DEBUG_OPTION = 'debug' as const
 const TAB_GAME = 'game' as const
 const TAB_STORY = 'story' as const
+const TAB_PASSAGE = 'passage' as const
 const TAB_TRANSLATIONS = 'translations' as const
 const TAB_ERRORS = 'errors' as const
 type Tab =
   | typeof TAB_GAME
   | typeof TAB_STORY
+  | typeof TAB_PASSAGE
   | typeof TAB_TRANSLATIONS
   | typeof TAB_ERRORS
 
+/**
+ * Extracts the raw text from a passage element.
+ *
+ * @param {Element | undefined} passage - The passage to extract text from.
+ * @returns {string} The raw, unprocessed passage text.
+ */
+const getRawPassage = (passage: Element | undefined): string => {
+  if (!passage) return ''
+  return passage.children
+    .map((child: Content) =>
+      child.type === 'text' && typeof child.value === 'string'
+        ? (child as Text).value
+        : ''
+    )
+    .join('')
+}
+
+/**
+ * Renders a debug window showing game, story, translation and error data.
+ * Also displays passage information when the debug option is enabled.
+ */
 export const DebugWindow = () => {
   const storyData = useStoryDataStore(
     (state: StoryDataState) => state.storyData
   )
+  const passages = useStoryDataStore((state: StoryDataState) => state.passages)
+  const currentPassage = useStoryDataStore((state: StoryDataState) =>
+    state.getCurrentPassage()
+  )
+  const rawPassage = getRawPassage(currentPassage)
   const [translations, setTranslations] = useState<Record<string, unknown>>({})
   useEffect(() => {
     const update = () => {
@@ -57,6 +86,15 @@ export const DebugWindow = () => {
   const containerRef = useRef<HTMLDivElement>(null)
 
   const debugEnabled = storyData?.options === DEBUG_OPTION
+
+  /**
+   * Copies the raw passage text to the clipboard.
+   *
+   * @returns {void}
+   */
+  const handleCopy = (): void => {
+    void navigator.clipboard?.writeText(rawPassage)
+  }
 
   useEffect(() => {
     if (debugEnabled && visible) {
@@ -128,6 +166,16 @@ export const DebugWindow = () => {
             </button>
             <button
               type='button'
+              className={`flex-1 p-2 ${tab === TAB_PASSAGE ? 'font-bold' : ''}`}
+              onClick={e => {
+                e.stopPropagation()
+                setTab(TAB_PASSAGE)
+              }}
+            >
+              Passage
+            </button>
+            <button
+              type='button'
               className={`flex-1 p-2 ${
                 tab === TAB_TRANSLATIONS ? 'font-bold' : ''
               }`}
@@ -155,9 +203,31 @@ export const DebugWindow = () => {
                 {JSON.stringify(gameData, null, 2)}
               </pre>
             ) : tab === TAB_STORY ? (
-              <pre className='whitespace-pre-wrap'>
-                {JSON.stringify(storyData, null, 2)}
-              </pre>
+              <div>
+                <pre className='whitespace-pre-wrap'>
+                  {JSON.stringify(storyData, null, 2)}
+                </pre>
+                <ul className='mt-2 list-disc pl-4'>
+                  {passages.map(p => {
+                    const pid = String(p.properties?.pid ?? '')
+                    const name = String(p.properties?.name ?? '')
+                    return <li key={pid || name}>{name || pid}</li>
+                  })}
+                </ul>
+              </div>
+            ) : tab === TAB_PASSAGE ? (
+              <div>
+                <button
+                  type='button'
+                  onClick={e => {
+                    e.stopPropagation()
+                    handleCopy()
+                  }}
+                >
+                  Copy
+                </button>
+                <pre className='whitespace-pre-wrap'>{rawPassage}</pre>
+              </div>
             ) : tab === TAB_TRANSLATIONS ? (
               <pre className='whitespace-pre-wrap'>
                 {JSON.stringify(translations, null, 2)}
