@@ -27,28 +27,31 @@ interface IfProps {
  */
 export const If = ({ test, content, fallback }: IfProps) => {
   const handlers = useDirectiveHandlers()
-  const processor = useMemo(
-    () =>
-      unified()
-        .use(remarkGfm)
-        .use(remarkCampfire, { handlers })
-        .use(remarkRehype)
-        .use(rehypeCampfire)
-        .use(rehypeReact, {
-          Fragment: runtime.Fragment,
-          jsx: runtime.jsx,
-          jsxs: runtime.jsxs,
-          jsxDEV,
-          development: process.env.NODE_ENV === 'development',
-          components: {
-            button: LinkButton,
-            trigger: TriggerButton,
-            if: If,
-            show: Show
-          }
-        }),
-    [handlers]
-  )
+  const processor = useMemo(() => {
+    const proc = unified()
+      .use(remarkGfm)
+      .use(remarkCampfire, { handlers })
+      .use(remarkRehype)
+      .use(rehypeCampfire)
+      .use(rehypeReact, {
+        Fragment: runtime.Fragment,
+        jsx: runtime.jsx,
+        jsxs: runtime.jsxs,
+        jsxDEV,
+        development: process.env.NODE_ENV === 'development',
+        components: {
+          button: LinkButton,
+          trigger: TriggerButton,
+          if: If,
+          show: Show
+        }
+      })
+    proc.parser = (_doc: unknown, file: Root) => ({
+      type: file.type,
+      children: file.children
+    })
+    return proc
+  }, [handlers])
   const gameData = useGameStore(state => state.gameData)
   let condition = false
   try {
@@ -67,6 +70,6 @@ export const If = ({ test, content, fallback }: IfProps) => {
   if (!source) return null
   const nodes: RootContent[] = JSON.parse(source)
   const root: Root = { type: 'root', children: nodes }
-  const tree = processor.runSync(root)
-  return processor.stringify(tree) as ReactNode
+  const result = processor.processSync(root)
+  return result.result as ReactNode
 }
