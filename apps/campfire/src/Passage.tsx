@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import * as runtime from 'react/jsx-runtime'
-import { jsxDEV } from 'react/jsx-dev-runtime'
+import { jsxDEV as jsxDevRuntime } from 'react/jsx-dev-runtime'
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
@@ -81,7 +81,7 @@ export const Passage = () => {
           Fragment: runtime.Fragment,
           jsx: runtime.jsx,
           jsxs: runtime.jsxs,
-          jsxDEV,
+          jsxDEV: jsxDevRuntime,
           development: process.env.NODE_ENV === 'development',
           components: {
             button: LinkButton,
