@@ -232,10 +232,10 @@ Read or compute data without mutating state.
 - `show`: Display a key's value.
 
   ```md
-  :show{key=HP}
+  :show[hp]
   ```
 
-  Replace `HP` with the key to display.
+  Replace `hp` with the key to display.
 
 ### Conditional logic
 
