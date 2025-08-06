@@ -106,7 +106,8 @@ Operations that set, update or remove scalar values.
 - `set[range]`: Initialize a key with a numeric range.
 
   ```md
-  :set[range]{key=HP min=MIN max=MAX value=VALUE}
+  :::set[range]{key=HP min=MIN max=MAX value=VALUE}
+  :::
   ```
 
   Replace `HP` with the key, `MIN`/`MAX` with bounds and `VALUE` with the
@@ -115,7 +116,8 @@ Operations that set, update or remove scalar values.
 - `set`: Assign a value to a key.
 
   ```md
-  :set{hp=VALUE}
+  :::set{key=HP value=VALUE}
+  :::
   ```
 
   Replace `VALUE` with the number or string to store.
@@ -123,7 +125,8 @@ Operations that set, update or remove scalar values.
 - `setOnce`: Set a key only if it has not been set.
 
   ```md
-  :setOnce{visited=true}
+  :::setOnce{key=visited value=true}
+  :::
   ```
 
   Replace `visited` with the key to lock on first use.
@@ -272,7 +275,8 @@ Run content only when conditions hold.
 
   :::if{has_key}
   You unlock the door.
-  :set{door_opened=true}
+  :::set{key=door_opened value=true}
+  :::
   [[Enter->Hallway]]
   :::
   ```
@@ -297,7 +301,8 @@ Run directives on specific passage events or group actions.
 
   ```md
   :::batch
-  :set{hp=VALUE}
+  :::set{key=HP value=VALUE}
+  :::
   :increment{key=HP amount=VALUE}
   :::
   ```
@@ -308,7 +313,8 @@ Run directives on specific passage events or group actions.
 
   ```md
   :::trigger{label="Do it" class="primary" disabled}
-  :set{key=value}
+  :::set{key=KEY value=VALUE}
+  :::
   :::
   ```
 

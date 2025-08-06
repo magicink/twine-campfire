@@ -113,13 +113,27 @@ export const useDirectiveHandlers = () => {
     resetCheckpointState()
   }, [currentPassageId])
 
+  /**
+   * Handles the `set` and `setOnce` directives by assigning a value to a key in
+   * game data. Supports optional typing via the directive label and range
+   * initialization.
+   *
+   * @param directive - The directive node being processed.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within the parent.
+   * @param lock - When true, locks the key after setting it.
+   * @returns The index of the removed node, if applicable.
+   */
   const handleSet = (
     directive: DirectiveNode,
     parent: Parent | undefined,
     index: number | undefined,
     lock = false
   ): DirectiveHandlerResult => {
-    const typeParam = (toString(directive).trim() || 'string').toLowerCase()
+    const typeParam =
+      ((directive as { label?: string }).label || toString(directive))
+        .trim()
+        .toLowerCase() || 'string'
     const attrs = directive.attributes
     const safe: Record<string, unknown> = {}
 
@@ -170,9 +184,9 @@ export const useDirectiveHandlers = () => {
     }
 
     if (isRecord(attrs)) {
-      if (typeParam === 'range') {
-        const key = typeof attrs.key === 'string' ? attrs.key : undefined
-        if (key) {
+      const key = ensureKey(attrs.key, parent, index)
+      if (key) {
+        if (typeParam === 'range') {
           const lower = parseNumber(attrs.min)
           const upper = parseNumber(attrs.max)
           const val = parseNumber(attrs.value ?? lower)
@@ -181,11 +195,10 @@ export const useDirectiveHandlers = () => {
             upper,
             value: clamp(val, lower, upper)
           }
-        }
-      } else {
-        for (const [key, value] of Object.entries(attrs)) {
-          if (typeof value === 'string') {
-            const parsed = parseValue(value)
+        } else {
+          const rawValue = attrs.value
+          if (typeof rawValue === 'string') {
+            const parsed = parseValue(rawValue)
             const current = gameData[key]
             if (isRange(current)) {
               if (typeof parsed === 'number') {
@@ -232,7 +245,10 @@ export const useDirectiveHandlers = () => {
     index: number | undefined,
     lock = false
   ): DirectiveHandlerResult => {
-    const typeParam = (toString(directive).trim() || 'string').toLowerCase()
+    const typeParam =
+      ((directive as { label?: string }).label || toString(directive))
+        .trim()
+        .toLowerCase() || 'string'
     const attrs = directive.attributes
     const safe: Record<string, unknown[]> = {}
 
