@@ -29,6 +29,7 @@ import {
   getLabel,
   stripLabel
 } from './directives/helpers'
+import { getTranslationOptions } from './i18n'
 import type {
   DirectiveHandler,
   DirectiveHandlerResult
@@ -916,16 +917,11 @@ export const useDirectiveHandlers = () => {
         prev.value.endsWith('[[') &&
         next?.type === 'text' &&
         next.value.includes(']]')
+      const options = getTranslationOptions({
+        ns: attrs.ns,
+        count: attrs.count
+      })
       if (inLink) {
-        const options: Record<string, unknown> = {}
-        if (typeof attrs.ns === 'string') options.ns = attrs.ns
-        if (attrs.count !== undefined) {
-          const n =
-            typeof attrs.count === 'number'
-              ? attrs.count
-              : parseFloat(String(attrs.count))
-          if (!Number.isNaN(n)) options.count = n
-        }
         const text = i18next.t(key, options)
         if (prev && next) {
           prev.value += text + next.value
@@ -936,17 +932,11 @@ export const useDirectiveHandlers = () => {
         return index
       }
       const props: Properties = { 'data-i18n-key': key }
-      if (typeof attrs.ns === 'string') props['data-i18n-ns'] = attrs.ns
-      if (attrs.count !== undefined) {
-        const n =
-          typeof attrs.count === 'number'
-            ? attrs.count
-            : parseFloat(String(attrs.count))
-        if (!Number.isNaN(n)) props['data-i18n-count'] = n
-      }
+      if (options.ns) props['data-i18n-ns'] = options.ns
+      if (options.count !== undefined) props['data-i18n-count'] = options.count
       const node: MdText = {
         type: 'text',
-        value: '0',
+        value: '0', // non-empty placeholder required for mdast conversion
         data: { hName: 'show', hProperties: props }
       }
       parent.children.splice(index, 1, node)

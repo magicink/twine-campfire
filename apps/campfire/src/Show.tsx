@@ -2,6 +2,7 @@ import { useGameStore } from '@/packages/use-game-store'
 import { useTranslation } from 'react-i18next'
 import i18next from 'i18next'
 import { isRange } from './directives/helpers'
+import { getTranslationOptions } from './i18n'
 
 interface ShowProps {
   /** Game data key to display */
@@ -31,11 +32,10 @@ export const Show = (props: ShowProps) => {
   )
   const tKey = props['data-i18n-key']
   if (tKey) {
-    const options: Record<string, unknown> = {}
-    if (typeof props['data-i18n-ns'] === 'string')
-      options.ns = props['data-i18n-ns']
-    if (props['data-i18n-count'] !== undefined)
-      options.count = props['data-i18n-count']
+    const options = getTranslationOptions({
+      ns: props['data-i18n-ns'],
+      count: props['data-i18n-count']
+    })
     return <span>{t(tKey, options)}</span>
   }
   const storeKey = props['data-key'] ?? props.key

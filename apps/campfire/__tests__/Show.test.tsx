@@ -1,12 +1,14 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { render, screen, act } from '@testing-library/react'
+import i18next from 'i18next'
+import { initReactI18next } from 'react-i18next'
 import { Show } from '../src/Show'
 import { useGameStore } from '@/packages/use-game-store'
 
 /**
  * Resets the game store to an empty state before each test.
  */
-beforeEach(() => {
+beforeEach(async () => {
   useGameStore.setState({
     gameData: {},
     _initialGameData: {},
@@ -16,6 +18,12 @@ beforeEach(() => {
     errors: [],
     loading: false
   })
+  if (!i18next.isInitialized) {
+    await i18next.use(initReactI18next).init({ lng: 'en-US', resources: {} })
+  } else {
+    await i18next.changeLanguage('en-US')
+    i18next.services.resourceStore.data = {}
+  }
 })
 
 describe('Show', () => {
