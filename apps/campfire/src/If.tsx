@@ -2,6 +2,7 @@ import { useMemo, type ReactNode } from 'react'
 import * as runtime from 'react/jsx-runtime'
 import { jsxDEV } from 'react/jsx-dev-runtime'
 import { unified } from 'unified'
+import remarkGfm from 'remark-gfm'
 import remarkCampfire from '@/packages/remark-campfire'
 import remarkRehype from 'remark-rehype'
 import rehypeCampfire from '@/packages/rehype-campfire'
@@ -29,6 +30,7 @@ export const If = ({ test, content, fallback }: IfProps) => {
   const processor = useMemo(
     () =>
       unified()
+        .use(remarkGfm)
         .use(remarkCampfire, { handlers })
         .use(remarkRehype)
         .use(rehypeCampfire)
