@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.31.3](https://github.com/magicink/twine-campfire/compare/v1.31.2...v1.31.3) (2025-08-06)
+
+
+### Bug Fixes
+
+* render trigger directives in If component ([#139](https://github.com/magicink/twine-campfire/issues/139)) ([1dbab1b](https://github.com/magicink/twine-campfire/commit/1dbab1bdd76953104299ab95054fec1c45c51480))
+
 ## [1.31.2](https://github.com/magicink/twine-campfire/compare/v1.31.1...v1.31.2) (2025-08-06)
 
 
