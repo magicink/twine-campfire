@@ -19,6 +19,7 @@ import {
 import { LinkButton } from './LinkButton'
 import { TriggerButton } from './TriggerButton'
 import { If } from './If'
+import { Show } from './Show'
 
 /**
  * Converts legacy if directive syntax using braces into label-based directives.
@@ -85,7 +86,8 @@ export const Passage = () => {
           components: {
             button: LinkButton,
             trigger: TriggerButton,
-            if: If
+            if: If,
+            show: Show
           }
         }),
     [handlers]
