@@ -1,0 +1,139 @@
+import { describe, it, expect, beforeEach } from 'bun:test'
+import { render, screen, waitFor } from '@testing-library/react'
+import i18next from 'i18next'
+import { initReactI18next } from 'react-i18next'
+import type { Element } from 'hast'
+import { Passage } from '../src/Passage'
+import { useStoryDataStore } from '@/packages/use-story-data-store'
+import { resetStores } from './helpers'
+
+describe('Passage i18n directives', () => {
+  beforeEach(async () => {
+    document.body.innerHTML = ''
+    resetStores()
+    if (!i18next.isInitialized) {
+      await i18next.use(initReactI18next).init({ lng: 'en-US', resources: {} })
+    } else {
+      await i18next.changeLanguage('en-US')
+      i18next.services.resourceStore.data = {}
+    }
+  })
+
+  it('changes locale with lang directive', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':lang{locale=fr-FR}' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(i18next.language).toBe('fr-FR')
+    })
+  })
+
+  it('retrieves translations with t directive', async () => {
+    i18next.addResource('en-US', 'translation', 'hello', 'Hello')
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':t{key=hello}' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    const text = await screen.findByText('Hello')
+    expect(text).toBeInTheDocument()
+  })
+
+  it('handles pluralization with t directive', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            ':translations{apple_one="1 apple" apple_other="{{count}} apples"}'
+        },
+        { type: 'text', value: ':t{key=apple count=2}' }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    const text = await screen.findByText('2 apples')
+    expect(text).toBeInTheDocument()
+  })
+
+  it('resolves translations inside links', async () => {
+    const start: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        { type: 'text', value: ':translations{next="Next"}' },
+        { type: 'text', value: '[[:t{key=next}->Next]]' }
+      ]
+    }
+    const next: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '2', name: 'Next' },
+      children: []
+    }
+
+    useStoryDataStore.setState({
+      passages: [start, next],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    const button = await screen.findByRole('button', { name: 'Next' })
+    button.click()
+    expect(useStoryDataStore.getState().currentPassageId).toBe('Next')
+  })
+
+  it('creates namespaces from translations directive', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        { type: 'text', value: ':translations{ns=ui goodbye="Au revoir"}' },
+        { type: 'text', value: ':t{key=goodbye ns=ui}' }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    const text = await screen.findByText('Au revoir')
+    expect(text).toBeInTheDocument()
+    expect(i18next.hasResourceBundle('en-US', 'ui')).toBe(true)
+  })
+})
