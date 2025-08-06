@@ -680,17 +680,16 @@ export const useDirectiveHandlers = () => {
         }
       }
     }
-    let idx = 1
-    while (
-      idx < children.length &&
-      children[idx].type !== 'containerDirective'
-    ) {
-      idx++
-    }
-    const content = JSON.stringify(stripLabel(children.slice(0, idx)))
-    const next = children[idx] as ContainerDirective | undefined
+    const elseIndex = children.findIndex(
+      child =>
+        child.type === 'containerDirective' &&
+        (child as ContainerDirective).name === 'else'
+    )
+    const main = elseIndex === -1 ? children : children.slice(0, elseIndex)
+    const content = JSON.stringify(stripLabel(main))
     let fallback: string | undefined
-    if (next && next.name === 'else') {
+    if (elseIndex !== -1) {
+      const next = children[elseIndex] as ContainerDirective
       fallback = JSON.stringify(stripLabel(next.children as RootContent[]))
     }
     const node: Parent = {
