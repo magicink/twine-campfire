@@ -144,4 +144,24 @@ not open
     await waitFor(() => expect(screen.queryByText('not open')).toBeNull())
     expect(screen.queryByText(':::if{!open}')).toBeNull()
   })
+
+  it('does not render ::: when if has no else', async () => {
+    document.body.innerHTML = `
+<tw-storydata name="Story" startnode="1">
+  <tw-passagedata pid="1" name="Start">:::set{key=open value=true}
+:::
+
+:::if{open}
+:::set{key=done value=true}
+:::
+:::
+  </tw-passagedata>
+</tw-storydata>
+    `
+    render(<Story />)
+    await waitFor(() =>
+      expect(useGameStore.getState().gameData.done).toBe('true')
+    )
+    expect(screen.queryByText(':::')).toBeNull()
+  })
 })

@@ -643,6 +643,14 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
+   * Determines whether the provided node is a Markdown text node.
+   *
+   * @param node - The AST node to check.
+   * @returns Whether the node is an `MdText` node.
+   */
+  const isTextNode = (node: RootContent): node is MdText => node.type === 'text'
+
+  /**
    * Serializes `:::if` directive blocks into `<if>` components that
    * evaluate a test expression against game data and render optional
    * fallback content when the expression is falsy.
@@ -693,6 +701,18 @@ export const useDirectiveHandlers = () => {
       }
     }
     parent.children.splice(index, 1, node as RootContent)
+    if (elseIndex === -1) {
+      const next = parent.children[index + 1]
+      if (
+        next &&
+        next.type === 'paragraph' &&
+        next.children.length === 1 &&
+        isTextNode(next.children[0]) &&
+        next.children[0].value.trim() === ':::'
+      ) {
+        parent.children.splice(index + 1, 1)
+      }
+    }
     return [SKIP, index]
   }
 
