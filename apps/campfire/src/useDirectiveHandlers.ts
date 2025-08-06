@@ -69,8 +69,6 @@ export const useDirectiveHandlers = () => {
   const getPassageById = useStoryDataStore(state => state.getPassageById)
   const getPassageByName = useStoryDataStore(state => state.getPassageByName)
   const handlersRef = useRef<Record<string, DirectiveHandler>>({})
-  const exitHandlers = useRef<RootContent[][]>([])
-  const changeSubscriptions = useRef<Array<() => void>>([])
   const storeCheckpoints = useGameStore(state => state.checkpoints)
   const checkpointIdRef = useRef<string | null>(null)
   const checkpointErrorRef = useRef(false)
@@ -102,14 +100,6 @@ export const useDirectiveHandlers = () => {
   }
 
   useEffect(() => {
-    for (const nodes of exitHandlers.current) {
-      runBlock(nodes)
-    }
-    exitHandlers.current = []
-    for (const fn of changeSubscriptions.current) {
-      fn()
-    }
-    changeSubscriptions.current = []
     resetCheckpointState()
   }, [currentPassageId])
 
@@ -725,39 +715,6 @@ export const useDirectiveHandlers = () => {
     parent.children.splice(index, 1, ...content)
     return [SKIP, index]
   }
-
-  const handleOnEnter: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
-    const container = directive as ContainerDirective
-    const content = stripLabel(container.children as RootContent[])
-    runBlock(content)
-    return removeNode(parent, index)
-  }
-
-  const handleOnExit: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
-    const container = directive as ContainerDirective
-    const content = stripLabel(container.children as RootContent[])
-    exitHandlers.current.push(content)
-    return removeNode(parent, index)
-  }
-
-  const handleOnChange: DirectiveHandler = (directive, parent, index) => {
-    const attrs = (directive.attributes || {}) as Record<string, unknown>
-    const key = ensureKey(attrs.key, parent, index)
-    if (!key) return index
-    const container = directive as ContainerDirective
-    const content = stripLabel(container.children as RootContent[])
-    const unsub = useGameStore.subscribe(
-      state => (state.gameData as Record<string, unknown>)[key],
-      () => {
-        runBlock(content)
-      }
-    )
-    changeSubscriptions.current.push(unsub)
-    return removeNode(parent, index)
-  }
-
   const handleBatch: DirectiveHandler = (directive, parent, index) => {
     if (!parent || typeof index !== 'number') return
     const container = directive as ContainerDirective
@@ -1239,9 +1196,6 @@ export const useDirectiveHandlers = () => {
       unset: handleUnset,
       if: handleIf,
       once: handleOnce,
-      onEnter: handleOnEnter,
-      onExit: handleOnExit,
-      onChange: handleOnChange,
       batch: handleBatch,
       trigger: handleTrigger,
       lang: handleLang,

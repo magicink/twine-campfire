@@ -313,32 +313,6 @@ Run directives on specific passage events or group actions.
 
   Replace the label, classes, disabled state, and directives as needed.
 
-- `onChange`: Trigger when a key changes.
-
-  ```md
-  :::onChange{key=HP}
-  CONTENT
-  :::
-  ```
-
-  Replace `HP` with the key to watch.
-
-- `onEnter`: Run when a passage loads.
-
-  ```md
-  :::onEnter
-  CONTENT
-  :::
-  ```
-
-- `onExit`: Run when leaving a passage.
-
-  ```md
-  :::onExit
-  CONTENT
-  :::
-  ```
-
 ### Navigation & composition
 
 Control the flow between passages or how they appear.
