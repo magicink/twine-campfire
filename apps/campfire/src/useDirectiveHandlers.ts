@@ -693,6 +693,18 @@ export const useDirectiveHandlers = () => {
       }
     }
     parent.children.splice(index, 1, node as RootContent)
+    if (elseIndex === -1) {
+      const next = parent.children[index + 1]
+      if (
+        next &&
+        next.type === 'paragraph' &&
+        next.children.length === 1 &&
+        next.children[0].type === 'text' &&
+        (next.children[0] as MdText).value.trim() === ':::'
+      ) {
+        parent.children.splice(index + 1, 1)
+      }
+    }
     return [SKIP, index]
   }
 
