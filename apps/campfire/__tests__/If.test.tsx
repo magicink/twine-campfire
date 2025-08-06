@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { render, screen } from '@testing-library/react'
+import { render, screen, act, waitFor } from '@testing-library/react'
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
@@ -118,5 +118,19 @@ describe('If', () => {
     expect(screen.getByText('Start')).toBeInTheDocument()
     expect(screen.getByText('HP!')).toBeInTheDocument()
     expect(useGameStore.getState().gameData.hp).toBe('2')
+  })
+
+  it('executes trigger directives', async () => {
+    const content = makeMixedContent(
+      ':::trigger{label="Fire"}\n:::set{key=fired value=true}\n:::\n:::'
+    )
+    render(<If test='true' content={content} />)
+    const button = await screen.findByRole('button', { name: 'Fire' })
+    act(() => {
+      button.click()
+    })
+    await waitFor(() => {
+      expect(useGameStore.getState().gameData.fired).toBe('true')
+    })
   })
 })
