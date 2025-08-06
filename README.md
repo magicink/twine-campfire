@@ -229,6 +229,14 @@ Read or compute data without mutating state.
   Replace `RESULT` with the key to store and `HP`/`VALUE` with numbers or
   keys.
 
+- `show`: Display a key's value.
+
+  ```md
+  :show{key=hp}
+  ```
+
+  Replace `hp` with the key to display.
+
 ### Conditional logic
 
 Run content only when conditions hold.
