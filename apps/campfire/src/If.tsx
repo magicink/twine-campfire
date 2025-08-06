@@ -11,6 +11,7 @@ import { useGameStore } from '@/packages/use-game-store'
 import { useDirectiveHandlers } from './useDirectiveHandlers'
 import { LinkButton } from './LinkButton'
 import { TriggerButton } from './TriggerButton'
+import { Show } from './Show'
 
 interface IfProps {
   test: string
@@ -37,7 +38,12 @@ export const If = ({ test, content, fallback }: IfProps) => {
           jsxs: runtime.jsxs,
           jsxDEV,
           development: process.env.NODE_ENV === 'development',
-          components: { button: LinkButton, trigger: TriggerButton, if: If }
+          components: {
+            button: LinkButton,
+            trigger: TriggerButton,
+            if: If,
+            show: Show
+          }
         }),
     [handlers]
   )
