@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.32.1](https://github.com/magicink/twine-campfire/compare/v1.32.0...v1.32.1) (2025-08-06)
+
+
+### Bug Fixes
+
+* remove stray ::: after lone if directive ([#147](https://github.com/magicink/twine-campfire/issues/147)) ([7e1fa9f](https://github.com/magicink/twine-campfire/commit/7e1fa9f8d6312df1808659a66f534f6a34f24ce4))
+
 ## [1.32.0](https://github.com/magicink/twine-campfire/compare/v1.31.5...v1.32.0) (2025-08-06)
 
 
