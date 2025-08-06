@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.31.5](https://github.com/magicink/twine-campfire/compare/v1.31.4...v1.31.5) (2025-08-06)
+
+
+### Bug Fixes
+
+* **story:** support triggers in if directives ([#143](https://github.com/magicink/twine-campfire/issues/143)) ([eaa4fb1](https://github.com/magicink/twine-campfire/commit/eaa4fb1f0f0bf976fc75fa2709472fab87e28df3))
+
 ## [1.31.4](https://github.com/magicink/twine-campfire/compare/v1.31.3...v1.31.4) (2025-08-06)
 
 
