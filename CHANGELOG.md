@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.30.1](https://github.com/magicink/twine-campfire/compare/v1.30.0...v1.30.1) (2025-08-06)
+
+
+### Bug Fixes
+
+* **show:** display range values correctly ([#128](https://github.com/magicink/twine-campfire/issues/128)) ([3d496be](https://github.com/magicink/twine-campfire/commit/3d496be7fc2f224c2972c8feaab06b2a53f4ab12))
+
 ## [1.30.0](https://github.com/magicink/twine-campfire/compare/v1.29.0...v1.30.0) (2025-08-06)
 
 
