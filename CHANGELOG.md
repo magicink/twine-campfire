@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.27.0](https://github.com/magicink/twine-campfire/compare/v1.26.0...v1.27.0) (2025-08-06)
+
+
+### Features
+
+* remove get directive ([#120](https://github.com/magicink/twine-campfire/issues/120)) ([06f72a9](https://github.com/magicink/twine-campfire/commit/06f72a98652d15fad7f5cbdd42ccd551a9c1467b))
+
 ## [1.26.0](https://github.com/magicink/twine-campfire/compare/v1.25.4...v1.26.0) (2025-08-05)
 
 
