@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.32.0](https://github.com/magicink/twine-campfire/compare/v1.31.5...v1.32.0) (2025-08-06)
+
+
+### Features
+
+* remove onEnter, onExit, and onChange directives ([#145](https://github.com/magicink/twine-campfire/issues/145)) ([40b16c8](https://github.com/magicink/twine-campfire/commit/40b16c860d20a9100d090bf205991ec61cb7ab12))
+
 ## [1.31.5](https://github.com/magicink/twine-campfire/compare/v1.31.4...v1.31.5) (2025-08-06)
 
 ### Bug Fixes
