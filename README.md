@@ -52,6 +52,11 @@ Examples:
   <https://twine-campfire.dev>
   ```
 
+- **Heading**
+
+  Markdown heading syntax (`#`, `##`, etc.) is not currently supported, so
+  lines starting with `#` will render as plain text.
+
 ## Directives
 
 Campfire extends Markdown with
@@ -98,13 +103,14 @@ Operations that set, update or remove scalar values.
 
   Replace `HP` with the key and `MIN`/`MAX` with bounds.
 
-- `range`: Set a random integer within a range.
+- `set[range]`: Initialize a key with a numeric range.
 
   ```md
-  :range{key=HP start=MIN end=MAX}
+  :set[range]{key=HP min=MIN max=MAX value=VALUE}
   ```
 
-  Replace `HP` with the key and `MIN`/`MAX` with bounds.
+  Replace `HP` with the key, `MIN`/`MAX` with bounds and `VALUE` with the
+  starting number (defaults to `MIN`).
 
 - `set`: Assign a value to a key.
 
@@ -352,7 +358,8 @@ Control the flow between passages or how they appear.
   :include{passage=PASSAGE-NAME}
   ```
 
-  Replace `PASSAGE-NAME` with the passage to include.
+  Replace `PASSAGE-NAME` with the passage to include. Nested includes are
+  limited to 10 levels to prevent infinite loops.
 
 - `title`: Set the document title.
 
