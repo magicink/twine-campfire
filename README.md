@@ -232,7 +232,7 @@ Read or compute data without mutating state.
 - `show`: Display a key's value.
 
   ```md
-  :show[hp]
+  :show{key=hp}
   ```
 
   Replace `hp` with the key to display.

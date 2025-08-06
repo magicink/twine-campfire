@@ -371,12 +371,7 @@ export const useDirectiveHandlers = () => {
    */
   const handleShow: DirectiveHandler = (directive, parent, index) => {
     const attrs = directive.attributes || {}
-    const key = ensureKey(
-      (attrs as Record<string, unknown>).key ??
-        (toString(directive).trim() || Object.keys(attrs)[0]),
-      parent,
-      index
-    )
+    const key = ensureKey((attrs as Record<string, unknown>).key, parent, index)
     if (!key) return index
     const node: MdText = {
       type: 'text',

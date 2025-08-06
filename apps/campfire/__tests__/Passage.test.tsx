@@ -906,7 +906,7 @@ describe('Passage', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: 'HP: :show[hp]' }]
+      children: [{ type: 'text', value: 'HP: :show{key=hp}' }]
     }
 
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
