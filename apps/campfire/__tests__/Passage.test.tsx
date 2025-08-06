@@ -288,7 +288,7 @@ describe('Passage', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '2', name: 'Second' },
-      children: [{ type: 'text', value: ':set{visited=true}' }]
+      children: [{ type: 'text', value: ':::set{key=visited value=true}\n:::' }]
     }
 
     useStoryDataStore.setState({
@@ -341,7 +341,7 @@ describe('Passage', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':set[number]{hp=5}' }]
+      children: [{ type: 'text', value: ':::set[number]{key=hp value=5}\n:::' }]
     }
 
     useStoryDataStore.setState({
@@ -363,7 +363,12 @@ describe('Passage', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':set[number]{hp=5}\n\nHello' }]
+      children: [
+        {
+          type: 'text',
+          value: ':::set[number]{key=hp value=5}\n:::\n\nHello'
+        }
+      ]
     }
 
     useStoryDataStore.setState({
@@ -398,7 +403,7 @@ describe('Passage', () => {
         {
           type: 'text',
           value:
-            ':::batch\\n:setOnce[boolean]{visited=true}\\n:increment{key=hp amount=2}\\n:push{key=items value=sword}\\n:unset{key=old}\\n:::\n'
+            ':::batch\\n:set[boolean]{key=visited value=true}\\n:increment{key=hp amount=2}\\n:push{key=items value=sword}\\n:unset{key=old}\\n:::\n'
         }
       ]
     }
@@ -417,7 +422,7 @@ describe('Passage', () => {
       expect(data.visited).toBe(true)
       expect('old' in data).toBe(false)
     })
-    expect(useGameStore.getState().lockedKeys.visited).toBe(true)
+    expect(useGameStore.getState().lockedKeys.visited).toBeUndefined()
     expect(unsetCalls).toEqual(['old'])
     useGameStore.setState({ unsetGameData: origUnset })
   })
@@ -426,7 +431,12 @@ describe('Passage', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':setOnce[number]{gold=10}' }]
+      children: [
+        {
+          type: 'text',
+          value: ':setOnce[number]{key=gold value=10}'
+        }
+      ]
     }
 
     useStoryDataStore.setState({
@@ -977,7 +987,10 @@ describe('Passage', () => {
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
       children: [
-        { type: 'text', value: ':set[range]{key=hp min=0 max=10 value=5}' }
+        {
+          type: 'text',
+          value: ':set[range]{key=hp min=0 max=10 value=5}'
+        }
       ]
     }
 
@@ -1150,7 +1163,7 @@ describe('Passage', () => {
         {
           type: 'text',
           value:
-            ':::onEnter\n:set{entered=true}\n:::\n:::onExit\n:set{exited=true}\n:::\n[[Next]]'
+            ':::onEnter\n:::set{key=entered value=true}\n:::\n:::onExit\n:::set{key=exited value=true}\n:::\n[[Next]]'
         }
       ]
     }
@@ -1190,7 +1203,8 @@ describe('Passage', () => {
       children: [
         {
           type: 'text',
-          value: ':::onChange{key=hp}\n:set{changed=true}\n:::\n'
+          value:
+            ':::onChange{key=hp}\n:::set{key=changed value=true}\n:::\n:::\n'
         }
       ]
     }
@@ -1235,14 +1249,22 @@ describe('Passage', () => {
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
       children: [
-        { type: 'text', value: ':set[number]{hp=5}:checkpoint{id=cp1}' }
+        {
+          type: 'text',
+          value: ':::set[number]{key=hp value=5}\n:::\n:checkpoint{id=cp1}'
+        }
       ]
     }
     const second: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '2', name: 'Second' },
-      children: [{ type: 'text', value: ':set[number]{hp=1}:restore{id=cp1}' }]
+      children: [
+        {
+          type: 'text',
+          value: ':::set[number]{key=hp value=1}\n:::\n:restore{id=cp1}'
+        }
+      ]
     }
 
     useStoryDataStore.setState({
@@ -1295,7 +1317,8 @@ describe('Passage', () => {
       children: [
         {
           type: 'text',
-          value: ':set[number]{hp=2}:checkpoint{id=cp1}:include[Second]'
+          value:
+            ':::set[number]{key=hp value=2}\n:::\n:checkpoint{id=cp1}:include[Second]'
         }
       ]
     }
@@ -1306,7 +1329,8 @@ describe('Passage', () => {
       children: [
         {
           type: 'text',
-          value: ':set[number]{hp=1}:restore{id=cp1}:checkpoint{id=cp2}'
+          value:
+            ':::set[number]{key=hp value=1}\n:::\n:restore{id=cp1}:checkpoint{id=cp2}'
         }
       ]
     }
@@ -1339,7 +1363,8 @@ describe('Passage', () => {
       children: [
         {
           type: 'text',
-          value: ':checkpoint{id=cp1}:set[number]{hp=1}:checkpoint{id=cp2}'
+          value:
+            ':checkpoint{id=cp1}:::set[number]{key=hp value=1}\n:::\n:checkpoint{id=cp2}'
         }
       ]
     }
@@ -1367,7 +1392,8 @@ describe('Passage', () => {
       children: [
         {
           type: 'text',
-          value: ':set[number]{hp=5}:checkpoint{id=cp1}:save{key=slot1}'
+          value:
+            ':::set[number]{key=hp value=5}\n:::\n:checkpoint{id=cp1}:save{key=slot1}'
         }
       ]
     }
@@ -1590,7 +1616,8 @@ describe('Passage', () => {
       children: [
         {
           type: 'text',
-          value: ':::trigger{label="Fire" class="extra"}\n:set{fired=true}\n:::'
+          value:
+            ':::trigger{label="Fire" class="extra"}\n:::set{key=fired value=true}\n:::\n:::'
         }
       ]
     }
@@ -1615,7 +1642,8 @@ describe('Passage', () => {
       children: [
         {
           type: 'text',
-          value: ':::trigger{label="Stop" disabled}\n:set{stopped=true}\n:::'
+          value:
+            ':::trigger{label="Stop" disabled}\n:::set{key=stopped value=true}\n:::\n:::'
         }
       ]
     }
@@ -1639,7 +1667,8 @@ describe('Passage', () => {
       children: [
         {
           type: 'text',
-          value: ':::trigger{label="Go" disabled=false}\n:set{go=true}\n:::'
+          value:
+            ':::trigger{label="Go" disabled=false}\n:::set{key=go value=true}\n:::\n:::'
         }
       ]
     }

@@ -105,9 +105,10 @@ describe('If', () => {
   })
 
   it('mixes content and directives', () => {
-    const content = makeMixedContent('Start :set{hp=2} HP!')
+    const content = makeMixedContent('Start\n:::set{key=hp value=2}\n:::\nHP!')
     render(<If test='true' content={content} />)
-    expect(screen.getByText(/Start\s+HP!/)).toBeInTheDocument()
+    expect(screen.getByText('Start')).toBeInTheDocument()
+    expect(screen.getByText('HP!')).toBeInTheDocument()
     expect(useGameStore.getState().gameData.hp).toBe('2')
   })
 })

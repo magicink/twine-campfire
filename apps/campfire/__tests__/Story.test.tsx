@@ -76,10 +76,11 @@ describe('Story', () => {
   it('renders content based on if directives', async () => {
     document.body.innerHTML = `
 <tw-storydata name="Story" startnode="1">
-  <tw-passagedata pid="1" name="Start">:set[boolean]{open=true}
+  <tw-passagedata pid="1" name="Start">:::set[boolean]{key=open value=true}
+:::
 
 :::trigger{label="open"}
-:set[boolean]{open=false}
+:::set[boolean]{key=open value=false}
 :::
 
 :::if{!open}
@@ -105,7 +106,8 @@ is open!
   it('parses if directives after blank lines', async () => {
     document.body.innerHTML = `
 <tw-storydata name="Story" startnode="1">
-  <tw-passagedata pid="1" name="Start">:set[boolean]{open=true}
+  <tw-passagedata pid="1" name="Start">:::set[boolean]{key=open value=true}
+:::
 
 :::if{!open}
 not open
