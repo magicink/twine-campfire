@@ -2,122 +2,105 @@
 
 ## [1.31.5](https://github.com/magicink/twine-campfire/compare/v1.31.4...v1.31.5) (2025-08-06)
 
-
 ### Bug Fixes
 
-* **story:** support triggers in if directives ([#143](https://github.com/magicink/twine-campfire/issues/143)) ([eaa4fb1](https://github.com/magicink/twine-campfire/commit/eaa4fb1f0f0bf976fc75fa2709472fab87e28df3))
+- **story:** support triggers in if directives ([#143](https://github.com/magicink/twine-campfire/issues/143)) ([eaa4fb1](https://github.com/magicink/twine-campfire/commit/eaa4fb1f0f0bf976fc75fa2709472fab87e28df3))
 
 ## [1.31.4](https://github.com/magicink/twine-campfire/compare/v1.31.3...v1.31.4) (2025-08-06)
 
-
 ### Bug Fixes
 
-* rename jsxDEV import ([8038ca6](https://github.com/magicink/twine-campfire/commit/8038ca6e3e401193913231a03077ceeba96cc2bb))
+- rename jsxDEV import ([8038ca6](https://github.com/magicink/twine-campfire/commit/8038ca6e3e401193913231a03077ceeba96cc2bb))
 
 ## [1.31.3](https://github.com/magicink/twine-campfire/compare/v1.31.2...v1.31.3) (2025-08-06)
 
-
 ### Bug Fixes
 
-* render trigger directives in If component ([#139](https://github.com/magicink/twine-campfire/issues/139)) ([1dbab1b](https://github.com/magicink/twine-campfire/commit/1dbab1bdd76953104299ab95054fec1c45c51480))
+- render trigger directives in If component ([#139](https://github.com/magicink/twine-campfire/issues/139)) ([1dbab1b](https://github.com/magicink/twine-campfire/commit/1dbab1bdd76953104299ab95054fec1c45c51480))
 
 ## [1.31.2](https://github.com/magicink/twine-campfire/compare/v1.31.1...v1.31.2) (2025-08-06)
 
-
 ### Bug Fixes
 
-* **campfire:** render If directive tree directly ([#136](https://github.com/magicink/twine-campfire/issues/136)) ([5cba79b](https://github.com/magicink/twine-campfire/commit/5cba79b6582bb1e72dc109ec9519f8f43468c6bd))
+- **campfire:** render If directive tree directly ([#136](https://github.com/magicink/twine-campfire/issues/136)) ([5cba79b](https://github.com/magicink/twine-campfire/commit/5cba79b6582bb1e72dc109ec9519f8f43468c6bd))
 
 ## [1.31.1](https://github.com/magicink/twine-campfire/compare/v1.31.0...v1.31.1) (2025-08-06)
 
-
 ### Bug Fixes
 
-* **math:** require key and remove result output ([#132](https://github.com/magicink/twine-campfire/issues/132)) ([6832acf](https://github.com/magicink/twine-campfire/commit/6832acff5a037b71b7d53984acaea376aeb60491))
+- **math:** require key and remove result output ([#132](https://github.com/magicink/twine-campfire/issues/132)) ([6832acf](https://github.com/magicink/twine-campfire/commit/6832acff5a037b71b7d53984acaea376aeb60491))
 
 ## [1.31.0](https://github.com/magicink/twine-campfire/compare/v1.30.1...v1.31.0) (2025-08-06)
 
-
 ### Features
 
-* remove increment and decrement directives ([#130](https://github.com/magicink/twine-campfire/issues/130)) ([a3e0feb](https://github.com/magicink/twine-campfire/commit/a3e0feb11859ae60d6cc03af939f2051976d8517))
+- remove increment and decrement directives ([#130](https://github.com/magicink/twine-campfire/issues/130)) ([a3e0feb](https://github.com/magicink/twine-campfire/commit/a3e0feb11859ae60d6cc03af939f2051976d8517))
 
 ## [1.30.1](https://github.com/magicink/twine-campfire/compare/v1.30.0...v1.30.1) (2025-08-06)
 
-
 ### Bug Fixes
 
-* **show:** display range values correctly ([#128](https://github.com/magicink/twine-campfire/issues/128)) ([3d496be](https://github.com/magicink/twine-campfire/commit/3d496be7fc2f224c2972c8feaab06b2a53f4ab12))
+- **show:** display range values correctly ([#128](https://github.com/magicink/twine-campfire/issues/128)) ([3d496be](https://github.com/magicink/twine-campfire/commit/3d496be7fc2f224c2972c8feaab06b2a53f4ab12))
 
 ## [1.30.0](https://github.com/magicink/twine-campfire/compare/v1.29.0...v1.30.0) (2025-08-06)
 
-
 ### Features
 
-* normalize set directive syntax ([#126](https://github.com/magicink/twine-campfire/issues/126)) ([1127c4b](https://github.com/magicink/twine-campfire/commit/1127c4bb4a772ff0538189ca5c5493a8ce2c8311))
+- normalize set directive syntax ([#126](https://github.com/magicink/twine-campfire/issues/126)) ([1127c4b](https://github.com/magicink/twine-campfire/commit/1127c4bb4a772ff0538189ca5c5493a8ce2c8311))
 
 ## [1.29.0](https://github.com/magicink/twine-campfire/compare/v1.28.0...v1.29.0) (2025-08-06)
 
-
 ### Features
 
-* add show directive ([#124](https://github.com/magicink/twine-campfire/issues/124)) ([3a1bbf5](https://github.com/magicink/twine-campfire/commit/3a1bbf5a0367d0541836f1fe999f811eff050d60))
+- add show directive ([#124](https://github.com/magicink/twine-campfire/issues/124)) ([3a1bbf5](https://github.com/magicink/twine-campfire/commit/3a1bbf5a0367d0541836f1fe999f811eff050d60))
 
 ## [1.28.0](https://github.com/magicink/twine-campfire/compare/v1.27.0...v1.28.0) (2025-08-06)
 
-
 ### Features
 
-* add Show component to display game data ([#122](https://github.com/magicink/twine-campfire/issues/122)) ([6705eab](https://github.com/magicink/twine-campfire/commit/6705eab30365ad7d8f19ffc39e273c9d87109939))
+- add Show component to display game data ([#122](https://github.com/magicink/twine-campfire/issues/122)) ([6705eab](https://github.com/magicink/twine-campfire/commit/6705eab30365ad7d8f19ffc39e273c9d87109939))
 
 ## [1.27.0](https://github.com/magicink/twine-campfire/compare/v1.26.0...v1.27.0) (2025-08-06)
 
-
 ### Features
 
-* remove get directive ([#120](https://github.com/magicink/twine-campfire/issues/120)) ([06f72a9](https://github.com/magicink/twine-campfire/commit/06f72a98652d15fad7f5cbdd42ccd551a9c1467b))
+- remove get directive ([#120](https://github.com/magicink/twine-campfire/issues/120)) ([06f72a9](https://github.com/magicink/twine-campfire/commit/06f72a98652d15fad7f5cbdd42ccd551a9c1467b))
 
 ## [1.26.0](https://github.com/magicink/twine-campfire/compare/v1.25.4...v1.26.0) (2025-08-05)
 
-
 ### Features
 
-* **campfire:** add copy button to passage debug tab ([#117](https://github.com/magicink/twine-campfire/issues/117)) ([0ea109b](https://github.com/magicink/twine-campfire/commit/0ea109b0f04f8618eea56bf6594946125127c0ba))
+- **campfire:** add copy button to passage debug tab ([#117](https://github.com/magicink/twine-campfire/issues/117)) ([0ea109b](https://github.com/magicink/twine-campfire/commit/0ea109b0f04f8618eea56bf6594946125127c0ba))
 
 ## [1.25.4](https://github.com/magicink/twine-campfire/compare/v1.25.3...v1.25.4) (2025-08-05)
 
-
 ### Bug Fixes
 
-* if directives do not render ([#115](https://github.com/magicink/twine-campfire/issues/115)) ([37a1910](https://github.com/magicink/twine-campfire/commit/37a191025154be229eb11ebb0946f74c16c249a1))
+- if directives do not render ([#115](https://github.com/magicink/twine-campfire/issues/115)) ([37a1910](https://github.com/magicink/twine-campfire/commit/37a191025154be229eb11ebb0946f74c16c249a1))
 
 ## [1.25.3](https://github.com/magicink/twine-campfire/compare/v1.25.2...v1.25.3) (2025-08-05)
 
-
 ### Bug Fixes
 
-* support complex if expressions ([#113](https://github.com/magicink/twine-campfire/issues/113)) ([8e0f866](https://github.com/magicink/twine-campfire/commit/8e0f86603c278e8cf2c001741a4f6807bb55101b))
+- support complex if expressions ([#113](https://github.com/magicink/twine-campfire/issues/113)) ([8e0f866](https://github.com/magicink/twine-campfire/commit/8e0f86603c278e8cf2c001741a4f6807bb55101b))
 
 ## [1.25.2](https://github.com/magicink/twine-campfire/compare/v1.25.1...v1.25.2) (2025-08-05)
 
-
 ### Bug Fixes
 
-* parse if directives after break conversion ([#111](https://github.com/magicink/twine-campfire/issues/111)) ([9ac0ad7](https://github.com/magicink/twine-campfire/commit/9ac0ad7be21d602c83b677cb9294441263465377))
+- parse if directives after break conversion ([#111](https://github.com/magicink/twine-campfire/issues/111)) ([9ac0ad7](https://github.com/magicink/twine-campfire/commit/9ac0ad7be21d602c83b677cb9294441263465377))
 
 ## [1.25.1](https://github.com/magicink/twine-campfire/compare/v1.25.0...v1.25.1) (2025-08-05)
 
-
 ### Bug Fixes
 
-* **passage:** preserve line breaks ([#109](https://github.com/magicink/twine-campfire/issues/109)) ([97e79de](https://github.com/magicink/twine-campfire/commit/97e79de4ad356b6e64954d04ff14ca26b28bd120))
+- **passage:** preserve line breaks ([#109](https://github.com/magicink/twine-campfire/issues/109)) ([97e79de](https://github.com/magicink/twine-campfire/commit/97e79de4ad356b6e64954d04ff14ca26b28bd120))
 
 ## [1.25.0](https://github.com/magicink/twine-campfire/compare/v1.24.1...v1.25.0) (2025-08-05)
 
-
 ### Features
 
-* **campfire:** add if directive ([#107](https://github.com/magicink/twine-campfire/issues/107)) ([961ca93](https://github.com/magicink/twine-campfire/commit/961ca93cfd0e01fb1a727f0cf2a6c9d8c73ddb3c))
+- **campfire:** add if directive ([#107](https://github.com/magicink/twine-campfire/issues/107)) ([961ca93](https://github.com/magicink/twine-campfire/commit/961ca93cfd0e01fb1a727f0cf2a6c9d8c73ddb3c))
 
 ## [1.24.1](https://github.com/magicink/twine-campfire/compare/v1.24.0...v1.24.1) (2025-08-05)
 
@@ -235,10 +218,6 @@
 - enhance translations and range directive ([#62](https://github.com/magicink/twine-campfire/issues/62)) ([240edf5](https://github.com/magicink/twine-campfire/commit/240edf521e32ec1b72794d34f6fd658b1fb30847))
 
 ## [1.13.0](https://github.com/magicink/twine-campfire/compare/v1.12.0...v1.13.0) (2025-08-02)
-
-### Features
-
-- add onEnter, onExit, and onChange directives ([#60](https://github.com/magicink/twine-campfire/issues/60)) ([85d0680](https://github.com/magicink/twine-campfire/commit/85d0680aaf6376dfa5730056ddb7351e83a736a2))
 
 ## [1.12.0](https://github.com/magicink/twine-campfire/compare/v1.11.0...v1.12.0) (2025-08-02)
 

@@ -1,7 +1,7 @@
 import { visit } from 'unist-util-visit'
 import type { Root, Parent, Paragraph, Text } from 'mdast'
 import type { Node } from 'unist'
-import type { LeafDirective, ContainerDirective } from 'mdast-util-directive'
+import type { LeafDirective } from 'mdast-util-directive'
 import type { SKIP } from 'unist-util-visit'
 import type { DirectiveNode } from './helpers'
 
@@ -39,28 +39,6 @@ export interface LangDirective extends Omit<LeafDirective, 'attributes'> {
   attributes: LangAttributes
 }
 
-export interface OnEnterDirective
-  extends Omit<ContainerDirective, 'attributes'> {
-  name: 'onEnter'
-  attributes?: Record<string, never>
-}
-
-export interface OnExitDirective
-  extends Omit<ContainerDirective, 'attributes'> {
-  name: 'onExit'
-  attributes?: Record<string, never>
-}
-
-export interface OnChangeAttributes {
-  /** Game data key to watch */
-  key: string
-}
-
-export interface OnChangeDirective
-  extends Omit<ContainerDirective, 'attributes'> {
-  name: 'onChange'
-  attributes: OnChangeAttributes
-}
 const remarkCampfire =
   (options: RemarkCampfireOptions = {}) =>
   (tree: Root) => {
