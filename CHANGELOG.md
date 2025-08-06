@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.31.4](https://github.com/magicink/twine-campfire/compare/v1.31.3...v1.31.4) (2025-08-06)
+
+
+### Bug Fixes
+
+* rename jsxDEV import ([8038ca6](https://github.com/magicink/twine-campfire/commit/8038ca6e3e401193913231a03077ceeba96cc2bb))
+
 ## [1.31.3](https://github.com/magicink/twine-campfire/compare/v1.31.2...v1.31.3) (2025-08-06)
 
 
