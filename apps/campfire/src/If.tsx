@@ -6,7 +6,7 @@ import remarkGfm from 'remark-gfm'
 import remarkCampfire from '@/packages/remark-campfire'
 import remarkRehype from 'remark-rehype'
 import rehypeCampfire from '@/packages/rehype-campfire'
-import { toJsxRuntime } from 'hast-util-to-jsx-runtime'
+import rehypeReact from 'rehype-react'
 import type { RootContent, Root } from 'mdast'
 import { useGameStore } from '@/packages/use-game-store'
 import { useDirectiveHandlers } from './useDirectiveHandlers'
@@ -28,11 +28,29 @@ interface IfProps {
 export const If = ({ test, content, fallback }: IfProps) => {
   const handlers = useDirectiveHandlers()
   const processor = useMemo(() => {
-    return unified()
+    const proc = unified()
       .use(remarkGfm)
       .use(remarkCampfire, { handlers })
       .use(remarkRehype)
       .use(rehypeCampfire)
+      .use(rehypeReact, {
+        Fragment: runtime.Fragment,
+        jsx: runtime.jsx,
+        jsxs: runtime.jsxs,
+        jsxDEV,
+        development: process.env.NODE_ENV === 'development',
+        components: {
+          button: LinkButton,
+          trigger: TriggerButton,
+          if: If,
+          show: Show
+        }
+      })
+    proc.parser = (_doc: unknown, file: Root) => ({
+      type: file.type,
+      children: file.children
+    })
+    return proc
   }, [handlers])
   const gameData = useGameStore(state => state.gameData)
   let condition = false
@@ -52,18 +70,6 @@ export const If = ({ test, content, fallback }: IfProps) => {
   if (!source) return null
   const nodes: RootContent[] = JSON.parse(source)
   const root: Root = { type: 'root', children: nodes }
-  const tree = processor.runSync(root)
-  return toJsxRuntime(tree, {
-    Fragment: runtime.Fragment,
-    jsx: runtime.jsx,
-    jsxs: runtime.jsxs,
-    jsxDEV,
-    development: process.env.NODE_ENV === 'development',
-    components: {
-      button: LinkButton,
-      trigger: TriggerButton,
-      if: If,
-      show: Show
-    }
-  }) as ReactNode
+  const result = processor.processSync(root)
+  return result.result as ReactNode
 }
