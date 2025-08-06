@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.30.0](https://github.com/magicink/twine-campfire/compare/v1.29.0...v1.30.0) (2025-08-06)
+
+
+### Features
+
+* normalize set directive syntax ([#126](https://github.com/magicink/twine-campfire/issues/126)) ([1127c4b](https://github.com/magicink/twine-campfire/commit/1127c4bb4a772ff0538189ca5c5493a8ce2c8311))
+
 ## [1.29.0](https://github.com/magicink/twine-campfire/compare/v1.28.0...v1.29.0) (2025-08-06)
 
 
