@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.31.2](https://github.com/magicink/twine-campfire/compare/v1.31.1...v1.31.2) (2025-08-06)
+
+
+### Bug Fixes
+
+* **campfire:** render If directive tree directly ([#136](https://github.com/magicink/twine-campfire/issues/136)) ([5cba79b](https://github.com/magicink/twine-campfire/commit/5cba79b6582bb1e72dc109ec9519f8f43468c6bd))
+
 ## [1.31.1](https://github.com/magicink/twine-campfire/compare/v1.31.0...v1.31.1) (2025-08-06)
 
 
