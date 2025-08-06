@@ -13,7 +13,7 @@ interface ShowProps {
  * Updates automatically when the underlying data changes.
  */
 export const Show = (props: ShowProps) => {
-  const storeKey = props['data-key'] ?? (props as Record<string, unknown>).key
+  const storeKey = props['data-key'] ?? props.key
   const value = useGameStore(state => {
     if (!storeKey) return undefined
     return (state.gameData as Record<string, unknown>)[storeKey as string]
