@@ -897,6 +897,28 @@ describe('Passage', () => {
     expect(useGameStore.getState().gameData.hp).toBe(6)
   })
 
+  it('renders game data with show directive', async () => {
+    useGameStore.setState(state => ({
+      ...state,
+      gameData: { hp: 7 }
+    }))
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: 'HP: :show[hp]' }]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      const span = screen.getByText('7')
+      expect(span.closest('p')?.textContent?.replace(/\s+/g, '')).toBe('HP:7')
+    })
+  })
+
   it('increments values', async () => {
     useGameStore.setState(state => ({
       ...state,

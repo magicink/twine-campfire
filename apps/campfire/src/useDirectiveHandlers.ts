@@ -362,6 +362,36 @@ export const useDirectiveHandlers = () => {
     }
   }
 
+  /**
+   * Inserts a Show component that displays the value for the provided key.
+   *
+   * @param directive - The directive node representing the show directive.
+   * @param parent - The parent AST node containing this directive.
+   * @param index - The index of the directive node within its parent.
+   */
+  const handleShow: DirectiveHandler = (directive, parent, index) => {
+    const attrs = directive.attributes || {}
+    const key = ensureKey(
+      (attrs as Record<string, unknown>).key ??
+        (toString(directive).trim() || Object.keys(attrs)[0]),
+      parent,
+      index
+    )
+    if (!key) return index
+    const node: MdText = {
+      type: 'text',
+      value: '',
+      data: {
+        hName: 'show',
+        hProperties: { 'data-key': key }
+      }
+    }
+    if (parent && typeof index === 'number') {
+      parent.children.splice(index, 1, node)
+      return index
+    }
+  }
+
   const handleRandom: DirectiveHandler = (directive, parent, index) => {
     const attrs = directive.attributes || {}
     const key = ensureKey((attrs as Record<string, unknown>).key, parent, index)
@@ -1246,6 +1276,7 @@ export const useDirectiveHandlers = () => {
       ) => handleArray(d, p, i, true),
       defined: handleDefined,
       math: handleMath,
+      show: handleShow,
       random: handleRandom,
       pop: handlePop,
       push: handlePush,
