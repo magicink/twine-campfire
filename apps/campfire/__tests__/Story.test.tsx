@@ -103,13 +103,30 @@ is open!
     expect(screen.queryByText('is open!')).toBeNull()
   })
 
-  it.skip('executes trigger directives within if directives', async () => {
-    // TODO: implement test verifying trigger directives within if blocks
-    useStoryDataStore.setState({
-      passages: [samplePassage],
-      currentPassageId: '1'
-    })
+  it('renders trigger directives within if directives', async () => {
+    document.body.innerHTML = `
+<tw-storydata name="Story" startnode="1">
+  <tw-passagedata pid="1" name="Start">:::set[boolean]{key=open value=true}
+:::
+
+:::if{open}
+:::trigger{label="open"}
+:::set{key=clicked value=true}
+:::
+:::
+:::
+</tw-passagedata>
+</tw-storydata>
+    `
     render(<Story />)
+    const button = await screen.findByRole('button', { name: 'open' })
+    expect(button).toBeInTheDocument()
+    act(() => {
+      button.click()
+    })
+    await waitFor(() => {
+      expect(useGameStore.getState().gameData.clicked).toBe('true')
+    })
   })
 
   it('parses if directives after blank lines', async () => {
