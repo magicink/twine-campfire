@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, act } from '@testing-library/react'
 import i18next from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import type { Element } from 'hast'
@@ -135,5 +135,31 @@ describe('Passage i18n directives', () => {
     const text = await screen.findByText('Au revoir')
     expect(text).toBeInTheDocument()
     expect(i18next.hasResourceBundle('en-US', 'ui')).toBe(true)
+  })
+
+  it('updates translations when language changes', async () => {
+    i18next.addResource('en-US', 'translation', 'hello', 'Hello')
+    i18next.addResource('fr-FR', 'translation', 'hello', 'Bonjour')
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':t{key=hello}' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    expect(await screen.findByText('Hello')).toBeInTheDocument()
+
+    await act(async () => {
+      await i18next.changeLanguage('fr-FR')
+    })
+
+    expect(await screen.findByText('Bonjour')).toBeInTheDocument()
   })
 })

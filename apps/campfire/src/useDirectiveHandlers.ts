@@ -9,7 +9,7 @@ import remarkGfm from 'remark-gfm'
 import remarkDirective from 'remark-directive'
 import remarkCampfire from '@/packages/remark-campfire'
 import type { Text as MdText, Parent, RootContent, Root } from 'mdast'
-import type { Text as HastText, ElementContent } from 'hast'
+import type { Text as HastText, ElementContent, Properties } from 'hast'
 import type { ContainerDirective } from 'mdast-util-directive'
 import rfdc from 'rfdc'
 import deepEqual from 'fast-deep-equal'
@@ -29,6 +29,7 @@ import {
   getLabel,
   stripLabel
 } from './directives/helpers'
+import { getTranslationOptions } from './i18n'
 import type {
   DirectiveHandler,
   DirectiveHandlerResult
@@ -896,37 +897,52 @@ export const useDirectiveHandlers = () => {
     return removeNode(parent, index)
   }
 
+  /**
+   * Inserts a Show component that renders a translation for the provided key.
+   *
+   * @param directive - The `t` directive node being processed.
+   * @param parent - The parent AST node containing the directive.
+   * @param index - The index of the directive within its parent.
+   */
   const handleTranslate: DirectiveHandler = (directive, parent, index) => {
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const key =
       typeof attrs.key === 'string' ? attrs.key : toString(directive).trim()
     if (!key) return removeNode(parent, index)
-    const options: Record<string, unknown> = {}
-    if (typeof attrs.ns === 'string') options.ns = attrs.ns
-    if (attrs.count !== undefined) {
-      const n =
-        typeof attrs.count === 'number'
-          ? attrs.count
-          : parseFloat(String(attrs.count))
-      if (!Number.isNaN(n)) options.count = n
-    }
-    const text = i18next.t(key, options)
     if (parent && typeof index === 'number') {
-      parent.children.splice(index, 1, { type: 'text', value: text })
-      let idx = index
-      const prev = parent.children[idx - 1] as MdText | undefined
-      if (prev && prev.type === 'text') {
-        prev.value += (parent.children[idx] as MdText).value
-        parent.children.splice(idx, 1)
-        idx--
+      const prev = parent.children[index - 1] as MdText | undefined
+      const next = parent.children[index + 1] as MdText | undefined
+      const inLink =
+        prev?.type === 'text' &&
+        prev.value.endsWith('[[') &&
+        next?.type === 'text' &&
+        next.value.includes(']]')
+      const options = getTranslationOptions({
+        ns: attrs.ns,
+        count: attrs.count
+      })
+      if (inLink) {
+        const text = i18next.t(key, options)
+        if (prev && next) {
+          prev.value += text + next.value
+          parent.children.splice(index, 2)
+          return index - 1
+        }
+        parent.children.splice(index, 1, { type: 'text', value: text })
+        return index
       }
-      const next = parent.children[idx + 1] as MdText | undefined
-      if (next && next.type === 'text') {
-        ;(parent.children[idx] as MdText).value += next.value
-        parent.children.splice(idx + 1, 1)
+      const props: Properties = { 'data-i18n-key': key }
+      if (options.ns) props['data-i18n-ns'] = options.ns
+      if (options.count !== undefined) props['data-i18n-count'] = options.count
+      const node: MdText = {
+        type: 'text',
+        value: '0', // non-empty placeholder required for mdast conversion
+        data: { hName: 'show', hProperties: props }
       }
-      return idx
+      parent.children.splice(index, 1, node)
+      return index
     }
+    return index
   }
 
   const handleGoto: DirectiveHandler = (directive, parent, index) => {
