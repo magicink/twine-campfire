@@ -334,13 +334,15 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
-   * Evaluates a mathematical or JavaScript expression in the context of the current game data.
-   * Optionally stores the result in the game data state if a 'key' attribute is provided.
-   * Replaces the directive node in the AST with a text node containing the result.
+   * Evaluates a mathematical or JavaScript expression in the context of the current game data
+   * and stores the result under the provided key. The directive does not display any output.
    */
   const handleMath: DirectiveHandler = (directive, parent, index) => {
     const attrs = directive.attributes || {}
     const typedAttrs = attrs as Record<string, unknown>
+    const key = ensureKey(typedAttrs.key, parent, index)
+    if (!key) return index
+
     let expr = toString(directive).trim()
     if (!expr) {
       if (typeof typedAttrs.expr === 'string') {
@@ -360,22 +362,9 @@ export const useDirectiveHandlers = () => {
       value = ''
     }
 
-    const key =
-      typeof typedAttrs.key === 'string'
-        ? (typedAttrs.key as string)
-        : undefined
-    if (typeof key === 'string') {
-      setGameData({ [key]: value })
-    }
-
-    const textNode: MdText = {
-      type: 'text',
-      value: value == null ? '' : String(value)
-    }
-    if (parent && typeof index === 'number') {
-      parent.children.splice(index, 1, textNode)
-      return index
-    }
+    setGameData({ [key]: value })
+    gameData = { ...gameData, [key]: value }
+    return removeNode(parent, index)
   }
 
   /**
