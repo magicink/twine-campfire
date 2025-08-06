@@ -2,6 +2,14 @@
 
 A cozy story format for Twine.
 
+## Installation
+
+1. Visit the [Twine Campfire releases page](https://github.com/magicink/twine-campfire/releases) and open the latest release.
+2. Copy the URL of the `format.js` file listed under **Assets**.
+3. Start Twine and navigate to **Twine > Story Formats**.
+4. Click **Add**, paste the copied URL into the form, then confirm.
+5. To activate the format, open a story and choose **campfire 1.x.x** from the **Story Format** dropdown in **Story > Details**.
+
 ## Twine links
 
 Campfire recognizes Twine's `[[Link]]` syntax. The text inside becomes a
