@@ -1,4 +1,5 @@
 import { useGameStore } from '@/packages/use-game-store'
+import { isRange } from './directives/helpers'
 
 interface ShowProps {
   /** Game data key to display */
@@ -19,5 +20,6 @@ export const Show = (props: ShowProps) => {
     return (state.gameData as Record<string, unknown>)[storeKey]
   })
   if (value == null) return null
-  return <span>{String(value)}</span>
+  const displayValue = isRange(value) ? value.value : value
+  return <span>{String(displayValue)}</span>
 }

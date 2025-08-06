@@ -25,6 +25,14 @@ describe('Show', () => {
     expect(screen.getByText('5')).toBeInTheDocument()
   })
 
+  it('renders the value of range objects', () => {
+    useGameStore
+      .getState()
+      .setGameData({ hp: { lower: 0, upper: 10, value: 4 } })
+    render(<Show data-key='hp' />)
+    expect(screen.getByText('4')).toBeInTheDocument()
+  })
+
   it('updates when the value changes', () => {
     useGameStore.getState().setGameData({ hp: 3 })
     render(<Show data-key='hp' />)
