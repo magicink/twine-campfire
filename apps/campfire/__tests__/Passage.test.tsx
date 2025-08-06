@@ -394,7 +394,7 @@ describe('Passage', () => {
       }
     })
     useGameStore.getState().init({})
-    useGameStore.getState().setGameData({ hp: 1, items: [], old: true })
+    useGameStore.getState().setGameData({ items: [], old: true })
     const passage: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
@@ -403,7 +403,7 @@ describe('Passage', () => {
         {
           type: 'text',
           value:
-            ':::batch\\n:set[boolean]{key=visited value=true}\\n:increment{key=hp amount=2}\\n:push{key=items value=sword}\\n:unset{key=old}\\n:::\n'
+            ':::batch\\n:set[boolean]{key=visited value=true}\\n:push{key=items value=sword}\\n:unset{key=old}\\n:::\n'
         }
       ]
     }
@@ -417,7 +417,6 @@ describe('Passage', () => {
 
     await waitFor(() => {
       const data = useGameStore.getState().gameData as Record<string, unknown>
-      expect(data.hp).toBe(3)
       expect(data.items).toEqual(['sword'])
       expect(data.visited).toBe(true)
       expect('old' in data).toBe(false)
@@ -927,58 +926,6 @@ describe('Passage', () => {
       const span = screen.getByText('7')
       expect(span.closest('p')?.textContent?.replace(/\s+/g, '')).toBe('HP:7')
     })
-  })
-
-  it('increments values', async () => {
-    useGameStore.setState(state => ({
-      ...state,
-      gameData: { count: 1 }
-    }))
-    const passage: Element = {
-      type: 'element',
-      tagName: 'tw-passagedata',
-      properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':increment{key=count amount=2}' }]
-    }
-
-    useStoryDataStore.setState({
-      passages: [passage],
-      currentPassageId: '1'
-    })
-
-    render(<Passage />)
-
-    await waitFor(() =>
-      expect(
-        (useGameStore.getState().gameData as Record<string, unknown>).count
-      ).toBe(3)
-    )
-  })
-
-  it('decrements values', async () => {
-    useGameStore.setState(state => ({
-      ...state,
-      gameData: { count: 3 }
-    }))
-    const passage: Element = {
-      type: 'element',
-      tagName: 'tw-passagedata',
-      properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':decrement{key=count amount=1}' }]
-    }
-
-    useStoryDataStore.setState({
-      passages: [passage],
-      currentPassageId: '1'
-    })
-
-    render(<Passage />)
-
-    await waitFor(() =>
-      expect(
-        (useGameStore.getState().gameData as Record<string, unknown>).count
-      ).toBe(2)
-    )
   })
 
   it('creates range values with set[range]', async () => {

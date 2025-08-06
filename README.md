@@ -79,22 +79,6 @@ Directives are grouped by purpose.
 
 Operations that set, update or remove scalar values.
 
-- `decrement`: Decrease a numeric key.
-
-  ```md
-  :decrement{key=HP amount=VALUE}
-  ```
-
-  Replace `HP` with the key to change and `VALUE` with the amount.
-
-- `increment`: Increase a numeric key.
-
-  ```md
-  :increment{key=HP amount=VALUE}
-  ```
-
-  Replace `HP` with the key to change and `VALUE` with the amount.
-
 - `random`: Assign a random integer.
 
   ```md
@@ -303,7 +287,8 @@ Run directives on specific passage events or group actions.
   :::batch
   :::set{key=HP value=VALUE}
   :::
-  :increment{key=HP amount=VALUE}
+  :push{key=items value=sword}
+  :unset{key=old}
   :::
   ```
 

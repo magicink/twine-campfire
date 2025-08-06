@@ -649,53 +649,6 @@ export const useDirectiveHandlers = () => {
     return removeNode(parent, index)
   }
 
-  const handleIncrement = (
-    directive: DirectiveNode,
-    parent: Parent | undefined,
-    index: number | undefined,
-    sign = 1
-  ): DirectiveHandlerResult => {
-    const attrs = directive.attributes || {}
-    const key = ensureKey((attrs as Record<string, unknown>).key, parent, index)
-    if (!key) return index
-    const amountRaw = (attrs as Record<string, unknown>).amount
-
-    let amount: number = 1
-    if (typeof amountRaw === 'number') {
-      amount = amountRaw
-    } else if (typeof amountRaw === 'string') {
-      let evaluated: unknown = amountRaw
-      try {
-        const fn = compile(amountRaw)
-        evaluated = fn(gameData)
-      } catch {
-        // ignore
-      }
-      amount =
-        typeof evaluated === 'number'
-          ? evaluated
-          : parseNumericValue(evaluated, 1)
-    }
-
-    amount *= sign
-
-    const current = gameData[key]
-    if (isRange(current)) {
-      setGameData({
-        [key]: {
-          ...current,
-          value: clamp(current.value + amount, current.lower, current.upper)
-        }
-      })
-    } else {
-      const base = parseNumericValue(current, 0)
-      setGameData({ [key]: base + amount })
-    }
-
-    const removed = removeNode(parent, index)
-    if (typeof removed === 'number') return removed
-  }
-
   const handleUnset: DirectiveHandler = (directive, parent, index) => {
     const attrs = directive.attributes || {}
     const key = ensureKey(
@@ -1295,16 +1248,6 @@ export const useDirectiveHandlers = () => {
       unshift: handleUnshift,
       splice: handleSplice,
       concat: handleConcat,
-      increment: (
-        d: DirectiveNode,
-        p: Parent | undefined,
-        i: number | undefined
-      ) => handleIncrement(d, p, i, 1),
-      decrement: (
-        d: DirectiveNode,
-        p: Parent | undefined,
-        i: number | undefined
-      ) => handleIncrement(d, p, i, -1),
       unset: handleUnset,
       if: handleIf,
       once: handleOnce,
