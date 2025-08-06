@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'bun:test'
 import { render, screen } from '@testing-library/react'
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
+import remarkGfm from 'remark-gfm'
 import remarkDirective from 'remark-directive'
 import type { RootContent } from 'mdast'
 import { If } from '../src/If'
@@ -20,7 +21,7 @@ const makeContent = (text: string) =>
  */
 const makeMixedContent = (md: string) =>
   JSON.stringify(
-    unified().use(remarkParse).use(remarkDirective).parse(md)
+    unified().use(remarkParse).use(remarkGfm).use(remarkDirective).parse(md)
       .children as RootContent[]
   )
 
@@ -102,6 +103,13 @@ describe('If', () => {
     }))
     render(<If test='typeof key_a !== "string"' content={makeContent('Yes')} />)
     expect(screen.getByText('Yes')).toBeInTheDocument()
+  })
+
+  it('supports standard markdown formatting', () => {
+    const content = makeMixedContent('**bold** ~~strike~~')
+    render(<If test='true' content={content} />)
+    expect(screen.getByText('bold').tagName).toBe('STRONG')
+    expect(screen.getByText('strike').tagName).toBe('DEL')
   })
 
   it('mixes content and directives', () => {
