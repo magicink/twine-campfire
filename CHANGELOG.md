@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.28.0](https://github.com/magicink/twine-campfire/compare/v1.27.0...v1.28.0) (2025-08-06)
+
+
+### Features
+
+* add Show component to display game data ([#122](https://github.com/magicink/twine-campfire/issues/122)) ([6705eab](https://github.com/magicink/twine-campfire/commit/6705eab30365ad7d8f19ffc39e273c9d87109939))
+
 ## [1.27.0](https://github.com/magicink/twine-campfire/compare/v1.26.0...v1.27.0) (2025-08-06)
 
 
