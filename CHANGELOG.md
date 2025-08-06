@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.32.2](https://github.com/magicink/twine-campfire/compare/v1.32.1...v1.32.2) (2025-08-06)
+
+
+### Bug Fixes
+
+* translate directive uses Show component ([#149](https://github.com/magicink/twine-campfire/issues/149)) ([33e5ebb](https://github.com/magicink/twine-campfire/commit/33e5ebbcf935790ad7202caccbba2df873304044))
+
 ## [1.32.1](https://github.com/magicink/twine-campfire/compare/v1.32.0...v1.32.1) (2025-08-06)
 
 
