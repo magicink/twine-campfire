@@ -293,29 +293,6 @@ export const useDirectiveHandlers = () => {
     return removeNode(parent, index)
   }
 
-  const handleGet: DirectiveHandler = (directive, parent, index) => {
-    const expr: string =
-      toString(directive) || Object.keys(directive.attributes || {})[0] || ''
-    let value: unknown
-    try {
-      const fn = compile(expr)
-      value = fn(gameData)
-    } catch {
-      value = (gameData as any)[expr]
-    }
-    if (isRange(value)) {
-      value = value.value
-    }
-    const textNode: MdText = {
-      type: 'text',
-      value: value == null ? '' : String(value)
-    }
-    if (parent && typeof index === 'number') {
-      parent.children.splice(index, 1, textNode)
-      return index
-    }
-  }
-
   const handleDefined: DirectiveHandler = (directive, parent, index) => {
     const expr: string =
       toString(directive) || Object.keys(directive.attributes || {})[0] || ''
@@ -1267,7 +1244,6 @@ export const useDirectiveHandlers = () => {
         p: Parent | undefined,
         i: number | undefined
       ) => handleArray(d, p, i, true),
-      get: handleGet,
       defined: handleDefined,
       math: handleMath,
       random: handleRandom,

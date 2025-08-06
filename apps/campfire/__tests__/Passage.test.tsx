@@ -495,29 +495,6 @@ describe('Passage', () => {
     expect(useGameStore.getState().gameData.nums).toEqual([1, 2])
   })
 
-  it('retrieves values with get directive', async () => {
-    useGameStore.setState(state => ({
-      ...state,
-      gameData: { score: 7 }
-    }))
-    const passage: Element = {
-      type: 'element',
-      tagName: 'tw-passagedata',
-      properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: 'Score: :get{score}' }]
-    }
-
-    useStoryDataStore.setState({
-      passages: [passage],
-      currentPassageId: '1'
-    })
-
-    render(<Passage />)
-
-    const text = await screen.findByText('Score: 7')
-    expect(text).toBeInTheDocument()
-  })
-
   it('pops items with pop directive', async () => {
     useGameStore.setState(state => ({
       ...state,
@@ -537,28 +514,6 @@ describe('Passage', () => {
     await waitFor(() =>
       expect(useGameStore.getState().gameData.items).toEqual(['a', 'b'])
     )
-  })
-
-  it('slices arrays with get directive', async () => {
-    useGameStore.setState(state => ({
-      ...state,
-      gameData: { items: ['a', 'b', 'c'] }
-    }))
-    const passage: Element = {
-      type: 'element',
-      tagName: 'tw-passagedata',
-      properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: 'Slice: :get[items.slice(1)]' }]
-    }
-
-    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-
-    render(<Passage />)
-
-    await waitFor(() => {
-      expect(screen.getByText('Slice: b,c')).toBeInTheDocument()
-      expect(useGameStore.getState().gameData.items).toEqual(['a', 'b', 'c'])
-    })
   })
 
   it('shifts items with shift directive', async () => {
@@ -686,33 +641,6 @@ describe('Passage', () => {
         'e'
       ])
     )
-  })
-
-  it('joins arrays with get directive', async () => {
-    useGameStore.setState(state => ({
-      ...state,
-      gameData: { items: ['a', 'b', 'c'] }
-    }))
-    const passage: Element = {
-      type: 'element',
-      tagName: 'tw-passagedata',
-      properties: { pid: '1', name: 'Start' },
-      children: [
-        {
-          type: 'text',
-          value: "Joined: :get[items.join('-')]"
-        }
-      ]
-    }
-
-    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-
-    render(<Passage />)
-
-    await waitFor(() => {
-      expect(screen.getByText('Joined: a-b-c')).toBeInTheDocument()
-      expect(useGameStore.getState().gameData.items).toEqual(['a', 'b', 'c'])
-    })
   })
 
   it('stores a random item from an array with random directive', async () => {
@@ -890,53 +818,6 @@ describe('Passage', () => {
         'b',
         'c'
       ])
-    )
-  })
-
-  it('joins nested arrays with get directive', async () => {
-    useGameStore.setState(state => ({
-      ...state,
-      gameData: { bag: { items: ['a', 'b', 'c'] } }
-    }))
-    const passage: Element = {
-      type: 'element',
-      tagName: 'tw-passagedata',
-      properties: { pid: '1', name: 'Start' },
-      children: [
-        {
-          type: 'text',
-          value: "Joined: :get[bag.items.join('-')]"
-        }
-      ]
-    }
-
-    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-
-    render(<Passage />)
-
-    await waitFor(() =>
-      expect(screen.getByText('Joined: a-b-c')).toBeInTheDocument()
-    )
-  })
-
-  it('slices nested arrays with get directive', async () => {
-    useGameStore.setState(state => ({
-      ...state,
-      gameData: { bag: { items: ['a', 'b', 'c'] } }
-    }))
-    const passage: Element = {
-      type: 'element',
-      tagName: 'tw-passagedata',
-      properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: 'Slice: :get[bag.items.slice(1)]' }]
-    }
-
-    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-
-    render(<Passage />)
-
-    await waitFor(() =>
-      expect(screen.getByText('Slice: b,c')).toBeInTheDocument()
     )
   })
 
