@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.31.0](https://github.com/magicink/twine-campfire/compare/v1.30.1...v1.31.0) (2025-08-06)
+
+
+### Features
+
+* remove increment and decrement directives ([#130](https://github.com/magicink/twine-campfire/issues/130)) ([a3e0feb](https://github.com/magicink/twine-campfire/commit/a3e0feb11859ae60d6cc03af939f2051976d8517))
+
 ## [1.30.1](https://github.com/magicink/twine-campfire/compare/v1.30.0...v1.30.1) (2025-08-06)
 
 
