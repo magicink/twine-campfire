@@ -27,15 +27,13 @@ interface IfProps {
  */
 export const If = ({ test, content, fallback }: IfProps) => {
   const handlers = useDirectiveHandlers()
-  const processor = useMemo(
-    () =>
-      unified()
-        .use(remarkGfm)
-        .use(remarkCampfire, { handlers })
-        .use(remarkRehype)
-        .use(rehypeCampfire),
-    [handlers]
-  )
+  const processor = useMemo(() => {
+    return unified()
+      .use(remarkGfm)
+      .use(remarkCampfire, { handlers })
+      .use(remarkRehype)
+      .use(rehypeCampfire)
+  }, [handlers])
   const gameData = useGameStore(state => state.gameData)
   let condition = false
   try {
