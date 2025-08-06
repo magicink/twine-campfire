@@ -388,8 +388,8 @@ export const useDirectiveHandlers = () => {
     }
     if (parent && typeof index === 'number') {
       parent.children.splice(index, 1, node)
-      return index
     }
+    return index
   }
 
   const handleRandom: DirectiveHandler = (directive, parent, index) => {
