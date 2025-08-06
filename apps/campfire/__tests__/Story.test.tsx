@@ -103,6 +103,15 @@ is open!
     expect(screen.queryByText('is open!')).toBeNull()
   })
 
+  it.skip('executes trigger directives within if directives', async () => {
+    // TODO: implement test verifying trigger directives within if blocks
+    useStoryDataStore.setState({
+      passages: [samplePassage],
+      currentPassageId: '1'
+    })
+    render(<Story />)
+  })
+
   it('parses if directives after blank lines', async () => {
     document.body.innerHTML = `
 <tw-storydata name="Story" startnode="1">

@@ -6,7 +6,7 @@ import remarkGfm from 'remark-gfm'
 import remarkCampfire from '@/packages/remark-campfire'
 import remarkRehype from 'remark-rehype'
 import rehypeCampfire from '@/packages/rehype-campfire'
-import rehypeReact from 'rehype-react'
+import { toJsxRuntime } from 'hast-util-to-jsx-runtime'
 import type { RootContent, Root } from 'mdast'
 import { useGameStore } from '@/packages/use-game-store'
 import { useDirectiveHandlers } from './useDirectiveHandlers'
@@ -27,28 +27,13 @@ interface IfProps {
  */
 export const If = ({ test, content, fallback }: IfProps) => {
   const handlers = useDirectiveHandlers()
-  const processor = useMemo(
-    () =>
-      unified()
-        .use(remarkGfm)
-        .use(remarkCampfire, { handlers })
-        .use(remarkRehype)
-        .use(rehypeCampfire)
-        .use(rehypeReact, {
-          Fragment: runtime.Fragment,
-          jsx: runtime.jsx,
-          jsxs: runtime.jsxs,
-          jsxDEV,
-          development: process.env.NODE_ENV === 'development',
-          components: {
-            button: LinkButton,
-            trigger: TriggerButton,
-            if: If,
-            show: Show
-          }
-        }),
-    [handlers]
-  )
+  const processor = useMemo(() => {
+    return unified()
+      .use(remarkGfm)
+      .use(remarkCampfire, { handlers })
+      .use(remarkRehype)
+      .use(rehypeCampfire)
+  }, [handlers])
   const gameData = useGameStore(state => state.gameData)
   let condition = false
   try {
@@ -68,5 +53,17 @@ export const If = ({ test, content, fallback }: IfProps) => {
   const nodes: RootContent[] = JSON.parse(source)
   const root: Root = { type: 'root', children: nodes }
   const tree = processor.runSync(root)
-  return processor.stringify(tree) as ReactNode
+  return toJsxRuntime(tree, {
+    Fragment: runtime.Fragment,
+    jsx: runtime.jsx,
+    jsxs: runtime.jsxs,
+    jsxDEV,
+    development: process.env.NODE_ENV === 'development',
+    components: {
+      button: LinkButton,
+      trigger: TriggerButton,
+      if: If,
+      show: Show
+    }
+  }) as ReactNode
 }
