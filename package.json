@@ -1,6 +1,6 @@
 {
   "name": "campfire",
-  "version": "1.31.0",
+  "version": "1.31.1",
   "private": true,
   "description": "A custom story format for TwineJS that uses React.",
   "exports": "./dist/format.js",
