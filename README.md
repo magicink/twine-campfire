@@ -220,14 +220,6 @@ Read or compute data without mutating state.
 
   Replace `HP` with the key to test.
 
-- `get`: Output a value.
-
-  ```md
-  :get{key=HP}
-  ```
-
-  Replace `HP` with the key to show.
-
 - `math`: Perform a calculation.
 
   ```md
