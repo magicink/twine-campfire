@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.29.0](https://github.com/magicink/twine-campfire/compare/v1.28.0...v1.29.0) (2025-08-06)
+
+
+### Features
+
+* add show directive ([#124](https://github.com/magicink/twine-campfire/issues/124)) ([3a1bbf5](https://github.com/magicink/twine-campfire/commit/3a1bbf5a0367d0541836f1fe999f811eff050d60))
+
 ## [1.28.0](https://github.com/magicink/twine-campfire/compare/v1.27.0...v1.28.0) (2025-08-06)
 
 
