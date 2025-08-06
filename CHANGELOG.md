@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.31.1](https://github.com/magicink/twine-campfire/compare/v1.31.0...v1.31.1) (2025-08-06)
+
+
+### Bug Fixes
+
+* **math:** require key and remove result output ([#132](https://github.com/magicink/twine-campfire/issues/132)) ([6832acf](https://github.com/magicink/twine-campfire/commit/6832acff5a037b71b7d53984acaea376aeb60491))
+
 ## [1.31.0](https://github.com/magicink/twine-campfire/compare/v1.30.1...v1.31.0) (2025-08-06)
 
 
