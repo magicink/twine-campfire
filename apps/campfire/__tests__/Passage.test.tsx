@@ -859,7 +859,7 @@ describe('Passage', () => {
     })
   })
 
-  it('evaluates expressions with math directive', async () => {
+  it('requires a key and does not display results', async () => {
     useGameStore.setState(state => ({
       ...state,
       gameData: { x: 3 }
@@ -878,8 +878,9 @@ describe('Passage', () => {
 
     render(<Passage />)
 
-    const text = await screen.findByText('Result: 6')
-    expect(text).toBeInTheDocument()
+    await screen.findByText('Result:')
+    expect(screen.queryByText('Result: 6')).toBeNull()
+    expect(useGameStore.getState().gameData.x).toBe(3)
   })
 
   it('can set state with math directive', async () => {
@@ -891,7 +892,12 @@ describe('Passage', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: 'HP: :math[hp + 1]{key=hp}' }]
+      children: [
+        {
+          type: 'text',
+          value: 'HP: :math[hp + 1]{key=hp} :show{key=hp}'
+        }
+      ]
     }
 
     useStoryDataStore.setState({
@@ -901,8 +907,10 @@ describe('Passage', () => {
 
     render(<Passage />)
 
-    const text = await screen.findByText('HP: 6')
-    expect(text).toBeInTheDocument()
+    await waitFor(() => {
+      const span = screen.getByText('6')
+      expect(span.closest('p')?.textContent?.replace(/\s+/g, '')).toBe('HP:6')
+    })
     expect(useGameStore.getState().gameData.hp).toBe(6)
   })
 

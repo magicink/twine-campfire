@@ -207,14 +207,14 @@ Read or compute data without mutating state.
 
   Replace `HP` with the key to test.
 
-- `math`: Perform a calculation.
+- `math`: Perform a calculation and store the result under a key.
 
   ```md
-  :math{into=RESULT expr="HP + VALUE"}
+  :math[HP + VALUE]{key=RESULT}
   ```
 
   Replace `RESULT` with the key to store and `HP`/`VALUE` with numbers or
-  keys.
+  keys. Use `:show` to display stored values.
 
 - `show`: Display a key's value.
 
