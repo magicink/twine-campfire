@@ -16,7 +16,7 @@ export const Show = (props: ShowProps) => {
   const storeKey = props['data-key'] ?? props.key
   const value = useGameStore(state => {
     if (!storeKey) return undefined
-    return (state.gameData as Record<string, unknown>)[storeKey as string]
+    return (state.gameData as Record<string, unknown>)[storeKey]
   })
   if (value == null) return null
   return <span>{String(value)}</span>
