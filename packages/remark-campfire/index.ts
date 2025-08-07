@@ -139,14 +139,12 @@ const ensureQuotedAttribute = (
     const attrs = directive.attributes as Record<string, unknown>
     if (typeof attrs[name] !== 'string' || !attrMatch) {
       delete attrs[name]
-      console.error(message)
       file.message(message, directive)
     }
   } else {
     const attrs = directive.attributes as Record<string, unknown>
     if (typeof attrs[name] !== 'string') {
       delete attrs[name]
-      console.error(message)
       file.message(message, directive)
     }
   }
