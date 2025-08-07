@@ -69,6 +69,26 @@ export const remarkCampfireIndentation = () => (tree: Root) => {
   )
 }
 
+/**
+ * Extracts attributes from a trailing text node when `remark-directive` fails to
+ * parse them, enabling support for characters like quotes within attribute
+ * values.
+ */
+const parseFallbackAttributes = (
+  directive: DirectiveNode,
+  parent: Parent,
+  index: number
+) => {
+  const next = parent.children[index + 1]
+  if (!next || next.type !== 'text') return
+  const textNode = next as Text
+  const match = textNode.value.match(/^\{([^=]+)=([^}]*)\}$/)
+  if (match) {
+    directive.attributes = { [match[1]]: match[2] }
+    parent.children.splice(index + 1, 1)
+  }
+}
+
 const remarkCampfire =
   (options: RemarkCampfireOptions = {}) =>
   (tree: Root) => {
@@ -82,6 +102,14 @@ const remarkCampfire =
             node.type === 'containerDirective')
         ) {
           const directive = node as DirectiveNode
+          if (
+            (!directive.attributes ||
+              Object.keys(directive.attributes).length === 0) &&
+            parent &&
+            typeof index === 'number'
+          ) {
+            parseFallbackAttributes(directive, parent, index)
+          }
           const handler = options.handlers?.[directive.name]
           if (handler) {
             return handler(directive, parent, index)

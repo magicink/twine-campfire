@@ -195,7 +195,12 @@ describe('Passage game state directives', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':array[number]{nums=1,2,3}' }]
+      children: [
+        {
+          type: 'text',
+          value: ":array{items=1,'two',false}"
+        }
+      ]
     }
 
     useStoryDataStore.setState({
@@ -206,7 +211,7 @@ describe('Passage game state directives', () => {
     render(<Passage />)
 
     await waitFor(() =>
-      expect(useGameStore.getState().gameData.nums).toEqual([1, 2, 3])
+      expect(useGameStore.getState().gameData.items).toEqual([1, 'two', false])
     )
   })
 
@@ -215,7 +220,7 @@ describe('Passage game state directives', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':arrayOnce[number]{nums=1,2}' }]
+      children: [{ type: 'text', value: ':arrayOnce{nums=1,2}' }]
     }
 
     useStoryDataStore.setState({

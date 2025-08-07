@@ -161,18 +161,20 @@ Create or modify lists of values.
 - `array`: Create an array.
 
   ```md
-  :array{key=ITEMS values=1,2,3}
+  :array{ITEMS=1,2,'three',"four"}
   ```
 
-  Replace `ITEMS` with the array name.
+  Replace `ITEMS` with the array name. Wrap string values in single quotes,
+  double quotes or backticks. Unquoted values are parsed as numbers or booleans
+  when possible.
 
 - `arrayOnce`: Create an array only if it has not been set.
 
   ```md
-  :arrayOnce{key=VISITED values=FOREST,CAVE}
+  :arrayOnce{VISITED='FOREST',"CAVE"}
   ```
 
-  Replace `VISITED` with the array name.
+  Replace `VISITED` with the array name. Quoted values are treated as strings.
 
 - `concat`: Combine arrays.
 
