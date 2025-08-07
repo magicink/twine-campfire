@@ -60,11 +60,6 @@ Examples:
   <https://twine-campfire.dev>
   ```
 
-- **Heading**
-
-  Markdown heading syntax (`#`, `##`, etc.) is not currently supported, so
-  lines starting with `#` will render as plain text.
-
 ## Directives
 
 Campfire extends Markdown with
