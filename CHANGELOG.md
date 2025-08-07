@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.34.0](https://github.com/magicink/twine-campfire/compare/v1.33.0...v1.34.0) (2025-08-07)
+
+
+### Features
+
+* preserve indentation for directives ([#153](https://github.com/magicink/twine-campfire/issues/153)) ([a7d98af](https://github.com/magicink/twine-campfire/commit/a7d98af16afc4cc47b48c9836dd0be00d98f882d))
+
 ## [1.33.0](https://github.com/magicink/twine-campfire/compare/v1.32.2...v1.33.0) (2025-08-07)
 
 
