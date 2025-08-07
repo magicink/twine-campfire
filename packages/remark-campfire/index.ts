@@ -130,20 +130,19 @@ const remarkCampfire =
             Object.prototype.hasOwnProperty.call(directive.attributes, 'label')
           ) {
             const content =
-              typeof file.value === 'string'
-                ? file.value
-                : file.value
-                  ? String(file)
-                  : undefined
+              typeof file.value === 'string' ? file.value : undefined
             if (content) {
               const raw = content.slice(
                 directive.position?.start.offset ?? 0,
                 directive.position?.end.offset ?? 0
               )
-              const labelMatch = raw.match(/label\s*=\s*(['"`])[^'"`]*\1/)
+              const attrMatch = raw.match(/label[ \t]*=[ \t]*(['"`])/)
               if (
                 typeof directive.attributes.label !== 'string' ||
-                !labelMatch
+                !attrMatch ||
+                !raw
+                  .slice((attrMatch.index ?? 0) + attrMatch[0].length)
+                  .includes(attrMatch[1])
               ) {
                 delete directive.attributes.label
                 const msg = `${ERR_TRIGGER_LABEL_UNQUOTED}: trigger label must be a quoted string`

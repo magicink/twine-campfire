@@ -32,6 +32,11 @@ describe('trigger label attribute', () => {
     expect(node?.attributes).toEqual({ label: 'Fire' })
   })
 
+  it('accepts quotes inside labels', () => {
+    const node = parseTrigger(':::trigger{label="John\'s house"}\n:::')
+    expect(node?.attributes).toEqual({ label: "John's house" })
+  })
+
   it('rejects unquoted labels', () => {
     const orig = console.error
     const logs: unknown[] = []
