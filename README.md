@@ -365,18 +365,18 @@ Save and restore progress or store data in the browser.
 - `clearSave`: Remove a stored game state.
 
   ```md
-  :clearSave{key=SLOT}
+  :clearSave{id=SLOT}
   ```
 
-  Replace `SLOT` with the storage key.
+  Replace `SLOT` with the storage id.
 
 - `load`: Load state from local storage.
 
   ```md
-  :load{key=SLOT}
+  :load{id=SLOT}
   ```
 
-  Replace `SLOT` with the storage key.
+  Replace `SLOT` with the storage id.
 
 - `restore`: Load a saved state.
 
@@ -389,10 +389,10 @@ Save and restore progress or store data in the browser.
 - `save`: Write the current state to local storage.
 
   ```md
-  :save{key=SLOT}
+  :save{id=SLOT}
   ```
 
-  Replace `SLOT` with the storage key.
+  Replace `SLOT` with the storage id.
 
 ### Localization & internationalization
 

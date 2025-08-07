@@ -968,9 +968,16 @@ export const useDirectiveHandlers = () => {
     return removeNode(parent, index)
   }
 
+  /**
+   * Saves the current game state to local storage.
+   *
+   * @param directive - The directive node being processed.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within the parent.
+   */
   const handleSave: DirectiveHandler = (directive, parent, index) => {
     const attrs = (directive.attributes || {}) as Record<string, unknown>
-    const key = typeof attrs.key === 'string' ? attrs.key : 'campfire.save'
+    const id = typeof attrs.id === 'string' ? attrs.id : 'campfire.save'
     setLoading(true)
     try {
       if (typeof localStorage !== 'undefined') {
@@ -990,7 +997,7 @@ export const useDirectiveHandlers = () => {
           checkpoints: { ...state.checkpoints },
           currentPassageId
         }
-        localStorage.setItem(key, JSON.stringify(data))
+        localStorage.setItem(id, JSON.stringify(data))
       }
     } catch (error) {
       console.error('Error saving game state:', error)
@@ -1001,13 +1008,20 @@ export const useDirectiveHandlers = () => {
     return removeNode(parent, index)
   }
 
+  /**
+   * Loads a game state from local storage.
+   *
+   * @param directive - The directive node being processed.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within the parent.
+   */
   const handleLoad: DirectiveHandler = (directive, parent, index) => {
     const attrs = (directive.attributes || {}) as Record<string, unknown>
-    const key = typeof attrs.key === 'string' ? attrs.key : 'campfire.save'
+    const id = typeof attrs.id === 'string' ? attrs.id : 'campfire.save'
     setLoading(true)
     try {
       if (typeof localStorage !== 'undefined') {
-        const raw = localStorage.getItem(key)
+        const raw = localStorage.getItem(id)
         if (raw) {
           const data = JSON.parse(raw) as {
             gameData?: Record<string, unknown>
@@ -1040,13 +1054,20 @@ export const useDirectiveHandlers = () => {
     return removeNode(parent, index)
   }
 
+  /**
+   * Clears a saved game state from local storage.
+   *
+   * @param directive - The directive node being processed.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within the parent.
+   */
   const handleClearSave: DirectiveHandler = (directive, parent, index) => {
     const attrs = (directive.attributes || {}) as Record<string, unknown>
-    const key = typeof attrs.key === 'string' ? attrs.key : 'campfire.save'
+    const id = typeof attrs.id === 'string' ? attrs.id : 'campfire.save'
     setLoading(true)
     try {
       if (typeof localStorage !== 'undefined') {
-        localStorage.removeItem(key)
+        localStorage.removeItem(id)
       }
     } catch (error) {
       console.error('Error clearing saved game state:', error)
