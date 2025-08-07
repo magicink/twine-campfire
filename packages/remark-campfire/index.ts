@@ -8,6 +8,8 @@ import type { DirectiveNode } from './helpers'
 
 /** Error code for unquoted trigger labels */
 const ERR_TRIGGER_LABEL_UNQUOTED = 'CF001'
+/** Error message for unquoted trigger labels */
+const MSG_TRIGGER_LABEL_UNQUOTED = `${ERR_TRIGGER_LABEL_UNQUOTED}: trigger label must be a quoted string`
 
 export type DirectiveHandlerResult = number | [typeof SKIP, number] | void
 
@@ -136,24 +138,21 @@ const remarkCampfire =
                 directive.position?.start.offset ?? 0,
                 directive.position?.end.offset ?? 0
               )
-              const attrMatch = raw.match(/label[ \t]*=[ \t]*(['"`])/)
+              const attrMatch = raw.match(
+                /label\s*=\s*(['"`])((?:\\.|(?!\1).)*)\1/
+              )
               if (
                 typeof directive.attributes.label !== 'string' ||
-                !attrMatch ||
-                !raw
-                  .slice((attrMatch.index ?? 0) + attrMatch[0].length)
-                  .includes(attrMatch[1])
+                !attrMatch
               ) {
                 delete directive.attributes.label
-                const msg = `${ERR_TRIGGER_LABEL_UNQUOTED}: trigger label must be a quoted string`
-                console.error(msg)
-                file.message(msg, directive)
+                console.error(MSG_TRIGGER_LABEL_UNQUOTED)
+                file.message(MSG_TRIGGER_LABEL_UNQUOTED, directive)
               }
             } else if (typeof directive.attributes.label !== 'string') {
               delete directive.attributes.label
-              const msg = `${ERR_TRIGGER_LABEL_UNQUOTED}: trigger label must be a quoted string`
-              console.error(msg)
-              file.message(msg, directive)
+              console.error(MSG_TRIGGER_LABEL_UNQUOTED)
+              file.message(MSG_TRIGGER_LABEL_UNQUOTED, directive)
             }
           }
           const handler = options.handlers?.[directive.name]
