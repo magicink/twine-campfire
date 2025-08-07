@@ -356,7 +356,9 @@ Run directives on specific passage events or group actions.
   :::
   ```
 
-  Replace the label, classes, disabled state, and directives as needed.
+  The `label` attribute must be a quoted string using matching single-, double-,
+  or backtick quotes. Replace the label, classes, disabled state, and directives
+  as needed.
 
 ### Navigation & composition
 
@@ -477,6 +479,15 @@ Clear logged errors.
   ```md
   :clearErrors
   ```
+
+## Error codes
+
+Campfire prints error codes to the browser console when it encounters invalid
+markup. These codes help identify and debug issues in story passages.
+
+| Code  | Meaning                                                            |
+| ----- | ------------------------------------------------------------------ |
+| CF001 | Trigger `label` must be a quoted string. The attribute is ignored. |
 
 ## Further reading
 
