@@ -88,7 +88,7 @@ structures. Indent them just like normal text:
   :set{key=visited value=true}
 
 > Quoted
-> :goto{passage=NEXT}
+> :goto["NEXT"]
 ```
 
 ### Variables & simple state
@@ -362,27 +362,30 @@ Control the flow between passages or how they appear.
 - `goto`: Jump to another passage.
 
   ```md
-  :goto{passage=PASSAGE-NAME}
+  :goto["PASSAGE-NAME"]
   ```
 
-  Replace `PASSAGE-NAME` with the target passage.
+  Use quotes or backticks for passage names. Unquoted numbers navigate by pid.
+  When using the `passage` attribute, unquoted strings are treated as keys in the
+  game state.
 
 - `include`: Embed another passage's content.
 
   ```md
-  :include{passage=PASSAGE-NAME}
+  :include["PASSAGE-NAME"]
   ```
 
-  Replace `PASSAGE-NAME` with the passage to include. Nested includes are
-  limited to 10 levels to prevent infinite loops.
+  Use quotes or backticks for passage names. Unquoted numbers include by pid.
+  When using the `passage` attribute, unquoted strings are treated as keys in the
+  game state. Nested includes are limited to 10 levels to prevent infinite loops.
 
 - `title`: Set the document title.
 
   ```md
-  :title{value=GAME-TITLE}
+  :title["GAME-TITLE"]
   ```
 
-  Replace `GAME-TITLE` with the text to display.
+  Replace `GAME-TITLE` with the text to display, wrapped in matching quotes or backticks.
 
 ### Checkpoints & persistence
 
