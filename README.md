@@ -116,7 +116,12 @@ Operations that set, update or remove scalar values.
   :set{key=HP value=VALUE}
   ```
 
-  Replace `VALUE` with the number or string to store.
+  Replace `VALUE` with the number or string to store. To store a string, surround the value in matching single
+  quotes ('example'), double quotes ("example"), or backticks (\`example\`).
+
+  ```md
+  :set{key=player_name value="Alice"}
+  ```
 
 - `set[range]`: Initialize a key with a numeric range. This directive is leaf-only and cannot wrap
   content.
