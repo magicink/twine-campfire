@@ -762,7 +762,7 @@ export const useDirectiveHandlers = () => {
     markOnce(key)
     const content = stripLabel(container.children as RootContent[])
     const newIndex = replaceWithIndentation(directive, parent, index, content)
-    return [SKIP, newIndex + content.length - 1]
+    return [SKIP, newIndex + Math.max(0, content.length - 1)]
   }
   const handleBatch: DirectiveHandler = (directive, parent, index) => {
     if (!parent || typeof index !== 'number') return
@@ -1258,7 +1258,10 @@ export const useDirectiveHandlers = () => {
       index,
       tree.children as RootContent[]
     )
-    return [SKIP, newIndex + (tree.children as RootContent[]).length - 1]
+    return [
+      SKIP,
+      newIndex + Math.max(0, (tree.children as RootContent[]).length - 1)
+    ]
   }
 
   return useMemo(() => {
