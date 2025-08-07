@@ -291,7 +291,18 @@ export const useDirectiveHandlers = () => {
     const isRecord = (value: unknown): value is Record<string, unknown> =>
       !!value && typeof value === 'object' && !Array.isArray(value)
 
+    /**
+     * Parse a string value into a typed value. Only quoted values are treated as
+     * strings. Unquoted values will be coerced to numbers, booleans or evaluated
+     * as expressions when possible.
+     */
     const parseValue = (value: string): unknown => {
+      const quoted =
+        (value.startsWith("'") && value.endsWith("'")) ||
+        (value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith('`') && value.endsWith('`'))
+      if (quoted) return value.slice(1, -1)
+
       switch (typeParam) {
         case 'number': {
           let evaluated: unknown = value
@@ -314,8 +325,20 @@ export const useDirectiveHandlers = () => {
             return {}
           }
         case 'string':
-        default:
-          return value
+        default: {
+          if (value === 'true' || value === 'false') {
+            return value === 'true'
+          }
+          const num = parseFloat(value)
+          if (!Number.isNaN(num)) return num
+          try {
+            const fn = compile(value)
+            const evaluated = fn(gameData)
+            return typeof evaluated === 'undefined' ? value : evaluated
+          } catch {
+            return value
+          }
+        }
       }
     }
 
