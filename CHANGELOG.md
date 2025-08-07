@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.35.2](https://github.com/magicink/twine-campfire/compare/v1.35.1...v1.35.2) (2025-08-07)
+
+
+### Bug Fixes
+
+* require quoted trigger labels for trigger directives ([#160](https://github.com/magicink/twine-campfire/issues/160)) ([21fc949](https://github.com/magicink/twine-campfire/commit/21fc9492326ebd34d795d0888b5d965ab35cc490))
+
 ## [1.35.1](https://github.com/magicink/twine-campfire/compare/v1.35.0...v1.35.1) (2025-08-07)
 
 
