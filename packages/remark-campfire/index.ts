@@ -39,6 +39,36 @@ export interface LangDirective extends Omit<LeafDirective, 'attributes'> {
   attributes: LangAttributes
 }
 
+/**
+ * Attaches indentation information to directive nodes by capturing trailing
+ * whitespace from the preceding text node.
+ */
+export const remarkCampfireIndentation = () => (tree: Root) => {
+  visit(
+    tree,
+    (node: Node, index: number | undefined, parent: Parent | undefined) => {
+      if (node.type === 'text' && parent && typeof index === 'number') {
+        const next = parent.children[index + 1]
+        if (
+          next &&
+          (next.type === 'textDirective' ||
+            next.type === 'leafDirective' ||
+            next.type === 'containerDirective')
+        ) {
+          const textNode = node as Text
+          const match = textNode.value.match(/(\s+)$/)
+          if (match && match[1]) {
+            textNode.value = textNode.value.slice(0, -match[1].length)
+            const directive = next as DirectiveNode
+            if (!directive.data) directive.data = {}
+            ;(directive.data as Record<string, unknown>).indentation = match[1]
+          }
+        }
+      }
+    }
+  )
+}
+
 const remarkCampfire =
   (options: RemarkCampfireOptions = {}) =>
   (tree: Root) => {

@@ -252,4 +252,34 @@ describe('Passage rendering and navigation', () => {
       ).toBe('true')
     )
   })
+
+  it('processes directives after including empty passages', async () => {
+    const start: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':include[Second]\n:::if{true}\nAfter\n:::'
+        }
+      ]
+    }
+    const second: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '2', name: 'Second' },
+      children: []
+    }
+
+    useStoryDataStore.setState({
+      passages: [start, second],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    const text = await screen.findByText('After')
+    expect(text).toBeInTheDocument()
+  })
 })

@@ -51,4 +51,28 @@ describe('Passage lifecycle directives', () => {
       expect(screen.queryByText('Hello')).toBeNull()
     })
   })
+
+  it('handles empty once blocks without skipping following directives', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':::once{intro}\n:::\n:::if{true}\nAfter\n:::'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    const text = await screen.findByText('After')
+    expect(text).toBeInTheDocument()
+  })
 })
