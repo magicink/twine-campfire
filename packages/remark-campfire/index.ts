@@ -3,7 +3,13 @@ import type { Root, Parent, Paragraph, Text } from 'mdast'
 import type { Node } from 'unist'
 import type { LeafDirective } from 'mdast-util-directive'
 import type { SKIP } from 'unist-util-visit'
+import type { VFile } from 'vfile'
 import type { DirectiveNode } from './helpers'
+
+/** Error code for unquoted trigger labels */
+const ERR_TRIGGER_LABEL_UNQUOTED = 'CF001'
+/** Error message for unquoted trigger labels */
+const MSG_TRIGGER_LABEL_UNQUOTED = `${ERR_TRIGGER_LABEL_UNQUOTED}: trigger label must be a quoted string`
 
 export type DirectiveHandlerResult = number | [typeof SKIP, number] | void
 
@@ -101,7 +107,7 @@ const parseFallbackAttributes = (
 
 const remarkCampfire =
   (options: RemarkCampfireOptions = {}) =>
-  (tree: Root) => {
+  (tree: Root, file: VFile) => {
     visit(
       tree,
       (node: Node, index: number | undefined, parent: Parent | undefined) => {
@@ -119,6 +125,35 @@ const remarkCampfire =
             typeof index === 'number'
           ) {
             parseFallbackAttributes(directive, parent, index)
+          }
+          if (
+            directive.name === 'trigger' &&
+            directive.attributes &&
+            Object.prototype.hasOwnProperty.call(directive.attributes, 'label')
+          ) {
+            const content =
+              typeof file.value === 'string' ? file.value : undefined
+            if (content) {
+              const raw = content.slice(
+                directive.position?.start.offset ?? 0,
+                directive.position?.end.offset ?? 0
+              )
+              const attrMatch = raw.match(
+                /label\s*=\s*(['"`])((?:\\.|(?!\1).)*)\1/
+              )
+              if (
+                typeof directive.attributes.label !== 'string' ||
+                !attrMatch
+              ) {
+                delete directive.attributes.label
+                console.error(MSG_TRIGGER_LABEL_UNQUOTED)
+                file.message(MSG_TRIGGER_LABEL_UNQUOTED, directive)
+              }
+            } else if (typeof directive.attributes.label !== 'string') {
+              delete directive.attributes.label
+              console.error(MSG_TRIGGER_LABEL_UNQUOTED)
+              file.message(MSG_TRIGGER_LABEL_UNQUOTED, directive)
+            }
           }
           const handler = options.handlers?.[directive.name]
           if (handler) {

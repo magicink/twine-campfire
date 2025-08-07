@@ -95,4 +95,33 @@ describe('Passage trigger directives', () => {
       expect(useGameStore.getState().gameData.go).toBe(true)
     })
   })
+
+  it('ignores unquoted label attributes', async () => {
+    const orig = console.error
+    const logs: unknown[] = []
+    console.error = (...args: unknown[]) => {
+      logs.push(args.join(' '))
+    }
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            ':::trigger{label=Fire}\n:::set{key=fired value=true}\n:::\n:::'
+        }
+      ]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    const button = await screen.findByRole('button')
+    expect(screen.queryByRole('button', { name: 'Fire' })).toBeNull()
+    expect(button.textContent).toBe('')
+    expect(logs.some(l => typeof l === 'string' && l.includes('CF001'))).toBe(
+      true
+    )
+    console.error = orig
+  })
 })
