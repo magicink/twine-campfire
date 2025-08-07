@@ -7,7 +7,9 @@ import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
 import remarkDirective from 'remark-directive'
-import remarkCampfire from '@/packages/remark-campfire'
+import remarkCampfire, {
+  remarkCampfireIndentation
+} from '@/packages/remark-campfire'
 import type { Text as MdText, Parent, RootContent, Root } from 'mdast'
 import type { Text as HastText, ElementContent, Properties } from 'hast'
 import type { ContainerDirective } from 'mdast-util-directive'
@@ -79,6 +81,68 @@ export const useDirectiveHandlers = () => {
   let includeDepth = 0
 
   /**
+   * Captures and removes indentation preceding a directive.
+   *
+   * @param directive - Directive node being processed.
+   * @param parent - Parent node of the directive.
+   * @param index - Index of the directive within its parent.
+   */
+  const preserveIndentation = (
+    directive: DirectiveNode,
+    parent: Parent | undefined,
+    index: number | undefined
+  ): void => {
+    if (!parent || typeof index !== 'number') return
+    const previous = parent.children[index - 1]
+    if (previous && previous.type === 'text') {
+      const textNode = previous as MdText
+      const match = textNode.value.match(/(\s+)$/)
+      if (match && match[1]) {
+        if (!directive.data) directive.data = {}
+        ;(directive.data as Record<string, unknown>).indentation = match[1]
+        textNode.value = textNode.value.slice(0, -match[1].length)
+      }
+    }
+  }
+
+  /**
+   * Replaces a directive with new nodes while restoring preserved indentation.
+   *
+   * @param directive - Directive being replaced.
+   * @param parent - Parent of the directive.
+   * @param index - Index of the directive in its parent.
+   * @param nodes - Nodes to insert.
+   * @returns The index of the first inserted node.
+   */
+  const replaceWithIndentation = (
+    directive: DirectiveNode,
+    parent: Parent,
+    index: number,
+    nodes: RootContent[]
+  ): number => {
+    const indent = (directive.data as { indentation?: string } | undefined)
+      ?.indentation
+    const insert: RootContent[] = indent
+      ? ([{ type: 'text', value: indent } as MdText, ...nodes] as RootContent[])
+      : nodes
+    parent.children.splice(index, 1, ...insert)
+    return index + (indent ? 1 : 0)
+  }
+
+  /**
+   * Wraps a directive handler to preserve indentation before executing it.
+   *
+   * @param handler - Directive handler to wrap.
+   * @returns The wrapped handler.
+   */
+  const withIndentation =
+    (handler: DirectiveHandler): DirectiveHandler =>
+    (directive, parent, index) => {
+      preserveIndentation(directive, parent, index)
+      return handler(directive, parent, index)
+    }
+
+  /**
    * Processes a block of AST nodes using the unified processor with the remarkCampfire plugin.
    *
    * @param nodes - An array of RootContent nodes to process.
@@ -86,6 +150,7 @@ export const useDirectiveHandlers = () => {
   const runBlock = (nodes: RootContent[]) => {
     const root: Root = { type: 'root', children: nodes }
     unified()
+      .use(remarkCampfireIndentation)
       .use(remarkCampfire, { handlers: handlersRef.current })
       .runSync(root)
   }
@@ -319,8 +384,7 @@ export const useDirectiveHandlers = () => {
       value: defined ? 'true' : 'false'
     }
     if (parent && typeof index === 'number') {
-      parent.children.splice(index, 1, textNode)
-      return index
+      return replaceWithIndentation(directive, parent, index, [textNode])
     }
   }
 
@@ -378,7 +442,7 @@ export const useDirectiveHandlers = () => {
       }
     }
     if (parent && typeof index === 'number') {
-      parent.children.splice(index, 1, node)
+      return replaceWithIndentation(directive, parent, index, [node])
     }
     return index
   }
@@ -701,9 +765,11 @@ export const useDirectiveHandlers = () => {
           : { test: expr, content }
       }
     }
-    parent.children.splice(index, 1, node as RootContent)
+    const newIndex = replaceWithIndentation(directive, parent, index, [
+      node as RootContent
+    ])
     if (elseIndex === -1) {
-      const next = parent.children[index + 1]
+      const next = parent.children[newIndex + 1]
       if (
         next &&
         next.type === 'paragraph' &&
@@ -711,10 +777,10 @@ export const useDirectiveHandlers = () => {
         isTextNode(next.children[0]) &&
         next.children[0].value.trim() === ':::'
       ) {
-        parent.children.splice(index + 1, 1)
+        parent.children.splice(newIndex + 1, 1)
       }
     }
-    return [SKIP, index]
+    return [SKIP, newIndex]
   }
 
   const handleOnce: DirectiveHandler = (directive, parent, index) => {
@@ -733,8 +799,8 @@ export const useDirectiveHandlers = () => {
     }
     markOnce(key)
     const content = stripLabel(container.children as RootContent[])
-    parent.children.splice(index, 1, ...content)
-    return [SKIP, index]
+    const newIndex = replaceWithIndentation(directive, parent, index, content)
+    return [SKIP, newIndex + content.length - 1]
   }
   const handleBatch: DirectiveHandler = (directive, parent, index) => {
     if (!parent || typeof index !== 'number') return
@@ -849,8 +915,10 @@ export const useDirectiveHandlers = () => {
         }
       }
     }
-    parent.children.splice(index, 1, node as RootContent)
-    return [SKIP, index]
+    const newIndex = replaceWithIndentation(directive, parent, index, [
+      node as RootContent
+    ])
+    return [SKIP, newIndex]
   }
 
   const handleLang: DirectiveHandler = (directive, parent, index) => {
@@ -928,8 +996,10 @@ export const useDirectiveHandlers = () => {
           parent.children.splice(index, 2)
           return index - 1
         }
-        parent.children.splice(index, 1, { type: 'text', value: text })
-        return index
+        const newIndex = replaceWithIndentation(directive, parent, index, [
+          { type: 'text', value: text }
+        ])
+        return newIndex
       }
       const props: Properties = { 'data-i18n-key': key }
       if (options.ns) props['data-i18n-ns'] = options.ns
@@ -939,8 +1009,8 @@ export const useDirectiveHandlers = () => {
         value: '0', // non-empty placeholder required for mdast conversion
         data: { hName: 'show', hProperties: props }
       }
-      parent.children.splice(index, 1, node)
-      return index
+      const newIndex = replaceWithIndentation(directive, parent, index, [node])
+      return newIndex
     }
     return index
   }
@@ -1212,6 +1282,7 @@ export const useDirectiveHandlers = () => {
       .use(remarkParse)
       .use(remarkGfm)
       .use(remarkDirective)
+      .use(remarkCampfireIndentation)
       .use(remarkCampfire, { handlers: handlersRef.current })
 
     includeDepth++
@@ -1219,8 +1290,13 @@ export const useDirectiveHandlers = () => {
     processor.runSync(tree)
     includeDepth--
 
-    parent.children.splice(index, 1, ...(tree.children as RootContent[]))
-    return [SKIP, index]
+    const newIndex = replaceWithIndentation(
+      directive,
+      parent,
+      index,
+      tree.children as RootContent[]
+    )
+    return [SKIP, newIndex + (tree.children as RootContent[]).length - 1]
   }
 
   return useMemo(() => {
@@ -1269,7 +1345,10 @@ export const useDirectiveHandlers = () => {
       translations: handleTranslations,
       t: handleTranslate
     }
-    handlersRef.current = handlers
-    return handlers
+    const wrapped = Object.fromEntries(
+      Object.entries(handlers).map(([k, h]) => [k, withIndentation(h)])
+    ) as Record<string, DirectiveHandler>
+    handlersRef.current = wrapped
+    return wrapped
   }, [])
 }
