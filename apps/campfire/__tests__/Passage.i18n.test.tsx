@@ -24,7 +24,7 @@ describe('Passage i18n directives', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':lang{locale=fr-FR}' }]
+      children: [{ type: 'text', value: ':lang{locale="fr-FR"}' }]
     }
 
     useStoryDataStore.setState({
@@ -120,8 +120,8 @@ describe('Passage i18n directives', () => {
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
       children: [
-        { type: 'text', value: ':translations{ns=ui goodbye="Au revoir"}' },
-        { type: 'text', value: ':t{key=goodbye ns=ui}' }
+        { type: 'text', value: ':translations{ns="ui" goodbye="Au revoir"}' },
+        { type: 'text', value: ':t{key=goodbye ns="ui"}' }
       ]
     }
 

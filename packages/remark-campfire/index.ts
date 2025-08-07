@@ -10,6 +10,14 @@ import type { DirectiveNode } from './helpers'
 const ERR_TRIGGER_LABEL_UNQUOTED = 'CF001'
 /** Error message for unquoted trigger labels */
 const MSG_TRIGGER_LABEL_UNQUOTED = `${ERR_TRIGGER_LABEL_UNQUOTED}: trigger label must be a quoted string`
+/** Error code for unquoted locale attributes */
+const ERR_LOCALE_UNQUOTED = 'CF002'
+/** Error message for unquoted locale attributes */
+const MSG_LOCALE_UNQUOTED = `${ERR_LOCALE_UNQUOTED}: locale must be a quoted string`
+/** Error code for unquoted namespace attributes */
+const ERR_NS_UNQUOTED = 'CF003'
+/** Error message for unquoted namespace attributes */
+const MSG_NS_UNQUOTED = `${ERR_NS_UNQUOTED}: ns must be a quoted string`
 
 export type DirectiveHandlerResult = number | [typeof SKIP, number] | void
 
@@ -105,6 +113,43 @@ const parseFallbackAttributes = (
   }
 }
 
+/**
+ * Ensures that a directive attribute is a quoted string.
+ *
+ * @param directive - Directive node being processed.
+ * @param name - Attribute name to verify.
+ * @param file - VFile used for error reporting.
+ * @param message - Error message to emit when validation fails.
+ */
+const ensureQuotedAttribute = (
+  directive: DirectiveNode,
+  name: string,
+  file: VFile,
+  message: string
+) => {
+  const content = typeof file.value === 'string' ? file.value : undefined
+  if (content) {
+    const raw = content.slice(
+      directive.position?.start.offset ?? 0,
+      directive.position?.end.offset ?? 0
+    )
+    const attrMatch = raw.match(
+      new RegExp(`${name}\\s*=\\s*(['"\`])((?:\\\\.|(?!\\1).)*)\\1`)
+    )
+    const attrs = directive.attributes as Record<string, unknown>
+    if (typeof attrs[name] !== 'string' || !attrMatch) {
+      delete attrs[name]
+      file.message(message, directive)
+    }
+  } else {
+    const attrs = directive.attributes as Record<string, unknown>
+    if (typeof attrs[name] !== 'string') {
+      delete attrs[name]
+      file.message(message, directive)
+    }
+  }
+}
+
 const remarkCampfire =
   (options: RemarkCampfireOptions = {}) =>
   (tree: Root, file: VFile) => {
@@ -131,29 +176,31 @@ const remarkCampfire =
             directive.attributes &&
             Object.prototype.hasOwnProperty.call(directive.attributes, 'label')
           ) {
-            const content =
-              typeof file.value === 'string' ? file.value : undefined
-            if (content) {
-              const raw = content.slice(
-                directive.position?.start.offset ?? 0,
-                directive.position?.end.offset ?? 0
-              )
-              const attrMatch = raw.match(
-                /label\s*=\s*(['"`])((?:\\.|(?!\1).)*)\1/
-              )
-              if (
-                typeof directive.attributes.label !== 'string' ||
-                !attrMatch
-              ) {
-                delete directive.attributes.label
-                console.error(MSG_TRIGGER_LABEL_UNQUOTED)
-                file.message(MSG_TRIGGER_LABEL_UNQUOTED, directive)
-              }
-            } else if (typeof directive.attributes.label !== 'string') {
-              delete directive.attributes.label
-              console.error(MSG_TRIGGER_LABEL_UNQUOTED)
-              file.message(MSG_TRIGGER_LABEL_UNQUOTED, directive)
-            }
+            ensureQuotedAttribute(
+              directive,
+              'label',
+              file,
+              MSG_TRIGGER_LABEL_UNQUOTED
+            )
+          }
+          if (
+            directive.attributes &&
+            (directive.name === 'lang' || directive.name === 'translations') &&
+            Object.prototype.hasOwnProperty.call(directive.attributes, 'locale')
+          ) {
+            ensureQuotedAttribute(
+              directive,
+              'locale',
+              file,
+              MSG_LOCALE_UNQUOTED
+            )
+          }
+          if (
+            directive.attributes &&
+            (directive.name === 't' || directive.name === 'translations') &&
+            Object.prototype.hasOwnProperty.call(directive.attributes, 'ns')
+          ) {
+            ensureQuotedAttribute(directive, 'ns', file, MSG_NS_UNQUOTED)
           }
           const handler = options.handlers?.[directive.name]
           if (handler) {

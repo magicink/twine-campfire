@@ -97,11 +97,6 @@ describe('Passage trigger directives', () => {
   })
 
   it('ignores unquoted label attributes', async () => {
-    const orig = console.error
-    const logs: unknown[] = []
-    console.error = (...args: unknown[]) => {
-      logs.push(args.join(' '))
-    }
     const passage: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
@@ -119,9 +114,5 @@ describe('Passage trigger directives', () => {
     const button = await screen.findByRole('button')
     expect(screen.queryByRole('button', { name: 'Fire' })).toBeNull()
     expect(button.textContent).toBe('')
-    expect(logs.some(l => typeof l === 'string' && l.includes('CF001'))).toBe(
-      true
-    )
-    console.error = orig
   })
 })

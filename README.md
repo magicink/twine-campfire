@@ -448,7 +448,7 @@ Change language and handle translations.
 - `lang`: Switch the active locale.
 
   ```md
-  :lang{locale=LANG-CODE}
+  :lang{locale="LANG-CODE"}
   ```
 
   Replace `LANG-CODE` with a locale like `fr`.
@@ -456,7 +456,7 @@ Change language and handle translations.
 - `t`: Output a translated string.
 
   ```md
-  :t{key=HELLO ns=UI}
+  :t{key=HELLO ns="UI"}
   ```
 
   Replace `HELLO` and `UI` with your key and namespace.
@@ -464,7 +464,7 @@ Change language and handle translations.
 - `translations`: Add multiple translations.
 
   ```md
-  :translations{ns=UI locale=LANG-CODE hello="BONJOUR"}
+  :translations{ns="UI" locale="LANG-CODE" hello="BONJOUR"}
   ```
 
   Replace `UI` with the namespace, `LANG-CODE` with the locale and adjust
@@ -488,6 +488,8 @@ markup. These codes help identify and debug issues in story passages.
 | Code  | Meaning                                                            |
 | ----- | ------------------------------------------------------------------ |
 | CF001 | Trigger `label` must be a quoted string. The attribute is ignored. |
+| CF002 | `locale` must be a quoted string. The attribute is ignored.        |
+| CF003 | `ns` must be a quoted string. The attribute is ignored.            |
 
 ## Further reading
 

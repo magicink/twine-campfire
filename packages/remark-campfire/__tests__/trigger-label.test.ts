@@ -7,10 +7,10 @@ import remarkCampfire, { type DirectiveHandler } from '../index'
 import type { ContainerDirective } from 'mdast-util-directive'
 
 /**
- * Parses markdown containing a trigger directive and returns the directive node.
+ * Parses markdown containing a trigger directive and returns the directive node and file.
  *
  * @param md - Markdown string to process.
- * @returns The parsed trigger directive node.
+ * @returns The parsed trigger directive node and VFile.
  */
 const parseTrigger = (md: string) => {
   let captured: ContainerDirective | undefined
@@ -21,38 +21,31 @@ const parseTrigger = (md: string) => {
     .use(remarkParse)
     .use(remarkDirective)
     .use(remarkCampfire, { handlers: { trigger: handler } })
+  const file = new VFile(md)
   const tree = processor.parse(md)
-  processor.runSync(tree, new VFile(md))
-  return captured
+  processor.runSync(tree, file)
+  return { node: captured, file }
 }
 
 describe('trigger label attribute', () => {
   it('accepts quoted labels', () => {
-    const node = parseTrigger(':::trigger{label="Fire"}\n:::')
+    const { node } = parseTrigger(':::trigger{label="Fire"}\n:::')
     expect(node?.attributes).toEqual({ label: 'Fire' })
   })
 
   it('accepts quotes inside labels', () => {
-    const node = parseTrigger(':::trigger{label="John\'s house"}\n:::')
+    const { node } = parseTrigger(':::trigger{label="John\'s house"}\n:::')
     expect(node?.attributes).toEqual({ label: "John's house" })
   })
 
   it('rejects unquoted labels', () => {
-    const orig = console.error
-    const logs: unknown[] = []
-    console.error = (...args: unknown[]) => {
-      logs.push(args.join(' '))
-    }
-    const node = parseTrigger(':::trigger{label=Fire}\n:::')
+    const { node, file } = parseTrigger(':::trigger{label=Fire}\n:::')
     expect(node?.attributes).toEqual({})
-    expect(logs.some(l => typeof l === 'string' && l.includes('CF001'))).toBe(
-      true
-    )
-    console.error = orig
+    expect(file.messages.some(m => m.message.includes('CF001'))).toBe(true)
   })
 
   it('rejects mismatched quotes', () => {
-    const node = parseTrigger(':::trigger{label="Fire\'}\n:::')
+    const { node } = parseTrigger(':::trigger{label="Fire\'}\n:::')
     expect(node?.attributes ?? {}).toEqual({})
   })
 })
