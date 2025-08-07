@@ -1019,6 +1019,30 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
+   * Extracts the content of a string wrapped in matching quotes or backticks.
+   *
+   * @param value - The raw string to inspect.
+   * @returns The inner string if quoted, otherwise undefined.
+   */
+  const getQuotedValue = (value: string): string | undefined => {
+    const match = value.trim().match(/^(["'`])(.*)\1$/)
+    return match ? match[2] : undefined
+  }
+
+  /**
+   * Retrieves a string or numeric value from the game state by key.
+   *
+   * @param key - The game state key to read.
+   * @returns The value as a string if present, otherwise undefined.
+   */
+  const getStateValue = (key: string): string | undefined => {
+    const value = (gameData as Record<string, unknown>)[key]
+    return typeof value === 'string' || typeof value === 'number'
+      ? String(value)
+      : undefined
+  }
+
+  /**
    * Handles the `:goto` directive, which navigates to another passage.
    * Passage names must be wrapped in matching quotes or backticks, while
    * unquoted numbers are treated as passage IDs. When the `passage` attribute
@@ -1036,25 +1060,13 @@ export const useDirectiveHandlers = () => {
     let target: string | undefined
 
     if (rawText) {
-      const nameMatch = rawText.match(/^(["'`])(.*)\1$/)
-      if (nameMatch) {
-        target = nameMatch[2]
-      } else if (/^\d+$/.test(rawText)) {
-        target = rawText
-      }
+      target =
+        getQuotedValue(rawText) ?? (/^\d+$/.test(rawText) ? rawText : undefined)
     } else if (typeof attrs.passage === 'string') {
       const rawAttr = attrs.passage.trim()
-      const nameMatch = rawAttr.match(/^(["'`])(.*)\1$/)
-      if (nameMatch) {
-        target = nameMatch[2]
-      } else if (/^\d+$/.test(rawAttr)) {
-        target = rawAttr
-      } else {
-        const value = (gameData as Record<string, unknown>)[rawAttr]
-        if (typeof value === 'string' || typeof value === 'number') {
-          target = String(value)
-        }
-      }
+      target =
+        getQuotedValue(rawAttr) ??
+        (/^\d+$/.test(rawAttr) ? rawAttr : getStateValue(rawAttr))
     }
 
     const passage = target
@@ -1271,11 +1283,9 @@ export const useDirectiveHandlers = () => {
    */
   const handleTitle: DirectiveHandler = (directive, parent, index) => {
     if (includeDepth > 0) return removeNode(parent, index)
-    const match = toString(directive)
-      .trim()
-      .match(/^(["'`])(.*)\1$/)
-    if (match) {
-      document.title = i18next.t(match[2])
+    const title = getQuotedValue(toString(directive).trim())
+    if (title) {
+      document.title = i18next.t(title)
       markTitleOverridden()
     }
     return removeNode(parent, index)
@@ -1300,25 +1310,13 @@ export const useDirectiveHandlers = () => {
     let target: string | undefined
 
     if (rawText) {
-      const nameMatch = rawText.match(/^(["'`])(.*)\1$/)
-      if (nameMatch) {
-        target = nameMatch[2]
-      } else if (/^\d+$/.test(rawText)) {
-        target = rawText
-      }
+      target =
+        getQuotedValue(rawText) ?? (/^\d+$/.test(rawText) ? rawText : undefined)
     } else if (typeof attrs.passage === 'string') {
       const rawAttr = attrs.passage.trim()
-      const nameMatch = rawAttr.match(/^(["'`])(.*)\1$/)
-      if (nameMatch) {
-        target = nameMatch[2]
-      } else if (/^\d+$/.test(rawAttr)) {
-        target = rawAttr
-      } else {
-        const value = (gameData as Record<string, unknown>)[rawAttr]
-        if (typeof value === 'string' || typeof value === 'number') {
-          target = String(value)
-        }
-      }
+      target =
+        getQuotedValue(rawAttr) ??
+        (/^\d+$/.test(rawAttr) ? rawAttr : getStateValue(rawAttr))
     }
 
     if (!parent || typeof index !== 'number' || !target) {
