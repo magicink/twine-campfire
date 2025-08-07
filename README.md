@@ -100,7 +100,8 @@ structures. Indent them just like normal text:
 
 Operations that set, update or remove scalar values.
 
-- `random`: Assign a random integer.
+- `random`: Assign a random integer. This directive is leaf-only and cannot wrap
+  content.
 
   ```md
   :random{key=HP min=MIN max=MAX}
@@ -108,11 +109,11 @@ Operations that set, update or remove scalar values.
 
   Replace `HP` with the key and `MIN`/`MAX` with bounds.
 
-- `set[range]`: Initialize a key with a numeric range.
+- `set[range]`: Initialize a key with a numeric range. This directive is leaf-only and cannot wrap
+  content.
 
   ```md
-  :::set[range]{key=HP min=MIN max=MAX value=VALUE}
-  :::
+  :set[range]{key=HP min=MIN max=MAX value=VALUE}
   ```
 
   Replace `HP` with the key, `MIN`/`MAX` with bounds and `VALUE` with the
@@ -136,13 +137,14 @@ Operations that set, update or remove scalar values.
 
   Replace `visited` with the key to lock on first use.
 
-- `unset`: Remove a key from state.
+- `unset`: Remove a key from state. This directive is leaf-only and cannot wrap
+  content.
 
   ```md
-  :unset{key=HP}
+  :unset{key=visited}
   ```
 
-  Replace `HP` with the key to remove.
+  Replace `visited` with the key to remove.
 
 ### Arrays & collection management
 
@@ -251,37 +253,62 @@ Run content only when conditions hold.
 
 - `if`: Render a block when a JavaScript expression against game data is truthy. Add an `else` container for fallback content.
 
+  Basic truthy check:
+
   ```md
   :::if{some_key}
   CONTENT WHEN `some_key` IS TRUTHY
   :::
+  ```
 
+  Negation check:
+
+  ```md
   :::if{!some_key}
   CONTENT WHEN `some_key` IS FALSY
   :::
+  ```
 
+  Double negation for boolean coercion:
+
+  ```md
   :::if{!!some_key}
   CONTENT WHEN `some_key` COERCES TO TRUE
   :::
+  ```
 
+  Comparison operators:
+
+  ```md
   :::if{key_a < key_b}
   CONTENT WHEN `key_a` IS LESS THAN `key_b`
   :::
+  ```
 
+  Type checking:
+
+  ```md
   :::if{typeof key_a !== "string"}
   CONTENT WHEN `key_a` IS NOT A STRING
   :::
+  ```
 
+  Using with else block:
+
+  ```md
   :::if{some_key}
   TRUTHY CONTENT
   :::else
   FALLBACK CONTENT
   :::
+  ```
 
+  Combining with other directives and links:
+
+  ```md
   :::if{has_key}
   You unlock the door.
-  :::set{key=door_opened value=true}
-  :::
+  :set{key=door_opened value=true}
   [[Enter->Hallway]]
   :::
   ```
@@ -306,8 +333,7 @@ Run directives on specific passage events or group actions.
 
   ```md
   :::batch
-  :::set{key=HP value=VALUE}
-  :::
+  :set{key=HP value=VALUE}
   :push{key=items value=sword}
   :unset{key=old}
   :::
@@ -319,8 +345,7 @@ Run directives on specific passage events or group actions.
 
   ```md
   :::trigger{label="Do it" class="primary" disabled}
-  :::set{key=KEY value=VALUE}
-  :::
+  :set{key=KEY value=VALUE}
   :::
   ```
 
