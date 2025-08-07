@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.33.0](https://github.com/magicink/twine-campfire/compare/v1.32.2...v1.33.0) (2025-08-07)
+
+
+### Features
+
+* use id attribute for save/load directives ([#151](https://github.com/magicink/twine-campfire/issues/151)) ([0403175](https://github.com/magicink/twine-campfire/commit/0403175bc0dd51b2406c9846ad742c270d41ba14))
+
 ## [1.32.2](https://github.com/magicink/twine-campfire/compare/v1.32.1...v1.32.2) (2025-08-06)
 
 
