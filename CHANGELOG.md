@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.35.0](https://github.com/magicink/twine-campfire/compare/v1.34.0...v1.35.0) (2025-08-07)
+
+
+### Features
+
+* require quotes for string values in set directive ([#156](https://github.com/magicink/twine-campfire/issues/156)) ([7c9a95d](https://github.com/magicink/twine-campfire/commit/7c9a95dd36c204d260aa4a9a98a686b56d17e66c))
+
 ## [1.34.0](https://github.com/magicink/twine-campfire/compare/v1.33.0...v1.34.0) (2025-08-07)
 
 
