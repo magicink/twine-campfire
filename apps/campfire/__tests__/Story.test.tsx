@@ -125,7 +125,7 @@ is open!
       button.click()
     })
     await waitFor(() => {
-      expect(useGameStore.getState().gameData.clicked).toBe('true')
+      expect(useGameStore.getState().gameData.clicked).toBe(true)
     })
   })
 
@@ -160,7 +160,7 @@ not open
     `
     render(<Story />)
     await waitFor(() =>
-      expect(useGameStore.getState().gameData.done).toBe('true')
+      expect(useGameStore.getState().gameData.done).toBe(true)
     )
     expect(screen.queryByText(':::')).toBeNull()
   })

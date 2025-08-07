@@ -249,7 +249,7 @@ describe('Passage rendering and navigation', () => {
     await waitFor(() =>
       expect(
         (useGameStore.getState().gameData as Record<string, unknown>).visited
-      ).toBe('true')
+      ).toBe(true)
     )
   })
 

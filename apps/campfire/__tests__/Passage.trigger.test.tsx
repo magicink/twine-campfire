@@ -42,7 +42,7 @@ describe('Passage trigger directives', () => {
       button.click()
     })
     await waitFor(() => {
-      expect(useGameStore.getState().gameData.fired).toBe('true')
+      expect(useGameStore.getState().gameData.fired).toBe(true)
     })
   })
 
@@ -92,7 +92,7 @@ describe('Passage trigger directives', () => {
       button.click()
     })
     await waitFor(() => {
-      expect(useGameStore.getState().gameData.go).toBe('true')
+      expect(useGameStore.getState().gameData.go).toBe(true)
     })
   })
 })
