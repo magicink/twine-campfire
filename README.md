@@ -109,6 +109,15 @@ Operations that set, update or remove scalar values.
 
   Replace `HP` with the key and `MIN`/`MAX` with bounds.
 
+- `set`: Assign a value to a key. This directive is leaf-only and cannot wrap
+  content.
+
+  ```md
+  :set{key=HP value=VALUE}
+  ```
+
+  Replace `VALUE` with the number or string to store.
+
 - `set[range]`: Initialize a key with a numeric range. This directive is leaf-only and cannot wrap
   content.
 
@@ -118,15 +127,6 @@ Operations that set, update or remove scalar values.
 
   Replace `HP` with the key, `MIN`/`MAX` with bounds and `VALUE` with the
   starting number (defaults to `MIN`).
-
-- `set`: Assign a value to a key. This directive is leaf-only and cannot wrap
-  content.
-
-  ```md
-  :set{key=HP value=VALUE}
-  ```
-
-  Replace `VALUE` with the number or string to store.
 
 - `setOnce`: Set a key only if it has not been set. This directive is leaf-only
   and cannot wrap content.
