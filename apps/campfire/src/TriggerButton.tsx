@@ -1,5 +1,7 @@
 import { unified } from 'unified'
-import remarkCampfire from '@/packages/remark-campfire'
+import remarkCampfire, {
+  remarkCampfireIndentation
+} from '@/packages/remark-campfire'
 import type { RootContent, Root } from 'mdast'
 import rfdc from 'rfdc'
 import { useDirectiveHandlers } from './useDirectiveHandlers'
@@ -13,6 +15,14 @@ interface TriggerButtonProps {
   disabled?: boolean
 }
 
+/**
+ * Button that processes directive content when clicked.
+ *
+ * @param className - Optional CSS classes.
+ * @param content - Serialized directive block.
+ * @param children - Button label.
+ * @param disabled - Disables the button when true.
+ */
 export const TriggerButton = ({
   className,
   content,
@@ -20,9 +30,17 @@ export const TriggerButton = ({
   disabled
 }: TriggerButtonProps) => {
   const handlers = useDirectiveHandlers()
+  /**
+   * Processes a block of AST nodes using the Campfire remark plugins.
+   *
+   * @param nodes - Nodes to process.
+   */
   const runBlock = (nodes: RootContent[]) => {
     const root: Root = { type: 'root', children: nodes }
-    unified().use(remarkCampfire, { handlers }).runSync(root)
+    unified()
+      .use(remarkCampfireIndentation)
+      .use(remarkCampfire, { handlers })
+      .runSync(root)
   }
   const classes = Array.isArray(className)
     ? className

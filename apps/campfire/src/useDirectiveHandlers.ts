@@ -81,31 +81,6 @@ export const useDirectiveHandlers = () => {
   let includeDepth = 0
 
   /**
-   * Captures and removes indentation preceding a directive.
-   *
-   * @param directive - Directive node being processed.
-   * @param parent - Parent node of the directive.
-   * @param index - Index of the directive within its parent.
-   */
-  const preserveIndentation = (
-    directive: DirectiveNode,
-    parent: Parent | undefined,
-    index: number | undefined
-  ): void => {
-    if (!parent || typeof index !== 'number') return
-    const previous = parent.children[index - 1]
-    if (previous && previous.type === 'text') {
-      const textNode = previous as MdText
-      const match = textNode.value.match(/(\s+)$/)
-      if (match && match[1]) {
-        if (!directive.data) directive.data = {}
-        ;(directive.data as Record<string, unknown>).indentation = match[1]
-        textNode.value = textNode.value.slice(0, -match[1].length)
-      }
-    }
-  }
-
-  /**
    * Replaces a directive with new nodes while restoring preserved indentation.
    *
    * @param directive - Directive being replaced.
@@ -128,19 +103,6 @@ export const useDirectiveHandlers = () => {
     parent.children.splice(index, 1, ...insert)
     return index + (indent ? 1 : 0)
   }
-
-  /**
-   * Wraps a directive handler to preserve indentation before executing it.
-   *
-   * @param handler - Directive handler to wrap.
-   * @returns The wrapped handler.
-   */
-  const withIndentation =
-    (handler: DirectiveHandler): DirectiveHandler =>
-    (directive, parent, index) => {
-      preserveIndentation(directive, parent, index)
-      return handler(directive, parent, index)
-    }
 
   /**
    * Processes a block of AST nodes using the unified processor with the remarkCampfire plugin.
@@ -1345,10 +1307,7 @@ export const useDirectiveHandlers = () => {
       translations: handleTranslations,
       t: handleTranslate
     }
-    const wrapped = Object.fromEntries(
-      Object.entries(handlers).map(([k, h]) => [k, withIndentation(h)])
-    ) as Record<string, DirectiveHandler>
-    handlersRef.current = wrapped
-    return wrapped
+    handlersRef.current = handlers
+    return handlers
   }, [])
 }
