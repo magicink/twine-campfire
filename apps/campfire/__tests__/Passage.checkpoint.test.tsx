@@ -170,7 +170,7 @@ describe('Passage checkpoint directives', () => {
         {
           type: 'text',
           value:
-            ':::set[number]{key=hp value=5}\n:::\n:checkpoint{id=cp1}:save{key=slot1}'
+            ':::set[number]{key=hp value=5}\n:::\n:checkpoint{id=cp1}:save{id=slot1}'
         }
       ]
     }
@@ -210,7 +210,7 @@ describe('Passage checkpoint directives', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':load{key=slot1}' }]
+      children: [{ type: 'text', value: ':load{id=slot1}' }]
     }
     const second: Element = {
       type: 'element',
@@ -250,7 +250,7 @@ describe('Passage checkpoint directives', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':load{key=slot1}' }]
+      children: [{ type: 'text', value: ':load{id=slot1}' }]
     }
 
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
@@ -329,7 +329,7 @@ describe('Passage checkpoint directives', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':clearSave{key=slot1}' }]
+      children: [{ type: 'text', value: ':clearSave{id=slot1}' }]
     }
 
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
