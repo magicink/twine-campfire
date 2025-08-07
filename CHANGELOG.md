@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.35.3](https://github.com/magicink/twine-campfire/compare/v1.35.2...v1.35.3) (2025-08-07)
+
+
+### Bug Fixes
+
+* enforce quoting in i18n directives ([#162](https://github.com/magicink/twine-campfire/issues/162)) ([e5ce1b4](https://github.com/magicink/twine-campfire/commit/e5ce1b4a6b414fe41511c2996db8af24f499669d))
+
 ## [1.35.2](https://github.com/magicink/twine-campfire/compare/v1.35.1...v1.35.2) (2025-08-07)
 
 
