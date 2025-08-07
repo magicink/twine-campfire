@@ -158,6 +158,14 @@ export const useDirectiveHandlers = () => {
     const isRecord = (value: unknown): value is Record<string, unknown> =>
       !!value && typeof value === 'object' && !Array.isArray(value)
 
+    /**
+     * Parses a raw attribute value based on the provided type parameter.
+     * String values must be wrapped in matching quotes, double-quotes, or backticks.
+     * Unquoted values are treated as expressions evaluated against current game data.
+     *
+     * @param value - Raw attribute value to parse.
+     * @returns The parsed value or undefined if parsing fails.
+     */
     const parseValue = (value: string): unknown => {
       switch (typeParam) {
         case 'number': {
@@ -181,8 +189,16 @@ export const useDirectiveHandlers = () => {
             return {}
           }
         case 'string':
-        default:
-          return value
+        default: {
+          const match = value.match(/^(['"`])(.*)\1$/)
+          if (match) return match[2]
+          try {
+            const fn = compile(value)
+            return fn(gameData)
+          } catch {
+            return undefined
+          }
+        }
       }
     }
 
@@ -217,24 +233,26 @@ export const useDirectiveHandlers = () => {
           const rawValue = attrs.value
           if (typeof rawValue === 'string') {
             const parsed = parseValue(rawValue)
-            const current = gameData[key]
-            if (isRange(current)) {
-              if (typeof parsed === 'number') {
-                safe[key] = {
-                  ...current,
-                  value: clamp(parsed, current.lower, current.upper)
-                }
-              } else if (isRange(parsed)) {
-                safe[key] = {
-                  lower: parsed.lower,
-                  upper: parsed.upper,
-                  value: clamp(parsed.value, parsed.lower, parsed.upper)
+            if (typeof parsed !== 'undefined') {
+              const current = gameData[key]
+              if (isRange(current)) {
+                if (typeof parsed === 'number') {
+                  safe[key] = {
+                    ...current,
+                    value: clamp(parsed, current.lower, current.upper)
+                  }
+                } else if (isRange(parsed)) {
+                  safe[key] = {
+                    lower: parsed.lower,
+                    upper: parsed.upper,
+                    value: clamp(parsed.value, parsed.lower, parsed.upper)
+                  }
+                } else {
+                  safe[key] = parsed
                 }
               } else {
                 safe[key] = parsed
               }
-            } else {
-              safe[key] = parsed
             }
           }
         }

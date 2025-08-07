@@ -117,7 +117,7 @@ describe('If', () => {
     render(<If test='true' content={content} />)
     expect(screen.getByText('Start')).toBeInTheDocument()
     expect(screen.getByText('HP!')).toBeInTheDocument()
-    expect(useGameStore.getState().gameData.hp).toBe('2')
+    expect(useGameStore.getState().gameData.hp).toBe(2)
   })
 
   it('executes trigger directives', async () => {
@@ -130,7 +130,7 @@ describe('If', () => {
       button.click()
     })
     await waitFor(() => {
-      expect(useGameStore.getState().gameData.fired).toBe('true')
+      expect(useGameStore.getState().gameData.fired).toBe(true)
     })
   })
 })

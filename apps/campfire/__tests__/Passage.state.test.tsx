@@ -42,6 +42,53 @@ describe('Passage game state directives', () => {
     )
   })
 
+  it('sets string values only when quoted', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':::set{key=item value="\'sword\'"}\n:::'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() =>
+      expect(
+        (useGameStore.getState().gameData as Record<string, unknown>).item
+      ).toBe('sword')
+    )
+  })
+
+  it('ignores unquoted string values', () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':::set{key=item value=sword}\n:::' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    expect(
+      (useGameStore.getState().gameData as Record<string, unknown>).item
+    ).toBeUndefined()
+  })
+
   it('removes paragraphs left empty by directives', async () => {
     const passage: Element = {
       type: 'element',
