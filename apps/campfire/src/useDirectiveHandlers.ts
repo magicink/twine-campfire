@@ -132,8 +132,8 @@ export const useDirectiveHandlers = () => {
   }, [currentPassageId])
 
   /**
-   * Handles the `set` and `setOnce` directives by assigning a value to a key in
-   * game data. Supports optional typing via the directive label and range
+   * Handles the leaf `set` and `setOnce` directives by assigning a value to a key
+   * in game data. Supports optional typing via the directive label and range
    * initialization.
    *
    * @param directive - The directive node being processed.

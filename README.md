@@ -83,6 +83,19 @@ They come in leaf or container form.
 
 Directives are grouped by purpose.
 
+### Indentation
+
+Directives preserve leading spaces, so they can appear inside other Markdown
+structures. Indent them just like normal text:
+
+```md
+- Step one
+  :set{key=visited value=true}
+
+> Quoted
+> :goto{passage=NEXT}
+```
+
 ### Variables & simple state
 
 Operations that set, update or remove scalar values.
@@ -105,20 +118,20 @@ Operations that set, update or remove scalar values.
   Replace `HP` with the key, `MIN`/`MAX` with bounds and `VALUE` with the
   starting number (defaults to `MIN`).
 
-- `set`: Assign a value to a key.
+- `set`: Assign a value to a key. This directive is leaf-only and cannot wrap
+  content.
 
   ```md
-  :::set{key=HP value=VALUE}
-  :::
+  :set{key=HP value=VALUE}
   ```
 
   Replace `VALUE` with the number or string to store.
 
-- `setOnce`: Set a key only if it has not been set.
+- `setOnce`: Set a key only if it has not been set. This directive is leaf-only
+  and cannot wrap content.
 
   ```md
-  :::setOnce{key=visited value=true}
-  :::
+  :setOnce{key=visited value=true}
   ```
 
   Replace `visited` with the key to lock on first use.
