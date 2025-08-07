@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.35.1](https://github.com/magicink/twine-campfire/compare/v1.35.0...v1.35.1) (2025-08-07)
+
+
+### Bug Fixes
+
+* infer types for array directives ([#158](https://github.com/magicink/twine-campfire/issues/158)) ([b3d42ec](https://github.com/magicink/twine-campfire/commit/b3d42ec7b5374e44c03902db91450c20314217c0))
+
 ## [1.35.0](https://github.com/magicink/twine-campfire/compare/v1.34.0...v1.35.0) (2025-08-07)
 
 
