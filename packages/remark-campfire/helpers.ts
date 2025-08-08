@@ -1,4 +1,5 @@
 import { toString } from 'mdast-util-to-string'
+import { compile } from 'expression-eval'
 import type { Parent, Paragraph, RootContent } from 'mdast'
 import type {
   ContainerDirective,
@@ -213,4 +214,220 @@ export const ensureKey = (
   if (typeof raw === 'string') return raw
   removeNode(parent, index)
   return undefined
+}
+
+const QUOTE_PATTERN = /^(['"`])(.*)\1$/
+
+export interface AttributeSpec<T = unknown> {
+  type: 'string' | 'number' | 'boolean' | 'object' | 'array'
+  required?: boolean
+  default?: T
+  expression?: boolean
+}
+
+export type AttributeSchema = Record<string, AttributeSpec<any>>
+
+type TypeFromSpec<S extends AttributeSpec<any>> = S['type'] extends 'string'
+  ? string
+  : S['type'] extends 'number'
+    ? number
+    : S['type'] extends 'boolean'
+      ? boolean
+      : S['type'] extends 'object'
+        ? Record<string, unknown>
+        : S['type'] extends 'array'
+          ? unknown[]
+          : unknown
+
+export type ExtractedAttrs<S extends AttributeSchema> = {
+  [K in keyof S as S[K]['required'] extends true ? K : never]: TypeFromSpec<
+    S[K]
+  >
+} & {
+  [K in keyof S as S[K]['required'] extends true ? never : K]?: TypeFromSpec<
+    S[K]
+  >
+}
+
+interface ExtractOptions<S extends AttributeSchema> {
+  state?: Record<string, unknown>
+  keyAttr?: keyof S
+  label?: boolean
+}
+
+export interface ExtractResult<S extends AttributeSchema> {
+  attrs: ExtractedAttrs<S>
+  key?: string
+  label?: string
+  valid: boolean
+  errors: string[]
+}
+
+/**
+ * Extracts and validates directive attributes based on a schema.
+ *
+ * @param directive - Directive node containing raw attributes.
+ * @param parent - Parent node used when removing invalid directives.
+ * @param index - Index of the directive in its parent.
+ * @param schema - Specification describing expected attributes.
+ * @param options - Extraction options such as state and key handling.
+ * @returns Parsed attributes and validation details.
+ */
+export const extractAttributes = <S extends AttributeSchema>(
+  directive: DirectiveNode,
+  parent: Parent | undefined,
+  index: number | undefined,
+  schema: S,
+  options: ExtractOptions<S> = {}
+): ExtractResult<S> => {
+  const attrs = (directive.attributes || {}) as Record<string, unknown>
+  const { state = {}, keyAttr, label: includeLabel } = options
+  const processed: Record<string, unknown> = {}
+  const errors: string[] = []
+  let key: string | undefined
+
+  /**
+   * Evaluates an expression string against the provided state scope.
+   *
+   * @param expr - Expression to evaluate.
+   * @returns The evaluated result or undefined if evaluation fails.
+   */
+  const evalExpr = (expr: string): unknown => {
+    try {
+      const fn = compile(expr) as (scope: Record<string, unknown>) => unknown
+      return fn(state)
+    } catch {
+      return undefined
+    }
+  }
+
+  /**
+   * Parses a raw attribute value according to its specification.
+   *
+   * @param raw - Raw attribute value.
+   * @param spec - Attribute specification describing type and flags.
+   * @returns The parsed value or undefined if parsing fails.
+   */
+  const parse = (raw: unknown, spec: AttributeSpec): unknown => {
+    if (raw == null) return undefined
+    switch (spec.type) {
+      case 'string': {
+        if (typeof raw === 'string') {
+          const m = raw.match(QUOTE_PATTERN)
+          if (m) return m[2]
+          if (spec.expression === false) return raw
+          const evaluated = evalExpr(raw)
+          if (typeof evaluated === 'string') return evaluated
+          return evaluated != null ? String(evaluated) : raw
+        }
+        return String(raw)
+      }
+      case 'number': {
+        if (typeof raw === 'number') return raw
+        const expr = typeof raw === 'string' ? raw : String(raw)
+        const evaluated = spec.expression === false ? expr : evalExpr(expr)
+        const num =
+          typeof evaluated === 'number'
+            ? evaluated
+            : parseFloat(String(evaluated))
+        return Number.isNaN(num) ? undefined : num
+      }
+      case 'boolean': {
+        if (typeof raw === 'boolean') return raw
+        if (typeof raw === 'string') {
+          if (spec.expression === false) return raw === 'true'
+          const evaluated = evalExpr(raw)
+          return typeof evaluated === 'boolean' ? evaluated : raw === 'true'
+        }
+        return undefined
+      }
+      case 'object': {
+        if (raw && typeof raw === 'object' && !Array.isArray(raw)) return raw
+        if (typeof raw === 'string') {
+          const evaluated =
+            spec.expression === false ? undefined : evalExpr(raw)
+          if (
+            evaluated &&
+            typeof evaluated === 'object' &&
+            !Array.isArray(evaluated)
+          )
+            return evaluated
+          try {
+            const parsed = JSON.parse(raw)
+            return typeof parsed === 'object' && !Array.isArray(parsed)
+              ? parsed
+              : undefined
+          } catch {
+            return undefined
+          }
+        }
+        return undefined
+      }
+      case 'array': {
+        if (Array.isArray(raw)) return raw
+        if (typeof raw === 'string') {
+          const evaluated =
+            spec.expression === false ? undefined : evalExpr(raw)
+          if (Array.isArray(evaluated)) return evaluated
+          try {
+            const parsed = JSON.parse(raw)
+            if (Array.isArray(parsed)) return parsed
+          } catch {
+            return raw
+              .split(',')
+              .map(s => s.trim())
+              .filter(Boolean)
+          }
+        }
+        return undefined
+      }
+      default:
+        return raw
+    }
+  }
+
+  for (const [name, spec] of Object.entries(schema) as [
+    keyof S,
+    AttributeSpec
+  ][]) {
+    const raw = attrs[name as string]
+    let value = parse(raw, spec)
+    if (typeof value === 'undefined' && typeof spec.default !== 'undefined') {
+      value = spec.default
+    }
+    if (name === keyAttr) {
+      key = ensureKey(value, parent, index)
+      if (!key) {
+        errors.push(
+          `Directive "${directive.name}" missing required key attribute "${String(name)}"`
+        )
+        return {
+          attrs: processed as ExtractedAttrs<S>,
+          key,
+          valid: false,
+          errors
+        }
+      }
+    } else if (typeof value === 'undefined') {
+      if (spec.required)
+        errors.push(
+          `Directive "${directive.name}" missing required attribute "${String(name)}"`
+        )
+    } else {
+      processed[name as string] = value
+    }
+  }
+
+  let label: string | undefined
+  if (includeLabel && 'children' in directive) {
+    label = getLabel(directive as ContainerDirective)
+  }
+
+  return {
+    attrs: processed as ExtractedAttrs<S>,
+    key,
+    label,
+    valid: errors.length === 0,
+    errors
+  }
 }

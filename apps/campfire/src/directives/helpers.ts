@@ -10,6 +10,11 @@ export {
   stripLabel,
   removeNode,
   ensureKey,
+  extractAttributes,
   type RangeValue,
-  type DirectiveNode
+  type DirectiveNode,
+  type AttributeSpec,
+  type AttributeSchema,
+  type ExtractedAttrs,
+  type ExtractResult
 } from '@/packages/remark-campfire/helpers'
