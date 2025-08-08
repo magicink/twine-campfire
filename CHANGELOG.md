@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.36.0](https://github.com/magicink/twine-campfire/compare/v1.35.5...v1.36.0) (2025-08-08)
+
+
+### Features
+
+* introduce state manager for game data ([#170](https://github.com/magicink/twine-campfire/issues/170)) ([a6357fb](https://github.com/magicink/twine-campfire/commit/a6357fb3411498a04253573e56ecd5eeb8a67eda))
+
 ## [1.35.5](https://github.com/magicink/twine-campfire/compare/v1.35.4...v1.35.5) (2025-08-08)
 
 
