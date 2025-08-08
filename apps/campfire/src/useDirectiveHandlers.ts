@@ -17,8 +17,6 @@ import { useStoryDataStore } from '@/packages/use-story-data-store'
 import { useGameStore, type Checkpoint } from '@/packages/use-game-store'
 import { markTitleOverridden } from './titleState'
 import {
-  isRange,
-  clamp,
   parseNumericValue,
   getRandomItem,
   getRandomInt,
@@ -125,9 +123,8 @@ export const useDirectiveHandlers = () => {
   }, [currentPassageId])
 
   /**
-   * Handles the leaf `set` and `setOnce` directives by assigning a value to a key
-   * in game data. Supports optional typing via the directive label and range
-   * initialization.
+   * Handles the leaf `set` and `setOnce` directives by assigning values to keys
+   * in game data using shorthand `key=value` pairs.
    *
    * @param directive - The directive node being processed.
    * @param parent - Parent node containing the directive.
@@ -143,66 +140,14 @@ export const useDirectiveHandlers = () => {
   ): DirectiveHandlerResult => {
     const rawLabel = (directive as { label?: string }).label
     const textContent = toString(directive)
-    let typeParam = 'string'
     let shorthand: string | undefined
     if (rawLabel && rawLabel.includes('=')) {
       shorthand = rawLabel
-    } else if (rawLabel) {
-      typeParam = rawLabel.trim().toLowerCase() || 'string'
     } else if (textContent && textContent.includes('=')) {
       shorthand = textContent.trim()
-    } else if (textContent) {
-      typeParam = textContent.trim().toLowerCase() || 'string'
     }
-    const attrs = directive.attributes
+
     const safe: Record<string, unknown> = {}
-
-    const isRecord = (value: unknown): value is Record<string, unknown> =>
-      !!value && typeof value === 'object' && !Array.isArray(value)
-
-    /**
-     * Parses a raw attribute value based on the provided type parameter.
-     * String values must be wrapped in matching quotes, double-quotes, or backticks.
-     * Unquoted values are treated as expressions evaluated against current game data.
-     *
-     * @param value - Raw attribute value to parse.
-     * @returns The parsed value or undefined if parsing fails.
-     */
-    const parseValue = (value: string): unknown => {
-      switch (typeParam) {
-        case 'number': {
-          let evaluated: unknown = value
-          try {
-            const fn = compile(value)
-            evaluated = fn(gameData)
-          } catch {
-            // fall back to raw value when evaluation fails
-          }
-          if (typeof evaluated === 'number') return evaluated
-          const num = parseFloat(String(evaluated))
-          return Number.isNaN(num) ? 0 : num
-        }
-        case 'boolean':
-          return value === 'true'
-        case 'object':
-          try {
-            return JSON.parse(value)
-          } catch {
-            return {}
-          }
-        case 'string':
-        default: {
-          const match = value.match(/^(['"`])(.*)\1$/)
-          if (match) return match[2]
-          try {
-            const fn = compile(value)
-            return fn(gameData)
-          } catch {
-            return undefined
-          }
-        }
-      }
-    }
 
     /**
      * Parses a value supplied via the shorthand `:set[key=value]` syntax. Values
@@ -226,11 +171,11 @@ export const useDirectiveHandlers = () => {
         for (const part of inner.split(',')) {
           const colonIndex = part.indexOf(':')
           if (colonIndex === -1) continue
-          const k = part.slice(0, colonIndex)
-          const v = part.slice(colonIndex + 1)
-          if (!k || typeof v === 'undefined') continue
-          if (!k) continue
-          if (typeof v !== 'undefined') obj[k.trim()] = parseShorthandValue(v)
+          const key = part.slice(0, colonIndex).trim()
+          if (!key) continue
+          const value = part.slice(colonIndex + 1)
+          const parsed = parseShorthandValue(value)
+          if (typeof parsed !== 'undefined') obj[key] = parsed
         }
         return obj
       }
@@ -252,7 +197,12 @@ export const useDirectiveHandlers = () => {
      */
     const applyShorthand = (pair: string) => {
       const eq = pair.indexOf('=')
-      if (eq === -1) return
+      if (eq === -1) {
+        const msg = `Malformed set directive: ${pair}`
+        console.error(msg)
+        addError(msg)
+        return
+      }
       const keyRaw = pair.slice(0, eq).trim()
       const valueRaw = pair.slice(eq + 1)
       const key = ensureKey(keyRaw, parent, index)
@@ -263,62 +213,9 @@ export const useDirectiveHandlers = () => {
       }
     }
 
-    const parseNumber = (value: unknown): number => {
-      if (value == null) return 0
-      if (typeof value === 'number') return value
-      if (typeof value !== 'string') return parseNumericValue(value)
-      let evaluated: unknown = value
-      try {
-        const fn = compile(value)
-        evaluated = fn(gameData)
-      } catch {
-        // fall back to raw value when evaluation fails
-      }
-      if (evaluated == null) return 0
-      return parseNumericValue(evaluated)
-    }
-
     if (shorthand) {
-      applyShorthand(shorthand)
-    } else if (isRecord(attrs)) {
-      const key = ensureKey(attrs.key, parent, index)
-      if (key) {
-        if (typeParam === 'range') {
-          const lower = parseNumber(attrs.min)
-          const upper = parseNumber(attrs.max)
-          const val = parseNumber(attrs.value ?? lower)
-          safe[key] = {
-            lower,
-            upper,
-            value: clamp(val, lower, upper)
-          }
-        } else {
-          const rawValue = attrs.value
-          if (typeof rawValue === 'string') {
-            const parsed = parseValue(rawValue)
-            if (typeof parsed !== 'undefined') {
-              const current = gameData[key]
-              if (isRange(current)) {
-                if (typeof parsed === 'number') {
-                  safe[key] = {
-                    ...current,
-                    value: clamp(parsed, current.lower, current.upper)
-                  }
-                } else if (isRange(parsed)) {
-                  safe[key] = {
-                    lower: parsed.lower,
-                    upper: parsed.upper,
-                    value: clamp(parsed.value, parsed.lower, parsed.upper)
-                  }
-                } else {
-                  safe[key] = parsed
-                }
-              } else {
-                safe[key] = parsed
-              }
-            }
-          }
-        }
+      for (const part of shorthand.split(/\s+/)) {
+        if (part) applyShorthand(part)
       }
     }
 

@@ -113,7 +113,7 @@ describe('If', () => {
   })
 
   it('mixes content and directives', () => {
-    const content = makeMixedContent('Start\n:::set{key=hp value=2}\n:::\nHP!')
+    const content = makeMixedContent('Start\n:::set[hp=2]\n:::\nHP!')
     render(<If test='true' content={content} />)
     expect(screen.getByText('Start')).toBeInTheDocument()
     expect(screen.getByText('HP!')).toBeInTheDocument()
@@ -122,7 +122,7 @@ describe('If', () => {
 
   it('executes trigger directives', async () => {
     const content = makeMixedContent(
-      ':::trigger{label="Fire"}\n:::set{key=fired value=true}\n:::\n:::'
+      ':::trigger{label="Fire"}\n:::set[fired=true]\n:::\n:::'
     )
     render(<If test='true' content={content} />)
     const button = await screen.findByRole('button', { name: 'Fire' })

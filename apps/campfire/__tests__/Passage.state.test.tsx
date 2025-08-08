@@ -25,7 +25,7 @@ describe('Passage game state directives', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':::set[number]{key=hp value=5}\n:::' }]
+      children: [{ type: 'text', value: ':::set[hp=5]\n:::' }]
     }
 
     useStoryDataStore.setState({
@@ -50,7 +50,7 @@ describe('Passage game state directives', () => {
       children: [
         {
           type: 'text',
-          value: ':::set{key=item value="\'sword\'"}\n:::'
+          value: ':::set[item="sword"]\n:::'
         }
       ]
     }
@@ -74,7 +74,7 @@ describe('Passage game state directives', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':::set{key=item value=sword}\n:::' }]
+      children: [{ type: 'text', value: ':::set[item=sword]\n:::' }]
     }
 
     useStoryDataStore.setState({
@@ -97,7 +97,7 @@ describe('Passage game state directives', () => {
       children: [
         {
           type: 'text',
-          value: ':::set[number]{key=hp value=5}\n:::\n\nHello'
+          value: ':::set[hp=5]\n:::\n\nHello'
         }
       ]
     }
@@ -163,7 +163,7 @@ describe('Passage game state directives', () => {
         {
           type: 'text',
           value:
-            ':::batch\\n:set[boolean]{key=visited value=true}\\n:push{key=items value=sword}\\n:unset{key=old}\\n:::\n'
+            ':::batch\\n:set[visited=true]\\n:push{key=items value=sword}\\n:unset{key=old}\\n:::\n'
         }
       ]
     }
@@ -193,7 +193,7 @@ describe('Passage game state directives', () => {
       children: [
         {
           type: 'text',
-          value: ':setOnce[number]{key=gold value=10}'
+          value: ':setOnce[gold=10]'
         }
       ]
     }
@@ -727,35 +727,6 @@ describe('Passage game state directives', () => {
     await waitFor(() => {
       const span = screen.getByText('7')
       expect(span.closest('p')?.textContent?.replace(/\s+/g, '')).toBe('HP:7')
-    })
-  })
-
-  it('creates range values with set[range]', async () => {
-    const passage: Element = {
-      type: 'element',
-      tagName: 'tw-passagedata',
-      properties: { pid: '1', name: 'Start' },
-      children: [
-        {
-          type: 'text',
-          value: ':set[range]{key=hp min=0 max=10 value=5}'
-        }
-      ]
-    }
-
-    useStoryDataStore.setState({
-      passages: [passage],
-      currentPassageId: '1'
-    })
-
-    render(<Passage />)
-
-    await waitFor(() => {
-      expect(useGameStore.getState().gameData.hp).toEqual({
-        lower: 0,
-        upper: 10,
-        value: 5
-      })
     })
   })
 

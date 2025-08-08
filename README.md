@@ -85,7 +85,7 @@ structures. Indent them just like normal text:
 
 ```md
 - Step one
-  :set{key=visited value=true}
+  :set[visited=true]
 
 > Quoted
 > :goto["NEXT"]
@@ -108,20 +108,13 @@ Operations that set, update or remove scalar values.
   content.
 
   ```md
-  :set{key=HP value=VALUE}
+  :set[KEY=VALUE]
   ```
 
-  Replace `VALUE` with the number or string to store. To store a string, surround the value in matching single
-  quotes ('example'), double quotes ("example"), or backticks (\`example\`).
-
-  ```md
-  :set{key=player_name value="Alice"}
-  ```
-
-  The shorthand form `:set[key=value]` is also available. In shorthand syntax,
-  quoted values are treated as strings, `true`/`false` as booleans, values
-  wrapped in `{}` as objects, purely numeric values as numbers and any other
-  value is evaluated as an expression or state reference.
+  Replace `KEY` with the key name and `VALUE` with the number, string or
+  expression to store. Quoted values are treated as strings, `true`/`false` as
+  booleans, values wrapped in `{}` as objects, purely numeric values as numbers
+  and any other value is evaluated as an expression or state reference.
 
   ```md
   :set[health=100]
@@ -129,29 +122,14 @@ Operations that set, update or remove scalar values.
   :set[isActive=true]
   ```
 
-- `set[range]`: Initialize a key with a numeric range. This directive is leaf-only and cannot wrap
-  content.
-
-  ```md
-  :set[range]{key=HP min=MIN max=MAX value=VALUE}
-  ```
-
-  Replace `HP` with the key, `MIN`/`MAX` with bounds and `VALUE` with the
-  starting number (defaults to `MIN`).
-
 - `setOnce`: Set a key only if it has not been set. This directive is leaf-only
   and cannot wrap content.
 
   ```md
-  :setOnce{key=visited value=true}
-  ```
-
-  Replace `visited` with the key to lock on first use. Shorthand syntax is also
-  supported:
-
-  ```md
   :setOnce[visited=true]
   ```
+
+  Replace `visited` with the key to lock on first use.
 
 - `unset`: Remove a key from state. This directive is leaf-only and cannot wrap
   content.
@@ -326,7 +304,7 @@ Run content only when conditions hold.
   ```md
   :::if{has_key}
   You unlock the door.
-  :set{key=door_opened value=true}
+  :set[door_opened=true]
   [[Enter->Hallway]]
   :::
   ```
@@ -351,7 +329,7 @@ Run directives on specific passage events or group actions.
 
   ```md
   :::batch
-  :set{key=HP value=VALUE}
+  :set[HP=VALUE]
   :push{key=items value=sword}
   :unset{key=old}
   :::
@@ -363,7 +341,7 @@ Run directives on specific passage events or group actions.
 
   ```md
   :::trigger{label="Do it" class="primary" disabled}
-  :set{key=KEY value=VALUE}
+  :set[KEY=VALUE]
   :::
   ```
 
