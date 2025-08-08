@@ -385,7 +385,9 @@ export const extractAttributes = <S extends AttributeSchema>(
     if (name === keyAttr) {
       key = ensureKey(value, parent, index)
       if (!key) {
-        errors.push(`Missing required attribute: ${String(name)}`)
+        errors.push(
+          `Directive "${directive.name}" missing required key attribute "${String(name)}"`
+        )
         return {
           attrs: processed as ExtractedAttrs<S>,
           key,
@@ -395,7 +397,9 @@ export const extractAttributes = <S extends AttributeSchema>(
       }
     } else if (typeof value === 'undefined') {
       if (spec.required)
-        errors.push(`Missing required attribute: ${String(name)}`)
+        errors.push(
+          `Directive "${directive.name}" missing required attribute "${String(name)}"`
+        )
     } else {
       processed[name as string] = value
     }
