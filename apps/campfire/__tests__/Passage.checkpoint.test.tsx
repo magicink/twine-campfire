@@ -95,7 +95,7 @@ describe('Passage checkpoint directives', () => {
         {
           type: 'text',
           value:
-            ':::set[number]{key=hp value=2}\n:::\n:checkpoint{id=cp1}:include[Second]'
+            ':::set[number]{key=hp value=2}\n:::\n:checkpoint{id=cp1}:include["Second"]'
         }
       ]
     }

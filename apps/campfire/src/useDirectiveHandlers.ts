@@ -38,6 +38,8 @@ import type {
 } from '@/packages/remark-campfire'
 
 const clone = rfdc()
+const QUOTE_PATTERN = /^(['"`])(.*)\1$/
+const NUMERIC_PATTERN = /^\d+$/
 
 export const useDirectiveHandlers = () => {
   const storeGameData = useGameStore(state => state.gameData)
@@ -1018,26 +1020,87 @@ export const useDirectiveHandlers = () => {
     return index
   }
 
+  /**
+   * Extracts the content of a string wrapped in matching quotes or backticks.
+   *
+   * @param value - The raw string to inspect.
+   * @returns The inner string if quoted, otherwise undefined.
+   */
+  const getQuotedValue = (value: string): string | undefined => {
+    const match = value.trim().match(QUOTE_PATTERN)
+    return match ? match[2] : undefined
+  }
+
+  /**
+   * Retrieves a string or numeric value from the game state by key.
+   *
+   * @param key - The game state key to read.
+   * @returns The value as a string if present, otherwise undefined.
+   */
+  const getStateValue = (key: string): string | undefined => {
+    if (!Object.hasOwn(gameData, key)) return undefined
+    const value = (gameData as Record<string, unknown>)[key]
+    return typeof value === 'string' || typeof value === 'number'
+      ? String(value)
+      : undefined
+  }
+
+  /**
+   * Resolves a passage target from directive text or attributes.
+   *
+   * @param rawText - The trimmed text content of the directive.
+   * @param attrs - Attributes associated with the directive.
+   * @returns The passage id or name if recognized, otherwise undefined.
+   */
+  const resolvePassageTarget = (
+    rawText: string,
+    attrs: Record<string, unknown>
+  ): string | undefined => {
+    if (rawText) {
+      return (
+        getQuotedValue(rawText) ??
+        (NUMERIC_PATTERN.test(rawText) ? rawText : undefined)
+      )
+    }
+    const attr =
+      typeof attrs.passage === 'string' ? attrs.passage.trim() : undefined
+    return attr
+      ? (getQuotedValue(attr) ??
+          (NUMERIC_PATTERN.test(attr) ? attr : getStateValue(attr)))
+      : undefined
+  }
+
+  /**
+   * Handles the `:goto` directive, which navigates to another passage.
+   * Passage names must be wrapped in matching quotes or backticks, while
+   * unquoted numbers are treated as passage IDs. When the `passage` attribute
+   * is an unquoted string, its value is looked up as a key in the game state.
+   * All other inputs are ignored.
+   *
+   * @param directive - The directive node representing the goto directive.
+   * @param parent - The parent AST node containing this directive.
+   * @param index - The index of the directive node within its parent.
+   * @returns The new index after replacement.
+   */
   const handleGoto: DirectiveHandler = (directive, parent, index) => {
     const attrs = (directive.attributes || {}) as Record<string, unknown>
-    const target =
-      typeof attrs.pid === 'string'
-        ? attrs.pid
-        : typeof attrs.name === 'string'
-          ? attrs.name
-          : toString(directive).trim() || Object.keys(attrs)[0] || ''
-    if (target) {
-      const passage = /^\d+$/.test(target)
+    const rawText = toString(directive).trim()
+    const target = resolvePassageTarget(rawText, attrs)
+
+    const passage = target
+      ? NUMERIC_PATTERN.test(target)
         ? getPassageById(target)
         : getPassageByName(target)
-      if (passage) {
-        setCurrentPassage(target)
-      } else {
-        const msg = `Passage not found: ${target}`
-        console.error(msg)
-        addError(msg)
-      }
+      : null
+
+    if (passage && target) {
+      setCurrentPassage(target)
+    } else if (rawText || attrs.passage) {
+      const msg = `Passage not found: ${rawText || attrs.passage}`
+      console.error(msg)
+      addError(msg)
     }
+
     return removeNode(parent, index)
   }
 
@@ -1227,27 +1290,38 @@ export const useDirectiveHandlers = () => {
 
   /**
    * Handles the `:title` directive, which overrides the page title for the current passage.
-   * If the directive is used inside an included passage, it is ignored.
-   * Updates the document title and marks the title as overridden.
+   * The directive's value must be wrapped in matching quotes or backticks. If the
+   * directive is used inside an included passage, it is ignored. When valid, the
+   * document title is updated and marked as overridden.
    *
    * @param directive - The directive node representing the title directive.
    * @param parent - The parent AST node containing this directive.
    * @param index - The index of the directive node within its parent.
-   * @returns The new index after replacement, or removes the node if not found or on error.
+   * @returns The new index after replacement.
    */
   const handleTitle: DirectiveHandler = (directive, parent, index) => {
     if (includeDepth > 0) return removeNode(parent, index)
-    const title = toString(directive).trim()
+    const raw = toString(directive).trim()
+    const title = getQuotedValue(raw)
     if (title) {
       document.title = i18next.t(title)
       markTitleOverridden()
+    } else if (raw) {
+      const msg =
+        'Title directive value must be wrapped in matching quotes or backticks'
+      console.error(msg)
+      addError(msg)
     }
     return removeNode(parent, index)
   }
 
   /**
-   * Handles the `:include` directive, which inserts the content of another passage by name or id.
-   * Prevents infinite recursion by limiting the include depth.
+   * Handles the `:include` directive, which inserts the content of another passage.
+   * Passage names must be wrapped in matching quotes or backticks, while unquoted
+   * numbers are treated as passage IDs. When the `passage` attribute is an
+   * unquoted string, its value is looked up as a key in the game state. Inputs
+   * that do not match these patterns are ignored. Prevents infinite recursion by
+   * limiting the include depth.
    *
    * @param directive - The directive node representing the include directive.
    * @param parent - The parent AST node containing this directive.
@@ -1255,10 +1329,9 @@ export const useDirectiveHandlers = () => {
    * @returns The new index after replacement, or removes the node if not found or on error.
    */
   const handleInclude: DirectiveHandler = (directive, parent, index) => {
-    const target =
-      toString(directive).trim() ||
-      Object.keys(directive.attributes || {})[0] ||
-      ''
+    const attrs = (directive.attributes || {}) as Record<string, unknown>
+    const rawText = toString(directive).trim()
+    const target = resolvePassageTarget(rawText, attrs)
 
     if (!parent || typeof index !== 'number' || !target) {
       return removeNode(parent, index)
@@ -1269,7 +1342,7 @@ export const useDirectiveHandlers = () => {
       return removeNode(parent, index)
     }
 
-    const passage = /^\d+$/.test(target)
+    const passage = NUMERIC_PATTERN.test(target)
       ? getPassageById(target)
       : getPassageByName(target)
 

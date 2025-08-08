@@ -84,7 +84,7 @@ describe('Passage rendering and navigation', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':title[Custom]' }]
+      children: [{ type: 'text', value: ':title["Custom"]' }]
     }
 
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
@@ -95,18 +95,46 @@ describe('Passage rendering and navigation', () => {
     })
   })
 
+  it('logs error when title directive is not quoted', async () => {
+    const logged: unknown[] = []
+    const orig = console.error
+    console.error = (...args: unknown[]) => {
+      logged.push(args)
+    }
+
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':title[Custom]' }]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(logged).toHaveLength(1)
+      expect(useGameStore.getState().errors).toEqual([
+        'Title directive value must be wrapped in matching quotes or backticks'
+      ])
+      expect(document.title).toBe('Start')
+    })
+
+    console.error = orig
+  })
+
   it('ignores title directive in included passages', async () => {
     const start: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':include[Second]' }]
+      children: [{ type: 'text', value: ':include["Second"]' }]
     }
     const second: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '2', name: 'Second' },
-      children: [{ type: 'text', value: ':title[Other]' }]
+      children: [{ type: 'text', value: ':title["Other"]' }]
     }
 
     useStoryDataStore.setState({
@@ -151,7 +179,7 @@ describe('Passage rendering and navigation', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':goto[Second]' }]
+      children: [{ type: 'text', value: ':goto["Second"]' }]
     }
     const second: Element = {
       type: 'element',
@@ -200,12 +228,40 @@ describe('Passage rendering and navigation', () => {
     })
   })
 
+  it('navigates to a passage using a state key with goto directive', async () => {
+    const start: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':goto{passage=next}' }]
+    }
+    const second: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '2', name: 'Second' },
+      children: [{ type: 'text', value: 'Second text' }]
+    }
+
+    useGameStore.setState({ gameData: { next: 'Second' } })
+    useStoryDataStore.setState({
+      passages: [start, second],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(screen.getByText('Second text')).toBeInTheDocument()
+      expect(useStoryDataStore.getState().currentPassageId).toBe('Second')
+    })
+  })
+
   it('renders included passage content', async () => {
     const start: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':include[Second]' }]
+      children: [{ type: 'text', value: ':include["Second"]' }]
     }
     const second: Element = {
       type: 'element',
@@ -225,12 +281,38 @@ describe('Passage rendering and navigation', () => {
     expect(text).toBeInTheDocument()
   })
 
+  it('includes a passage using a state key with include directive', async () => {
+    const start: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':include{passage=part}' }]
+    }
+    const second: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '2', name: 'Second' },
+      children: [{ type: 'text', value: 'Inner text' }]
+    }
+
+    useGameStore.setState({ gameData: { part: 'Second' } })
+    useStoryDataStore.setState({
+      passages: [start, second],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    const text = await screen.findByText('Inner text')
+    expect(text).toBeInTheDocument()
+  })
+
   it('evaluates directives within included passages', async () => {
     const start: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':include[Second]' }]
+      children: [{ type: 'text', value: ':include["Second"]' }]
     }
     const second: Element = {
       type: 'element',
@@ -261,7 +343,7 @@ describe('Passage rendering and navigation', () => {
       children: [
         {
           type: 'text',
-          value: ':include[Second]\n:::if{true}\nAfter\n:::'
+          value: ':include["Second"]\n:::if{true}\nAfter\n:::'
         }
       ]
     }
