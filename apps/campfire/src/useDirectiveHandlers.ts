@@ -761,22 +761,13 @@ export const useDirectiveHandlers = () => {
     )
     let fallback: string | undefined
     let main = children
-    let isTrue = false
-    try {
-      const fn = compile(expr)
-      isTrue = !!fn(convertRanges(gameData) as any)
-    } catch {
-      isTrue = false
-    }
     if (elseIndex !== -1) {
       const next = children[elseIndex] as ContainerDirective
       main = children.slice(0, elseIndex)
       fallback = JSON.stringify(stripLabel(next.children as RootContent[]))
     } else if (elseSiblingIndex !== -1) {
       const next = parent.children[elseSiblingIndex] as ContainerDirective
-      if (!isTrue) {
-        fallback = JSON.stringify(stripLabel(next.children as RootContent[]))
-      }
+      fallback = JSON.stringify(stripLabel(next.children as RootContent[]))
       removeNode(parent, elseSiblingIndex)
       const marker = parent.children[elseSiblingIndex]
       if (
