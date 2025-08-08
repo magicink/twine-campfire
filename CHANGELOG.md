@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.41.0](https://github.com/magicink/twine-campfire/compare/v1.40.2...v1.41.0) (2025-08-08)
+
+
+### Features
+
+* simplify array directives ([#190](https://github.com/magicink/twine-campfire/issues/190)) ([2a99606](https://github.com/magicink/twine-campfire/commit/2a99606a1227727ef4a80faa866806037c66f167))
+
 ## [1.40.2](https://github.com/magicink/twine-campfire/compare/v1.40.1...v1.40.2) (2025-08-08)
 
 
