@@ -397,7 +397,8 @@ Save and restore progress or store data in the browser.
   :checkpoint{id=SAVE-ID label="LABEL"}
   ```
 
-  Replace `SAVE-ID` with a key and `LABEL` with a description.
+  Replace `SAVE-ID` with a key and `LABEL` with a description. Saving a new
+  checkpoint replaces any existing checkpoint.
 
 - `clearCheckpoint`: Remove a saved checkpoint.
 

@@ -68,7 +68,7 @@ describe('useGameStore', () => {
     expect(cp?.timestamp).toBeGreaterThan(0)
   })
 
-  it('restores the most recent checkpoint when no id is provided', () => {
+  it('restores the existing checkpoint when no id is provided', () => {
     useGameStore.getState().setGameData({ health: 10 })
     useGameStore.getState().saveCheckpoint('cp1', {
       gameData: { ...useGameStore.getState().gameData },
@@ -85,8 +85,8 @@ describe('useGameStore', () => {
       currentPassageId: '2',
       label: 'Second'
     })
-    const { cp1, cp2 } = useGameStore.getState().checkpoints
-    expect(cp1.timestamp).toBeLessThanOrEqual(cp2.timestamp)
+    expect(useGameStore.getState().checkpoints.cp1).toBeUndefined()
+    expect(useGameStore.getState().checkpoints.cp2).toBeDefined()
     useGameStore.getState().setGameData({ health: 1 })
     const cp = useGameStore.getState().restoreCheckpoint()
     expect(useGameStore.getState().gameData).toEqual({ health: 5 })
