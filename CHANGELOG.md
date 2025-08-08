@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.39.0](https://github.com/magicink/twine-campfire/compare/v1.38.0...v1.39.0) (2025-08-08)
+
+
+### Features
+
+* remove defined directive and update show syntax ([#181](https://github.com/magicink/twine-campfire/issues/181)) ([ec411ba](https://github.com/magicink/twine-campfire/commit/ec411ba878cdad754342edf69930d35b4cb13f2d))
+
 ## [1.38.0](https://github.com/magicink/twine-campfire/compare/v1.37.1...v1.38.0) (2025-08-08)
 
 
