@@ -21,6 +21,8 @@ import { TriggerButton } from './TriggerButton'
 import { If } from './If'
 import { Show } from './Show'
 
+const DIRECTIVE_MARKER_PATTERN = '(:::[^\\n]*|:[^\\n]*|<<)'
+
 /**
  * Normalizes directive indentation so Markdown treats directive lines the same
  * regardless of leading spaces or tabs. Strips tabs or four-or-more spaces
@@ -29,10 +31,6 @@ import { Show } from './Show'
  * @param input - Raw passage text.
  * @returns Passage text with directive indentation normalized.
  */
-const normalizeDirectiveIndentation = (input: string): string =>
-  input
-    .replace(/^\t+(?=(:::[^\n]*|:[^\n]*|<<))/gm, '')
-const DIRECTIVE_MARKER_PATTERN = '(:::[^\\n]*|:[^\\n]*|<<)';
 const normalizeDirectiveIndentation = (input: string): string =>
   input
     .replace(new RegExp(`^\\t+(?=(${DIRECTIVE_MARKER_PATTERN}))`, 'gm'), '')
