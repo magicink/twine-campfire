@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.37.1](https://github.com/magicink/twine-campfire/compare/v1.37.0...v1.37.1) (2025-08-08)
+
+
+### Bug Fixes
+
+* correct release deletion logic to count lines instead of words ([cef010c](https://github.com/magicink/twine-campfire/commit/cef010cd6800279974627b9d64383ae8af8bd9bc))
+
 ## [1.37.0](https://github.com/magicink/twine-campfire/compare/v1.36.1...v1.37.0) (2025-08-08)
 
 
