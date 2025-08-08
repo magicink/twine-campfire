@@ -38,6 +38,8 @@ import type {
 } from '@/packages/remark-campfire'
 
 const clone = rfdc()
+const QUOTE_PATTERN = /^(['"`])(.*)\1$/
+const NUMERIC_PATTERN = /^\d+$/
 
 export const useDirectiveHandlers = () => {
   const storeGameData = useGameStore(state => state.gameData)
@@ -1025,7 +1027,7 @@ export const useDirectiveHandlers = () => {
    * @returns The inner string if quoted, otherwise undefined.
    */
   const getQuotedValue = (value: string): string | undefined => {
-    const match = value.trim().match(/^(["'`])(.*)\1$/)
+    const match = value.trim().match(QUOTE_PATTERN)
     return match ? match[2] : undefined
   }
 
@@ -1036,6 +1038,7 @@ export const useDirectiveHandlers = () => {
    * @returns The value as a string if present, otherwise undefined.
    */
   const getStateValue = (key: string): string | undefined => {
+    if (!Object.prototype.hasOwnProperty.call(gameData, key)) return undefined
     const value = (gameData as Record<string, unknown>)[key]
     return typeof value === 'string' || typeof value === 'number'
       ? String(value)
@@ -1061,16 +1064,17 @@ export const useDirectiveHandlers = () => {
 
     if (rawText) {
       target =
-        getQuotedValue(rawText) ?? (/^\d+$/.test(rawText) ? rawText : undefined)
+        getQuotedValue(rawText) ??
+        (NUMERIC_PATTERN.test(rawText) ? rawText : undefined)
     } else if (typeof attrs.passage === 'string') {
       const rawAttr = attrs.passage.trim()
       target =
         getQuotedValue(rawAttr) ??
-        (/^\d+$/.test(rawAttr) ? rawAttr : getStateValue(rawAttr))
+        (NUMERIC_PATTERN.test(rawAttr) ? rawAttr : getStateValue(rawAttr))
     }
 
     const passage = target
-      ? /^\d+$/.test(target)
+      ? NUMERIC_PATTERN.test(target)
         ? getPassageById(target)
         : getPassageByName(target)
       : null
@@ -1311,12 +1315,13 @@ export const useDirectiveHandlers = () => {
 
     if (rawText) {
       target =
-        getQuotedValue(rawText) ?? (/^\d+$/.test(rawText) ? rawText : undefined)
+        getQuotedValue(rawText) ??
+        (NUMERIC_PATTERN.test(rawText) ? rawText : undefined)
     } else if (typeof attrs.passage === 'string') {
       const rawAttr = attrs.passage.trim()
       target =
         getQuotedValue(rawAttr) ??
-        (/^\d+$/.test(rawAttr) ? rawAttr : getStateValue(rawAttr))
+        (NUMERIC_PATTERN.test(rawAttr) ? rawAttr : getStateValue(rawAttr))
     }
 
     if (!parent || typeof index !== 'number' || !target) {
@@ -1328,7 +1333,7 @@ export const useDirectiveHandlers = () => {
       return removeNode(parent, index)
     }
 
-    const passage = /^\d+$/.test(target)
+    const passage = NUMERIC_PATTERN.test(target)
       ? getPassageById(target)
       : getPassageByName(target)
 
