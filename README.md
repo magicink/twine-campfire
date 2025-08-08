@@ -151,20 +151,22 @@ Create or modify lists of values.
 - `array`: Create an array.
 
   ```md
-  :array{ITEMS=1,2,'three',"four"}
+  :array[ITEMS=[1,2,'three',"four"]]
   ```
 
-  Replace `ITEMS` with the array name. Wrap string values in single quotes,
-  double quotes or backticks. Unquoted values are parsed as numbers or booleans
-  when possible.
+  Replace `ITEMS` with the array name. The directive accepts a single
+  `key=[...]` pair where the value is in array notation. Items are
+  automatically converted to strings, numbers or booleans and may include
+  expressions evaluated against the current state.
 
 - `arrayOnce`: Create an array only if it has not been set.
 
   ```md
-  :arrayOnce{VISITED='FOREST',"CAVE"}
+  :arrayOnce[VISITED=['FOREST',"CAVE"]]
   ```
 
-  Replace `VISITED` with the array name. Quoted values are treated as strings.
+  This behaves like `array` but locks the key after execution, preventing
+  further changes.
 
 - `concat`: Combine arrays.
 

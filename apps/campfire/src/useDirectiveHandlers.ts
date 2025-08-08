@@ -242,93 +242,115 @@ export const useDirectiveHandlers = () => {
     }
   }
 
+  /**
+   * Parses and applies an array directive in the form `key=[...]`.
+   * Supports basic type coercion and expression evaluation for each array item.
+   *
+   * @param directive - The directive node representing the array directive.
+   * @param parent - Parent AST node containing this directive.
+   * @param index - Index of the directive within its parent.
+   * @param lock - When true, locks the key after setting its value.
+   */
   const handleArray = (
     directive: DirectiveNode,
     parent: Parent | undefined,
     index: number | undefined,
     lock = false
   ): DirectiveHandlerResult => {
-    const typeParam =
-      ((directive as { label?: string }).label || toString(directive))
-        .trim()
-        .toLowerCase() || 'string'
-    const attrs = directive.attributes
-    const safe: Record<string, unknown[]> = {}
+    const label = (
+      (directive as { label?: string }).label || toString(directive)
+    ).trim()
+    const eq = label.indexOf('=')
+    if (eq === -1) {
+      const msg = `Malformed array directive: ${label}`
+      console.error(msg)
+      addError(msg)
+      return index
+    }
 
-    const isRecord = (value: unknown): value is Record<string, unknown> =>
-      !!value && typeof value === 'object' && !Array.isArray(value)
+    const keyRaw = label.slice(0, eq).trim()
+    const key = ensureKey(keyRaw, parent, index)
+    if (!key) return index
 
-    /**
-     * Parse a string value into a typed value. Only quoted values are treated as
-     * strings. Unquoted values will be coerced to numbers, booleans or evaluated
-     * as expressions when possible.
-     */
-    const parseValue = (value: string): unknown => {
-      const quoted =
-        (value.startsWith("'") && value.endsWith("'")) ||
-        (value.startsWith('"') && value.endsWith('"')) ||
-        (value.startsWith('`') && value.endsWith('`'))
-      if (quoted) return value.slice(1, -1)
+    const valueRaw = label.slice(eq + 1).trim()
+    if (!valueRaw.startsWith('[') || !valueRaw.endsWith(']')) {
+      const msg = `Array directive value must be in [ ] notation: ${label}`
+      console.error(msg)
+      addError(msg)
+      return index
+    }
 
-      switch (typeParam) {
-        case 'number': {
-          let evaluated: unknown = value
-          try {
-            const fn = compile(value)
-            evaluated = fn(gameData)
-          } catch {
-            // fall back to raw value when evaluation fails
-          }
-          if (typeof evaluated === 'number') return evaluated
-          const num = parseFloat(String(evaluated))
-          return Number.isNaN(num) ? 0 : num
+    const splitItems = (input: string): string[] => {
+      const result: string[] = []
+      let current = ''
+      let depth = 0
+      let quote: string | null = null
+      for (let i = 0; i < input.length; i++) {
+        const ch = input[i]
+        if (quote) {
+          if (ch === quote && input[i - 1] !== '\\') quote = null
+          current += ch
+          continue
         }
-        case 'boolean':
-          return value === 'true'
-        case 'object':
-          try {
-            return JSON.parse(value)
-          } catch {
-            return {}
-          }
-        case 'string':
-        default: {
-          if (value === 'true' || value === 'false') {
-            return value === 'true'
-          }
-          const num = parseFloat(value)
-          if (!Number.isNaN(num)) return num
-          try {
-            const fn = compile(value)
-            const evaluated = fn(gameData)
-            return typeof evaluated === 'undefined' ? value : evaluated
-          } catch {
-            return value
-          }
+        if (ch === '"' || ch === "'" || ch === '`') {
+          quote = ch
+          current += ch
+          continue
         }
+        if (ch === '[' || ch === '{' || ch === '(') {
+          depth++
+          current += ch
+          continue
+        }
+        if (ch === ']' || ch === '}' || ch === ')') {
+          depth--
+          current += ch
+          continue
+        }
+        if (ch === ',' && depth === 0) {
+          result.push(current.trim())
+          current = ''
+          continue
+        }
+        current += ch
+      }
+      if (current.trim()) result.push(current.trim())
+      return result
+    }
+
+    const parseItem = (value: string): unknown => {
+      const trimmed = value.trim()
+      if (!trimmed) return undefined
+      const quoted = trimmed.match(QUOTE_PATTERN)
+      if (quoted) return quoted[2]
+      if (trimmed === 'true') return true
+      if (trimmed === 'false') return false
+      const num = Number(trimmed)
+      if (!Number.isNaN(num)) return num
+      try {
+        const fn = compile(trimmed)
+        return fn(gameData)
+      } catch {
+        return trimmed
       }
     }
 
-    if (isRecord(attrs)) {
-      for (const [key, value] of Object.entries(attrs)) {
-        if (typeof value === 'string') {
-          const items = value
-            .split(',')
-            .map(s => s.trim())
-            .filter(Boolean)
-            .map(parseValue)
-          safe[key] = items
-        }
+    let items: unknown[] = []
+    try {
+      const parsed = JSON.parse(valueRaw)
+      if (Array.isArray(parsed)) {
+        items = parsed
+      } else {
+        throw new Error('not an array')
       }
+    } catch {
+      const inner = valueRaw.slice(1, -1)
+      items = splitItems(inner).map(parseItem)
     }
 
-    if (Object.keys(safe).length > 0) {
-      for (const [k, v] of Object.entries(safe)) {
-        state.setValue(k, v, { lock })
-      }
-      gameData = state.getState()
-      lockedKeys = state.getLockedKeys()
-    }
+    state.setValue(key, items, { lock })
+    gameData = state.getState()
+    lockedKeys = state.getLockedKeys()
 
     return removeNode(parent, index)
   }
