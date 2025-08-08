@@ -753,13 +753,19 @@ export const useDirectiveHandlers = () => {
         child.type === 'containerDirective' &&
         (child as ContainerDirective).name === 'else'
     )
-    const main = elseIndex === -1 ? children : children.slice(0, elseIndex)
-    const content = JSON.stringify(stripLabel(main))
     let fallback: string | undefined
     if (elseIndex !== -1) {
-      const next = children[elseIndex] as ContainerDirective
+      const next = children.splice(elseIndex, 1)[0] as ContainerDirective
+      fallback = JSON.stringify(stripLabel(next.children as RootContent[]))
+    } else if (
+      parent.children[index + 1] &&
+      parent.children[index + 1].type === 'containerDirective' &&
+      (parent.children[index + 1] as ContainerDirective).name === 'else'
+    ) {
+      const next = parent.children.splice(index + 1, 1)[0] as ContainerDirective
       fallback = JSON.stringify(stripLabel(next.children as RootContent[]))
     }
+    const content = JSON.stringify(stripLabel(children))
     const node: Parent = {
       type: 'paragraph',
       children: [{ type: 'text', value: '' }],
@@ -773,17 +779,15 @@ export const useDirectiveHandlers = () => {
     const newIndex = replaceWithIndentation(directive, parent, index, [
       node as RootContent
     ])
-    if (elseIndex === -1) {
-      const next = parent.children[newIndex + 1]
-      if (
-        next &&
-        next.type === 'paragraph' &&
-        next.children.length === 1 &&
-        isTextNode(next.children[0]) &&
-        next.children[0].value.trim() === ':::'
-      ) {
-        parent.children.splice(newIndex + 1, 1)
-      }
+    const next = parent.children[newIndex + 1]
+    if (
+      next &&
+      next.type === 'paragraph' &&
+      next.children.length === 1 &&
+      isTextNode(next.children[0]) &&
+      next.children[0].value.trim() === ':::'
+    ) {
+      parent.children.splice(newIndex + 1, 1)
     }
     return [SKIP, newIndex]
   }
