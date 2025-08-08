@@ -212,9 +212,19 @@ export const useDirectiveHandlers = () => {
       }
     }
 
+    /**
+     * Splits shorthand string into `key=value` pairs, allowing spaces within
+     * expressions.
+     *
+     * @param input - The raw shorthand string.
+     * @returns An array of `key=value` pairs.
+     */
+    const extractPairs = (input: string): string[] =>
+      input.match(/[^\s]+=\s*[^]+?(?=(?:\s+[^\s]+=)|$)/g) || []
+
     if (shorthand) {
-      for (const part of shorthand.split(/\s+/)) {
-        if (part) applyShorthand(part)
+      for (const part of extractPairs(shorthand)) {
+        applyShorthand(part)
       }
     }
 
@@ -320,50 +330,6 @@ export const useDirectiveHandlers = () => {
       lockedKeys = state.getLockedKeys()
     }
 
-    return removeNode(parent, index)
-  }
-
-  /**
-   * Evaluates a mathematical or JavaScript expression in the context of the current game data
-   * and stores the result under the provided key. The directive does not display any output.
-   */
-  const handleMath: DirectiveHandler = (directive, parent, index) => {
-    const { attrs, key } = extractAttributes(
-      directive,
-      parent,
-      index,
-      {
-        key: { type: 'string', required: true },
-        expr: { type: 'string', expression: false }
-      },
-      { keyAttr: 'key' }
-    )
-    if (!key) return index
-
-    let expr = toString(directive).trim()
-    if (!expr) {
-      expr = attrs.expr || ''
-      if (!expr) {
-        const raw = directive.attributes || {}
-        const first = Object.keys(raw)[0]
-        expr =
-          first && first !== 'key'
-            ? String((raw as Record<string, unknown>)[first])
-            : ''
-      }
-    }
-
-    let value: unknown
-    try {
-      const fn = compile(expr)
-      value = fn(gameData)
-    } catch (error) {
-      console.error('Error evaluating math expression:', expr, error)
-      value = ''
-    }
-
-    state.setValue(key, value)
-    gameData = state.getState()
     return removeNode(parent, index)
   }
 
@@ -1266,7 +1232,6 @@ export const useDirectiveHandlers = () => {
         p: Parent | undefined,
         i: number | undefined
       ) => handleArray(d, p, i, true),
-      math: handleMath,
       show: handleShow,
       random: handleRandom,
       pop: handlePop,
