@@ -32,7 +32,11 @@ import { Show } from './Show'
 const normalizeDirectiveIndentation = (input: string): string =>
   input
     .replace(/^\t+(?=(:::[^\n]*|:[^\n]*|<<))/gm, '')
-    .replace(/^[ ]{4,}(?=(:::[^\n]*|:[^\n]*|<<))/gm, '')
+const DIRECTIVE_MARKER_PATTERN = '(:::[^\\n]*|:[^\\n]*|<<)';
+const normalizeDirectiveIndentation = (input: string): string =>
+  input
+    .replace(new RegExp(`^\\t+(?=(${DIRECTIVE_MARKER_PATTERN}))`, 'gm'), '')
+    .replace(new RegExp(`^[ ]{4,}(?=(${DIRECTIVE_MARKER_PATTERN}))`, 'gm'), '')
 
 /**
  * Converts legacy if directive syntax using braces into label-based directives.
