@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.38.0](https://github.com/magicink/twine-campfire/compare/v1.37.1...v1.38.0) (2025-08-08)
+
+
+### Features
+
+* drop long-form set directives ([#179](https://github.com/magicink/twine-campfire/issues/179)) ([f7522cd](https://github.com/magicink/twine-campfire/commit/f7522cd99f155c98f203cce327a520ae686d48d5))
+
 ## [1.37.1](https://github.com/magicink/twine-campfire/compare/v1.37.0...v1.37.1) (2025-08-08)
 
 
