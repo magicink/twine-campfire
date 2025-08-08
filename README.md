@@ -445,14 +445,22 @@ Change language and handle translations.
 
   Replace `HELLO` and `UI` with your key and namespace.
 
-- `translations`: Add multiple translations.
+- `translations`: Add translations.
 
   ```md
   :translations{ns="UI" locale="LANG-CODE" hello="BONJOUR"}
   ```
 
-  Replace `UI` with the namespace, `LANG-CODE` with the locale and adjust
-  keys.
+  Replace `UI` with the namespace, `LANG-CODE` with the locale and adjust keys.
+
+  To add a single translation using shorthand syntax, supply the locale as the
+  directive label and provide one `namespace:key="value"` pair:
+
+  ```md
+  :translations[LANG-CODE]{UI:hello="BONJOUR"}
+  ```
+
+  Only one pair is allowed when using the shorthand.
 
 ### Error handling
 
