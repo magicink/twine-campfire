@@ -263,6 +263,16 @@ export interface ExtractResult<S extends AttributeSchema> {
   errors: string[]
 }
 
+/**
+ * Extracts and validates directive attributes based on a schema.
+ *
+ * @param directive - Directive node containing raw attributes.
+ * @param parent - Parent node used when removing invalid directives.
+ * @param index - Index of the directive in its parent.
+ * @param schema - Specification describing expected attributes.
+ * @param options - Extraction options such as state and key handling.
+ * @returns Parsed attributes and validation details.
+ */
 export const extractAttributes = <S extends AttributeSchema>(
   directive: DirectiveNode,
   parent: Parent | undefined,
@@ -374,7 +384,15 @@ export const extractAttributes = <S extends AttributeSchema>(
     }
     if (name === keyAttr) {
       key = ensureKey(value, parent, index)
-      if (!key) errors.push(`Missing required attribute: ${String(name)}`)
+      if (!key) {
+        errors.push(`Missing required attribute: ${String(name)}`)
+        return {
+          attrs: processed as ExtractedAttrs<S>,
+          key,
+          valid: false,
+          errors
+        }
+      }
     } else if (typeof value === 'undefined') {
       if (spec.required)
         errors.push(`Missing required attribute: ${String(name)}`)
