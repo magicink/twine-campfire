@@ -288,7 +288,16 @@ export const useDirectiveHandlers = () => {
       for (let i = 0; i < input.length; i++) {
         const ch = input[i]
         if (quote) {
-          if (ch === quote && input[i - 1] !== '\\') quote = null
+          // Count consecutive backslashes before the quote
+          if (ch === quote) {
+            let backslashCount = 0;
+            let j = i - 1;
+            while (j >= 0 && input[j] === '\\') {
+              backslashCount++;
+              j--;
+            }
+            if (backslashCount % 2 === 0) quote = null;
+          }
           current += ch
           continue
         }
