@@ -171,10 +171,11 @@ export const useDirectiveHandlers = () => {
         for (const part of inner.split(',')) {
           const colonIndex = part.indexOf(':')
           if (colonIndex === -1) continue
-          const k = part.slice(0, colonIndex)
-          const v = part.slice(colonIndex + 1)
-          if (!k || typeof v === 'undefined') continue
-          obj[k.trim()] = parseShorthandValue(v)
+          const key = part.slice(0, colonIndex).trim()
+          if (!key) continue
+          const value = part.slice(colonIndex + 1)
+          const parsed = parseShorthandValue(value)
+          if (typeof parsed !== 'undefined') obj[key] = parsed
         }
         return obj
       }
@@ -196,7 +197,12 @@ export const useDirectiveHandlers = () => {
      */
     const applyShorthand = (pair: string) => {
       const eq = pair.indexOf('=')
-      if (eq === -1) return
+      if (eq === -1) {
+        const msg = `Malformed set directive: ${pair}`
+        console.error(msg)
+        addError(msg)
+        return
+      }
       const keyRaw = pair.slice(0, eq).trim()
       const valueRaw = pair.slice(eq + 1)
       const key = ensureKey(keyRaw, parent, index)
