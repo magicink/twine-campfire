@@ -25,7 +25,8 @@ export interface StateChanges<T> {
   once: string[]
 }
 
-const clone = rfdc()
+// disable prototype and circular checks for performance as game data is plain
+const clone = rfdc({ proto: false, circles: false })
 
 /**
  * Manages game state operations and tracks modified keys.
@@ -149,32 +150,37 @@ export class StateManager<T extends Record<string, unknown>> {
     const top = parts[0]
     if (parts.length === 1) {
       delete (this.data as Record<string, unknown>)[top]
-    } else {
-      const base = this.data[top]
-      if (typeof base === 'object' && base !== null) {
-        const cloneBase = { ...(base as Record<string, unknown>) }
-        let cursor = cloneBase
-        for (let i = 1; i < parts.length - 1; i++) {
-          const p = parts[i]
-          if (typeof cursor[p] !== 'object' || cursor[p] === null) {
-            cursor = undefined as unknown as Record<string, unknown>
-            break
-          }
-          const next = { ...(cursor[p] as Record<string, unknown>) }
-          cursor[p] = next
-          cursor = next
-        }
-        if (cursor) {
-          delete cursor[parts[parts.length - 1]]
-          ;(this.data as Record<string, unknown>)[top] = cloneBase
-        }
-      }
+      this.pending.unset.add(top)
+      this.modified.add(top)
+      delete this.locked[top]
+      delete this.once[top]
+      if (!this.scoped) this.unsetGameData(top)
+      return
     }
-    this.pending.unset.add(top)
-    this.modified.add(top)
-    delete this.locked[top]
-    delete this.once[top]
-    if (!this.scoped) this.unsetGameData(top)
+
+    const base = this.data[top]
+    if (typeof base !== 'object' || base === null) return
+
+    const cloneBase = { ...(base as Record<string, unknown>) }
+    let cursor: Record<string, unknown> = cloneBase
+    let valid = true
+    for (let i = 1; i < parts.length - 1; i++) {
+      const p = parts[i]
+      const next = cursor[p]
+      if (typeof next !== 'object' || next === null) {
+        valid = false
+        break
+      }
+      cursor[p] = { ...(next as Record<string, unknown>) }
+      cursor = cursor[p] as Record<string, unknown>
+    }
+
+    if (!valid) return
+
+    delete cursor[parts[parts.length - 1]]
+    ;(this.data as Record<string, unknown>)[top] = cloneBase
+    this.record(top)
+    if (!this.scoped) this.setGameData({ [top]: this.data[top] } as Partial<T>)
   }
 
   /** Locks a top-level key. */
