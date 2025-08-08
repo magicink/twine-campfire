@@ -271,6 +271,7 @@ describe('Passage game state directives', () => {
   })
 
   it('sets arrays with array directive', async () => {
+    useGameStore.setState(state => ({ ...state, gameData: { base: 2 } }))
     const passage: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
@@ -278,7 +279,7 @@ describe('Passage game state directives', () => {
       children: [
         {
           type: 'text',
-          value: ":array{items=1,'two',false}"
+          value: ":array[items=[1,'two',false,base+3]]"
         }
       ]
     }
@@ -291,7 +292,12 @@ describe('Passage game state directives', () => {
     render(<Passage />)
 
     await waitFor(() =>
-      expect(useGameStore.getState().gameData.items).toEqual([1, 'two', false])
+      expect(useGameStore.getState().gameData.items).toEqual([
+        1,
+        'two',
+        false,
+        5
+      ])
     )
   })
 
@@ -300,7 +306,7 @@ describe('Passage game state directives', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':arrayOnce{nums=1,2}' }]
+      children: [{ type: 'text', value: ':arrayOnce[nums=[1,2]]' }]
     }
 
     useStoryDataStore.setState({
