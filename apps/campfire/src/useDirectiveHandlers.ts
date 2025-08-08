@@ -551,141 +551,113 @@ export const useDirectiveHandlers = () => {
     setGameData({ [topKey]: base })
   }
 
-  const handlePop: DirectiveHandler = (directive, parent, index) => {
-    const attrs = directive.attributes || {}
-    const key = ensureKey((attrs as Record<string, unknown>).key, parent, index)
-    if (!key) return index
+  /**
+   * Creates a handler for array mutation directives.
+   *
+   * @param op - The array operation to perform.
+   * @returns A directive handler implementing the requested operation.
+   */
+  const createArrayOperationHandler =
+    (
+      op: 'push' | 'pop' | 'shift' | 'unshift' | 'splice' | 'concat'
+    ): DirectiveHandler =>
+    (directive, parent, index) => {
+      const attrs = directive.attributes || {}
+      const key = ensureKey(
+        (attrs as Record<string, unknown>).key,
+        parent,
+        index
+      )
+      if (!key) return index
 
-    const arr = Array.isArray(getValue(key))
-      ? [...(getValue(key) as unknown[])]
-      : []
-    const value = arr.pop()
-
-    const store = (attrs as Record<string, unknown>).into
-    setValue(key, arr)
-    if (typeof store === 'string' && value !== undefined) {
-      setValue(store, value)
-    }
-
-    return removeNode(parent, index)
-  }
-
-  const handleShift: DirectiveHandler = (directive, parent, index) => {
-    const attrs = directive.attributes || {}
-    const key = ensureKey((attrs as Record<string, unknown>).key, parent, index)
-    if (!key) return index
-
-    const arr = Array.isArray(getValue(key))
-      ? [...(getValue(key) as unknown[])]
-      : []
-    const value = arr.shift()
-
-    const store = (attrs as Record<string, unknown>).into
-    setValue(key, arr)
-    if (typeof store === 'string' && value !== undefined) {
-      setValue(store, value)
-    }
-
-    return removeNode(parent, index)
-  }
-
-  const handlePush: DirectiveHandler = (directive, parent, index) => {
-    const attrs = directive.attributes || {}
-    const key = ensureKey((attrs as Record<string, unknown>).key, parent, index)
-    if (!key) return index
-
-    const raw = (attrs as Record<string, unknown>).value
-    const values = typeof raw === 'string' ? parseItems(raw) : []
-    if (values.length > 0) {
       const arr = Array.isArray(getValue(key))
         ? [...(getValue(key) as unknown[])]
         : []
-      for (const v of values) {
-        arr.push(v)
+      const store = (attrs as Record<string, unknown>).into
+
+      const parseValues = (): unknown[] => {
+        const raw = (attrs as Record<string, unknown>).value
+        return typeof raw === 'string' ? parseItems(raw) : []
       }
-      setValue(key, arr)
-    }
 
-    return removeNode(parent, index)
-  }
-
-  const handleUnshift: DirectiveHandler = (directive, parent, index) => {
-    const attrs = directive.attributes || {}
-    const key = ensureKey((attrs as Record<string, unknown>).key, parent, index)
-    if (!key) return index
-
-    const raw = (attrs as Record<string, unknown>).value
-    const values = typeof raw === 'string' ? parseItems(raw) : []
-    if (values.length > 0) {
-      const arr = Array.isArray(getValue(key))
-        ? [...(getValue(key) as unknown[])]
-        : []
-      for (let i = values.length - 1; i >= 0; i--) {
-        arr.unshift(values[i])
-      }
-      setValue(key, arr)
-    }
-
-    return removeNode(parent, index)
-  }
-
-  const handleSplice: DirectiveHandler = (directive, parent, index) => {
-    const attrs = directive.attributes || {}
-    const key = ensureKey((attrs as Record<string, unknown>).key, parent, index)
-    if (!key) return index
-
-    const parseNum = (value: unknown, defaultValue = 0): number => {
-      if (typeof value === 'number') return value
-      if (typeof value === 'string') {
-        let evaluated: unknown = value
-        try {
-          const fn = compile(value)
-          evaluated = fn(gameData)
-        } catch {
-          // ignore
+      switch (op) {
+        case 'push': {
+          const values = parseValues()
+          if (values.length) {
+            arr.push(...values)
+            setValue(key, arr)
+          }
+          break
         }
-        return parseNumericValue(evaluated, defaultValue)
+        case 'unshift': {
+          const values = parseValues()
+          if (values.length) {
+            arr.unshift(...values)
+            setValue(key, arr)
+          }
+          break
+        }
+        case 'concat': {
+          const values = parseValues()
+          if (values.length) {
+            const result = arr.concat(values)
+            setValue(key, result)
+          }
+          break
+        }
+        case 'pop': {
+          const value = arr.pop()
+          setValue(key, arr)
+          if (typeof store === 'string' && value !== undefined) {
+            setValue(store, value)
+          }
+          break
+        }
+        case 'shift': {
+          const value = arr.shift()
+          setValue(key, arr)
+          if (typeof store === 'string' && value !== undefined) {
+            setValue(store, value)
+          }
+          break
+        }
+        case 'splice': {
+          const parseNum = (value: unknown, defaultValue = 0): number => {
+            if (typeof value === 'number') return value
+            if (typeof value === 'string') {
+              let evaluated: unknown = value
+              try {
+                const fn = compile(value)
+                evaluated = fn(gameData)
+              } catch {
+                // ignore
+              }
+              return parseNumericValue(evaluated, defaultValue)
+            }
+            return defaultValue
+          }
+
+          const start = parseNum((attrs as Record<string, unknown>).index, 0)
+          const count = parseNum((attrs as Record<string, unknown>).count, 0)
+          const values = parseValues()
+          const removed = arr.splice(start, count, ...values)
+          setValue(key, arr)
+          if (typeof store === 'string') {
+            setValue(store, removed)
+          }
+          break
+        }
       }
-      return defaultValue
+
+      return removeNode(parent, index)
     }
 
-    const start = parseNum((attrs as Record<string, unknown>).index, 0)
-    const count = parseNum((attrs as Record<string, unknown>).count, 0)
-
-    const raw = (attrs as Record<string, unknown>).value
-    const values = typeof raw === 'string' ? parseItems(raw) : []
-
-    const arr = Array.isArray(getValue(key))
-      ? [...(getValue(key) as unknown[])]
-      : []
-    const removed = arr.splice(start, count, ...values)
-    setValue(key, arr)
-
-    const store = (attrs as Record<string, unknown>).into
-    if (typeof store === 'string') {
-      setValue(store, removed)
-    }
-
-    return removeNode(parent, index)
-  }
-
-  const handleConcat: DirectiveHandler = (directive, parent, index) => {
-    const attrs = directive.attributes || {}
-    const key = ensureKey((attrs as Record<string, unknown>).key, parent, index)
-    if (!key) return index
-
-    const raw = (attrs as Record<string, unknown>).value
-    const values = typeof raw === 'string' ? parseItems(raw) : []
-    if (values.length > 0) {
-      const arr = Array.isArray(getValue(key))
-        ? [...(getValue(key) as unknown[])]
-        : []
-      const result = arr.concat(values)
-      setValue(key, result)
-    }
-
-    return removeNode(parent, index)
-  }
+  const handlePop = createArrayOperationHandler('pop')
+  const handlePush = createArrayOperationHandler('push')
+  const handleShift = createArrayOperationHandler('shift')
+  const handleUnshift = createArrayOperationHandler('unshift')
+  const handleSplice = createArrayOperationHandler('splice')
+  const handleConcat = createArrayOperationHandler('concat')
 
   const handleUnset: DirectiveHandler = (directive, parent, index) => {
     const attrs = directive.attributes || {}
