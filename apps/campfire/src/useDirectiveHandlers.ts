@@ -224,7 +224,10 @@ export const useDirectiveHandlers = () => {
         const inner = trimmed.slice(1, -1)
         const obj: Record<string, unknown> = {}
         for (const part of inner.split(',')) {
-          const [k, v] = part.split(':')
+          const colonIndex = part.indexOf(':')
+          if (colonIndex === -1) continue
+          const k = part.slice(0, colonIndex)
+          const v = part.slice(colonIndex + 1)
           if (!k || typeof v === 'undefined') continue
           obj[k.trim()] = parseShorthandValue(v)
         }
