@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.35.5](https://github.com/magicink/twine-campfire/compare/v1.35.4...v1.35.5) (2025-08-08)
+
+
+### Bug Fixes
+
+* handle if/else directives correctly ([#166](https://github.com/magicink/twine-campfire/issues/166)) ([daff3ce](https://github.com/magicink/twine-campfire/commit/daff3ce966fd7d032b34e44673e776d685cfbbb0))
+
 ## [1.35.4](https://github.com/magicink/twine-campfire/compare/v1.35.3...v1.35.4) (2025-08-08)
 
 
