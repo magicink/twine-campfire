@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.37.0](https://github.com/magicink/twine-campfire/compare/v1.36.1...v1.37.0) (2025-08-08)
+
+
+### Features
+
+* add shorthand set directives ([#176](https://github.com/magicink/twine-campfire/issues/176)) ([e32a0f6](https://github.com/magicink/twine-campfire/commit/e32a0f6724213102436eba08899ebebe991a8443))
+
 ## [1.36.1](https://github.com/magicink/twine-campfire/compare/v1.36.0...v1.36.1) (2025-08-08)
 
 
