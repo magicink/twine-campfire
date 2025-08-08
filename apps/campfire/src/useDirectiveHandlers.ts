@@ -29,7 +29,8 @@ import {
   type DirectiveNode,
   convertRanges,
   getLabel,
-  stripLabel
+  stripLabel,
+  extractAttributes
 } from './directives/helpers'
 import { getTranslationOptions } from './i18n'
 import type {
@@ -398,18 +399,28 @@ export const useDirectiveHandlers = () => {
    * and stores the result under the provided key. The directive does not display any output.
    */
   const handleMath: DirectiveHandler = (directive, parent, index) => {
-    const attrs = directive.attributes || {}
-    const typedAttrs = attrs as Record<string, unknown>
-    const key = ensureKey(typedAttrs.key, parent, index)
+    const { attrs, key } = extractAttributes(
+      directive,
+      parent,
+      index,
+      {
+        key: { type: 'string', required: true },
+        expr: { type: 'string', expression: false }
+      },
+      { keyAttr: 'key' }
+    )
     if (!key) return index
 
     let expr = toString(directive).trim()
     if (!expr) {
-      if (typeof typedAttrs.expr === 'string') {
-        expr = String(typedAttrs.expr)
-      } else {
-        const first = Object.keys(attrs)[0]
-        expr = first && first !== 'key' ? first : ''
+      expr = attrs.expr || ''
+      if (!expr) {
+        const raw = directive.attributes || {}
+        const first = Object.keys(raw)[0]
+        expr =
+          first && first !== 'key'
+            ? String((raw as Record<string, unknown>)[first])
+            : ''
       }
     }
 
@@ -435,8 +446,13 @@ export const useDirectiveHandlers = () => {
    * @param index - The index of the directive node within its parent.
    */
   const handleShow: DirectiveHandler = (directive, parent, index) => {
-    const attrs = directive.attributes || {}
-    const key = ensureKey((attrs as Record<string, unknown>).key, parent, index)
+    const { key } = extractAttributes(
+      directive,
+      parent,
+      index,
+      { key: { type: 'string', required: true } },
+      { keyAttr: 'key' }
+    )
     if (!key) return index
     const node: MdText = {
       type: 'text',
@@ -453,55 +469,28 @@ export const useDirectiveHandlers = () => {
   }
 
   const handleRandom: DirectiveHandler = (directive, parent, index) => {
-    const attrs = directive.attributes || {}
-    const key = ensureKey((attrs as Record<string, unknown>).key, parent, index)
+    const { attrs, key } = extractAttributes(
+      directive,
+      parent,
+      index,
+      {
+        key: { type: 'string', required: true },
+        options: { type: 'array' },
+        from: { type: 'array' },
+        min: { type: 'number' },
+        max: { type: 'number' }
+      },
+      { state: gameData, keyAttr: 'key' }
+    )
     if (!key) return index
 
     let value: unknown
-
-    const optionsAttr =
-      (attrs as Record<string, unknown>).options ??
-      (attrs as Record<string, unknown>).from
-    if (typeof optionsAttr === 'string') {
-      let evaluated: unknown
-      try {
-        const fn = compile(optionsAttr)
-        evaluated = fn(gameData)
-      } catch {
-        // fall back to string parsing
-      }
-      if (Array.isArray(evaluated)) {
-        value = getRandomItem(evaluated)
-      } else {
-        const options = optionsAttr
-          .split(',')
-          .map(s => s.trim())
-          .filter(Boolean)
-        value = getRandomItem(options)
-      }
-    } else if (Array.isArray(optionsAttr)) {
-      value = getRandomItem(optionsAttr as unknown[])
+    const optionList = (attrs.options || attrs.from) as unknown[] | undefined
+    if (optionList && optionList.length) {
+      value = getRandomItem(optionList)
     } else {
-      const minRaw = (attrs as Record<string, unknown>).min
-      const maxRaw = (attrs as Record<string, unknown>).max
-      const min =
-        typeof minRaw === 'number'
-          ? minRaw
-          : minRaw == null
-            ? undefined
-            : parseFloat(String(minRaw))
-      const max =
-        typeof maxRaw === 'number'
-          ? maxRaw
-          : maxRaw == null
-            ? undefined
-            : parseFloat(String(maxRaw))
-      if (
-        typeof min === 'number' &&
-        !Number.isNaN(min) &&
-        typeof max === 'number' &&
-        !Number.isNaN(max)
-      ) {
+      const { min, max } = attrs
+      if (typeof min === 'number' && typeof max === 'number') {
         value = getRandomInt(min, max)
       }
     }
