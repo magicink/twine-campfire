@@ -784,7 +784,45 @@ export const useDirectiveHandlers = () => {
     return removeNode(parent, index)
   }
 
+  /**
+   * Adds translations to i18next. Supports a shorthand syntax
+   * `:translations[lng]{namespace:key="value"}` or falls back to
+   * attribute-based definitions.
+   *
+   * @param directive - The directive node representing the translations.
+   * @param parent - The parent AST node containing this directive.
+   * @param index - The index of the directive node within its parent.
+   * @returns The new index after processing.
+   */
   const handleTranslations: DirectiveHandler = (directive, parent, index) => {
+    const label =
+      getLabel(directive as ContainerDirective) || toString(directive).trim()
+    if (label && directive.attributes) {
+      const attrs = directive.attributes as Record<string, unknown>
+      const entries = Object.entries(attrs)
+      if (entries.length === 1) {
+        const [compound, raw] = entries[0]
+        const m = compound.match(/^([^:]+):(.+)$/)
+        if (m && typeof raw === 'string') {
+          const ns = m[1]
+          const key = m[2]
+          const value = raw.trim()
+          if (!i18next.hasResourceBundle(label, ns)) {
+            i18next.addResourceBundle(label, ns, {}, true, true)
+          }
+          i18next.addResource(label, ns, key, value)
+        } else {
+          const msg = 'Translations directive expects [locale]{ns:key="value"}'
+          console.error(msg)
+          addError(msg)
+        }
+      } else {
+        const msg = 'Translations directive accepts only one namespace:key pair'
+        console.error(msg)
+        addError(msg)
+      }
+      return removeNode(parent, index)
+    }
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const ns = typeof attrs.ns === 'string' ? attrs.ns : 'translation'
     const locale =

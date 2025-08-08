@@ -5,6 +5,7 @@ import { initReactI18next } from 'react-i18next'
 import type { Element } from 'hast'
 import { Passage } from '../src/Passage'
 import { useStoryDataStore } from '@/packages/use-story-data-store'
+import { useGameStore } from '@/packages/use-game-store'
 import { resetStores } from './helpers'
 
 describe('Passage i18n directives', () => {
@@ -161,5 +162,52 @@ describe('Passage i18n directives', () => {
     })
 
     expect(await screen.findByText('Bonjour')).toBeInTheDocument()
+  })
+
+  it('adds translation via shorthand syntax', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        { type: 'text', value: ':translations[en-US]{ui:greet="Hello there"}' },
+        { type: 'text', value: ':t{key=greet ns="ui"}' }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    const text = await screen.findByText('Hello there')
+    expect(text).toBeInTheDocument()
+  })
+
+  it('reports error when multiple pairs are provided', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':translations[en-US]{ui:greet="Hello" ui:bye="Bye"}'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(useGameStore.getState().errors.length).toBe(1)
+    })
   })
 })
