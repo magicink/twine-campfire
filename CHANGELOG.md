@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.40.0](https://github.com/magicink/twine-campfire/compare/v1.39.0...v1.40.0) (2025-08-08)
+
+
+### Features
+
+* remove math directive and evaluate set expressions ([#183](https://github.com/magicink/twine-campfire/issues/183)) ([7dbe2ba](https://github.com/magicink/twine-campfire/commit/7dbe2ba306b9d5418c6334b205e04903bb61b0a9))
+
 ## [1.39.0](https://github.com/magicink/twine-campfire/compare/v1.38.0...v1.39.0) (2025-08-08)
 
 
