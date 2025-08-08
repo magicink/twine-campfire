@@ -22,6 +22,19 @@ import { If } from './If'
 import { Show } from './Show'
 
 /**
+ * Normalizes directive indentation so Markdown treats directive lines the same
+ * regardless of leading spaces or tabs. Strips tabs or four-or-more spaces
+ * before directive markers.
+ *
+ * @param input - Raw passage text.
+ * @returns Passage text with directive indentation normalized.
+ */
+const normalizeDirectiveIndentation = (input: string): string =>
+  input
+    .replace(/^\t+(?=(:::[^\n]*|:[^\n]*|<<))/gm, '')
+    .replace(/^[ ]{4,}(?=(:::[^\n]*|:[^\n]*|<<))/gm, '')
+
+/**
  * Converts legacy if directive syntax using braces into label-based directives.
  *
  * Remark's directive parser only accepts attribute names with characters valid
@@ -168,7 +181,9 @@ export const Passage = () => {
             : ''
         )
         .join('')
-      const normalized = normalizeIfDirectives(text)
+      const normalized = normalizeIfDirectives(
+        normalizeDirectiveIndentation(text)
+      )
       if (controller.signal.aborted) return
       const file = await processor.process(normalized)
       if (controller.signal.aborted) return
