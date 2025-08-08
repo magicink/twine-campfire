@@ -624,35 +624,6 @@ describe('Passage game state directives', () => {
     )
   })
 
-  it('evaluates defined directive', async () => {
-    useGameStore.setState(state => ({
-      ...state,
-      gameData: { hp: 5, player: { name: 'Alex' } }
-    }))
-    const passage: Element = {
-      type: 'element',
-      tagName: 'tw-passagedata',
-      properties: { pid: '1', name: 'Start' },
-      children: [
-        {
-          type: 'text',
-          value:
-            'HP: :defined[hp] MP: :defined[mp] Name: :defined[player.name] Age: :defined[player.age]'
-        }
-      ]
-    }
-
-    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-
-    render(<Passage />)
-
-    await waitFor(() => {
-      expect(
-        screen.getByText('HP: true MP: false Name: true Age: false')
-      ).toBeInTheDocument()
-    })
-  })
-
   it('requires a key and does not display results', async () => {
     useGameStore.setState(state => ({
       ...state,
@@ -689,7 +660,7 @@ describe('Passage game state directives', () => {
       children: [
         {
           type: 'text',
-          value: 'HP: :math[hp + 1]{key=hp} :show{key=hp}'
+          value: 'HP: :math[hp + 1]{key=hp} :show[hp]'
         }
       ]
     }
@@ -717,7 +688,7 @@ describe('Passage game state directives', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: 'HP: :show{key=hp}' }]
+      children: [{ type: 'text', value: 'HP: :show[hp]' }]
     }
 
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })

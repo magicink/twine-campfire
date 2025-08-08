@@ -6,8 +6,6 @@ import { getTranslationOptions } from './i18n'
 
 interface ShowProps {
   /** Game data key to display */
-  key?: string
-  /** Optional key attribute when using data-* */
   'data-key'?: string
   /** Translation key to display */
   'data-i18n-key'?: string
@@ -38,7 +36,7 @@ export const Show = (props: ShowProps) => {
     })
     return <span>{t(tKey, options)}</span>
   }
-  const storeKey = props['data-key'] ?? props.key
+  const storeKey = props['data-key']
   const value = useGameStore(state => {
     if (!storeKey) return undefined
     return (state.gameData as Record<string, unknown>)[storeKey]
