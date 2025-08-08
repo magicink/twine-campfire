@@ -118,6 +118,17 @@ Operations that set, update or remove scalar values.
   :set{key=player_name value="Alice"}
   ```
 
+  The shorthand form `:set[key=value]` is also available. In shorthand syntax,
+  quoted values are treated as strings, `true`/`false` as booleans, values
+  wrapped in `{}` as objects, purely numeric values as numbers and any other
+  value is evaluated as an expression or state reference.
+
+  ```md
+  :set[health=100]
+  :set[playerName="John"]
+  :set[isActive=true]
+  ```
+
 - `set[range]`: Initialize a key with a numeric range. This directive is leaf-only and cannot wrap
   content.
 
@@ -135,7 +146,12 @@ Operations that set, update or remove scalar values.
   :setOnce{key=visited value=true}
   ```
 
-  Replace `visited` with the key to lock on first use.
+  Replace `visited` with the key to lock on first use. Shorthand syntax is also
+  supported:
+
+  ```md
+  :setOnce[visited=true]
+  ```
 
 - `unset`: Remove a key from state. This directive is leaf-only and cannot wrap
   content.

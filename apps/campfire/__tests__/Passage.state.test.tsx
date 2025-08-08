@@ -115,6 +115,35 @@ describe('Passage game state directives', () => {
     expect(paragraphs).toHaveLength(1)
   })
 
+  it('supports shorthand syntax for set directive', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        { type: 'text', value: ':set[hp=5]' },
+        { type: 'text', value: ':set[name="John"]' },
+        { type: 'text', value: ':set[isActive=true]' },
+        { type: 'text', value: ':set[double=hp*2]' }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      const data = useGameStore.getState().gameData as Record<string, unknown>
+      expect(data.hp).toBe(5)
+      expect(data.name).toBe('John')
+      expect(data.isActive).toBe(true)
+      expect(data.double).toBe(10)
+    })
+  })
+
   it('batches state updates into one change', async () => {
     const unsetCalls: string[] = []
     const origUnset = useGameStore.getState().unsetGameData
@@ -187,6 +216,35 @@ describe('Passage game state directives', () => {
 
     expect(
       (useGameStore.getState().gameData as Record<string, unknown>).gold
+    ).toBe(10)
+  })
+
+  it('locks keys with setOnce shorthand', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':setOnce[coins=10]' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() =>
+      expect(
+        (useGameStore.getState().gameData as Record<string, unknown>).coins
+      ).toBe(10)
+    )
+    expect(useGameStore.getState().lockedKeys.coins).toBe(true)
+
+    useGameStore.getState().setGameData({ coins: 5 })
+
+    expect(
+      (useGameStore.getState().gameData as Record<string, unknown>).coins
     ).toBe(10)
   })
 

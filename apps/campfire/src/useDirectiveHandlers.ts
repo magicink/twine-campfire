@@ -141,10 +141,19 @@ export const useDirectiveHandlers = () => {
     index: number | undefined,
     lock = false
   ): DirectiveHandlerResult => {
-    const typeParam =
-      ((directive as { label?: string }).label || toString(directive))
-        .trim()
-        .toLowerCase() || 'string'
+    const rawLabel = (directive as { label?: string }).label
+    const textContent = toString(directive)
+    let typeParam = 'string'
+    let shorthand: string | undefined
+    if (rawLabel && rawLabel.includes('=')) {
+      shorthand = rawLabel
+    } else if (rawLabel) {
+      typeParam = rawLabel.trim().toLowerCase() || 'string'
+    } else if (textContent && textContent.includes('=')) {
+      shorthand = textContent.trim()
+    } else if (textContent) {
+      typeParam = textContent.trim().toLowerCase() || 'string'
+    }
     const attrs = directive.attributes
     const safe: Record<string, unknown> = {}
 
@@ -195,6 +204,65 @@ export const useDirectiveHandlers = () => {
       }
     }
 
+    /**
+     * Parses a value supplied via the shorthand `:set[key=value]` syntax. Values
+     * are interpreted as strings when wrapped in quotes or backticks, booleans
+     * for literal `true`/`false`, objects when enclosed in curly braces, numbers
+     * when they contain only digits, and expressions evaluated against the
+     * current game state otherwise.
+     *
+     * @param raw - Raw value string from the directive.
+     * @returns The parsed value or `undefined` on failure.
+     */
+    const parseShorthandValue = (raw: string): unknown => {
+      const trimmed = raw.trim()
+      const quoted = trimmed.match(QUOTE_PATTERN)
+      if (quoted) return quoted[2]
+      if (trimmed === 'true') return true
+      if (trimmed === 'false') return false
+      if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+        const inner = trimmed.slice(1, -1)
+        const obj: Record<string, unknown> = {}
+        for (const part of inner.split(',')) {
+          const colonIndex = part.indexOf(':')
+          if (colonIndex === -1) continue
+          const k = part.slice(0, colonIndex)
+          const v = part.slice(colonIndex + 1)
+          if (!k || typeof v === 'undefined') continue
+          if (!k) continue
+          if (typeof v !== 'undefined') obj[k.trim()] = parseShorthandValue(v)
+        }
+        return obj
+      }
+      const num = Number(trimmed)
+      if (!Number.isNaN(num)) return num
+      try {
+        const fn = compile(trimmed)
+        return fn(gameData)
+      } catch {
+        return (gameData as Record<string, unknown>)[trimmed]
+      }
+    }
+
+    /**
+     * Extracts and assigns values from shorthand `key=value` pairs placed in the
+     * directive label.
+     *
+     * @param pair - The raw `key=value` string.
+     */
+    const applyShorthand = (pair: string) => {
+      const eq = pair.indexOf('=')
+      if (eq === -1) return
+      const keyRaw = pair.slice(0, eq).trim()
+      const valueRaw = pair.slice(eq + 1)
+      const key = ensureKey(keyRaw, parent, index)
+      if (!key) return
+      const parsed = parseShorthandValue(valueRaw)
+      if (typeof parsed !== 'undefined') {
+        safe[key] = parsed
+      }
+    }
+
     const parseNumber = (value: unknown): number => {
       if (value == null) return 0
       if (typeof value === 'number') return value
@@ -210,7 +278,9 @@ export const useDirectiveHandlers = () => {
       return parseNumericValue(evaluated)
     }
 
-    if (isRecord(attrs)) {
+    if (shorthand) {
+      applyShorthand(shorthand)
+    } else if (isRecord(attrs)) {
       const key = ensureKey(attrs.key, parent, index)
       if (key) {
         if (typeParam === 'range') {
