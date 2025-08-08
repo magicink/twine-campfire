@@ -1046,6 +1046,31 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
+   * Resolves a passage target from directive text or attributes.
+   *
+   * @param rawText - The trimmed text content of the directive.
+   * @param attrs - Attributes associated with the directive.
+   * @returns The passage id or name if recognized, otherwise undefined.
+   */
+  const resolvePassageTarget = (
+    rawText: string,
+    attrs: Record<string, unknown>
+  ): string | undefined => {
+    if (rawText) {
+      return (
+        getQuotedValue(rawText) ??
+        (NUMERIC_PATTERN.test(rawText) ? rawText : undefined)
+      )
+    }
+    const attr =
+      typeof attrs.passage === 'string' ? attrs.passage.trim() : undefined
+    return attr
+      ? (getQuotedValue(attr) ??
+          (NUMERIC_PATTERN.test(attr) ? attr : getStateValue(attr)))
+      : undefined
+  }
+
+  /**
    * Handles the `:goto` directive, which navigates to another passage.
    * Passage names must be wrapped in matching quotes or backticks, while
    * unquoted numbers are treated as passage IDs. When the `passage` attribute
@@ -1060,18 +1085,7 @@ export const useDirectiveHandlers = () => {
   const handleGoto: DirectiveHandler = (directive, parent, index) => {
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const rawText = toString(directive).trim()
-    let target: string | undefined
-
-    if (rawText) {
-      target =
-        getQuotedValue(rawText) ??
-        (NUMERIC_PATTERN.test(rawText) ? rawText : undefined)
-    } else if (typeof attrs.passage === 'string') {
-      const rawAttr = attrs.passage.trim()
-      target =
-        getQuotedValue(rawAttr) ??
-        (NUMERIC_PATTERN.test(rawAttr) ? rawAttr : getStateValue(rawAttr))
-    }
+    const target = resolvePassageTarget(rawText, attrs)
 
     const passage = target
       ? NUMERIC_PATTERN.test(target)
@@ -1311,18 +1325,7 @@ export const useDirectiveHandlers = () => {
   const handleInclude: DirectiveHandler = (directive, parent, index) => {
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const rawText = toString(directive).trim()
-    let target: string | undefined
-
-    if (rawText) {
-      target =
-        getQuotedValue(rawText) ??
-        (NUMERIC_PATTERN.test(rawText) ? rawText : undefined)
-    } else if (typeof attrs.passage === 'string') {
-      const rawAttr = attrs.passage.trim()
-      target =
-        getQuotedValue(rawAttr) ??
-        (NUMERIC_PATTERN.test(rawAttr) ? rawAttr : getStateValue(rawAttr))
-    }
+    const target = resolvePassageTarget(rawText, attrs)
 
     if (!parent || typeof index !== 'number' || !target) {
       return removeNode(parent, index)
