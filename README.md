@@ -218,15 +218,6 @@ Create or modify lists of values.
 
 Read or compute data without mutating state.
 
-- `math`: Perform a calculation and store the result under a key.
-
-  ```md
-  :math[HP + VALUE]{key=RESULT}
-  ```
-
-  Replace `RESULT` with the key to store and `HP`/`VALUE` with numbers or
-  keys. Use `:show` to display stored values.
-
 - `show`: Display a key's value.
 
   ```md

@@ -144,6 +144,28 @@ describe('Passage game state directives', () => {
     })
   })
 
+  it('evaluates expressions in set directive', async () => {
+    useGameStore.setState(state => ({
+      ...state,
+      gameData: { key_1: 1, key_b: 2, key_c: 3 }
+    }))
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':set[num=(key_1+key_b) * key_c]' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() => expect(useGameStore.getState().gameData.num).toBe(9))
+  })
+
   it('batches state updates into one change', async () => {
     const unsetCalls: string[] = []
     const origUnset = useGameStore.getState().unsetGameData
@@ -622,61 +644,6 @@ describe('Passage game state directives', () => {
         'c'
       ])
     )
-  })
-
-  it('requires a key and does not display results', async () => {
-    useGameStore.setState(state => ({
-      ...state,
-      gameData: { x: 3 }
-    }))
-    const passage: Element = {
-      type: 'element',
-      tagName: 'tw-passagedata',
-      properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: 'Result: :math[x * 2]' }]
-    }
-
-    useStoryDataStore.setState({
-      passages: [passage],
-      currentPassageId: '1'
-    })
-
-    render(<Passage />)
-
-    await screen.findByText('Result:')
-    expect(screen.queryByText('Result: 6')).toBeNull()
-    expect(useGameStore.getState().gameData.x).toBe(3)
-  })
-
-  it('can set state with math directive', async () => {
-    useGameStore.setState(state => ({
-      ...state,
-      gameData: { hp: 5 }
-    }))
-    const passage: Element = {
-      type: 'element',
-      tagName: 'tw-passagedata',
-      properties: { pid: '1', name: 'Start' },
-      children: [
-        {
-          type: 'text',
-          value: 'HP: :math[hp + 1]{key=hp} :show[hp]'
-        }
-      ]
-    }
-
-    useStoryDataStore.setState({
-      passages: [passage],
-      currentPassageId: '1'
-    })
-
-    render(<Passage />)
-
-    await waitFor(() => {
-      const span = screen.getByText('6')
-      expect(span.closest('p')?.textContent?.replace(/\s+/g, '')).toBe('HP:6')
-    })
-    expect(useGameStore.getState().gameData.hp).toBe(6)
   })
 
   it('renders game data with show directive', async () => {
