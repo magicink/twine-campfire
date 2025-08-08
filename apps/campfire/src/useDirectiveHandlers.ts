@@ -760,11 +760,18 @@ export const useDirectiveHandlers = () => {
       sibling &&
       sibling.type === 'containerDirective' &&
       (sibling as ContainerDirective).name === 'else'
+    let isTrue = false
+    try {
+      const fn = compile(expr)
+      isTrue = !!fn(convertRanges(gameData) as any)
+    } catch {
+      isTrue = false
+    }
     if (elseIndex !== -1) {
       const next = children[elseIndex] as ContainerDirective
       main = children.slice(0, elseIndex)
       fallback = JSON.stringify(stripLabel(next.children as RootContent[]))
-    } else if (hasElseSibling) {
+    } else if (hasElseSibling && isTrue) {
       const next = sibling as ContainerDirective
       fallback = JSON.stringify(stripLabel(next.children as RootContent[]))
     }
@@ -782,10 +789,11 @@ export const useDirectiveHandlers = () => {
     const newIndex = replaceWithIndentation(directive, parent, index, [
       node as RootContent
     ])
-    if (hasElseSibling) {
-      removeNode(parent, newIndex + 1)
+    const markerIndex = newIndex + 1
+    if (hasElseSibling && isTrue) {
+      removeNode(parent, markerIndex)
     }
-    const next = parent.children[newIndex + 1]
+    const next = parent.children[markerIndex]
     if (
       next &&
       next.type === 'paragraph' &&
@@ -793,9 +801,31 @@ export const useDirectiveHandlers = () => {
       isTextNode(next.children[0]) &&
       next.children[0].value.trim() === ':::'
     ) {
-      parent.children.splice(newIndex + 1, 1)
+      parent.children.splice(markerIndex, 1)
     }
     return [SKIP, newIndex]
+  }
+
+  /**
+   * Inlines the children of `:::else` directives when present.
+   */
+  const handleElse: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    const container = directive as ContainerDirective
+    const content = stripLabel(container.children as RootContent[])
+    const newIndex = replaceWithIndentation(directive, parent, index, content)
+    const markerIndex = newIndex + content.length
+    const next = parent.children[markerIndex]
+    if (
+      next &&
+      next.type === 'paragraph' &&
+      next.children.length === 1 &&
+      isTextNode(next.children[0]) &&
+      next.children[0].value.trim() === ':::'
+    ) {
+      parent.children.splice(markerIndex, 1)
+    }
+    return [SKIP, newIndex + Math.max(0, content.length - 1)]
   }
 
   const handleOnce: DirectiveHandler = (directive, parent, index) => {
@@ -1417,6 +1447,7 @@ export const useDirectiveHandlers = () => {
       concat: handleConcat,
       unset: handleUnset,
       if: handleIf,
+      else: handleElse,
       once: handleOnce,
       batch: handleBatch,
       trigger: handleTrigger,
