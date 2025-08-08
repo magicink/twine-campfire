@@ -768,16 +768,18 @@ export const useDirectiveHandlers = () => {
     } else if (elseSiblingIndex !== -1) {
       const next = parent.children[elseSiblingIndex] as ContainerDirective
       fallback = JSON.stringify(stripLabel(next.children as RootContent[]))
-      removeNode(parent, elseSiblingIndex)
-      const marker = parent.children[elseSiblingIndex]
-      if (
-        marker &&
-        marker.type === 'paragraph' &&
-        marker.children.length === 1 &&
-        isTextNode(marker.children[0]) &&
-        marker.children[0].value.trim() === ':::'
-      ) {
-        parent.children.splice(elseSiblingIndex, 1)
+      const markerIndex = removeNode(parent, elseSiblingIndex)
+      if (typeof markerIndex === 'number') {
+        const marker = parent.children[markerIndex]
+        if (
+          marker &&
+          marker.type === 'paragraph' &&
+          marker.children.length === 1 &&
+          isTextNode(marker.children[0]) &&
+          marker.children[0].value.trim() === ':::'
+        ) {
+          parent.children.splice(markerIndex, 1)
+        }
       }
     }
     const content = JSON.stringify(stripLabel(main))
