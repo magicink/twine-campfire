@@ -229,7 +229,8 @@ export const useDirectiveHandlers = () => {
           const k = part.slice(0, colonIndex)
           const v = part.slice(colonIndex + 1)
           if (!k || typeof v === 'undefined') continue
-          obj[k.trim()] = parseShorthandValue(v)
+          if (!k) continue
+          if (typeof v !== 'undefined') obj[k.trim()] = parseShorthandValue(v)
         }
         return obj
       }
