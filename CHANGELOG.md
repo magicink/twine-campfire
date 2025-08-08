@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.40.1](https://github.com/magicink/twine-campfire/compare/v1.40.0...v1.40.1) (2025-08-08)
+
+
+### Bug Fixes
+
+* normalize directive indentation ([#185](https://github.com/magicink/twine-campfire/issues/185)) ([ab55541](https://github.com/magicink/twine-campfire/commit/ab555418293d46a88dd7b64b8ea3ab9947506c6e))
+
 ## [1.40.0](https://github.com/magicink/twine-campfire/compare/v1.39.0...v1.40.0) (2025-08-08)
 
 
