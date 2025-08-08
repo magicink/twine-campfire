@@ -387,6 +387,13 @@ Control the flow between passages or how they appear.
 
   Replace `GAME-TITLE` with the text to display, wrapped in matching quotes or backticks.
 
+  By default, the browser tab displays the story name and current passage name
+  separated by a colon. Customize this behavior by adding attributes to the
+  `<tw-storydata>` element:
+  - `title-separator`: String placed between the story and passage names.
+  - `title-show-passage="false"`: Hide the passage name and show only the
+    story name.
+
 ### Checkpoints & persistence
 
 Save and restore progress or store data in the browser.
