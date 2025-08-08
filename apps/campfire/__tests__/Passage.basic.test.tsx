@@ -95,6 +95,34 @@ describe('Passage rendering and navigation', () => {
     })
   })
 
+  it('logs error when title directive is not quoted', async () => {
+    const logged: unknown[] = []
+    const orig = console.error
+    console.error = (...args: unknown[]) => {
+      logged.push(args)
+    }
+
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':title[Custom]' }]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(logged).toHaveLength(1)
+      expect(useGameStore.getState().errors).toEqual([
+        'Title directive value must be wrapped in matching quotes or backticks'
+      ])
+      expect(document.title).toBe('Start')
+    })
+
+    console.error = orig
+  })
+
   it('ignores title directive in included passages', async () => {
     const start: Element = {
       type: 'element',

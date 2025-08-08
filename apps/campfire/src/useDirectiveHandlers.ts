@@ -1038,7 +1038,7 @@ export const useDirectiveHandlers = () => {
    * @returns The value as a string if present, otherwise undefined.
    */
   const getStateValue = (key: string): string | undefined => {
-    if (!Object.prototype.hasOwnProperty.call(gameData, key)) return undefined
+    if (!Object.hasOwn(gameData, key)) return undefined
     const value = (gameData as Record<string, unknown>)[key]
     return typeof value === 'string' || typeof value === 'number'
       ? String(value)
@@ -1301,10 +1301,16 @@ export const useDirectiveHandlers = () => {
    */
   const handleTitle: DirectiveHandler = (directive, parent, index) => {
     if (includeDepth > 0) return removeNode(parent, index)
-    const title = getQuotedValue(toString(directive).trim())
+    const raw = toString(directive).trim()
+    const title = getQuotedValue(raw)
     if (title) {
       document.title = i18next.t(title)
       markTitleOverridden()
+    } else if (raw) {
+      const msg =
+        'Title directive value must be wrapped in matching quotes or backticks'
+      console.error(msg)
+      addError(msg)
     }
     return removeNode(parent, index)
   }
