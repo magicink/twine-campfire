@@ -753,13 +753,14 @@ export const useDirectiveHandlers = () => {
         child.type === 'containerDirective' &&
         (child as ContainerDirective).name === 'else'
     )
+    const elseSiblingIndex = parent.children.findIndex(
+      (child, i) =>
+        i > index &&
+        child.type === 'containerDirective' &&
+        (child as ContainerDirective).name === 'else'
+    )
     let fallback: string | undefined
     let main = children
-    const sibling = parent.children[index + 1]
-    const hasElseSibling =
-      sibling &&
-      sibling.type === 'containerDirective' &&
-      (sibling as ContainerDirective).name === 'else'
     let isTrue = false
     try {
       const fn = compile(expr)
@@ -771,9 +772,22 @@ export const useDirectiveHandlers = () => {
       const next = children[elseIndex] as ContainerDirective
       main = children.slice(0, elseIndex)
       fallback = JSON.stringify(stripLabel(next.children as RootContent[]))
-    } else if (hasElseSibling && !isTrue) {
-      const next = sibling as ContainerDirective
-      fallback = JSON.stringify(stripLabel(next.children as RootContent[]))
+    } else if (elseSiblingIndex !== -1) {
+      const next = parent.children[elseSiblingIndex] as ContainerDirective
+      if (!isTrue) {
+        fallback = JSON.stringify(stripLabel(next.children as RootContent[]))
+      }
+      removeNode(parent, elseSiblingIndex)
+      const marker = parent.children[elseSiblingIndex]
+      if (
+        marker &&
+        marker.type === 'paragraph' &&
+        marker.children.length === 1 &&
+        isTextNode(marker.children[0]) &&
+        marker.children[0].value.trim() === ':::'
+      ) {
+        parent.children.splice(elseSiblingIndex, 1)
+      }
     }
     const content = JSON.stringify(stripLabel(main))
     const node: Parent = {
@@ -790,9 +804,6 @@ export const useDirectiveHandlers = () => {
       node as RootContent
     ])
     const markerIndex = newIndex + 1
-    if (hasElseSibling) {
-      removeNode(parent, markerIndex)
-    }
     const next = parent.children[markerIndex]
     if (
       next &&
@@ -825,7 +836,8 @@ export const useDirectiveHandlers = () => {
     ) {
       parent.children.splice(markerIndex, 1)
     }
-    return [SKIP, newIndex + Math.max(0, content.length - 1)]
+    const offset = content.length > 0 ? content.length - 1 : 0
+    return [SKIP, newIndex + offset]
   }
 
   const handleOnce: DirectiveHandler = (directive, parent, index) => {
