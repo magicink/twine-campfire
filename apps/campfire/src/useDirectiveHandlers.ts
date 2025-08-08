@@ -771,7 +771,7 @@ export const useDirectiveHandlers = () => {
       const next = children[elseIndex] as ContainerDirective
       main = children.slice(0, elseIndex)
       fallback = JSON.stringify(stripLabel(next.children as RootContent[]))
-    } else if (hasElseSibling && isTrue) {
+    } else if (hasElseSibling && !isTrue) {
       const next = sibling as ContainerDirective
       fallback = JSON.stringify(stripLabel(next.children as RootContent[]))
     }
@@ -790,7 +790,7 @@ export const useDirectiveHandlers = () => {
       node as RootContent
     ])
     const markerIndex = newIndex + 1
-    if (hasElseSibling && isTrue) {
+    if (hasElseSibling) {
       removeNode(parent, markerIndex)
     }
     const next = parent.children[markerIndex]
