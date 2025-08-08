@@ -777,8 +777,9 @@ export const useDirectiveHandlers = () => {
       if (!isTrue) {
         fallback = JSON.stringify(stripLabel(next.children as RootContent[]))
       }
+      const markerIndex = elseSiblingIndex
       removeNode(parent, elseSiblingIndex)
-      const marker = parent.children[elseSiblingIndex]
+      const marker = parent.children[markerIndex]
       if (
         marker &&
         marker.type === 'paragraph' &&
@@ -786,7 +787,7 @@ export const useDirectiveHandlers = () => {
         isTextNode(marker.children[0]) &&
         marker.children[0].value.trim() === ':::'
       ) {
-        parent.children.splice(elseSiblingIndex, 1)
+        parent.children.splice(markerIndex, 1)
       }
     }
     const content = JSON.stringify(stripLabel(main))
