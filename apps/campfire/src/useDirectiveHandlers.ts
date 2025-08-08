@@ -754,18 +754,21 @@ export const useDirectiveHandlers = () => {
         (child as ContainerDirective).name === 'else'
     )
     let fallback: string | undefined
+    let main = children
+    const sibling = parent.children[index + 1]
+    const hasElseSibling =
+      sibling &&
+      sibling.type === 'containerDirective' &&
+      (sibling as ContainerDirective).name === 'else'
     if (elseIndex !== -1) {
-      const next = children.splice(elseIndex, 1)[0] as ContainerDirective
+      const next = children[elseIndex] as ContainerDirective
+      main = children.slice(0, elseIndex)
       fallback = JSON.stringify(stripLabel(next.children as RootContent[]))
-    } else if (
-      parent.children[index + 1] &&
-      parent.children[index + 1].type === 'containerDirective' &&
-      (parent.children[index + 1] as ContainerDirective).name === 'else'
-    ) {
-      const next = parent.children.splice(index + 1, 1)[0] as ContainerDirective
+    } else if (hasElseSibling) {
+      const next = sibling as ContainerDirective
       fallback = JSON.stringify(stripLabel(next.children as RootContent[]))
     }
-    const content = JSON.stringify(stripLabel(children))
+    const content = JSON.stringify(stripLabel(main))
     const node: Parent = {
       type: 'paragraph',
       children: [{ type: 'text', value: '' }],
@@ -779,6 +782,9 @@ export const useDirectiveHandlers = () => {
     const newIndex = replaceWithIndentation(directive, parent, index, [
       node as RootContent
     ])
+    if (hasElseSibling) {
+      removeNode(parent, newIndex + 1)
+    }
     const next = parent.children[newIndex + 1]
     if (
       next &&
