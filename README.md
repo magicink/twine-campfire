@@ -218,14 +218,6 @@ Create or modify lists of values.
 
 Read or compute data without mutating state.
 
-- `defined`: Check if a key exists.
-
-  ```md
-  :defined{key=HP}
-  ```
-
-  Replace `HP` with the key to test.
-
 - `math`: Perform a calculation and store the result under a key.
 
   ```md
@@ -238,7 +230,7 @@ Read or compute data without mutating state.
 - `show`: Display a key's value.
 
   ```md
-  :show{key=hp}
+  :show[hp]
   ```
 
   Replace `hp` with the key to display.

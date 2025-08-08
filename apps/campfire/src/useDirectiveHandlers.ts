@@ -23,7 +23,6 @@ import {
   ensureKey,
   removeNode,
   type DirectiveNode,
-  convertRanges,
   getLabel,
   stripLabel,
   extractAttributes
@@ -324,29 +323,6 @@ export const useDirectiveHandlers = () => {
     return removeNode(parent, index)
   }
 
-  const handleDefined: DirectiveHandler = (directive, parent, index) => {
-    const expr: string =
-      toString(directive) || Object.keys(directive.attributes || {})[0] || ''
-    let defined = false
-    if (expr) {
-      try {
-        const fn = compile(expr)
-        const data = convertRanges(gameData)
-        const value = fn(data as any)
-        defined = typeof value !== 'undefined'
-      } catch {
-        defined = typeof (gameData as any)[expr] !== 'undefined'
-      }
-    }
-    const textNode: MdText = {
-      type: 'text',
-      value: defined ? 'true' : 'false'
-    }
-    if (parent && typeof index === 'number') {
-      return replaceWithIndentation(directive, parent, index, [textNode])
-    }
-  }
-
   /**
    * Evaluates a mathematical or JavaScript expression in the context of the current game data
    * and stores the result under the provided key. The directive does not display any output.
@@ -399,13 +375,7 @@ export const useDirectiveHandlers = () => {
    * @param index - The index of the directive node within its parent.
    */
   const handleShow: DirectiveHandler = (directive, parent, index) => {
-    const { key } = extractAttributes(
-      directive,
-      parent,
-      index,
-      { key: { type: 'string', required: true } },
-      { keyAttr: 'key' }
-    )
+    const key = ensureKey(toString(directive), parent, index)
     if (!key) return index
     const node: MdText = {
       type: 'text',
@@ -1296,7 +1266,6 @@ export const useDirectiveHandlers = () => {
         p: Parent | undefined,
         i: number | undefined
       ) => handleArray(d, p, i, true),
-      defined: handleDefined,
       math: handleMath,
       show: handleShow,
       random: handleRandom,
