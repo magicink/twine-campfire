@@ -27,5 +27,8 @@ jobs:
 
           for id in $ids_to_delete; do
             echo "Deleting release ID $id (tag will remain)"
-            gh api -X DELETE repos/${{ github.repository }}/releases/$id
+            if ! gh api -X DELETE repos/${{ github.repository }}/releases/$id; then
+              echo "Failed to delete release ID $id" >&2
+              exit 1
+            fi
           done
