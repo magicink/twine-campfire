@@ -367,7 +367,7 @@ describe('Passage rendering and navigation', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '2', name: 'Second' },
-      children: [{ type: 'text', value: ':::set{key=visited value=true}\n:::' }]
+      children: [{ type: 'text', value: ':::set[visited=true]\n:::' }]
     }
 
     useStoryDataStore.setState({

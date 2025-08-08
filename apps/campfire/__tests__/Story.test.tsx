@@ -76,11 +76,11 @@ describe('Story', () => {
   it('renders content based on if directives', async () => {
     document.body.innerHTML = `
 <tw-storydata name="Story" startnode="1">
-  <tw-passagedata pid="1" name="Start">:::set[boolean]{key=open value=true}
+  <tw-passagedata pid="1" name="Start">:::set[open=true]
 :::
 
 :::trigger{label="open"}
-:::set[boolean]{key=open value=false}
+:::set[open=false]
 :::
 
 :::if{!open}
@@ -106,12 +106,12 @@ is open!
   it('renders trigger directives within if directives', async () => {
     document.body.innerHTML = `
 <tw-storydata name="Story" startnode="1">
-  <tw-passagedata pid="1" name="Start">:::set[boolean]{key=open value=true}
+  <tw-passagedata pid="1" name="Start">:::set[open=true]
 :::
 
 :::if{open}
 :::trigger{label="open"}
-:::set{key=clicked value=true}
+:::set[clicked=true]
 :::
 :::
 :::
@@ -132,7 +132,7 @@ is open!
   it('parses if directives after blank lines', async () => {
     document.body.innerHTML = `
 <tw-storydata name="Story" startnode="1">
-  <tw-passagedata pid="1" name="Start">:::set[boolean]{key=open value=true}
+  <tw-passagedata pid="1" name="Start">:::set[open=true]
 :::
 
 :::if{!open}
@@ -148,11 +148,11 @@ not open
   it('does not render ::: when if has no else', async () => {
     document.body.innerHTML = `
 <tw-storydata name="Story" startnode="1">
-  <tw-passagedata pid="1" name="Start">:::set{key=open value=true}
+  <tw-passagedata pid="1" name="Start">:::set[open=true]
 :::
 
 :::if{open}
-:::set{key=done value=true}
+:::set[done=true]
 :::
 :::
   </tw-passagedata>
@@ -168,14 +168,14 @@ not open
   it('executes only the matching branch when else is present', async () => {
     document.body.innerHTML = `
 <tw-storydata name="Story" startnode="1">
-  <tw-passagedata pid="1" name="Start">:::set{key=open value=true}
+  <tw-passagedata pid="1" name="Start">:::set[open=true]
 :::
 
 :::if{open}
-:::set{key=yes value=true}
+:::set[yes=true]
 :::
 :::else
-:::set{key=no value=true}
+:::set[no=true]
 :::
 :::
   </tw-passagedata>
@@ -190,14 +190,14 @@ not open
   it('renders else block when condition is false', async () => {
     document.body.innerHTML = `
 <tw-storydata name="Story" startnode="1">
-  <tw-passagedata pid="1" name="Start">:::set{key=open value=false}
+  <tw-passagedata pid="1" name="Start">:::set[open=false]
 :::
 
 :::if{open}
-:::set{key=yes value=true}
+:::set[yes=true]
 :::
 :::else
-:::set{key=no value=true}
+:::set[no=true]
 :::
 :::
   </tw-passagedata>

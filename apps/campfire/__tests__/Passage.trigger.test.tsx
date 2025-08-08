@@ -29,7 +29,7 @@ describe('Passage trigger directives', () => {
         {
           type: 'text',
           value:
-            ':::trigger{label="Fire" class="extra"}\n:::set{key=fired value=true}\n:::\n:::'
+            ':::trigger{label="Fire" class="extra"}\n:::set[fired=true]\n:::\n:::'
         }
       ]
     }
@@ -55,7 +55,7 @@ describe('Passage trigger directives', () => {
         {
           type: 'text',
           value:
-            ':::trigger{label="Stop" disabled}\n:::set{key=stopped value=true}\n:::\n:::'
+            ':::trigger{label="Stop" disabled}\n:::set[stopped=true]\n:::\n:::'
         }
       ]
     }
@@ -80,7 +80,7 @@ describe('Passage trigger directives', () => {
         {
           type: 'text',
           value:
-            ':::trigger{label="Go" disabled=false}\n:::set{key=go value=true}\n:::\n:::'
+            ':::trigger{label="Go" disabled=false}\n:::set[go=true]\n:::\n:::'
         }
       ]
     }
@@ -104,8 +104,7 @@ describe('Passage trigger directives', () => {
       children: [
         {
           type: 'text',
-          value:
-            ':::trigger{label=Fire}\n:::set{key=fired value=true}\n:::\n:::'
+          value: ':::trigger{label=Fire}\n:::set[fired=true]\n:::\n:::'
         }
       ]
     }
