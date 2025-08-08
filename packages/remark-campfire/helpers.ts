@@ -286,15 +286,28 @@ export const extractAttributes = <S extends AttributeSchema>(
   const errors: string[] = []
   let key: string | undefined
 
+  /**
+   * Evaluates an expression string against the provided state scope.
+   *
+   * @param expr - Expression to evaluate.
+   * @returns The evaluated result or undefined if evaluation fails.
+   */
   const evalExpr = (expr: string): unknown => {
     try {
-      const fn = compile(expr)
-      return fn(state as any)
+      const fn = compile(expr) as (scope: Record<string, unknown>) => unknown
+      return fn(state)
     } catch {
       return undefined
     }
   }
 
+  /**
+   * Parses a raw attribute value according to its specification.
+   *
+   * @param raw - Raw attribute value.
+   * @param spec - Attribute specification describing type and flags.
+   * @returns The parsed value or undefined if parsing fails.
+   */
   const parse = (raw: unknown, spec: AttributeSpec): unknown => {
     if (raw == null) return undefined
     switch (spec.type) {
