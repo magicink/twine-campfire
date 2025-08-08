@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.36.1](https://github.com/magicink/twine-campfire/compare/v1.36.0...v1.36.1) (2025-08-08)
+
+
+### Bug Fixes
+
+* enforce single checkpoint ([#172](https://github.com/magicink/twine-campfire/issues/172)) ([e8e5c59](https://github.com/magicink/twine-campfire/commit/e8e5c5978db50952f0772d810d7f7a366a4f273f))
+* make document title configurable ([#174](https://github.com/magicink/twine-campfire/issues/174)) ([960c10f](https://github.com/magicink/twine-campfire/commit/960c10fe7489b14f7388b4536d37070db61af27f))
+
 ## [1.36.0](https://github.com/magicink/twine-campfire/compare/v1.35.5...v1.36.0) (2025-08-08)
 
 
