@@ -299,12 +299,6 @@ describe('Passage checkpoint directives', () => {
       onceKeys: {},
       currentPassageId: '1'
     })
-    state.saveCheckpoint('cp2', {
-      gameData: {},
-      lockedKeys: {},
-      onceKeys: {},
-      currentPassageId: '1'
-    })
 
     const passage: Element = {
       type: 'element',

@@ -33,11 +33,21 @@ export interface GameState<T = Record<string, unknown>> {
   addError: (error: string) => void
   /** Clear all errors */
   clearErrors: () => void
-  /** Saved checkpoints */
+  /** Saved checkpoints (only one is stored at a time) */
   checkpoints: Record<string, Checkpoint<T>>
-  /** Save a checkpoint */
+  /**
+   * Save a checkpoint, replacing any existing checkpoint.
+   *
+   * @param id - Unique identifier for the checkpoint.
+   * @param checkpoint - The checkpoint data to store.
+   */
   saveCheckpoint: (id: string, checkpoint: CheckpointData<T>) => void
-  /** Restore a checkpoint and return its data */
+  /**
+   * Restore a checkpoint and return its data. If no ID is provided, restores
+   * the currently stored checkpoint.
+   *
+   * @param id - Optional identifier of the checkpoint to restore.
+   */
   restoreCheckpoint: (id?: string) => Checkpoint<T> | undefined
   /** Remove a checkpoint */
   removeCheckpoint: (id: string) => void
@@ -122,34 +132,43 @@ export const useGameStore = create(
         })
       ),
     clearErrors: () => set({ errors: [] }),
+    /**
+     * Saves a checkpoint, replacing any existing checkpoint.
+     *
+     * @param id - Unique identifier for the checkpoint.
+     * @param checkpoint - The checkpoint data to store.
+     */
     saveCheckpoint: (id, checkpoint) =>
       set(
         produce((state: InternalState<Record<string, unknown>>) => {
-          state.checkpoints[id] = {
-            ...checkpoint,
-            timestamp: Date.now()
+          state.checkpoints = {
+            [id]: {
+              ...checkpoint,
+              timestamp: Date.now()
+            }
           }
         })
       ),
+    /**
+     * Removes a checkpoint.
+     *
+     * @param id - Identifier of the checkpoint to remove.
+     */
     removeCheckpoint: id =>
       set(
         produce((state: InternalState<Record<string, unknown>>) => {
           delete state.checkpoints[id]
         })
       ),
+    /**
+     * Restores a checkpoint.
+     *
+     * @param id - Optional identifier of the checkpoint to restore.
+     * @returns The restored checkpoint, if found.
+     */
     restoreCheckpoint: id => {
       const cps = get().checkpoints
-      const cp = id
-        ? cps[id]
-        : Object.values(cps).reduce<
-            Checkpoint<Record<string, unknown>> | undefined
-          >(
-            (latest, current) =>
-              !latest || current.timestamp >= latest.timestamp
-                ? current
-                : latest,
-            undefined
-          )
+      const cp = id ? cps[id] : Object.values(cps)[0]
       if (cp) {
         set({
           gameData: { ...cp.gameData },
