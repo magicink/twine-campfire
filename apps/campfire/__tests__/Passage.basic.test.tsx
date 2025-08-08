@@ -71,11 +71,15 @@ describe('Passage rendering and navigation', () => {
       children: [{ type: 'text', value: 'Hello' }]
     }
 
-    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    useStoryDataStore.setState({
+      storyData: { name: 'Story' },
+      passages: [passage],
+      currentPassageId: '1'
+    })
     render(<Passage />)
 
     await waitFor(() => {
-      expect(document.title).toBe('Start')
+      expect(document.title).toBe('Story: Start')
     })
   })
 
@@ -87,7 +91,11 @@ describe('Passage rendering and navigation', () => {
       children: [{ type: 'text', value: ':title["Custom"]' }]
     }
 
-    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    useStoryDataStore.setState({
+      storyData: { name: 'Story' },
+      passages: [passage],
+      currentPassageId: '1'
+    })
     render(<Passage />)
 
     await waitFor(() => {
@@ -109,7 +117,11 @@ describe('Passage rendering and navigation', () => {
       children: [{ type: 'text', value: ':title[Custom]' }]
     }
 
-    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    useStoryDataStore.setState({
+      storyData: { name: 'Story' },
+      passages: [passage],
+      currentPassageId: '1'
+    })
     render(<Passage />)
 
     await waitFor(() => {
@@ -117,7 +129,7 @@ describe('Passage rendering and navigation', () => {
       expect(useGameStore.getState().errors).toEqual([
         'Title directive value must be wrapped in matching quotes or backticks'
       ])
-      expect(document.title).toBe('Start')
+      expect(document.title).toBe('Story: Start')
     })
 
     console.error = orig
@@ -138,13 +150,50 @@ describe('Passage rendering and navigation', () => {
     }
 
     useStoryDataStore.setState({
+      storyData: { name: 'Story' },
       passages: [start, second],
       currentPassageId: '1'
     })
     render(<Passage />)
 
     await waitFor(() => {
-      expect(document.title).toBe('Start')
+      expect(document.title).toBe('Story: Start')
+    })
+  })
+
+  it('uses custom title separator when provided', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: 'Hello' }]
+    }
+    useStoryDataStore.setState({
+      storyData: { name: 'Story', 'title-separator': ' - ' },
+      passages: [passage],
+      currentPassageId: '1'
+    })
+    render(<Passage />)
+    await waitFor(() => {
+      expect(document.title).toBe('Story - Start')
+    })
+  })
+
+  it('can hide passage name in title', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: 'Hello' }]
+    }
+    useStoryDataStore.setState({
+      storyData: { name: 'Story', 'title-show-passage': 'false' },
+      passages: [passage],
+      currentPassageId: '1'
+    })
+    render(<Passage />)
+    await waitFor(() => {
+      expect(document.title).toBe('Story')
     })
   })
 

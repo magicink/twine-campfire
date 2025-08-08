@@ -62,6 +62,26 @@ const normalizeIfDirectives = (input: string): string =>
     .join('\n')
 
 /**
+ * Builds a document title from story and passage names.
+ *
+ * @param storyName - Name of the story.
+ * @param passageName - Name of the current passage.
+ * @param separator - String used to separate story and passage names.
+ * @param showPassage - Whether to include the passage name in the title.
+ * @returns Formatted document title.
+ */
+const buildTitle = (
+  storyName: string | undefined,
+  passageName: string | undefined,
+  separator: string,
+  showPassage: boolean
+): string => {
+  if (!storyName) return passageName ?? ''
+  if (!showPassage || !passageName) return storyName
+  return `${storyName}${separator}${passageName}`
+}
+
+/**
  * Renders the current passage from the story data store.
  * The passage text is processed with Remark and Rehype plugins
  * to support Campfire directives and custom components.
@@ -95,6 +115,9 @@ export const Passage = () => {
   const passage = useStoryDataStore((state: StoryDataState) =>
     state.getCurrentPassage()
   )
+  const storyData = useStoryDataStore(
+    (state: StoryDataState) => state.storyData
+  )
   const [content, setContent] = useState<ReactNode>(null)
   const prevPassageId = useRef<string | undefined>(undefined)
 
@@ -113,10 +136,22 @@ export const Passage = () => {
       typeof passage.properties?.name === 'string'
         ? passage.properties.name
         : undefined
-    if (name && !isTitleOverridden()) {
-      document.title = name
+    if (!isTitleOverridden()) {
+      const storyName =
+        typeof storyData.name === 'string' ? storyData.name : undefined
+      const separator =
+        typeof storyData['title-separator'] === 'string'
+          ? (storyData['title-separator'] as string)
+          : ': '
+      const showPassage =
+        storyData['title-show-passage'] !== 'false' &&
+        storyData['title-show-passage'] !== false
+      const title = buildTitle(storyName, name, separator, showPassage)
+      if (title) {
+        document.title = title
+      }
     }
-  }, [passage])
+  }, [passage, storyData])
 
   useEffect(() => {
     const controller = new AbortController()
