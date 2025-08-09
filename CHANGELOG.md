@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.43.1](https://github.com/magicink/twine-campfire/compare/v1.43.0...v1.43.1) (2025-08-09)
+
+
+### Bug Fixes
+
+* correct lang directive handler ([#197](https://github.com/magicink/twine-campfire/issues/197)) ([163726b](https://github.com/magicink/twine-campfire/commit/163726b7d638433ba130df73033e313fb75c43ae))
+
 ## [1.43.0](https://github.com/magicink/twine-campfire/compare/v1.42.0...v1.43.0) (2025-08-09)
 
 
