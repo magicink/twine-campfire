@@ -65,6 +65,8 @@ export const useDirectiveHandlers = () => {
   const storeCheckpoints = useGameStore(state => state.checkpoints)
   const checkpointIdRef = useRef<string | null>(null)
   const checkpointErrorRef = useRef(false)
+  const onExitSeenRef = useRef(false)
+  const onExitErrorRef = useRef(false)
   const lastPassageIdRef = useRef<string | undefined>(undefined)
 
   const MAX_INCLUDE_DEPTH = 10
@@ -108,17 +110,20 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
-   * Resets the checkpoint state by clearing the current checkpoint ID and error flag,
-   * and updating the lastPassageIdRef to the current passage ID.
+   * Resets per-passage directive state such as checkpoints and onExit usage.
+   * Clears existing checkpoint identifiers and error flags, resets OnExit tracking,
+   * and updates the last processed passage identifier.
    */
-  const resetCheckpointState = () => {
+  const resetDirectiveState = () => {
     checkpointIdRef.current = null
     checkpointErrorRef.current = false
+    onExitSeenRef.current = false
+    onExitErrorRef.current = false
     lastPassageIdRef.current = currentPassageId
   }
 
   useEffect(() => {
-    resetCheckpointState()
+    resetDirectiveState()
   }, [currentPassageId])
 
   /**
@@ -803,6 +808,76 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
+   * Converts an `onExit` directive into an OnExit component wrapper.
+   *
+   * @param directive - The directive node representing `onExit`.
+   * @param parent - The parent AST node containing this directive.
+   * @param index - The index of the directive node within its parent.
+   * @returns The index of the inserted component.
+   */
+  const handleOnExit: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    if (lastPassageIdRef.current !== currentPassageId) {
+      resetDirectiveState()
+    }
+    if (onExitErrorRef.current) {
+      return removeNode(parent, index)
+    }
+    if (onExitSeenRef.current) {
+      onExitErrorRef.current = true
+      const msg =
+        'Multiple onExit directives in a single passage are not allowed'
+      console.error(msg)
+      addError(msg)
+      return removeNode(parent, index)
+    }
+    onExitSeenRef.current = true
+    const container = directive as ContainerDirective
+    const allowed = new Set(['set', 'setOnce', 'array', 'arrayOnce', 'unset'])
+    const rawChildren = stripLabel(container.children as RootContent[])
+    const cleaned = rawChildren.filter(child => {
+      return !(child.type === 'text' && !toString(child).trim())
+    })
+    const filtered = cleaned.filter(child => {
+      if (
+        child.type === 'leafDirective' ||
+        child.type === 'containerDirective' ||
+        child.type === 'textDirective'
+      ) {
+        return allowed.has(child.name)
+      }
+      if (child.type === 'paragraph' && child.children.length === 1) {
+        const first = child.children[0] as RootContent
+        if (
+          (first.type === 'leafDirective' ||
+            first.type === 'containerDirective' ||
+            first.type === 'textDirective') &&
+          allowed.has((first as DirectiveNode).name)
+        ) {
+          return true
+        }
+      }
+      return false
+    })
+    if (filtered.length !== cleaned.length) {
+      const msg =
+        'onExit only supports data directives like set, array, and unset'
+      console.error(msg)
+      addError(msg)
+    }
+    const content = JSON.stringify(filtered)
+    const node: Parent = {
+      type: 'paragraph',
+      children: [{ type: 'text', value: '' }],
+      data: { hName: 'onExit', hProperties: { content } }
+    }
+    const newIndex = replaceWithIndentation(directive, parent, index, [
+      node as RootContent
+    ])
+    return [SKIP, newIndex]
+  }
+
+  /**
    * Switches the active locale using `:lang[locale]`.
    *
    * @param directive - Directive node specifying the locale.
@@ -1139,7 +1214,7 @@ export const useDirectiveHandlers = () => {
 
   const handleCheckpoint: DirectiveHandler = (directive, parent, index) => {
     if (lastPassageIdRef.current !== currentPassageId) {
-      resetCheckpointState()
+      resetDirectiveState()
     }
     if (includeDepth > 0) return removeNode(parent, index)
     const attrs = (directive.attributes || {}) as Record<string, unknown>
@@ -1332,6 +1407,7 @@ export const useDirectiveHandlers = () => {
       once: handleOnce,
       batch: handleBatch,
       trigger: handleTrigger,
+      onExit: handleOnExit,
       lang: handleLang,
       include: handleInclude,
       title: handleTitle,

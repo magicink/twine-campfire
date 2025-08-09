@@ -4,9 +4,15 @@ import i18next from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import type { Element } from 'hast'
 import { Passage } from '../src/Passage'
+import { OnExit } from '../src/OnExit'
 import { useStoryDataStore } from '@/packages/use-story-data-store'
 import { useGameStore } from '@/packages/use-game-store'
 import { resetStores } from './helpers'
+import { unified } from 'unified'
+import remarkParse from 'remark-parse'
+import remarkDirective from 'remark-directive'
+import type { Root } from 'mdast'
+import { StrictMode } from 'react'
 
 describe('Passage lifecycle directives', () => {
   beforeEach(async () => {
@@ -74,5 +80,135 @@ describe('Passage lifecycle directives', () => {
 
     const text = await screen.findByText('After')
     expect(text).toBeInTheDocument()
+  })
+
+  it('renders onExit blocks as components without displaying content', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: 'Visible\n:::onExit\n:set[x=1]\n:::' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    const visible = await screen.findByText('Visible')
+    expect(visible).toBeInTheDocument()
+    expect(screen.queryByText('set[x=1]')).toBeNull()
+  })
+
+  it('runs onExit directives when the component unmounts', async () => {
+    const root = unified()
+      .use(remarkParse)
+      .use(remarkDirective)
+      .parse(':set[hp=5]') as Root
+    const content = JSON.stringify(root.children)
+    const { unmount } = render(<OnExit content={content} />)
+    act(() => {
+      unmount()
+    })
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    expect(
+      (useGameStore.getState().gameData as Record<string, unknown>).hp
+    ).toBe(5)
+  })
+
+  it('executes onExit directives only once on unmount', async () => {
+    const root = unified()
+      .use(remarkParse)
+      .use(remarkDirective)
+      .parse(':set[count=(count||0)+1]') as Root
+    const content = JSON.stringify(root.children)
+    const { unmount } = render(
+      <StrictMode>
+        <OnExit content={content} />
+      </StrictMode>
+    )
+    expect(
+      (useGameStore.getState().gameData as Record<string, unknown>).count
+    ).toBeUndefined()
+    act(() => {
+      unmount()
+    })
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    expect(
+      (useGameStore.getState().gameData as Record<string, unknown>).count
+    ).toBe(1)
+  })
+
+  it('stores error and removes additional onExit directives in one passage', async () => {
+    const logged: unknown[] = []
+    const orig = console.error
+    console.error = (...args: unknown[]) => {
+      logged.push(args)
+    }
+
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':::onExit\n:set[a=1]\n:::\n:::onExit\n:set[b=2]\n:::'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(useGameStore.getState().errors).toEqual([
+        'Multiple onExit directives in a single passage are not allowed'
+      ])
+      expect(logged).toHaveLength(1)
+    })
+
+    console.error = orig
+  })
+
+  it('logs error for non-data directives in onExit blocks', async () => {
+    const logged: unknown[] = []
+    const orig = console.error
+    console.error = (...args: unknown[]) => {
+      logged.push(args)
+    }
+
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':::onExit\n:goto[Two]\n:::' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(useGameStore.getState().errors).toEqual([
+        'onExit only supports data directives like set, array, and unset'
+      ])
+      expect(logged).toHaveLength(1)
+    })
+
+    console.error = orig
   })
 })
