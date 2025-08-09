@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.45.0](https://github.com/magicink/twine-campfire/compare/v1.44.0...v1.45.0) (2025-08-09)
+
+
+### Features
+
+* add Sequence and Step components ([#201](https://github.com/magicink/twine-campfire/issues/201)) ([e23ee8b](https://github.com/magicink/twine-campfire/commit/e23ee8bffd3e9c02c09a3126bdd216abe271829a))
+
 ## [1.44.0](https://github.com/magicink/twine-campfire/compare/v1.43.1...v1.44.0) (2025-08-09)
 
 
