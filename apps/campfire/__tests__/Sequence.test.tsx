@@ -148,4 +148,18 @@ describe('Sequence', () => {
     })
     expect(wrapper.style.opacity).toBe('1')
   })
+
+  it('throws when a Step contains a Sequence', () => {
+    expect(() =>
+      render(
+        <Sequence>
+          <Step>
+            <Sequence>
+              <Step>Inner</Step>
+            </Sequence>
+          </Step>
+        </Sequence>
+      )
+    ).toThrow('Step cannot be the parent of a Sequence')
+  })
 })

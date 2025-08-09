@@ -24,8 +24,17 @@ interface StepProps {
  * Represents a single step within a {@link Sequence}.
  * The content can be static React nodes or a render function
  * receiving `next` and `fastForward` callbacks to control progression.
+ * Cannot contain a {@link Sequence} as a child.
  */
 export const Step = ({ children, next, fastForward }: StepProps) => {
+  if (
+    typeof children !== 'function' &&
+    Children.toArray(children).some(
+      child => isValidElement(child) && child.type === Sequence
+    )
+  ) {
+    throw new Error('Step cannot be the parent of a Sequence')
+  }
   if (typeof children === 'function') {
     return (
       <>
