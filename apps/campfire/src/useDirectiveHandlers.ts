@@ -869,22 +869,32 @@ export const useDirectiveHandlers = () => {
    */
   const handleTranslate: DirectiveHandler = (directive, parent, index) => {
     const attrs = (directive.attributes || {}) as Record<string, unknown>
-    const children = directive.children as (RootContent & { name?: string })[]
+    const label = (directive as { label?: string }).label?.trim()
     let key = ''
     let ns: string | undefined
-    if (
-      children.length === 2 &&
-      children[0].type === 'text' &&
-      children[1].type === 'textDirective'
-    ) {
-      ns = (children[0] as MdText).value.trim()
-      key = (children[1] as DirectiveNode).name
-    } else if (children.length === 1 && children[0].type === 'text') {
-      key = (children[0] as MdText).value.trim()
+    if (label) {
+      const [nsPart, keyPart] = label.split(':', 2)
+      if (keyPart !== undefined) {
+        ns = nsPart.trim()
+        key = keyPart.trim()
+      } else {
+        key = nsPart.trim()
+      }
     } else {
-      const label =
-        (directive as { label?: string }).label || toString(directive).trim()
-      if (label) key = label
+      const children = directive.children as (RootContent & { name?: string })[]
+      if (
+        children.length === 2 &&
+        children[0].type === 'text' &&
+        children[1].type === 'textDirective'
+      ) {
+        ns = (children[0] as MdText).value.trim()
+        key = (children[1] as DirectiveNode).name
+      } else if (children.length === 1 && children[0].type === 'text') {
+        key = (children[0] as MdText).value.trim()
+      } else {
+        const text = toString(directive).trim()
+        if (text) key = text
+      }
     }
     if (!key) return removeNode(parent, index)
     if (parent && typeof index === 'number') {
