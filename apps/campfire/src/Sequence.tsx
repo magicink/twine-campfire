@@ -84,7 +84,7 @@ interface SequenceProps {
   /** Delay in milliseconds between automatic steps. Only used when autoplay is true */
   delay?: number
   /** Configuration for fast-forward behavior */
-  fastfoward?: FastForwardOptions
+  fastForward?: FastForwardOptions
   /** Text for the manual continue button */
   continueLabel?: string
   /** Text for the fast-forward skip button */
@@ -105,14 +105,14 @@ interface FastForwardOptions {
  * If `autoplay` is true, steps advance automatically after an optional `delay`.
  * Otherwise a "Continue" button is shown for non-interactive steps.
  * A `fastForward` control is provided to skip steps or jump to the end
- * based on the supplied `fastfoward` options. Both button labels may be
+ * based on the supplied `fastForward` options. Both button labels may be
  * customized via `continueLabel` and `skipLabel` props.
  */
 export const Sequence = ({
   children,
   autoplay = false,
   delay = 0,
-  fastfoward,
+  fastForward,
   continueLabel = 'Continue',
   skipLabel = 'Skip'
 }: SequenceProps) => {
@@ -128,7 +128,7 @@ export const Sequence = ({
   const handleNext = () => setIndex(i => Math.min(i + 1, steps.length - 1))
   /** Fast-forwards either to the next step or the end of the sequence */
   const handleFastForward = () => {
-    const { enabled = true, toEnd = false } = fastfoward ?? {}
+    const { enabled = true, toEnd = false } = fastForward ?? {}
     if (!enabled) return
     if (toEnd) {
       setIndex(steps.length - 1)
@@ -148,7 +148,7 @@ export const Sequence = ({
 
   const isInteractive = typeof current.props.children === 'function'
   const showContinue = !autoplay && !isInteractive && index < steps.length - 1
-  const fastForwardEnabled = fastfoward?.enabled !== false
+  const fastForwardEnabled = fastForward?.enabled !== false
   const showSkip = fastForwardEnabled && index < steps.length - 1
 
   return (

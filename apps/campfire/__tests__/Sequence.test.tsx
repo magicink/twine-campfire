@@ -78,7 +78,7 @@ describe('Sequence', () => {
     expect(screen.getByText('Second')).toBeInTheDocument()
   })
 
-  it('fastfowards to the next step by default', () => {
+  it('fast-forwards to the next step by default', () => {
     render(
       <Sequence>
         <Step>First</Step>
@@ -106,9 +106,9 @@ describe('Sequence', () => {
     expect(screen.getByText('Done')).toBeInTheDocument()
   })
 
-  it('fastfowards to the end when configured', () => {
+  it('fast-forwards to the end when configured', () => {
     render(
-      <Sequence fastfoward={{ toEnd: true }}>
+      <Sequence fastForward={{ toEnd: true }}>
         <Step>First</Step>
         <Step>Middle</Step>
         <Step>End</Step>
@@ -121,9 +121,9 @@ describe('Sequence', () => {
     expect(screen.getByText('End')).toBeInTheDocument()
   })
 
-  it('ignores fastfoward when disabled', () => {
+  it('ignores fast-forward when disabled', () => {
     render(
-      <Sequence fastfoward={{ enabled: false }}>
+      <Sequence fastForward={{ enabled: false }}>
         <Step>First</Step>
         <Step>Second</Step>
       </Sequence>
