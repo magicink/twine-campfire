@@ -13,6 +13,7 @@ import { useDirectiveHandlers } from './useDirectiveHandlers'
 import { LinkButton } from './LinkButton'
 import { TriggerButton } from './TriggerButton'
 import { Show } from './Show'
+import { Sequence, Step, Transition } from './Sequence'
 
 interface IfProps {
   test: string
@@ -43,7 +44,10 @@ export const If = ({ test, content, fallback }: IfProps) => {
           button: LinkButton,
           trigger: TriggerButton,
           if: If,
-          show: Show
+          show: Show,
+          sequence: Sequence,
+          step: Step,
+          transition: Transition
         }
       })
     proc.parser = (_doc: unknown, file: Root) => ({

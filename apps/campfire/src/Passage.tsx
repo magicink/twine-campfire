@@ -20,6 +20,7 @@ import { LinkButton } from './LinkButton'
 import { TriggerButton } from './TriggerButton'
 import { If } from './If'
 import { Show } from './Show'
+import { Sequence, Step, Transition } from './Sequence'
 
 const DIRECTIVE_MARKER_PATTERN = '(:::[^\\n]*|:[^\\n]*|<<)'
 
@@ -122,7 +123,10 @@ export const Passage = () => {
             button: LinkButton,
             trigger: TriggerButton,
             if: If,
-            show: Show
+            show: Show,
+            sequence: Sequence,
+            step: Step,
+            transition: Transition
           }
         }),
     [handlers]
