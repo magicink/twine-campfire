@@ -1,173 +1,155 @@
 # Changelog
 
-## [1.43.1](https://github.com/magicink/twine-campfire/compare/v1.43.0...v1.43.1) (2025-08-09)
+## [1.44.0](https://github.com/magicink/twine-campfire/compare/v1.43.1...v1.44.0) (2025-08-09)
 
+### Features
+
+- add count attribute to t directive for pluralization
+
+## [1.43.1](https://github.com/magicink/twine-campfire/compare/v1.43.0...v1.43.1) (2025-08-09)
 
 ### Bug Fixes
 
-* correct lang directive handler ([#197](https://github.com/magicink/twine-campfire/issues/197)) ([163726b](https://github.com/magicink/twine-campfire/commit/163726b7d638433ba130df73033e313fb75c43ae))
+- correct lang directive handler ([#197](https://github.com/magicink/twine-campfire/issues/197)) ([163726b](https://github.com/magicink/twine-campfire/commit/163726b7d638433ba130df73033e313fb75c43ae))
 
 ## [1.43.0](https://github.com/magicink/twine-campfire/compare/v1.42.0...v1.43.0) (2025-08-09)
 
-
 ### Features
 
-* support namespace labels in t directive ([#194](https://github.com/magicink/twine-campfire/issues/194)) ([4852a6c](https://github.com/magicink/twine-campfire/commit/4852a6c0af6005a5a7057d1f3977e51bbeed44a5))
+- support namespace labels in t directive ([#194](https://github.com/magicink/twine-campfire/issues/194)) ([4852a6c](https://github.com/magicink/twine-campfire/commit/4852a6c0af6005a5a7057d1f3977e51bbeed44a5))
 
 ## [1.42.0](https://github.com/magicink/twine-campfire/compare/v1.41.0...v1.42.0) (2025-08-09)
 
-
 ### Features
 
-* drop long-form translations directive ([#192](https://github.com/magicink/twine-campfire/issues/192)) ([2157120](https://github.com/magicink/twine-campfire/commit/215712039e9640468b8c0943e5406df98ed55d58))
+- drop long-form translations directive ([#192](https://github.com/magicink/twine-campfire/issues/192)) ([2157120](https://github.com/magicink/twine-campfire/commit/215712039e9640468b8c0943e5406df98ed55d58))
 
 ## [1.41.0](https://github.com/magicink/twine-campfire/compare/v1.40.2...v1.41.0) (2025-08-08)
 
-
 ### Features
 
-* simplify array directives ([#190](https://github.com/magicink/twine-campfire/issues/190)) ([2a99606](https://github.com/magicink/twine-campfire/commit/2a99606a1227727ef4a80faa866806037c66f167))
+- simplify array directives ([#190](https://github.com/magicink/twine-campfire/issues/190)) ([2a99606](https://github.com/magicink/twine-campfire/commit/2a99606a1227727ef4a80faa866806037c66f167))
 
 ## [1.40.2](https://github.com/magicink/twine-campfire/compare/v1.40.1...v1.40.2) (2025-08-08)
 
-
 ### Bug Fixes
 
-* remove duplicate normalizeDirectiveIndentation ([#187](https://github.com/magicink/twine-campfire/issues/187)) ([fa6de6b](https://github.com/magicink/twine-campfire/commit/fa6de6b073a94d005aebf8c1e62344e390667c09))
+- remove duplicate normalizeDirectiveIndentation ([#187](https://github.com/magicink/twine-campfire/issues/187)) ([fa6de6b](https://github.com/magicink/twine-campfire/commit/fa6de6b073a94d005aebf8c1e62344e390667c09))
 
 ## [1.40.1](https://github.com/magicink/twine-campfire/compare/v1.40.0...v1.40.1) (2025-08-08)
 
-
 ### Bug Fixes
 
-* normalize directive indentation ([#185](https://github.com/magicink/twine-campfire/issues/185)) ([ab55541](https://github.com/magicink/twine-campfire/commit/ab555418293d46a88dd7b64b8ea3ab9947506c6e))
+- normalize directive indentation ([#185](https://github.com/magicink/twine-campfire/issues/185)) ([ab55541](https://github.com/magicink/twine-campfire/commit/ab555418293d46a88dd7b64b8ea3ab9947506c6e))
 
 ## [1.40.0](https://github.com/magicink/twine-campfire/compare/v1.39.0...v1.40.0) (2025-08-08)
 
-
 ### Features
 
-* remove math directive and evaluate set expressions ([#183](https://github.com/magicink/twine-campfire/issues/183)) ([7dbe2ba](https://github.com/magicink/twine-campfire/commit/7dbe2ba306b9d5418c6334b205e04903bb61b0a9))
+- remove math directive and evaluate set expressions ([#183](https://github.com/magicink/twine-campfire/issues/183)) ([7dbe2ba](https://github.com/magicink/twine-campfire/commit/7dbe2ba306b9d5418c6334b205e04903bb61b0a9))
 
 ## [1.39.0](https://github.com/magicink/twine-campfire/compare/v1.38.0...v1.39.0) (2025-08-08)
 
-
 ### Features
 
-* remove defined directive and update show syntax ([#181](https://github.com/magicink/twine-campfire/issues/181)) ([ec411ba](https://github.com/magicink/twine-campfire/commit/ec411ba878cdad754342edf69930d35b4cb13f2d))
+- remove defined directive and update show syntax ([#181](https://github.com/magicink/twine-campfire/issues/181)) ([ec411ba](https://github.com/magicink/twine-campfire/commit/ec411ba878cdad754342edf69930d35b4cb13f2d))
 
 ## [1.38.0](https://github.com/magicink/twine-campfire/compare/v1.37.1...v1.38.0) (2025-08-08)
 
-
 ### Features
 
-* drop long-form set directives ([#179](https://github.com/magicink/twine-campfire/issues/179)) ([f7522cd](https://github.com/magicink/twine-campfire/commit/f7522cd99f155c98f203cce327a520ae686d48d5))
+- drop long-form set directives ([#179](https://github.com/magicink/twine-campfire/issues/179)) ([f7522cd](https://github.com/magicink/twine-campfire/commit/f7522cd99f155c98f203cce327a520ae686d48d5))
 
 ## [1.37.1](https://github.com/magicink/twine-campfire/compare/v1.37.0...v1.37.1) (2025-08-08)
 
-
 ### Bug Fixes
 
-* correct release deletion logic to count lines instead of words ([cef010c](https://github.com/magicink/twine-campfire/commit/cef010cd6800279974627b9d64383ae8af8bd9bc))
+- correct release deletion logic to count lines instead of words ([cef010c](https://github.com/magicink/twine-campfire/commit/cef010cd6800279974627b9d64383ae8af8bd9bc))
 
 ## [1.37.0](https://github.com/magicink/twine-campfire/compare/v1.36.1...v1.37.0) (2025-08-08)
 
-
 ### Features
 
-* add shorthand set directives ([#176](https://github.com/magicink/twine-campfire/issues/176)) ([e32a0f6](https://github.com/magicink/twine-campfire/commit/e32a0f6724213102436eba08899ebebe991a8443))
+- add shorthand set directives ([#176](https://github.com/magicink/twine-campfire/issues/176)) ([e32a0f6](https://github.com/magicink/twine-campfire/commit/e32a0f6724213102436eba08899ebebe991a8443))
 
 ## [1.36.1](https://github.com/magicink/twine-campfire/compare/v1.36.0...v1.36.1) (2025-08-08)
 
-
 ### Bug Fixes
 
-* enforce single checkpoint ([#172](https://github.com/magicink/twine-campfire/issues/172)) ([e8e5c59](https://github.com/magicink/twine-campfire/commit/e8e5c5978db50952f0772d810d7f7a366a4f273f))
-* make document title configurable ([#174](https://github.com/magicink/twine-campfire/issues/174)) ([960c10f](https://github.com/magicink/twine-campfire/commit/960c10fe7489b14f7388b4536d37070db61af27f))
+- enforce single checkpoint ([#172](https://github.com/magicink/twine-campfire/issues/172)) ([e8e5c59](https://github.com/magicink/twine-campfire/commit/e8e5c5978db50952f0772d810d7f7a366a4f273f))
+- make document title configurable ([#174](https://github.com/magicink/twine-campfire/issues/174)) ([960c10f](https://github.com/magicink/twine-campfire/commit/960c10fe7489b14f7388b4536d37070db61af27f))
 
 ## [1.36.0](https://github.com/magicink/twine-campfire/compare/v1.35.5...v1.36.0) (2025-08-08)
 
-
 ### Features
 
-* introduce state manager for game data ([#170](https://github.com/magicink/twine-campfire/issues/170)) ([a6357fb](https://github.com/magicink/twine-campfire/commit/a6357fb3411498a04253573e56ecd5eeb8a67eda))
+- introduce state manager for game data ([#170](https://github.com/magicink/twine-campfire/issues/170)) ([a6357fb](https://github.com/magicink/twine-campfire/commit/a6357fb3411498a04253573e56ecd5eeb8a67eda))
 
 ## [1.35.5](https://github.com/magicink/twine-campfire/compare/v1.35.4...v1.35.5) (2025-08-08)
 
-
 ### Bug Fixes
 
-* handle if/else directives correctly ([#166](https://github.com/magicink/twine-campfire/issues/166)) ([daff3ce](https://github.com/magicink/twine-campfire/commit/daff3ce966fd7d032b34e44673e776d685cfbbb0))
+- handle if/else directives correctly ([#166](https://github.com/magicink/twine-campfire/issues/166)) ([daff3ce](https://github.com/magicink/twine-campfire/commit/daff3ce966fd7d032b34e44673e776d685cfbbb0))
 
 ## [1.35.4](https://github.com/magicink/twine-campfire/compare/v1.35.3...v1.35.4) (2025-08-08)
 
-
 ### Bug Fixes
 
-* enforce quoting for navigation directives ([#164](https://github.com/magicink/twine-campfire/issues/164)) ([34b0642](https://github.com/magicink/twine-campfire/commit/34b064234b68c58b0ce4a23dc4fc25c6ade40d0a))
+- enforce quoting for navigation directives ([#164](https://github.com/magicink/twine-campfire/issues/164)) ([34b0642](https://github.com/magicink/twine-campfire/commit/34b064234b68c58b0ce4a23dc4fc25c6ade40d0a))
 
 ## [1.35.3](https://github.com/magicink/twine-campfire/compare/v1.35.2...v1.35.3) (2025-08-07)
 
-
 ### Bug Fixes
 
-* enforce quoting in i18n directives ([#162](https://github.com/magicink/twine-campfire/issues/162)) ([e5ce1b4](https://github.com/magicink/twine-campfire/commit/e5ce1b4a6b414fe41511c2996db8af24f499669d))
+- enforce quoting in i18n directives ([#162](https://github.com/magicink/twine-campfire/issues/162)) ([e5ce1b4](https://github.com/magicink/twine-campfire/commit/e5ce1b4a6b414fe41511c2996db8af24f499669d))
 
 ## [1.35.2](https://github.com/magicink/twine-campfire/compare/v1.35.1...v1.35.2) (2025-08-07)
 
-
 ### Bug Fixes
 
-* require quoted trigger labels for trigger directives ([#160](https://github.com/magicink/twine-campfire/issues/160)) ([21fc949](https://github.com/magicink/twine-campfire/commit/21fc9492326ebd34d795d0888b5d965ab35cc490))
+- require quoted trigger labels for trigger directives ([#160](https://github.com/magicink/twine-campfire/issues/160)) ([21fc949](https://github.com/magicink/twine-campfire/commit/21fc9492326ebd34d795d0888b5d965ab35cc490))
 
 ## [1.35.1](https://github.com/magicink/twine-campfire/compare/v1.35.0...v1.35.1) (2025-08-07)
 
-
 ### Bug Fixes
 
-* infer types for array directives ([#158](https://github.com/magicink/twine-campfire/issues/158)) ([b3d42ec](https://github.com/magicink/twine-campfire/commit/b3d42ec7b5374e44c03902db91450c20314217c0))
+- infer types for array directives ([#158](https://github.com/magicink/twine-campfire/issues/158)) ([b3d42ec](https://github.com/magicink/twine-campfire/commit/b3d42ec7b5374e44c03902db91450c20314217c0))
 
 ## [1.35.0](https://github.com/magicink/twine-campfire/compare/v1.34.0...v1.35.0) (2025-08-07)
 
-
 ### Features
 
-* require quotes for string values in set directive ([#156](https://github.com/magicink/twine-campfire/issues/156)) ([7c9a95d](https://github.com/magicink/twine-campfire/commit/7c9a95dd36c204d260aa4a9a98a686b56d17e66c))
+- require quotes for string values in set directive ([#156](https://github.com/magicink/twine-campfire/issues/156)) ([7c9a95d](https://github.com/magicink/twine-campfire/commit/7c9a95dd36c204d260aa4a9a98a686b56d17e66c))
 
 ## [1.34.0](https://github.com/magicink/twine-campfire/compare/v1.33.0...v1.34.0) (2025-08-07)
 
-
 ### Features
 
-* preserve indentation for directives ([#153](https://github.com/magicink/twine-campfire/issues/153)) ([a7d98af](https://github.com/magicink/twine-campfire/commit/a7d98af16afc4cc47b48c9836dd0be00d98f882d))
+- preserve indentation for directives ([#153](https://github.com/magicink/twine-campfire/issues/153)) ([a7d98af](https://github.com/magicink/twine-campfire/commit/a7d98af16afc4cc47b48c9836dd0be00d98f882d))
 
 ## [1.33.0](https://github.com/magicink/twine-campfire/compare/v1.32.2...v1.33.0) (2025-08-07)
 
-
 ### Features
 
-* use id attribute for save/load directives ([#151](https://github.com/magicink/twine-campfire/issues/151)) ([0403175](https://github.com/magicink/twine-campfire/commit/0403175bc0dd51b2406c9846ad742c270d41ba14))
+- use id attribute for save/load directives ([#151](https://github.com/magicink/twine-campfire/issues/151)) ([0403175](https://github.com/magicink/twine-campfire/commit/0403175bc0dd51b2406c9846ad742c270d41ba14))
 
 ## [1.32.2](https://github.com/magicink/twine-campfire/compare/v1.32.1...v1.32.2) (2025-08-06)
 
-
 ### Bug Fixes
 
-* translate directive uses Show component ([#149](https://github.com/magicink/twine-campfire/issues/149)) ([33e5ebb](https://github.com/magicink/twine-campfire/commit/33e5ebbcf935790ad7202caccbba2df873304044))
+- translate directive uses Show component ([#149](https://github.com/magicink/twine-campfire/issues/149)) ([33e5ebb](https://github.com/magicink/twine-campfire/commit/33e5ebbcf935790ad7202caccbba2df873304044))
 
 ## [1.32.1](https://github.com/magicink/twine-campfire/compare/v1.32.0...v1.32.1) (2025-08-06)
 
-
 ### Bug Fixes
 
-* remove stray ::: after lone if directive ([#147](https://github.com/magicink/twine-campfire/issues/147)) ([7e1fa9f](https://github.com/magicink/twine-campfire/commit/7e1fa9f8d6312df1808659a66f534f6a34f24ce4))
+- remove stray ::: after lone if directive ([#147](https://github.com/magicink/twine-campfire/issues/147)) ([7e1fa9f](https://github.com/magicink/twine-campfire/commit/7e1fa9f8d6312df1808659a66f534f6a34f24ce4))
 
 ## [1.32.0](https://github.com/magicink/twine-campfire/compare/v1.31.5...v1.32.0) (2025-08-06)
 
-
 ### Features
 
-* remove onEnter, onExit, and onChange directives ([#145](https://github.com/magicink/twine-campfire/issues/145)) ([40b16c8](https://github.com/magicink/twine-campfire/commit/40b16c860d20a9100d090bf205991ec61cb7ab12))
+- remove onEnter, onExit, and onChange directives ([#145](https://github.com/magicink/twine-campfire/issues/145)) ([40b16c8](https://github.com/magicink/twine-campfire/commit/40b16c860d20a9100d090bf205991ec61cb7ab12))
 
 ## [1.31.5](https://github.com/magicink/twine-campfire/compare/v1.31.4...v1.31.5) (2025-08-06)
 

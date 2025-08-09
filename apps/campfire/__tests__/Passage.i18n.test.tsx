@@ -90,6 +90,37 @@ describe('Passage i18n directives', () => {
     expect(text).toBeInTheDocument()
   })
 
+  it('uses game data for pluralization with t directive', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':translations[en-US]{translation:apple_one="1 apple"}'
+        },
+        {
+          type: 'text',
+          value:
+            ':translations[en-US]{translation:apple_other="{{count}} apples"}'
+        },
+        { type: 'text', value: ':t[apple]{count=appleCount}' }
+      ]
+    }
+
+    useGameStore.setState({ gameData: { appleCount: 3 } })
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    const text = await screen.findByText('3 apples')
+    expect(text).toBeInTheDocument()
+  })
+
   it('resolves translations inside links', async () => {
     const start: Element = {
       type: 'element',

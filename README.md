@@ -439,13 +439,14 @@ Change language and handle translations.
 
   Replace `LANG-CODE` with a locale like `fr`.
 
-- `t`: Output a translated string.
+- `t`: Output a translated string. Use the optional `count` attribute for
+  pluralization.
 
   ```md
-  :t[UI:HELLO]
+  :t[UI:APPLE]{count=2}
   ```
 
-  Replace `HELLO` and `UI` with your key and namespace.
+  Replace `APPLE` and `UI` with your key and namespace.
 
 - `translations`: Add a translation.
 

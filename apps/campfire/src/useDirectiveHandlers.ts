@@ -881,7 +881,13 @@ export const useDirectiveHandlers = () => {
    * @param index - The index of the directive within its parent.
    */
   const handleTranslate: DirectiveHandler = (directive, parent, index) => {
-    const attrs = (directive.attributes || {}) as Record<string, unknown>
+    const { attrs } = extractAttributes(
+      directive,
+      parent,
+      index,
+      { count: { type: 'number' } },
+      { state: gameData }
+    )
     const label = (directive as { label?: string }).label?.trim()
     let key = ''
     let ns: string | undefined
