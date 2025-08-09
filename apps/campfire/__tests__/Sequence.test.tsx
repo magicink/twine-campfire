@@ -135,6 +135,74 @@ describe('Sequence', () => {
     ).toBeNull()
   })
 
+  it('rewinds to the previous step by default', () => {
+    render(
+      <Sequence rewind={{ enabled: true }}>
+        <Step>
+          {({ next }) => (
+            <>
+              <div>First</div>
+              <button type='button' onClick={next}>
+                Go
+              </button>
+            </>
+          )}
+        </Step>
+        <Step>Second</Step>
+      </Sequence>
+    )
+    const next = screen.getByRole('button', { name: 'Go' })
+    act(() => {
+      next.click()
+    })
+    expect(screen.getByText('Second')).toBeInTheDocument()
+    const rewind = screen.getByRole('button', {
+      name: 'Rewind to previous step'
+    })
+    act(() => {
+      rewind.click()
+    })
+    expect(screen.getByText('First')).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Rewind to previous step' })
+    ).toBeNull()
+  })
+
+  it('rewinds to the beginning when configured', () => {
+    render(
+      <Sequence rewind={{ enabled: true, toStart: true }}>
+        <Step>
+          {({ next }) => (
+            <>
+              <div>First</div>
+              <button type='button' onClick={next}>
+                Go
+              </button>
+            </>
+          )}
+        </Step>
+        <Step>Middle</Step>
+        <Step>End</Step>
+      </Sequence>
+    )
+    const next = screen.getByRole('button', { name: 'Go' })
+    act(() => {
+      next.click()
+    })
+    const continueButton = screen.getByRole('button', {
+      name: 'Continue to next step'
+    })
+    act(() => {
+      continueButton.click()
+    })
+    expect(screen.getByText('End')).toBeInTheDocument()
+    const rewind = screen.getByRole('button', { name: 'Rewind to start' })
+    act(() => {
+      rewind.click()
+    })
+    expect(screen.getByText('First')).toBeInTheDocument()
+  })
+
   it('renders step content with a fade-in transition', async () => {
     render(
       <Sequence>
