@@ -2,6 +2,13 @@
 
 ## [1.44.0](https://github.com/magicink/twine-campfire/compare/v1.43.1...v1.44.0) (2025-08-09)
 
+
+### Features
+
+* add count attribute for t directive ([#199](https://github.com/magicink/twine-campfire/issues/199)) ([2d630d2](https://github.com/magicink/twine-campfire/commit/2d630d23938d47383fd5d8694995aeae2ee40dd1))
+
+## [1.44.0](https://github.com/magicink/twine-campfire/compare/v1.43.1...v1.44.0) (2025-08-09)
+
 ### Features
 
 - add count attribute to t directive for pluralization
