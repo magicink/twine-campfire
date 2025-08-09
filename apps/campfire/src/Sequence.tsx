@@ -3,6 +3,8 @@ import {
   cloneElement,
   isValidElement,
   useEffect,
+  useLayoutEffect,
+  useMemo,
   useState,
   type CSSProperties,
   type ReactElement,
@@ -70,9 +72,9 @@ export const Transition = ({
   children
 }: TransitionProps) => {
   const [visible, setVisible] = useState(false)
-  useEffect(() => {
-    const id = setTimeout(() => setVisible(true), 0)
-    return () => clearTimeout(id)
+  useLayoutEffect(() => {
+    const id = requestAnimationFrame(() => setVisible(true))
+    return () => cancelAnimationFrame(id)
   }, [])
   const style: CSSProperties =
     type === 'fade-in'
@@ -153,9 +155,13 @@ export const Sequence = ({
   rewindAriaLabel
 }: SequenceProps) => {
   const [index, setIndex] = useState(0)
-  const steps = Children.toArray(children).filter(
-    (child): child is ReactElement<StepProps> =>
-      isValidElement(child) && child.type === Step
+  const steps = useMemo(
+    () =>
+      Children.toArray(children).filter(
+        (child): child is ReactElement<StepProps> =>
+          isValidElement(child) && child.type === Step
+      ),
+    [children]
   )
   const current = steps[index]
   useEffect(() => {
