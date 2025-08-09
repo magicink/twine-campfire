@@ -290,13 +290,13 @@ export const useDirectiveHandlers = () => {
         if (quote) {
           // Count consecutive backslashes before the quote
           if (ch === quote) {
-            let backslashCount = 0;
-            let j = i - 1;
+            let backslashCount = 0
+            let j = i - 1
             while (j >= 0 && input[j] === '\\') {
-              backslashCount++;
-              j--;
+              backslashCount++
+              j--
             }
-            if (backslashCount % 2 === 0) quote = null;
+            if (backslashCount % 2 === 0) quote = null
           }
           current += ch
           continue
@@ -816,9 +816,7 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
-   * Adds translations to i18next. Supports a shorthand syntax
-   * `:translations[lng]{namespace:key="value"}` or falls back to
-   * attribute-based definitions.
+   * Adds a translation using shorthand `:translations[locale]{ns:key="value"}`.
    *
    * @param directive - The directive node representing the translations.
    * @param parent - The parent AST node containing this directive.
@@ -826,60 +824,36 @@ export const useDirectiveHandlers = () => {
    * @returns The new index after processing.
    */
   const handleTranslations: DirectiveHandler = (directive, parent, index) => {
-    const label =
+    const locale =
       getLabel(directive as ContainerDirective) || toString(directive).trim()
-    if (label && directive.attributes) {
-      const attrs = directive.attributes as Record<string, unknown>
-      const entries = Object.entries(attrs)
-      if (entries.length === 1) {
-        const [compound, raw] = entries[0]
-        const m = compound.match(/^([^:]+):(.+)$/)
-        if (m && typeof raw === 'string') {
-          const ns = m[1]
-          const key = m[2]
-          const value = raw.trim()
-          if (!i18next.hasResourceBundle(label, ns)) {
-            i18next.addResourceBundle(label, ns, {}, true, true)
-          }
-          i18next.addResource(label, ns, key, value)
-        } else {
-          const msg = 'Translations directive expects [locale]{ns:key="value"}'
-          console.error(msg)
-          addError(msg)
-        }
-      } else {
-        const msg = 'Translations directive accepts only one namespace:key pair'
-        console.error(msg)
-        addError(msg)
-      }
+    const attrs = directive.attributes as Record<string, unknown>
+    if (!locale?.trim() || !attrs) {
+      const msg = 'Translations directive expects [locale]{ns:key="value"}'
+      console.error(msg)
+      addError(msg)
       return removeNode(parent, index)
     }
-    const attrs = (directive.attributes || {}) as Record<string, unknown>
-    const ns = typeof attrs.ns === 'string' ? attrs.ns : 'translation'
-    const locale =
-      typeof attrs.locale === 'string'
-        ? attrs.locale
-        : i18next.resolvedLanguage || i18next.language
-    let resources: Record<string, unknown> = {}
-    if (typeof attrs.data === 'string') {
-      try {
-        resources = JSON.parse(attrs.data)
-      } catch {
-        // ignore
+    const entries = Object.entries(attrs)
+    if (entries.length !== 1) {
+      const msg = 'Translations directive accepts only one namespace:key pair'
+      console.error(msg)
+      addError(msg)
+      return removeNode(parent, index)
+    }
+    const [compound, raw] = entries[0]
+    const m = compound.match(/^([^:]+):(.+)$/)
+    if (m && typeof raw === 'string') {
+      const ns = m[1]
+      const key = m[2]
+      const value = raw
+      if (!i18next.hasResourceBundle(locale, ns)) {
+        i18next.addResourceBundle(locale, ns, {}, true, true)
       }
+      i18next.addResource(locale, ns, key, value)
     } else {
-      for (const [k, v] of Object.entries(attrs)) {
-        if (k === 'ns' || k === 'locale') continue
-        resources[k] = v
-      }
-    }
-    if (!i18next.hasResourceBundle(locale, ns)) {
-      i18next.addResourceBundle(locale, ns, {}, true, true)
-    }
-    if (Object.keys(resources).length) {
-      for (const [k, v] of Object.entries(resources)) {
-        i18next.addResource(locale, ns, k, v as string)
-      }
+      const msg = 'Translations directive expects [locale]{ns:key="value"}'
+      console.error(msg)
+      addError(msg)
     }
     return removeNode(parent, index)
   }

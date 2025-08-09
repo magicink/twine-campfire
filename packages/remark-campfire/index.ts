@@ -185,7 +185,7 @@ const remarkCampfire =
           }
           if (
             directive.attributes &&
-            (directive.name === 'lang' || directive.name === 'translations') &&
+            directive.name === 'lang' &&
             Object.prototype.hasOwnProperty.call(directive.attributes, 'locale')
           ) {
             ensureQuotedAttribute(
@@ -197,7 +197,7 @@ const remarkCampfire =
           }
           if (
             directive.attributes &&
-            (directive.name === 't' || directive.name === 'translations') &&
+            directive.name === 't' &&
             Object.prototype.hasOwnProperty.call(directive.attributes, 'ns')
           ) {
             ensureQuotedAttribute(directive, 'ns', file, MSG_NS_UNQUOTED)

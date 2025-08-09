@@ -68,8 +68,12 @@ describe('Passage i18n directives', () => {
       children: [
         {
           type: 'text',
+          value: ':translations[en-US]{translation:apple_one="1 apple"}'
+        },
+        {
+          type: 'text',
           value:
-            ':translations{apple_one="1 apple" apple_other="{{count}} apples"}'
+            ':translations[en-US]{translation:apple_other="{{count}} apples"}'
         },
         { type: 'text', value: ':t{key=apple count=2}' }
       ]
@@ -92,7 +96,10 @@ describe('Passage i18n directives', () => {
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
       children: [
-        { type: 'text', value: ':translations{next="Next"}' },
+        {
+          type: 'text',
+          value: ':translations[en-US]{translation:next="Next"}'
+        },
         { type: 'text', value: '[[:t{key=next}->Next]]' }
       ]
     }
@@ -121,7 +128,10 @@ describe('Passage i18n directives', () => {
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
       children: [
-        { type: 'text', value: ':translations{ns="ui" goodbye="Au revoir"}' },
+        {
+          type: 'text',
+          value: ':translations[en-US]{ui:goodbye="Au revoir"}'
+        },
         { type: 'text', value: ':t{key=goodbye ns="ui"}' }
       ]
     }
