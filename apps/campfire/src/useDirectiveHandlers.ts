@@ -845,7 +845,7 @@ export const useDirectiveHandlers = () => {
     if (m && typeof raw === 'string') {
       const ns = m[1]
       const key = m[2]
-      const value = raw.trim()
+      const value = raw
       if (!i18next.hasResourceBundle(locale, ns)) {
         i18next.addResourceBundle(locale, ns, {}, true, true)
       }
