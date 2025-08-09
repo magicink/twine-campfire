@@ -812,10 +812,10 @@ export const useDirectiveHandlers = () => {
    */
   const handleLang: DirectiveHandler = (directive, parent, index) => {
     const locale = toString(directive).trim()
-    if (
-    const locale = toString(directive).trim()
+
     // Basic locale validation: e.g., "en", "en-US", "fr", "zh-CN"
-    const LOCALE_PATTERN = /^[a-z]{2,3}(-[A-Z][a-zA-Z]{1,7})?$/;
+    const LOCALE_PATTERN = /^[a-z]{2,3}(-[A-Z][a-zA-Z]{1,7})?$/
+
     if (
       locale &&
       LOCALE_PATTERN.test(locale) &&
@@ -824,6 +824,7 @@ export const useDirectiveHandlers = () => {
     ) {
       void i18next.changeLanguage(locale)
     }
+
     return removeNode(parent, index)
   }
 
