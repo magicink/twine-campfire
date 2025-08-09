@@ -27,7 +27,7 @@ export const OnExit = ({ content }: OnExitProps) => {
     [content]
   )
   const ranRef = useRef(false)
-  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   /**
    * Processes a block of nodes with the Campfire remark plugins.
@@ -43,7 +43,9 @@ export const OnExit = ({ content }: OnExitProps) => {
   }
 
   useEffect(() => {
-    clearTimeout(timerRef.current)
+    if (timerRef.current !== null) {
+      clearTimeout(timerRef.current)
+    }
     return () => {
       timerRef.current = setTimeout(() => {
         if (!ranRef.current) {
