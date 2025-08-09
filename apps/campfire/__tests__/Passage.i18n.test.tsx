@@ -46,7 +46,7 @@ describe('Passage i18n directives', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':t{key=hello}' }]
+      children: [{ type: 'text', value: ':t[hello]' }]
     }
 
     useStoryDataStore.setState({
@@ -75,7 +75,7 @@ describe('Passage i18n directives', () => {
           value:
             ':translations[en-US]{translation:apple_other="{{count}} apples"}'
         },
-        { type: 'text', value: ':t{key=apple count=2}' }
+        { type: 'text', value: ':t[apple]{count=2}' }
       ]
     }
 
@@ -100,7 +100,7 @@ describe('Passage i18n directives', () => {
           type: 'text',
           value: ':translations[en-US]{translation:next="Next"}'
         },
-        { type: 'text', value: '[[:t{key=next}->Next]]' }
+        { type: 'text', value: '[[:t[next]->Next]]' }
       ]
     }
     const next: Element = {
@@ -132,7 +132,7 @@ describe('Passage i18n directives', () => {
           type: 'text',
           value: ':translations[en-US]{ui:goodbye="Au revoir"}'
         },
-        { type: 'text', value: ':t{key=goodbye ns="ui"}' }
+        { type: 'text', value: ':t[ui:goodbye]' }
       ]
     }
 
@@ -155,7 +155,7 @@ describe('Passage i18n directives', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':t{key=hello}' }]
+      children: [{ type: 'text', value: ':t[hello]' }]
     }
 
     useStoryDataStore.setState({
@@ -181,7 +181,7 @@ describe('Passage i18n directives', () => {
       properties: { pid: '1', name: 'Start' },
       children: [
         { type: 'text', value: ':translations[en-US]{ui:greet="Hello there"}' },
-        { type: 'text', value: ':t{key=greet ns="ui"}' }
+        { type: 'text', value: ':t[ui:greet]' }
       ]
     }
 

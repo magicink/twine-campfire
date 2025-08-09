@@ -39,15 +39,4 @@ describe('i18n directive attribute quoting', () => {
     expect(node?.attributes).toEqual({})
     expect(file.messages.some(m => m.message.includes('CF002'))).toBe(true)
   })
-
-  it('accepts quoted ns in t', () => {
-    const { node } = parseDirective(':t{key=hello ns="ui"}', 't')
-    expect(node?.attributes).toEqual({ key: 'hello', ns: 'ui' })
-  })
-
-  it('rejects unquoted ns in t', () => {
-    const { node, file } = parseDirective(':t{key=hello ns=ui}', 't')
-    expect(node?.attributes).toEqual({ key: 'hello' })
-    expect(file.messages.some(m => m.message.includes('CF003'))).toBe(true)
-  })
 })
