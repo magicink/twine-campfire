@@ -822,6 +822,52 @@ export const useDirectiveHandlers = () => {
    * @param index - The index of the directive node within its parent.
    * @returns The index of the inserted component.
    */
+  /**
+   * Determines whether a node is a directive node.
+   *
+   * @param node - Node to inspect.
+   * @returns True if the node is a directive node.
+   */
+  const isDirectiveNode = (node: RootContent): node is DirectiveNode =>
+    node.type === 'leafDirective' ||
+    node.type === 'containerDirective' ||
+    node.type === 'textDirective'
+
+  /**
+   * Filters `onExit` directive children to allowed data directives.
+   *
+   * @param children - Raw nodes inside the directive.
+   * @param allowed - Set of permitted directive names.
+   * @returns Filtered nodes and a flag indicating invalid content.
+   */
+  const filterOnExitChildren = (
+    children: RootContent[],
+    allowed: Set<string>
+  ): [RootContent[], boolean] => {
+    let invalid = false
+    const filtered = children.filter(child => {
+      if (child.type === 'text') {
+        return toString(child).trim().length > 0
+      }
+      if (isDirectiveNode(child)) {
+        if (allowed.has(child.name)) return true
+        invalid = true
+        return false
+      }
+      if (
+        child.type === 'paragraph' &&
+        child.children.length === 1 &&
+        isDirectiveNode(child.children[0] as RootContent)
+      ) {
+        const first = child.children[0] as DirectiveNode
+        if (allowed.has(first.name)) return true
+      }
+      invalid = true
+      return false
+    })
+    return [filtered, invalid]
+  }
+
   const handleOnExit: DirectiveHandler = (directive, parent, index) => {
     if (!parent || typeof index !== 'number') return
     if (lastPassageIdRef.current !== currentPassageId) {
@@ -842,32 +888,9 @@ export const useDirectiveHandlers = () => {
     const container = directive as ContainerDirective
     const allowed = ALLOWED_ONEXIT_DIRECTIVES
     const rawChildren = stripLabel(container.children as RootContent[])
-    const cleaned = rawChildren.filter(child => {
-      return !(child.type === 'text' && !toString(child).trim())
-    })
-    const filtered = cleaned.filter(child => {
-      if (
-        child.type === 'leafDirective' ||
-        child.type === 'containerDirective' ||
-        child.type === 'textDirective'
-      ) {
-        return allowed.has(child.name)
-      }
-      if (child.type === 'paragraph' && child.children.length === 1) {
-        const first = child.children[0] as RootContent
-        if (
-          (first.type === 'leafDirective' ||
-            first.type === 'containerDirective' ||
-            first.type === 'textDirective') &&
-          allowed.has((first as DirectiveNode).name)
-        ) {
-          return true
-        }
-      }
-      return false
-    })
-    if (filtered.length !== cleaned.length) {
-      const allowedList = [...ALLOWED_ONEXIT_DIRECTIVES].join(', ')
+    const [filtered, invalid] = filterOnExitChildren(rawChildren, allowed)
+    if (invalid) {
+      const allowedList = [...allowed].join(', ')
       const msg = `onExit only supports data directives: ${allowedList}`
       console.error(msg)
       addError(msg)
