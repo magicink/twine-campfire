@@ -49,7 +49,7 @@ export const OnExit = ({ content }: OnExitProps) => {
           runBlock(nodes)
           ranRef.current = true
         }
-      })
+      }, 0)
     }
   }, [nodes])
 
@@ -58,7 +58,7 @@ export const OnExit = ({ content }: OnExitProps) => {
       clearTimeout(timerRef.current)
       timerRef.current = null
     }
-  })
+  }, [])
 
   return null
 }
