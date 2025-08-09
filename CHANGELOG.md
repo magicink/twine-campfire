@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.42.0](https://github.com/magicink/twine-campfire/compare/v1.41.0...v1.42.0) (2025-08-09)
+
+
+### Features
+
+* drop long-form translations directive ([#192](https://github.com/magicink/twine-campfire/issues/192)) ([2157120](https://github.com/magicink/twine-campfire/commit/215712039e9640468b8c0943e5406df98ed55d58))
+
 ## [1.41.0](https://github.com/magicink/twine-campfire/compare/v1.40.2...v1.41.0) (2025-08-08)
 
 
