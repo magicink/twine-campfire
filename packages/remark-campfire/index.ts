@@ -1,7 +1,7 @@
 import { visit } from 'unist-util-visit'
 import type { Root, Parent, Paragraph, Text } from 'mdast'
 import type { Node } from 'unist'
-import type { LeafDirective } from 'mdast-util-directive'
+import type { LeafDirective, TextDirective } from 'mdast-util-directive'
 import type { SKIP } from 'unist-util-visit'
 import type { VFile } from 'vfile'
 import type { DirectiveNode } from './helpers'
@@ -10,10 +10,6 @@ import type { DirectiveNode } from './helpers'
 const ERR_TRIGGER_LABEL_UNQUOTED = 'CF001'
 /** Error message for unquoted trigger labels */
 const MSG_TRIGGER_LABEL_UNQUOTED = `${ERR_TRIGGER_LABEL_UNQUOTED}: trigger label must be a quoted string`
-/** Error code for unquoted locale attributes */
-const ERR_LOCALE_UNQUOTED = 'CF002'
-/** Error message for unquoted locale attributes */
-const MSG_LOCALE_UNQUOTED = `${ERR_LOCALE_UNQUOTED}: locale must be a quoted string`
 
 export type DirectiveHandlerResult = number | [typeof SKIP, number] | void
 
@@ -39,14 +35,8 @@ export interface IncludeDirective extends Omit<LeafDirective, 'attributes'> {
   attributes?: IncludeAttributes
 }
 
-export interface LangAttributes {
-  /** Locale code to activate */
-  locale: string
-}
-
-export interface LangDirective extends Omit<LeafDirective, 'attributes'> {
+export interface LangDirective extends Omit<TextDirective, 'attributes'> {
   name: 'lang'
-  attributes: LangAttributes
 }
 
 /**
@@ -177,18 +167,6 @@ const remarkCampfire =
               'label',
               file,
               MSG_TRIGGER_LABEL_UNQUOTED
-            )
-          }
-          if (
-            directive.attributes &&
-            directive.name === 'lang' &&
-            Object.prototype.hasOwnProperty.call(directive.attributes, 'locale')
-          ) {
-            ensureQuotedAttribute(
-              directive,
-              'locale',
-              file,
-              MSG_LOCALE_UNQUOTED
             )
           }
           const handler = options.handlers?.[directive.name]

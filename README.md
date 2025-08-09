@@ -434,7 +434,7 @@ Change language and handle translations.
 - `lang`: Switch the active locale.
 
   ```md
-  :lang{locale="LANG-CODE"}
+  :lang[LANG-CODE]
   ```
 
   Replace `LANG-CODE` with a locale like `fr`.
