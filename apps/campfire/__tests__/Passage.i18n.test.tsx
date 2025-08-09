@@ -25,7 +25,7 @@ describe('Passage i18n directives', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':lang{locale="fr-FR"}' }]
+      children: [{ type: 'text', value: ':lang[fr-FR]' }]
     }
 
     useStoryDataStore.setState({

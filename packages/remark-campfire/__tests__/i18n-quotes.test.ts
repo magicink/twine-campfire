@@ -5,6 +5,7 @@ import remarkParse from 'remark-parse'
 import remarkDirective from 'remark-directive'
 import remarkCampfire, { type DirectiveHandler } from '../index'
 import type { DirectiveNode } from '../helpers'
+import { toString } from 'mdast-util-to-string'
 
 /**
  * Parses markdown containing a directive and returns the directive node and file.
@@ -28,15 +29,9 @@ const parseDirective = (md: string, name: string) => {
   return { node: captured, file }
 }
 
-describe('i18n directive attribute quoting', () => {
-  it('accepts quoted locale in lang', () => {
-    const { node } = parseDirective(':lang{locale="fr"}', 'lang')
-    expect(node?.attributes).toEqual({ locale: 'fr' })
-  })
-
-  it('rejects unquoted locale in lang', () => {
-    const { node, file } = parseDirective(':lang{locale=fr}', 'lang')
-    expect(node?.attributes).toEqual({})
-    expect(file.messages.some(m => m.message.includes('CF002'))).toBe(true)
+describe('lang directive', () => {
+  it('parses locale from label', () => {
+    const { node } = parseDirective(':lang[fr]', 'lang')
+    expect(node && toString(node)).toBe('fr')
   })
 })

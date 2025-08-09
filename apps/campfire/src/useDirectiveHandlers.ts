@@ -802,9 +802,16 @@ export const useDirectiveHandlers = () => {
     return [SKIP, newIndex]
   }
 
+  /**
+   * Switches the active locale using `:lang[locale]`.
+   *
+   * @param directive - Directive node specifying the locale.
+   * @param parent - Parent node of the directive.
+   * @param index - Index of the directive within its parent.
+   * @returns The new index after removing the directive.
+   */
   const handleLang: DirectiveHandler = (directive, parent, index) => {
-    const attrs = (directive.attributes || {}) as Record<string, unknown>
-    const locale = typeof attrs.locale === 'string' ? attrs.locale : undefined
+    const locale = toString(directive).trim()
     if (
       locale &&
       i18next.isInitialized &&
