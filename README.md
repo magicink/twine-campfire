@@ -442,7 +442,7 @@ Change language and handle translations.
 - `t`: Output a translated string.
 
   ```md
-  :t{key=HELLO ns="UI"}
+  :t[UI:HELLO]
   ```
 
   Replace `HELLO` and `UI` with your key and namespace.
@@ -476,7 +476,6 @@ markup. These codes help identify and debug issues in story passages.
 | ----- | ------------------------------------------------------------------ |
 | CF001 | Trigger `label` must be a quoted string. The attribute is ignored. |
 | CF002 | `locale` must be a quoted string. The attribute is ignored.        |
-| CF003 | `ns` must be a quoted string. The attribute is ignored.            |
 
 ## Further reading
 

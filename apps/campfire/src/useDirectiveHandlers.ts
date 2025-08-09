@@ -859,7 +859,9 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
-   * Inserts a Show component that renders a translation for the provided key.
+   * Inserts a Show component that renders a translated string.
+   * The directive label accepts `key` or `ns:key` and supports an optional
+   * `count` attribute for pluralization.
    *
    * @param directive - The `t` directive node being processed.
    * @param parent - The parent AST node containing the directive.
@@ -867,8 +869,23 @@ export const useDirectiveHandlers = () => {
    */
   const handleTranslate: DirectiveHandler = (directive, parent, index) => {
     const attrs = (directive.attributes || {}) as Record<string, unknown>
-    const key =
-      typeof attrs.key === 'string' ? attrs.key : toString(directive).trim()
+    const children = directive.children as (RootContent & { name?: string })[]
+    let key = ''
+    let ns: string | undefined
+    if (
+      children.length === 2 &&
+      children[0].type === 'text' &&
+      children[1].type === 'textDirective'
+    ) {
+      ns = (children[0] as MdText).value.trim()
+      key = (children[1] as DirectiveNode).name
+    } else if (children.length === 1 && children[0].type === 'text') {
+      key = (children[0] as MdText).value.trim()
+    } else {
+      const label =
+        (directive as { label?: string }).label || toString(directive).trim()
+      if (label) key = label
+    }
     if (!key) return removeNode(parent, index)
     if (parent && typeof index === 'number') {
       const prev = parent.children[index - 1] as MdText | undefined
@@ -878,10 +895,7 @@ export const useDirectiveHandlers = () => {
         prev.value.endsWith('[[') &&
         next?.type === 'text' &&
         next.value.includes(']]')
-      const options = getTranslationOptions({
-        ns: attrs.ns,
-        count: attrs.count
-      })
+      const options = getTranslationOptions({ ns, count: attrs.count })
       if (inLink) {
         const text = i18next.t(key, options)
         if (prev && next) {
@@ -895,7 +909,7 @@ export const useDirectiveHandlers = () => {
         return newIndex
       }
       const props: Properties = { 'data-i18n-key': key }
-      if (options.ns) props['data-i18n-ns'] = options.ns
+      if (ns) props['data-i18n-ns'] = ns
       if (options.count !== undefined) props['data-i18n-count'] = options.count
       const node: MdText = {
         type: 'text',
