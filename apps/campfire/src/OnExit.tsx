@@ -22,10 +22,7 @@ interface OnExitProps {
  */
 export const OnExit = ({ content }: OnExitProps) => {
   const handlers = useDirectiveHandlers()
-  const nodes = useMemo<RootContent[]>(
-    () => clone(JSON.parse(content)),
-    [content]
-  )
+  const baseNodes = useMemo<RootContent[]>(() => JSON.parse(content), [content])
   const ranRef = useRef(false)
   const generationRef = useRef(0)
 
@@ -48,12 +45,12 @@ export const OnExit = ({ content }: OnExitProps) => {
       const current = generationRef.current
       queueMicrotask(() => {
         if (generationRef.current === current && !ranRef.current) {
-          runBlock(nodes)
+          runBlock(clone(baseNodes))
           ranRef.current = true
         }
       })
     }
-  }, [nodes])
+  }, [baseNodes])
 
   return null
 }
