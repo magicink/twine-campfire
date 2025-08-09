@@ -204,7 +204,7 @@ describe('Passage lifecycle directives', () => {
 
     await waitFor(() => {
       expect(useGameStore.getState().errors).toEqual([
-        'onExit only supports data directives like set, array, and unset'
+        'onExit only supports data directives: set, setOnce, array, arrayOnce, unset'
       ])
       expect(logged).toHaveLength(1)
     })

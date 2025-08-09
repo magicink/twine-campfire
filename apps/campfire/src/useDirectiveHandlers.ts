@@ -35,6 +35,13 @@ import type {
 import { createStateManager } from './stateManager'
 const QUOTE_PATTERN = /^(['"`])(.*)\1$/
 const NUMERIC_PATTERN = /^\d+$/
+const ALLOWED_ONEXIT_DIRECTIVES = new Set([
+  'set',
+  'setOnce',
+  'array',
+  'arrayOnce',
+  'unset'
+])
 
 export const useDirectiveHandlers = () => {
   let state = createStateManager<Record<string, unknown>>()
@@ -833,7 +840,7 @@ export const useDirectiveHandlers = () => {
     }
     onExitSeenRef.current = true
     const container = directive as ContainerDirective
-    const allowed = new Set(['set', 'setOnce', 'array', 'arrayOnce', 'unset'])
+    const allowed = ALLOWED_ONEXIT_DIRECTIVES
     const rawChildren = stripLabel(container.children as RootContent[])
     const cleaned = rawChildren.filter(child => {
       return !(child.type === 'text' && !toString(child).trim())
@@ -860,8 +867,8 @@ export const useDirectiveHandlers = () => {
       return false
     })
     if (filtered.length !== cleaned.length) {
-      const msg =
-        'onExit only supports data directives like set, array, and unset'
+      const allowedList = [...ALLOWED_ONEXIT_DIRECTIVES].join(', ')
+      const msg = `onExit only supports data directives: ${allowedList}`
       console.error(msg)
       addError(msg)
     }

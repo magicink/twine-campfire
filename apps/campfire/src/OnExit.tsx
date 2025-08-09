@@ -27,7 +27,7 @@ export const OnExit = ({ content }: OnExitProps) => {
     [content]
   )
   const ranRef = useRef(false)
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const mountedRef = useRef(true)
 
   /**
    * Processes a block of nodes with the Campfire remark plugins.
@@ -43,22 +43,17 @@ export const OnExit = ({ content }: OnExitProps) => {
   }
 
   useEffect(() => {
+    mountedRef.current = true
     return () => {
-      timerRef.current = setTimeout(() => {
-        if (!ranRef.current) {
+      mountedRef.current = false
+      queueMicrotask(() => {
+        if (!mountedRef.current && !ranRef.current) {
           runBlock(nodes)
           ranRef.current = true
         }
-      }, 0)
+      })
     }
   }, [nodes])
-
-  useEffect(() => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current)
-      timerRef.current = null
-    }
-  }, [])
 
   return null
 }
