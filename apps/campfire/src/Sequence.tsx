@@ -89,6 +89,10 @@ interface SequenceProps {
   continueLabel?: string
   /** Text for the fast-forward skip button */
   skipLabel?: string
+  /** Accessible label for the manual continue button */
+  continueAriaLabel?: string
+  /** Accessible label for the fast-forward skip button */
+  skipAriaLabel?: string
 }
 
 /** Options for configuring fast-forward behavior */
@@ -105,8 +109,9 @@ interface FastForwardOptions {
  * If `autoplay` is true, steps advance automatically after an optional `delay`.
  * Otherwise a "Continue" button is shown for non-interactive steps.
  * A `fastForward` control is provided to skip steps or jump to the end
- * based on the supplied `fastForward` options. Both button labels may be
- * customized via `continueLabel` and `skipLabel` props.
+ * based on the supplied `fastForward` options. Button text and accessible
+ * labels may be customized via `continueLabel`, `skipLabel`,
+ * `continueAriaLabel`, and `skipAriaLabel` props.
  */
 export const Sequence = ({
   children,
@@ -114,7 +119,9 @@ export const Sequence = ({
   delay = 0,
   fastForward,
   continueLabel = 'Continue',
-  skipLabel = 'Skip'
+  skipLabel = 'Skip',
+  continueAriaLabel = 'Continue to next step',
+  skipAriaLabel
 }: SequenceProps) => {
   const [index, setIndex] = useState(0)
   const steps = Children.toArray(children).filter(
@@ -150,6 +157,8 @@ export const Sequence = ({
   const showContinue = !autoplay && !isInteractive && index < steps.length - 1
   const fastForwardEnabled = fastForward?.enabled !== false
   const showSkip = fastForwardEnabled && index < steps.length - 1
+  const skipAria =
+    skipAriaLabel ?? (fastForward?.toEnd ? 'Skip to end' : 'Skip to next step')
 
   return (
     <>
@@ -158,12 +167,16 @@ export const Sequence = ({
         fastForward: handleFastForward
       })}
       {showContinue && (
-        <button type='button' onClick={handleNext}>
+        <button
+          type='button'
+          onClick={handleNext}
+          aria-label={continueAriaLabel}
+        >
           {continueLabel}
         </button>
       )}
       {showSkip && (
-        <button type='button' onClick={handleFastForward}>
+        <button type='button' onClick={handleFastForward} aria-label={skipAria}>
           {skipLabel}
         </button>
       )}

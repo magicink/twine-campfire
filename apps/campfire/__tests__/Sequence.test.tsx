@@ -11,7 +11,7 @@ describe('Sequence', () => {
       </Sequence>
     )
     expect(screen.getByText('First')).toBeInTheDocument()
-    const button = screen.getByRole('button', { name: 'Continue' })
+    const button = screen.getByRole('button', { name: 'Continue to next step' })
     act(() => {
       button.click()
     })
@@ -25,7 +25,8 @@ describe('Sequence', () => {
         <Step>Second</Step>
       </Sequence>
     )
-    const button = screen.getByRole('button', { name: 'Next step' })
+    const button = screen.getByRole('button', { name: 'Continue to next step' })
+    expect(button).toHaveTextContent('Next step')
     act(() => {
       button.click()
     })
@@ -85,7 +86,7 @@ describe('Sequence', () => {
         <Step>Done</Step>
       </Sequence>
     )
-    const button = screen.getByRole('button', { name: 'Skip' })
+    const button = screen.getByRole('button', { name: 'Skip to next step' })
     act(() => {
       button.click()
     })
@@ -99,7 +100,8 @@ describe('Sequence', () => {
         <Step>Done</Step>
       </Sequence>
     )
-    const button = screen.getByRole('button', { name: 'Fast forward' })
+    const button = screen.getByRole('button', { name: 'Skip to next step' })
+    expect(button).toHaveTextContent('Fast forward')
     act(() => {
       button.click()
     })
@@ -114,7 +116,7 @@ describe('Sequence', () => {
         <Step>End</Step>
       </Sequence>
     )
-    const button = screen.getByRole('button', { name: 'Skip' })
+    const button = screen.getByRole('button', { name: 'Skip to end' })
     act(() => {
       button.click()
     })
@@ -128,7 +130,9 @@ describe('Sequence', () => {
         <Step>Second</Step>
       </Sequence>
     )
-    expect(screen.queryByRole('button', { name: 'Skip' })).toBeNull()
+    expect(
+      screen.queryByRole('button', { name: 'Skip to next step' })
+    ).toBeNull()
   })
 
   it('renders step content with a fade-in transition', async () => {
@@ -153,7 +157,7 @@ describe('Sequence', () => {
     render(
       <Sequence>
         <Step>
-          <Sequence continueLabel='Inner next'>
+          <Sequence continueLabel='Inner next' continueAriaLabel='Inner next'>
             <Step>Inner first</Step>
             <Step>Inner second</Step>
           </Sequence>
@@ -167,10 +171,29 @@ describe('Sequence', () => {
       innerNext.click()
     })
     expect(screen.getByText('Inner second')).toBeInTheDocument()
-    const outerNext = screen.getByRole('button', { name: 'Continue' })
+    const outerNext = screen.getByRole('button', {
+      name: 'Continue to next step'
+    })
     act(() => {
       outerNext.click()
     })
     expect(screen.getByText('Outer second')).toBeInTheDocument()
+  })
+
+  it('allows customizing aria labels', () => {
+    render(
+      <Sequence continueAriaLabel='Advance' skipAriaLabel='Jump ahead'>
+        <Step>First</Step>
+        <Step>Second</Step>
+      </Sequence>
+    )
+    const continueButton = screen.getByRole('button', { name: 'Advance' })
+    const skipButton = screen.getByRole('button', { name: 'Jump ahead' })
+    expect(continueButton).toBeInTheDocument()
+    expect(skipButton).toBeInTheDocument()
+    act(() => {
+      skipButton.click()
+    })
+    expect(screen.getByText('Second')).toBeInTheDocument()
   })
 })
