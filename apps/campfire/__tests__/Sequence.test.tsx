@@ -149,29 +149,28 @@ describe('Sequence', () => {
     expect(wrapper.style.opacity).toBe('1')
   })
 
-  it('throws when a Step contains a Sequence', () => {
-    expect(() =>
-      render(
-        <Sequence>
-          <Step>
-            <Sequence>
-              <Step>Inner</Step>
-            </Sequence>
-          </Step>
-        </Sequence>
-      )
-    ).toThrow('Step cannot be the parent of a Sequence')
-  })
-
-  it('throws when a Sequence contains a Sequence', () => {
-    expect(() =>
-      render(
-        <Sequence>
-          <Sequence>
-            <Step>Inner</Step>
+  it('allows nesting sequences within steps', () => {
+    render(
+      <Sequence>
+        <Step>
+          <Sequence continueLabel='Inner next'>
+            <Step>Inner first</Step>
+            <Step>Inner second</Step>
           </Sequence>
-        </Sequence>
-      )
-    ).toThrow('Sequence cannot be the child of a Sequence')
+        </Step>
+        <Step>Outer second</Step>
+      </Sequence>
+    )
+    expect(screen.getByText('Inner first')).toBeInTheDocument()
+    const innerNext = screen.getByRole('button', { name: 'Inner next' })
+    act(() => {
+      innerNext.click()
+    })
+    expect(screen.getByText('Inner second')).toBeInTheDocument()
+    const outerNext = screen.getByRole('button', { name: 'Continue' })
+    act(() => {
+      outerNext.click()
+    })
+    expect(screen.getByText('Outer second')).toBeInTheDocument()
   })
 })

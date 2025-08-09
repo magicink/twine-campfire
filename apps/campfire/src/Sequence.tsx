@@ -24,17 +24,8 @@ interface StepProps {
  * Represents a single step within a {@link Sequence}.
  * The content can be static React nodes or a render function
  * receiving `next` and `fastForward` callbacks to control progression.
- * Cannot contain a {@link Sequence} as a child.
  */
 export const Step = ({ children, next, fastForward }: StepProps) => {
-  if (
-    typeof children !== 'function' &&
-    Children.toArray(children).some(
-      child => isValidElement(child) && child.type === Sequence
-    )
-  ) {
-    throw new Error('Step cannot be the parent of a Sequence')
-  }
   if (typeof children === 'function') {
     return (
       <>
@@ -115,8 +106,7 @@ interface FastForwardOptions {
  * Otherwise a "Continue" button is shown for non-interactive steps.
  * A `fastForward` control is provided to skip steps or jump to the end
  * based on the supplied `fastForward` options. Both button labels may be
- * customized via `continueLabel` and `skipLabel` props. Cannot contain
- * another `Sequence` as a direct child.
+ * customized via `continueLabel` and `skipLabel` props.
  */
 export const Sequence = ({
   children,
@@ -127,13 +117,6 @@ export const Sequence = ({
   skipLabel = 'Skip'
 }: SequenceProps) => {
   const [index, setIndex] = useState(0)
-  if (
-    Children.toArray(children).some(
-      child => isValidElement(child) && child.type === Sequence
-    )
-  ) {
-    throw new Error('Sequence cannot be the child of a Sequence')
-  }
   const steps = Children.toArray(children).filter(
     (child): child is ReactElement<StepProps> =>
       isValidElement(child) && child.type === Step
