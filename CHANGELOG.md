@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.43.0](https://github.com/magicink/twine-campfire/compare/v1.42.0...v1.43.0) (2025-08-09)
+
+
+### Features
+
+* support namespace labels in t directive ([#194](https://github.com/magicink/twine-campfire/issues/194)) ([4852a6c](https://github.com/magicink/twine-campfire/commit/4852a6c0af6005a5a7057d1f3977e51bbeed44a5))
+
 ## [1.42.0](https://github.com/magicink/twine-campfire/compare/v1.41.0...v1.42.0) (2025-08-09)
 
 
