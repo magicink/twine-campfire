@@ -71,7 +71,10 @@ describe('Passage checkpoint directives', () => {
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
       children: [
-        { type: 'text', value: ':translations{save="Save"}' },
+        {
+          type: 'text',
+          value: ':translations[en-US]{translation:save="Save"}'
+        },
         { type: 'text', value: ':checkpoint{id=cp1 label=save}' }
       ]
     }

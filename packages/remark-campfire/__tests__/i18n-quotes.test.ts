@@ -50,26 +50,4 @@ describe('i18n directive attribute quoting', () => {
     expect(node?.attributes).toEqual({ key: 'hello' })
     expect(file.messages.some(m => m.message.includes('CF003'))).toBe(true)
   })
-
-  it('accepts quoted ns and locale in translations', () => {
-    const { node } = parseDirective(
-      ':translations{ns="ui" locale="fr" hello="bonjour"}',
-      'translations'
-    )
-    expect(node?.attributes).toEqual({
-      ns: 'ui',
-      locale: 'fr',
-      hello: 'bonjour'
-    })
-  })
-
-  it('rejects unquoted ns and locale in translations', () => {
-    const { node, file } = parseDirective(
-      ':translations{ns=ui locale=fr hello="bonjour"}',
-      'translations'
-    )
-    expect(node?.attributes).toEqual({ hello: 'bonjour' })
-    expect(file.messages.some(m => m.message.includes('CF002'))).toBe(true)
-    expect(file.messages.some(m => m.message.includes('CF003'))).toBe(true)
-  })
 })
