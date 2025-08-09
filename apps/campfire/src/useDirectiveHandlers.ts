@@ -827,7 +827,7 @@ export const useDirectiveHandlers = () => {
     const locale =
       getLabel(directive as ContainerDirective) || toString(directive).trim()
     const attrs = directive.attributes as Record<string, unknown>
-    if (!locale || !attrs) {
+    if (!locale?.trim() || !attrs) {
       const msg = 'Translations directive expects [locale]{ns:key="value"}'
       console.error(msg)
       addError(msg)
