@@ -115,7 +115,8 @@ interface FastForwardOptions {
  * Otherwise a "Continue" button is shown for non-interactive steps.
  * A `fastForward` control is provided to skip steps or jump to the end
  * based on the supplied `fastForward` options. Both button labels may be
- * customized via `continueLabel` and `skipLabel` props.
+ * customized via `continueLabel` and `skipLabel` props. Cannot contain
+ * another `Sequence` as a direct child.
  */
 export const Sequence = ({
   children,
@@ -126,6 +127,13 @@ export const Sequence = ({
   skipLabel = 'Skip'
 }: SequenceProps) => {
   const [index, setIndex] = useState(0)
+  if (
+    Children.toArray(children).some(
+      child => isValidElement(child) && child.type === Sequence
+    )
+  ) {
+    throw new Error('Sequence cannot be the child of a Sequence')
+  }
   const steps = Children.toArray(children).filter(
     (child): child is ReactElement<StepProps> =>
       isValidElement(child) && child.type === Step

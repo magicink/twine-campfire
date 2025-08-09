@@ -162,4 +162,16 @@ describe('Sequence', () => {
       )
     ).toThrow('Step cannot be the parent of a Sequence')
   })
+
+  it('throws when a Sequence contains a Sequence', () => {
+    expect(() =>
+      render(
+        <Sequence>
+          <Sequence>
+            <Step>Inner</Step>
+          </Sequence>
+        </Sequence>
+      )
+    ).toThrow('Sequence cannot be the child of a Sequence')
+  })
 })
