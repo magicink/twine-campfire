@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import * as runtime from 'react/jsx-runtime'
+import { Fragment, jsx, jsxs } from 'react/jsx-runtime'
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
@@ -114,9 +114,9 @@ export const Passage = () => {
         .use(remarkRehype)
         .use(rehypeCampfire)
         .use(rehypeReact, {
-          Fragment: runtime.Fragment,
-          jsx: runtime.jsx,
-          jsxs: runtime.jsxs,
+          Fragment,
+          jsx,
+          jsxs,
           components: {
             button: LinkButton,
             trigger: TriggerButton,
