@@ -23,7 +23,7 @@ interface OnExitProps {
 export const OnExit = ({ content }: OnExitProps) => {
   const handlers = useDirectiveHandlers()
   const baseNodes = useMemo<RootContent[]>(() => JSON.parse(content), [content])
-  const ranRef = useRef(false)
+  const cleanupRanRef = useRef(false)
   const generationRef = useRef(0)
 
   /**
@@ -41,12 +41,13 @@ export const OnExit = ({ content }: OnExitProps) => {
 
   useEffect(() => {
     generationRef.current++
+    cleanupRanRef.current = false
     return () => {
       const current = generationRef.current
       queueMicrotask(() => {
-        if (generationRef.current === current && !ranRef.current) {
+        if (generationRef.current === current && !cleanupRanRef.current) {
           runBlock(clone(baseNodes))
-          ranRef.current = true
+          cleanupRanRef.current = true
         }
       })
     }

@@ -11,6 +11,7 @@ import remarkCampfire, {
   remarkCampfireIndentation
 } from '@/packages/remark-campfire'
 import type { Text as MdText, Parent, RootContent, Root } from 'mdast'
+import type { Node } from 'unist'
 import type { Text as HastText, ElementContent, Properties } from 'hast'
 import type { ContainerDirective } from 'mdast-util-directive'
 import { useStoryDataStore } from '@/packages/use-story-data-store'
@@ -828,7 +829,7 @@ export const useDirectiveHandlers = () => {
    * @param node - Node to inspect.
    * @returns True if the node is a directive node.
    */
-  const isDirectiveNode = (node: RootContent): node is DirectiveNode =>
+  const isDirectiveNode = (node: Node): node is DirectiveNode =>
     node.type === 'leafDirective' ||
     node.type === 'containerDirective' ||
     node.type === 'textDirective'
@@ -854,13 +855,9 @@ export const useDirectiveHandlers = () => {
         invalid = true
         return false
       }
-      if (
-        child.type === 'paragraph' &&
-        child.children.length === 1 &&
-        isDirectiveNode(child.children[0] as RootContent)
-      ) {
-        const first = child.children[0] as DirectiveNode
-        if (allowed.has(first.name)) return true
+      if (child.type === 'paragraph' && child.children.length === 1) {
+        const first = child.children[0]
+        if (isDirectiveNode(first) && allowed.has(first.name)) return true
       }
       invalid = true
       return false
