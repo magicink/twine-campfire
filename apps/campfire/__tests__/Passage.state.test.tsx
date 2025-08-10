@@ -483,7 +483,7 @@ describe('Passage game state directives', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':random{key=pick from=items}' }]
+      children: [{ type: 'text', value: ':random[pick]{from=items}' }]
     }
 
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
@@ -494,6 +494,25 @@ describe('Passage game state directives', () => {
       const { gameData } = useGameStore.getState()
       expect(['a', 'b', 'c']).toContain(gameData.pick)
       expect(gameData.items).toEqual(['a', 'b', 'c'])
+    })
+  })
+
+  it('stores a random integer within bounds with random directive', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':random[roll]{min=1 max=6}' }]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      const { gameData } = useGameStore.getState()
+      expect(gameData.roll).toBeGreaterThanOrEqual(1)
+      expect(gameData.roll).toBeLessThanOrEqual(6)
     })
   })
 

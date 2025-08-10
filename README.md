@@ -121,16 +121,24 @@ Operations that set, update, or remove scalar values.
   :setOnce[visited=true]
   ```
 
-  Replace `visited` with the key to lock on first use.
+Replace `visited` with the key to lock on first use.
 
-- `random`: Assign a random integer. This directive is leaf-only and cannot wrap
+- `random`: Assign a random value. This directive is leaf-only and cannot wrap
   content.
 
   ```md
-  :random{key=HP min=MIN max=MAX}
+  :random[HP]{min=MIN max=MAX}
   ```
 
   Replace `HP` with the key and `MIN`/`MAX` with bounds.
+
+  ```md
+  :random[pick]{from=[A,B,C]}
+  :random[pick]{from=ITEMS}
+  ```
+
+  Replace `pick` with the key to store the result and supply either a literal
+  array or a state key after `from`.
 
 - `unset`: Remove a key from state. This directive is leaf-only and cannot wrap
   content.
