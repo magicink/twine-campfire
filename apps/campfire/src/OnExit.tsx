@@ -35,9 +35,13 @@ export const OnExit = ({ content }: OnExitProps) => {
    * recursively returning the content for the matching branch.
    *
    * @param nodes - Nodes to inspect.
+   * @param data - Game data for expression evaluation.
    * @returns Nodes with conditionals resolved.
    */
-  const resolveIf = (nodes: RootContent[]): RootContent[] =>
+  const resolveIf = (
+    nodes: RootContent[],
+    data: Record<string, unknown>
+  ): RootContent[] =>
     nodes.flatMap(node => {
       if (
         node.type === 'containerDirective' &&
@@ -48,10 +52,6 @@ export const OnExit = ({ content }: OnExitProps) => {
         let condition = false
         try {
           const fn = compile(test)
-          const data = useGameStore.getState().gameData as Record<
-            string,
-            unknown
-          >
           condition = !!fn(data)
         } catch {
           condition = false
@@ -69,7 +69,7 @@ export const OnExit = ({ content }: OnExitProps) => {
           const elseNode = children[elseIndex] as ContainerDirective
           branch = stripLabel(elseNode.children as RootContent[])
         }
-        return resolveIf(branch)
+        return resolveIf(branch, data)
       }
       return [node]
     })
@@ -80,7 +80,8 @@ export const OnExit = ({ content }: OnExitProps) => {
    * @param block - Nodes to execute.
    */
   const runBlock = (block: RootContent[]) => {
-    const processed = resolveIf(block)
+    const gameData = useGameStore.getState().gameData as Record<string, unknown>
+    const processed = resolveIf(block, gameData)
     if (processed.length === 0) return
     const root: Root = { type: 'root', children: processed }
     unified()
