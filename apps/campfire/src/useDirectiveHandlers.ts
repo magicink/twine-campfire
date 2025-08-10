@@ -783,7 +783,8 @@ export const useDirectiveHandlers = () => {
       const msg = 'Nested batch directives are not allowed'
       console.error(msg)
       addError(msg)
-      return removeNode(parent, index)
+      parent.children.splice(index, 1)
+      return index
     }
     const container = directive as ContainerDirective
     const content = stripLabel(container.children as RootContent[])
