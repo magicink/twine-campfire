@@ -323,6 +323,18 @@ Run directives on specific passage events or group actions.
 
   Replace values as needed.
 
+- `onExit`: Run data directives once when leaving the passage.
+
+  ```md
+  :::onExit
+  :set[KEY=VALUE]
+  :::
+  ```
+
+  Only one `onExit` block is allowed per passage. Its contents are hidden and it
+  supports only data directives: `set`, `setOnce`, `array`, `arrayOnce`, and
+  `unset`.
+
 - `trigger`: Render a button that runs directives when clicked.
 
   ```md
