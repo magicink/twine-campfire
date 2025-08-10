@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.49.1](https://github.com/magicink/twine-campfire/compare/v1.49.0...v1.49.1) (2025-08-10)
+
+
+### Bug Fixes
+
+* handle string arrays in random directive ([#219](https://github.com/magicink/twine-campfire/issues/219)) ([fa84837](https://github.com/magicink/twine-campfire/commit/fa8483751bfd1973f7d51aed5f4ea8e66d5486ed))
+
 ## [1.49.0](https://github.com/magicink/twine-campfire/compare/v1.48.1...v1.49.0) (2025-08-10)
 
 
