@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.50.0](https://github.com/magicink/twine-campfire/compare/v1.49.6...v1.50.0) (2025-08-10)
+
+
+### Features
+
+* **campfire:** implement sequence directive ([#231](https://github.com/magicink/twine-campfire/issues/231)) ([fdc5b1e](https://github.com/magicink/twine-campfire/commit/fdc5b1e658bc5796520b322d6ff910e6423c0c5d))
+
 ## [1.49.6](https://github.com/magicink/twine-campfire/compare/v1.49.5...v1.49.6) (2025-08-10)
 
 
