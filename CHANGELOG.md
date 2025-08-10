@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.46.0](https://github.com/magicink/twine-campfire/compare/v1.45.0...v1.46.0) (2025-08-10)
+
+
+### Features
+
+* add onExit directive ([#203](https://github.com/magicink/twine-campfire/issues/203)) ([8d0e705](https://github.com/magicink/twine-campfire/commit/8d0e705ec1f4c2aa4b412ba895d758f158a98f12))
+
 ## [1.45.0](https://github.com/magicink/twine-campfire/compare/v1.44.0...v1.45.0) (2025-08-09)
 
 
