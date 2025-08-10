@@ -340,8 +340,8 @@ Run directives on specific passage events or group actions.
   ```
 
   Only one `onExit` block is allowed per passage. Its contents are hidden, and it
-  supports only the following directives: `if`, `set`, `setOnce`, `array`, `arrayOnce`, and
-  `unset`.
+  supports only the following directives: `if`, `set`, `setOnce`, `array`, `arrayOnce`, `unset`, and
+  `batch`.
 
 - `trigger`: Render a button that runs directives when clicked.
 

@@ -207,6 +207,34 @@ describe('Passage game state directives', () => {
     expect(unsetCalls).toEqual(['old'])
     useGameStore.setState({ unsetGameData: origUnset })
   })
+
+  it('ignores nested batch directives', async () => {
+    useGameStore.getState().init({})
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':::batch\n:set[a=1]\n:::batch\n:set[a=2]\n:::\n:::'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() =>
+      expect(
+        (useGameStore.getState().gameData as Record<string, unknown>).a
+      ).toBe(1)
+    )
+  })
   it('locks keys with setOnce', async () => {
     const passage: Element = {
       type: 'element',

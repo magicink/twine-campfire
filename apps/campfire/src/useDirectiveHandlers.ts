@@ -42,7 +42,8 @@ const ALLOWED_ONEXIT_DIRECTIVES = new Set([
   'array',
   'arrayOnce',
   'unset',
-  'if'
+  'if',
+  'batch'
 ])
 
 /**
@@ -771,9 +772,19 @@ export const useDirectiveHandlers = () => {
   /**
    * Executes a block of directives against a temporary state and commits
    * the resulting changes in a single update.
+   * Nested batch directives are ignored.
    */
   const handleBatch: DirectiveHandler = (directive, parent, index) => {
     if (!parent || typeof index !== 'number') return
+    if (
+      parent.type === 'containerDirective' &&
+      (parent as ContainerDirective).name === 'batch'
+    ) {
+      const msg = 'Nested batch directives are not allowed'
+      console.error(msg)
+      addError(msg)
+      return removeNode(parent, index)
+    }
     const container = directive as ContainerDirective
     const content = stripLabel(container.children as RootContent[])
 
