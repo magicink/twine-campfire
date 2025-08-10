@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.49.6](https://github.com/magicink/twine-campfire/compare/v1.49.5...v1.49.6) (2025-08-10)
+
+
+### Bug Fixes
+
+* support random directives in onExit and batch ([#229](https://github.com/magicink/twine-campfire/issues/229)) ([61f7ddb](https://github.com/magicink/twine-campfire/commit/61f7ddb297a51abd5c1a005b96324029ed272d05))
+
 ## [1.49.5](https://github.com/magicink/twine-campfire/compare/v1.49.4...v1.49.5) (2025-08-10)
 
 
