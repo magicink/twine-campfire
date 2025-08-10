@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.47.0](https://github.com/magicink/twine-campfire/compare/v1.46.1...v1.47.0) (2025-08-10)
+
+
+### Features
+
+* add OnComplete component for Sequence ([#210](https://github.com/magicink/twine-campfire/issues/210)) ([6e5eefd](https://github.com/magicink/twine-campfire/commit/6e5eefd74f2b4f7f74bc5bbfcb9b557806d712c6))
+
 ## [1.46.1](https://github.com/magicink/twine-campfire/compare/v1.46.0...v1.46.1) (2025-08-10)
 
 
