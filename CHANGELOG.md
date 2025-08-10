@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.49.5](https://github.com/magicink/twine-campfire/compare/v1.49.4...v1.49.5) (2025-08-10)
+
+
+### Bug Fixes
+
+* **useDirectiveHandlers:** clean up imports and improve regex patterns ([7b11b0e](https://github.com/magicink/twine-campfire/commit/7b11b0e0b4695d23836db39c502645f270ce1f43))
+
 ## [1.49.4](https://github.com/magicink/twine-campfire/compare/v1.49.3...v1.49.4) (2025-08-10)
 
 
