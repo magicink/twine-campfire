@@ -404,27 +404,4 @@ describe('Sequence', () => {
     expect(gameData.b).toBeUndefined()
     console.warn = orig
   })
-
-  it('warns when OnComplete is used outside of Sequence', async () => {
-    resetStores()
-    const root = unified()
-      .use(remarkParse)
-      .use(remarkDirective)
-      .parse(':set[x=1]') as Root
-    const content = JSON.stringify(root.children)
-    const logged: unknown[] = []
-    const orig = console.error
-    console.error = (...args: unknown[]) => {
-      logged.push(args)
-    }
-    render(<OnComplete content={content} />)
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0))
-    })
-    expect(logged).toHaveLength(1)
-    expect(
-      (useGameStore.getState().gameData as Record<string, unknown>).x
-    ).toBeUndefined()
-    console.error = orig
-  })
 })

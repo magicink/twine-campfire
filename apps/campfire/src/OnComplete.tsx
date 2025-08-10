@@ -11,20 +11,15 @@ export interface OnCompleteProps {
 
 /**
  * Executes serialized directive content when a sequence reaches its final step.
- * Only one instance should be used within a `Sequence`.
+ * Only one instance should be used within a `Sequence`,
+ * though it can also be used independently by manually controlling `run`.
  *
  * @param content - Serialized directive block to process on completion.
- * @param run - Internal flag indicating when to execute.
+ * @param run - Flag indicating when to execute.
  */
 export const OnComplete = ({ content, run }: OnCompleteProps) => {
   const execute = useSerializedDirectiveRunner(content)
   const ranRef = useRef(false)
-
-  useEffect(() => {
-    if (run === undefined) {
-      console.error('OnComplete must be used within a Sequence')
-    }
-  }, [run])
 
   useEffect(() => {
     if (run) {
