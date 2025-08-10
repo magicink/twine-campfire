@@ -120,6 +120,25 @@ describe('Passage lifecycle directives', () => {
     ).toBe(5)
   })
 
+  it('processes if directives inside onExit blocks', async () => {
+    const root = unified()
+      .use(remarkParse)
+      .use(remarkDirective)
+      .parse(':::if[false]\n:set[a=1]\n:::else\n:set[b=2]\n:::') as Root
+    const content = JSON.stringify(root.children)
+    const { unmount } = render(<OnExit content={content} />)
+    act(() => {
+      unmount()
+    })
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    const data = useGameStore.getState().gameData as Record<string, unknown>
+    expect(data.a).toBeUndefined()
+    expect(data.b).toBe(2)
+    expect(useGameStore.getState().errors).toEqual([])
+  })
+
   it('executes onExit directives only once on unmount', async () => {
     const root = unified()
       .use(remarkParse)
@@ -204,7 +223,7 @@ describe('Passage lifecycle directives', () => {
 
     await waitFor(() => {
       expect(useGameStore.getState().errors).toEqual([
-        'onExit only supports data directives: set, setOnce, array, arrayOnce, unset'
+        'onExit only supports directives: set, setOnce, array, arrayOnce, unset, if'
       ])
       expect(logged).toHaveLength(1)
     })

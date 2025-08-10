@@ -41,7 +41,8 @@ const ALLOWED_ONEXIT_DIRECTIVES = new Set([
   'setOnce',
   'array',
   'arrayOnce',
-  'unset'
+  'unset',
+  'if'
 ])
 
 export const useDirectiveHandlers = () => {
@@ -835,7 +836,7 @@ export const useDirectiveHandlers = () => {
     node.type === 'textDirective'
 
   /**
-   * Filters `onExit` directive children to allowed data directives.
+   * Filters `onExit` directive children to allowed directives.
    *
    * @param children - Raw nodes inside the directive.
    * @param allowed - Set of permitted directive names.
@@ -888,7 +889,7 @@ export const useDirectiveHandlers = () => {
     const [filtered, invalid] = filterOnExitChildren(rawChildren, allowed)
     if (invalid) {
       const allowedList = [...allowed].join(', ')
-      const msg = `onExit only supports data directives: ${allowedList}`
+      const msg = `onExit only supports directives: ${allowedList}`
       console.error(msg)
       addError(msg)
     }
