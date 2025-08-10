@@ -22,6 +22,7 @@ import { If } from './If'
 import { Show } from './Show'
 import { OnExit } from './OnExit'
 import { Sequence, Step, Transition } from './Sequence'
+import { OnComplete } from './OnComplete'
 
 const DIRECTIVE_MARKER_PATTERN = '(:::[^\\n]*|:[^\\n]*|<<)'
 
@@ -126,7 +127,8 @@ export const Passage = () => {
             onExit: OnExit,
             sequence: Sequence,
             step: Step,
-            transition: Transition
+            transition: Transition,
+            onComplete: OnComplete
           }
         }),
     [handlers]

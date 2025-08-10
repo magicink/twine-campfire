@@ -964,6 +964,143 @@ export const useDirectiveHandlers = () => {
     return [filtered, invalidOther, bannedFound]
   }
 
+  /**
+   * Converts an `onComplete` directive into an OnComplete component wrapper.
+   *
+   * @param directive - The directive node representing `onComplete`.
+   * @param parent - The parent AST node containing this directive.
+   * @param index - The index of the directive node within its parent.
+   * @returns The index of the inserted component.
+   */
+  const handleOnComplete: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    const container = directive as ContainerDirective
+    const allowed = ALLOWED_ONEXIT_DIRECTIVES
+    const rawChildren = stripLabel(container.children as RootContent[])
+    const [filtered, invalid] = filterDirectiveChildren(rawChildren, allowed)
+    if (invalid) {
+      const allowedList = [...allowed].join(', ')
+      const msg = `onComplete only supports directives: ${allowedList}`
+      console.error(msg)
+      addError(msg)
+    }
+    const content = JSON.stringify(filtered)
+    const node: Parent = {
+      type: 'paragraph',
+      children: [{ type: 'text', value: '' }],
+      data: { hName: 'onComplete', hProperties: { content } }
+    }
+    const newIndex = replaceWithIndentation(directive, parent, index, [
+      node as RootContent
+    ])
+    const markerIndex = newIndex + 1
+    removeDirectiveMarker(parent, markerIndex)
+    return [SKIP, newIndex]
+  }
+
+  /**
+   * Converts `:::step` directive blocks into `<step>` components.
+   * Processes nested directives within the step content.
+   *
+   * @param directive - The `step` directive node.
+   * @param parent - Parent node containing this directive.
+   * @param index - Index of the directive within its parent.
+   * @returns The index of the inserted component.
+   */
+  const handleStep: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    const container = directive as ContainerDirective
+    const children = stripLabel(container.children as RootContent[])
+    runBlock(children)
+    const node: Parent = {
+      type: 'paragraph',
+      children,
+      data: { hName: 'step' }
+    }
+    const newIndex = replaceWithIndentation(directive, parent, index, [
+      node as RootContent
+    ])
+    const markerIndex = newIndex + 1
+    removeDirectiveMarker(parent, markerIndex)
+    return [SKIP, newIndex]
+  }
+
+  /**
+   * Converts `:::transition` directive blocks into `<transition>` components.
+   * Processes nested directives within the transition content.
+   *
+   * @param directive - The `transition` directive node.
+   * @param parent - Parent node containing this directive.
+   * @param index - Index of the directive within its parent.
+   * @returns The index of the inserted component.
+   */
+  const handleTransition: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    const { attrs } = extractAttributes(directive, parent, index, {
+      type: { type: 'string' },
+      duration: { type: 'number' }
+    })
+    const container = directive as ContainerDirective
+    const children = stripLabel(container.children as RootContent[])
+    runBlock(children)
+    const node: Parent = {
+      type: 'paragraph',
+      children,
+      data: { hName: 'transition', hProperties: attrs }
+    }
+    const newIndex = replaceWithIndentation(directive, parent, index, [
+      node as RootContent
+    ])
+    const markerIndex = newIndex + 1
+    removeDirectiveMarker(parent, markerIndex)
+    return [SKIP, newIndex]
+  }
+
+  /**
+   * Converts `:::sequence` directive blocks into `<sequence>` components.
+   * Processes nested directives including steps and completion handlers.
+   *
+   * @param directive - The `sequence` directive node.
+   * @param parent - Parent node containing this directive.
+   * @param index - Index of the directive within its parent.
+   * @returns The index of the inserted component.
+   */
+  const handleSequence: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    const { attrs } = extractAttributes(
+      directive,
+      parent,
+      index,
+      {
+        autoplay: { type: 'boolean' },
+        delay: { type: 'number' },
+        fastForward: { type: 'object' },
+        rewind: { type: 'object' },
+        continueLabel: { type: 'string' },
+        skipLabel: { type: 'string' },
+        rewindLabel: { type: 'string' },
+        continueAriaLabel: { type: 'string' },
+        skipAriaLabel: { type: 'string' },
+        rewindAriaLabel: { type: 'string' }
+      },
+      { state: gameData }
+    )
+    const container = directive as ContainerDirective
+    const children = stripLabel(container.children as RootContent[])
+    runBlock(children)
+    const node: Parent = {
+      type: 'paragraph',
+      children,
+      data: { hName: 'sequence', hProperties: attrs as Properties }
+    }
+    const newIndex = replaceWithIndentation(directive, parent, index, [
+      node as RootContent
+    ])
+    const markerIndex = newIndex + 1
+    removeDirectiveMarker(parent, markerIndex)
+    return [SKIP, newIndex]
+  }
+
   const handleOnExit: DirectiveHandler = (directive, parent, index) => {
     if (!parent || typeof index !== 'number') return
     if (lastPassageIdRef.current !== currentPassageId) {
@@ -1538,6 +1675,10 @@ export const useDirectiveHandlers = () => {
       once: handleOnce,
       batch: handleBatch,
       trigger: handleTrigger,
+      onComplete: handleOnComplete,
+      sequence: handleSequence,
+      step: handleStep,
+      transition: handleTransition,
       onExit: handleOnExit,
       lang: handleLang,
       include: handleInclude,
