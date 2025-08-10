@@ -45,6 +45,17 @@ const ALLOWED_ONEXIT_DIRECTIVES = new Set([
   'if'
 ])
 
+/**
+ * Determines whether a directive node includes a string label.
+ *
+ * @param node - Directive node to examine.
+ * @returns True if the node has a label.
+ */
+const hasLabel = (
+  node: DirectiveNode
+): node is DirectiveNode & { label: string } =>
+  typeof (node as { label?: unknown }).label === 'string'
+
 export const useDirectiveHandlers = () => {
   let state = createStateManager<Record<string, unknown>>()
   let gameData = state.getState()
@@ -151,7 +162,7 @@ export const useDirectiveHandlers = () => {
     index: number | undefined,
     lock = false
   ): DirectiveHandlerResult => {
-    const rawLabel = (directive as { label?: string }).label
+    const rawLabel = hasLabel(directive) ? directive.label : undefined
     const textContent = toString(directive)
     let shorthand: string | undefined
     if (rawLabel && rawLabel.includes('=')) {
@@ -272,7 +283,7 @@ export const useDirectiveHandlers = () => {
     lock = false
   ): DirectiveHandlerResult => {
     const label = (
-      (directive as { label?: string }).label || toString(directive)
+      hasLabel(directive) ? directive.label : toString(directive)
     ).trim()
     const eq = label.indexOf('=')
     if (eq === -1) {
@@ -402,24 +413,33 @@ export const useDirectiveHandlers = () => {
     return index
   }
 
+  /**
+   * Stores a random value in the provided key. Supports selecting a random
+   * item from an array or generating a random integer within a range.
+   *
+   * @param directive - The `random` directive node being processed.
+   * @param parent - The parent AST node containing this directive.
+   * @param index - The index of the directive within its parent.
+   */
   const handleRandom: DirectiveHandler = (directive, parent, index) => {
-    const { attrs, key } = extractAttributes(
+    const label = hasLabel(directive) ? directive.label : toString(directive)
+    const key = ensureKey(label.trim(), parent, index)
+    if (!key) return index
+
+    const { attrs } = extractAttributes(
       directive,
       parent,
       index,
       {
-        key: { type: 'string', required: true },
-        options: { type: 'array' },
         from: { type: 'array' },
         min: { type: 'number' },
         max: { type: 'number' }
       },
-      { state: gameData, keyAttr: 'key' }
+      { state: gameData }
     )
-    if (!key) return index
 
     let value: unknown
-    const optionList = (attrs.options || attrs.from) as unknown[] | undefined
+    const optionList = attrs.from as unknown[] | undefined
     if (optionList && optionList.length) {
       value = getRandomItem(optionList)
     } else {
@@ -991,7 +1011,7 @@ export const useDirectiveHandlers = () => {
       { count: { type: 'number' } },
       { state: gameData }
     )
-    const label = (directive as { label?: string }).label?.trim()
+    const label = hasLabel(directive) ? directive.label.trim() : undefined
     let key = ''
     let ns: string | undefined
     if (label) {
