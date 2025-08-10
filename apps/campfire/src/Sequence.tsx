@@ -4,12 +4,13 @@ import {
   isValidElement,
   useEffect,
   useLayoutEffect,
-  useMemo,
+  useRef,
   useState,
   type CSSProperties,
   type ReactElement,
   type ReactNode
 } from 'react'
+import { OnComplete, type OnCompleteProps } from './OnComplete'
 
 interface StepProps {
   /** Content or render function for the step */
@@ -140,6 +141,8 @@ interface RewindOptions {
  * based on the supplied `fastForward` options. Button text and accessible
  * labels may be customized via `continueLabel`, `skipLabel`,
  * `continueAriaLabel`, and `skipAriaLabel` props.
+ * Accepts at most one `OnComplete` child; if multiple are provided only the
+ * first will run and a warning is logged.
  */
 export const Sequence = ({
   children,
@@ -155,13 +158,20 @@ export const Sequence = ({
   rewindAriaLabel
 }: SequenceProps) => {
   const [index, setIndex] = useState(0)
-  const steps = useMemo(
-    () =>
-      Children.toArray(children).filter(
-        (child): child is ReactElement<StepProps> =>
-          isValidElement(child) && child.type === Step
-      ),
-    [children]
+  const childArray = Children.toArray(children)
+  const completeElements = childArray.filter(
+    (child): child is ReactElement<OnCompleteProps> =>
+      isValidElement(child) && child.type === OnComplete
+  )
+  if (completeElements.length > 1) {
+    console.warn(
+      'Sequence accepts only one <OnComplete> component; additional instances will be ignored.'
+    )
+  }
+  const completeElement = completeElements[0]
+  const steps = childArray.filter(
+    (child): child is ReactElement<StepProps> =>
+      isValidElement(child) && child.type === Step
   )
   const current = steps[index]
   useEffect(() => {
@@ -200,7 +210,19 @@ export const Sequence = ({
     }
   }, [autoplay, delay, index, steps.length])
 
+  /** Tracks whether the completion handler has already executed. */
+  const completeRan = useRef(false)
+
+  useEffect(() => {
+    completeRan.current = false
+  }, [steps.length])
+
   if (!current) return null
+
+  const runComplete = index === steps.length - 1 && !completeRan.current
+  if (runComplete) {
+    completeRan.current = true
+  }
 
   const isInteractive = typeof current.props.children === 'function'
   const showContinue = !autoplay && !isInteractive && index < steps.length - 1
@@ -221,6 +243,7 @@ export const Sequence = ({
         fastForward: handleFastForward,
         rewind: handleRewind
       })}
+      {completeElement && cloneElement(completeElement, { run: runComplete })}
       {showRewind && (
         <button type='button' onClick={handleRewind} aria-label={rewindAria}>
           {rewindLabel}

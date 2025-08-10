@@ -1,6 +1,13 @@
 import { describe, it, expect } from 'bun:test'
 import { render, screen, act } from '@testing-library/react'
 import { Sequence, Step, Transition } from '../src/Sequence'
+import { OnComplete } from '../src/OnComplete'
+import { unified } from 'unified'
+import remarkParse from 'remark-parse'
+import remarkDirective from 'remark-directive'
+import type { Root } from 'mdast'
+import { useGameStore } from '@/packages/use-game-store'
+import { resetStores } from './helpers'
 
 describe('Sequence', () => {
   it('prompts the user to continue when autoplay is false', () => {
@@ -263,5 +270,161 @@ describe('Sequence', () => {
       skipButton.click()
     })
     expect(screen.getByText('Second')).toBeInTheDocument()
+  })
+
+  it('runs OnComplete content when the sequence finishes', async () => {
+    resetStores()
+    const root = unified()
+      .use(remarkParse)
+      .use(remarkDirective)
+      .parse(':set[done=true]') as Root
+    const content = JSON.stringify(root.children)
+    render(
+      <Sequence>
+        <Step>
+          {({ next }) => (
+            <button type='button' onClick={next}>
+              Go
+            </button>
+          )}
+        </Step>
+        <Step>End</Step>
+        <OnComplete content={content} />
+      </Sequence>
+    )
+    const button = screen.getByRole('button', { name: 'Go' })
+    act(() => {
+      button.click()
+    })
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    expect(
+      (useGameStore.getState().gameData as Record<string, unknown>).done
+    ).toBe(true)
+  })
+
+  it('executes OnComplete only once when revisiting the final step', async () => {
+    resetStores()
+    const root = unified()
+      .use(remarkParse)
+      .use(remarkDirective)
+      .parse(':set[count=(count||0)+1]') as Root
+    const content = JSON.stringify(root.children)
+    render(
+      <Sequence rewind={{ enabled: true }}>
+        <Step>
+          {({ next }) => (
+            <button type='button' onClick={next}>
+              Next
+            </button>
+          )}
+        </Step>
+        <Step>End</Step>
+        <OnComplete content={content} />
+      </Sequence>
+    )
+    const next = screen.getByRole('button', { name: 'Next' })
+    act(() => {
+      next.click()
+    })
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    expect(
+      (useGameStore.getState().gameData as Record<string, unknown>).count
+    ).toBe(1)
+    const rewindButton = screen.getByRole('button', {
+      name: 'Rewind to previous step'
+    })
+    act(() => {
+      rewindButton.click()
+    })
+    const nextAgain = screen.getByRole('button', { name: 'Next' })
+    act(() => {
+      nextAgain.click()
+    })
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    expect(
+      (useGameStore.getState().gameData as Record<string, unknown>).count
+    ).toBe(1)
+  })
+
+  it('warns when multiple OnComplete components are provided', async () => {
+    resetStores()
+    const rootA = unified()
+      .use(remarkParse)
+      .use(remarkDirective)
+      .parse(':set[a=1]') as Root
+    const rootB = unified()
+      .use(remarkParse)
+      .use(remarkDirective)
+      .parse(':set[b=1]') as Root
+    const contentA = JSON.stringify(rootA.children)
+    const contentB = JSON.stringify(rootB.children)
+    const logged: unknown[][] = []
+    const orig = console.warn
+    console.warn = (...args: unknown[]) => {
+      logged.push(args)
+    }
+    render(
+      <Sequence>
+        <Step>
+          {({ next }) => (
+            <button type='button' onClick={next}>
+              Next
+            </button>
+          )}
+        </Step>
+        <Step>End</Step>
+        <OnComplete content={contentA} />
+        <OnComplete content={contentB} />
+      </Sequence>
+    )
+    const button = screen.getByRole('button', { name: 'Next' })
+    act(() => {
+      button.click()
+    })
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    expect(
+      logged.some(
+        args =>
+          typeof args[0] === 'string' &&
+          args[0].includes(
+            'Sequence accepts only one <OnComplete> component; additional instances will be ignored.'
+          )
+      )
+    ).toBe(true)
+    const gameData = useGameStore.getState().gameData as Record<string, unknown>
+    expect(gameData.a).toBe(1)
+    expect(gameData.b).toBeUndefined()
+    console.warn = orig
+  })
+
+  it('warns when OnComplete is used outside of Sequence', async () => {
+    resetStores()
+    const root = unified()
+      .use(remarkParse)
+      .use(remarkDirective)
+      .parse(':set[x=1]') as Root
+    const content = JSON.stringify(root.children)
+    const logged: unknown[] = []
+    const orig = console.error
+    console.error = (...args: unknown[]) => {
+      logged.push(args)
+    }
+    render(<OnComplete content={content} />)
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    expect(logged).toHaveLength(1)
+    expect(
+      (useGameStore.getState().gameData as Record<string, unknown>).x
+    ).toBeUndefined()
+    console.error = orig
   })
 })
