@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.46.1](https://github.com/magicink/twine-campfire/compare/v1.46.0...v1.46.1) (2025-08-10)
+
+
+### Bug Fixes
+
+* support if directives in onExit ([#206](https://github.com/magicink/twine-campfire/issues/206)) ([a963d9b](https://github.com/magicink/twine-campfire/commit/a963d9bd66c1e642ab5ff0b31034d10c4f3da212))
+
 ## [1.46.0](https://github.com/magicink/twine-campfire/compare/v1.45.0...v1.46.0) (2025-08-10)
 
 
