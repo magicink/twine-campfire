@@ -94,7 +94,7 @@ ignores the exact indentation:
 
 ### Variables & simple state
 
-Operations that set, update or remove scalar values.
+Operations that set, update, or remove scalar values.
 
 - `random`: Assign a random integer. This directive is leaf-only and cannot wrap
   content.
@@ -112,7 +112,7 @@ Operations that set, update or remove scalar values.
   :set[KEY=VALUE]
   ```
 
-  Replace `KEY` with the key name and `VALUE` with the number, string or
+  Replace `KEY` with the key name and `VALUE` with the number, string, or
   expression to store. Quoted values are treated as strings, `true`/`false` as
   booleans, values wrapped in `{}` as objects, purely numeric values as numbers
   and any other value is evaluated as an expression or state reference.
@@ -156,7 +156,7 @@ Create or modify lists of values.
 
   Replace `ITEMS` with the array name. The directive accepts a single
   `key=[...]` pair where the value is in array notation. Items are
-  automatically converted to strings, numbers or booleans and may include
+  automatically converted to strings, numbers, or booleans and may include
   expressions evaluated against the current state.
 
 - `arrayOnce`: Create an array only if it has not been set.
@@ -331,8 +331,8 @@ Run directives on specific passage events or group actions.
   :::
   ```
 
-  Only one `onExit` block is allowed per passage. Its contents are hidden and it
-  supports only data directives: `set`, `setOnce`, `array`, `arrayOnce`, and
+  Only one `onExit` block is allowed per passage. Its contents are hidden, and it
+  supports only the following directives: `if`, `set`, `setOnce`, `array`, `arrayOnce`, and
   `unset`.
 
 - `trigger`: Render a button that runs directives when clicked.
@@ -488,7 +488,6 @@ markup. These codes help identify and debug issues in story passages.
 | Code  | Meaning                                                            |
 | ----- | ------------------------------------------------------------------ |
 | CF001 | Trigger `label` must be a quoted string. The attribute is ignored. |
-| CF002 | `locale` must be a quoted string. The attribute is ignored.        |
 
 ## Further reading
 
