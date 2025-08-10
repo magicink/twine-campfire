@@ -208,6 +208,67 @@ describe('Passage game state directives', () => {
     useGameStore.setState({ unsetGameData: origUnset })
   })
 
+  it('handles random directives inside batch blocks', async () => {
+    useGameStore.getState().init({})
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':::batch\n:random[roll]{min=1 max=6}\n:::'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      const data = useGameStore.getState().gameData as Record<string, unknown>
+      expect(data.roll).toBeGreaterThanOrEqual(1)
+      expect(data.roll).toBeLessThanOrEqual(6)
+    })
+  })
+
+  it('locks keys with randomOnce inside batch blocks', async () => {
+    useGameStore.getState().init({})
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':::batch\n:randomOnce[foo]{min=1 max=2}\n:::'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      const { gameData, lockedKeys } = useGameStore.getState()
+      const value = (gameData as Record<string, unknown>).foo as number
+      expect([1, 2]).toContain(value)
+      expect(lockedKeys.foo).toBe(true)
+      useGameStore.getState().setGameData({ foo: 5 })
+      expect(
+        (useGameStore.getState().gameData as Record<string, unknown>).foo
+      ).toBe(value)
+    })
+  })
+
   it('ignores nested batch directives', async () => {
     const logged: unknown[] = []
     const orig = console.error
@@ -272,7 +333,7 @@ describe('Passage game state directives', () => {
 
     await waitFor(() => {
       expect(useGameStore.getState().errors).toEqual([
-        'batch only supports directives: set, setOnce, array, arrayOnce, unset, if'
+        'batch only supports directives: set, setOnce, array, arrayOnce, unset, random, randomOnce, if'
       ])
       expect(logged).toHaveLength(1)
     })
@@ -603,6 +664,30 @@ describe('Passage game state directives', () => {
       const { gameData } = useGameStore.getState()
       expect(gameData.roll).toBeGreaterThanOrEqual(1)
       expect(gameData.roll).toBeLessThanOrEqual(6)
+    })
+  })
+
+  it('locks keys with randomOnce directive', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':randomOnce[foo]{min=1 max=2}' }]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      const { gameData, lockedKeys } = useGameStore.getState()
+      const value = (gameData as Record<string, unknown>).foo as number
+      expect([1, 2]).toContain(value)
+      expect(lockedKeys.foo).toBe(true)
+      useGameStore.getState().setGameData({ foo: 5 })
+      expect(
+        (useGameStore.getState().gameData as Record<string, unknown>).foo
+      ).toBe(value)
     })
   })
 

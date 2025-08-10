@@ -140,6 +140,14 @@ Replace `visited` with the key to lock on first use.
   Replace `pick` with the key to store the result and supply either a literal
   array or a state key after `from`.
 
+- `randomOnce`: Assign a random value once and lock the key.
+
+  ```md
+  :randomOnce[roll]{min=1 max=6}
+  ```
+
+  Use this to store a random value that should not change on subsequent runs.
+
 - `unset`: Remove a key from state. This directive is leaf-only and cannot wrap
   content.
 
@@ -329,7 +337,7 @@ Run directives on specific passage events or group actions.
   :::
   ```
 
-  Supports only the following directives: `if`, `set`, `setOnce`, `array`, `arrayOnce`, and `unset`. Nested `batch` directives are not allowed.
+  Supports only the following directives: `if`, `set`, `setOnce`, `array`, `arrayOnce`, `unset`, `random`, and `randomOnce`. Nested `batch` directives are not allowed.
 
 - `onExit`: Run data directives once when leaving the passage.
 
@@ -340,8 +348,8 @@ Run directives on specific passage events or group actions.
   ```
 
   Only one `onExit` block is allowed per passage. Its contents are hidden, and it
-  supports only the following directives: `if`, `set`, `setOnce`, `array`, `arrayOnce`, `unset`, and
-  `batch`.
+  supports only the following directives: `if`, `set`, `setOnce`, `array`, `arrayOnce`, `unset`, `random`,
+  `randomOnce`, and `batch`.
 
 - `trigger`: Render a button that runs directives when clicked.
 

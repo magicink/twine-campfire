@@ -158,6 +158,47 @@ describe('Passage lifecycle directives', () => {
     expect(useGameStore.getState().errors).toEqual([])
   })
 
+  it('handles random directives inside onExit blocks', async () => {
+    const root = unified()
+      .use(remarkParse)
+      .use(remarkDirective)
+      .parse(':random[roll]{min=1 max=6}') as Root
+    const content = JSON.stringify(root.children)
+    const { unmount } = render(<OnExit content={content} />)
+    act(() => {
+      unmount()
+    })
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    const data = useGameStore.getState().gameData as Record<string, unknown>
+    expect(data.roll).toBeGreaterThanOrEqual(1)
+    expect(data.roll).toBeLessThanOrEqual(6)
+  })
+
+  it('locks keys with randomOnce inside onExit blocks', async () => {
+    const root = unified()
+      .use(remarkParse)
+      .use(remarkDirective)
+      .parse(':randomOnce[foo]{min=1 max=2}') as Root
+    const content = JSON.stringify(root.children)
+    const { unmount } = render(<OnExit content={content} />)
+    act(() => {
+      unmount()
+    })
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    const { gameData, lockedKeys } = useGameStore.getState()
+    const value = (gameData as Record<string, unknown>).foo as number
+    expect([1, 2]).toContain(value)
+    expect(lockedKeys.foo).toBe(true)
+    useGameStore.getState().setGameData({ foo: 99 })
+    expect(
+      (useGameStore.getState().gameData as Record<string, unknown>).foo
+    ).toBe(value)
+  })
+
   it('does not render stray colons when batch is inside onExit', async () => {
     const passage: Element = {
       type: 'element',
@@ -261,7 +302,7 @@ describe('Passage lifecycle directives', () => {
 
     await waitFor(() => {
       expect(useGameStore.getState().errors).toEqual([
-        'onExit only supports directives: set, setOnce, array, arrayOnce, unset, if, batch'
+        'onExit only supports directives: set, setOnce, array, arrayOnce, unset, random, randomOnce, if, batch'
       ])
       expect(logged).toHaveLength(1)
     })
