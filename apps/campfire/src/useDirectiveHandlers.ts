@@ -50,6 +50,9 @@ const ALLOWED_BATCH_DIRECTIVES = new Set(
 )
 const BANNED_BATCH_DIRECTIVES = new Set(['batch'])
 
+/** Marker inserted to close directive blocks. */
+const DIRECTIVE_MARKER = ':::'
+
 /**
  * Determines whether a directive node includes a string label.
  *
@@ -697,7 +700,7 @@ export const useDirectiveHandlers = () => {
           marker.type === 'paragraph' &&
           marker.children.length === 1 &&
           isTextNode(marker.children[0]) &&
-          marker.children[0].value.trim() === ':::'
+          marker.children[0].value.trim() === DIRECTIVE_MARKER
         ) {
           parent.children.splice(markerIndex, 1)
         }
@@ -724,7 +727,7 @@ export const useDirectiveHandlers = () => {
       next.type === 'paragraph' &&
       next.children.length === 1 &&
       isTextNode(next.children[0]) &&
-      next.children[0].value.trim() === ':::'
+      next.children[0].value.trim() === DIRECTIVE_MARKER
     ) {
       parent.children.splice(markerIndex, 1)
     }
@@ -746,7 +749,7 @@ export const useDirectiveHandlers = () => {
       next.type === 'paragraph' &&
       next.children.length === 1 &&
       isTextNode(next.children[0]) &&
-      next.children[0].value.trim() === ':::'
+      next.children[0].value.trim() === DIRECTIVE_MARKER
     ) {
       parent.children.splice(markerIndex, 1)
     }
@@ -986,15 +989,18 @@ export const useDirectiveHandlers = () => {
     const newIndex = replaceWithIndentation(directive, parent, index, [
       node as RootContent
     ])
-    const next = parent.children[newIndex + 1]
-    if (
-      next &&
-      next.type === 'paragraph' &&
-      next.children.length === 1 &&
-      next.children[0].type === 'text' &&
-      next.children[0].value.trim() === ':::'
-    ) {
-      parent.children.splice(newIndex + 1, 1)
+    const markerIndex = newIndex + 1
+    if (markerIndex < parent.children.length) {
+      const next = parent.children[markerIndex]
+      if (
+        next &&
+        next.type === 'paragraph' &&
+        next.children.length === 1 &&
+        next.children[0].type === 'text' &&
+        next.children[0].value.trim() === DIRECTIVE_MARKER
+      ) {
+        parent.children.splice(markerIndex, 1)
+      }
     }
     return [SKIP, newIndex]
   }
