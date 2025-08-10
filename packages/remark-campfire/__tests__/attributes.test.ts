@@ -38,6 +38,11 @@ describe('remarkCampfire attribute parsing', () => {
     expect(node?.attributes).toEqual({ items: "1,'two'" })
   })
 
+  it('parses attribute values containing brackets', () => {
+    const node = parseDirective(":test{items=['one','two']}")
+    expect(node?.attributes).toEqual({ items: "['one','two']" })
+  })
+
   it('ignores attributes with unsafe characters', () => {
     const node = parseDirective(":test{items=1,'<script>'}")
     expect(node?.attributes).toEqual({})

@@ -497,6 +497,24 @@ describe('Passage game state directives', () => {
     })
   })
 
+  it('handles string arrays in random directive', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ":random[pick]{from=['a','b','c']}" }]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      const { gameData } = useGameStore.getState()
+      expect(['a', 'b', 'c']).toContain(gameData.pick)
+    })
+  })
+
   it('stores a random integer within bounds with random directive', async () => {
     const passage: Element = {
       type: 'element',

@@ -90,7 +90,7 @@ const parseFallbackAttributes = (
   const match = textNode.value.match(/^\{([\w-]+)=([^}]*)\}$/)
   if (match) {
     const [, name, raw] = match
-    if (/^[\w\s.,'"`-]*$/.test(raw)) {
+    if (/^[\w\s.,'"`\[\]-]*$/.test(raw)) {
       directive.attributes = { [name]: raw }
       parent.children.splice(index + 1, 1)
     } else {
