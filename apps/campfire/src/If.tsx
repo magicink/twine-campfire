@@ -1,5 +1,5 @@
 import { useMemo, type ReactNode } from 'react'
-import * as runtime from 'react/jsx-runtime'
+import { Fragment, jsx, jsxs } from 'react/jsx-runtime'
 import { unified } from 'unified'
 import remarkGfm from 'remark-gfm'
 import remarkCampfire from '@/packages/remark-campfire'
@@ -35,9 +35,9 @@ export const If = ({ test, content, fallback }: IfProps) => {
       .use(remarkRehype)
       .use(rehypeCampfire)
       .use(rehypeReact, {
-        Fragment: runtime.Fragment,
-        jsx: runtime.jsx,
-        jsxs: runtime.jsxs,
+        Fragment,
+        jsx,
+        jsxs,
         components: {
           button: LinkButton,
           trigger: TriggerButton,
