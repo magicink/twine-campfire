@@ -7,33 +7,34 @@ import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
 import remarkDirective from 'remark-directive'
-import remarkCampfire, {
-  remarkCampfireIndentation
-} from '@/packages/remark-campfire'
-import type { Text as MdText, Parent, RootContent, Root } from 'mdast'
-import type { Node } from 'unist'
-import type { Text as HastText, ElementContent, Properties } from 'hast'
-import type { ContainerDirective } from 'mdast-util-directive'
-import { useStoryDataStore } from '@/packages/use-story-data-store'
-import { useGameStore, type Checkpoint } from '@/packages/use-game-store'
-import { markTitleOverridden } from './titleState'
-import {
-  parseNumericValue,
-  getRandomItem,
-  getRandomInt,
-  ensureKey,
-  removeNode,
-  type DirectiveNode,
-  getLabel,
-  stripLabel,
-  extractAttributes
-} from './directives/helpers'
-import { getTranslationOptions } from './i18n'
 import type {
   DirectiveHandler,
   DirectiveHandlerResult
 } from '@/packages/remark-campfire'
+import remarkCampfire, {
+  remarkCampfireIndentation
+} from '@/packages/remark-campfire'
+import type { Parent, Root, RootContent, Text as MdText } from 'mdast'
+import type { Node } from 'unist'
+import type { ElementContent, Properties, Text as HastText } from 'hast'
+import type { ContainerDirective } from 'mdast-util-directive'
+import { useStoryDataStore } from '@/packages/use-story-data-store'
+import { type Checkpoint, useGameStore } from '@/packages/use-game-store'
+import { markTitleOverridden } from './titleState'
+import {
+  type DirectiveNode,
+  ensureKey,
+  extractAttributes,
+  getLabel,
+  getRandomInt,
+  getRandomItem,
+  parseNumericValue,
+  removeNode,
+  stripLabel
+} from './directives/helpers'
+import { getTranslationOptions } from './i18n'
 import { createStateManager } from './stateManager'
+
 const QUOTE_PATTERN = /^(['"`])(.*)\1$/
 const NUMERIC_PATTERN = /^\d+$/
 const ALLOWED_ONEXIT_DIRECTIVES = new Set([
@@ -90,7 +91,6 @@ export const useDirectiveHandlers = () => {
   const getPassageById = useStoryDataStore(state => state.getPassageById)
   const getPassageByName = useStoryDataStore(state => state.getPassageByName)
   const handlersRef = useRef<Record<string, DirectiveHandler>>({})
-  const storeCheckpoints = useGameStore(state => state.checkpoints)
   const checkpointIdRef = useRef<string | null>(null)
   const checkpointErrorRef = useRef(false)
   const onExitSeenRef = useRef(false)
@@ -253,7 +253,7 @@ export const useDirectiveHandlers = () => {
      * @returns An array of `key=value` pairs.
      */
     const extractPairs = (input: string): string[] =>
-      input.match(/[^\s]+=\s*[^]+?(?=(?:\s+[^\s]+=)|$)/g) || []
+      input.match(/\S+=\s*[^]+?(?=\s+\S+=|$)/g) || []
 
     if (shorthand) {
       for (const part of extractPairs(shorthand)) {
@@ -452,7 +452,7 @@ export const useDirectiveHandlers = () => {
       value = getRandomItem(optionList)
     } else {
       const { min, max } = attrs
-      if (typeof min === 'number' && typeof max === 'number') {
+      if (typeof min !== 'undefined' && typeof max !== 'undefined') {
         value = getRandomInt(min, max)
       }
     }
@@ -1129,10 +1129,9 @@ export const useDirectiveHandlers = () => {
           parent.children.splice(index, 2)
           return index - 1
         }
-        const newIndex = replaceWithIndentation(directive, parent, index, [
+        return replaceWithIndentation(directive, parent, index, [
           { type: 'text', value: text }
         ])
-        return newIndex
       }
       const props: Properties = { 'data-i18n-key': key }
       if (ns) props['data-i18n-ns'] = ns
@@ -1142,8 +1141,7 @@ export const useDirectiveHandlers = () => {
         value: '0', // non-empty placeholder required for mdast conversion
         data: { hName: 'show', hProperties: props }
       }
-      const newIndex = replaceWithIndentation(directive, parent, index, [node])
-      return newIndex
+      return replaceWithIndentation(directive, parent, index, [node])
     }
     return index
   }
