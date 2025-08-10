@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.48.0](https://github.com/magicink/twine-campfire/compare/v1.47.0...v1.48.0) (2025-08-10)
+
+
+### Features
+
+* replace react with preact ([#213](https://github.com/magicink/twine-campfire/issues/213)) ([6f9d03a](https://github.com/magicink/twine-campfire/commit/6f9d03a7485655d1d09a68ca3989806edf9a3f29))
+
 ## [1.47.0](https://github.com/magicink/twine-campfire/compare/v1.46.1...v1.47.0) (2025-08-10)
 
 
