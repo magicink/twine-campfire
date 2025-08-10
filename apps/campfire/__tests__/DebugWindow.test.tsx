@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, mock } from 'bun:test'
-import { render, screen, act } from '@testing-library/react'
+import { render, screen, act } from '@testing-library/preact'
 import { DebugWindow } from '../src/DebugWindow'
 import { useStoryDataStore } from '@/packages/use-story-data-store'
 import { useGameStore } from '@/packages/use-game-store'

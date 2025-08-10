@@ -1,26 +1,23 @@
 import {
-  Children,
   cloneElement,
   isValidElement,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-  type ReactElement,
-  type ReactNode
-} from 'react'
+  toChildArray,
+  type ComponentChildren,
+  type VNode,
+  type JSX
+} from 'preact'
+import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks'
 import { OnComplete, type OnCompleteProps } from './OnComplete'
 
 interface StepProps {
   /** Content or render function for the step */
   children:
-    | ReactNode
+    | ComponentChildren
     | ((controls: {
         next: () => void
         fastForward: () => void
         rewind: () => void
-      }) => ReactNode)
+      }) => ComponentChildren)
   /** Callback to advance to the next step. Supplied by Sequence. */
   next?: () => void
   /** Callback to fast-forward the sequence. Supplied by Sequence. */
@@ -43,7 +40,7 @@ export const Step = ({ children, next, fastForward, rewind }: StepProps) => {
             next: () => void
             fastForward: () => void
             rewind: () => void
-          }) => ReactNode
+          }) => ComponentChildren
         )({
           next: next ?? (() => {}),
           fastForward: fastForward ?? (() => {}),
@@ -61,7 +58,7 @@ interface TransitionProps {
   /** Duration of the transition in milliseconds */
   duration?: number
   /** Content to render with the transition */
-  children: ReactNode
+  children: ComponentChildren
 }
 
 /**
@@ -77,7 +74,7 @@ export const Transition = ({
     const id = requestAnimationFrame(() => setVisible(true))
     return () => cancelAnimationFrame(id)
   }, [])
-  const style: CSSProperties =
+  const style: JSX.CSSProperties =
     type === 'fade-in'
       ? {
           transition: `opacity ${duration}ms ease-in`,
@@ -93,7 +90,7 @@ export const Transition = ({
 
 interface SequenceProps {
   /** Collection of Step elements */
-  children: ReactNode
+  children: ComponentChildren
   /** Automatically advance through steps without user interaction */
   autoplay?: boolean
   /** Delay in milliseconds between automatic steps. Only used when autoplay is true */
@@ -158,11 +155,12 @@ export const Sequence = ({
   rewindAriaLabel
 }: SequenceProps) => {
   const [index, setIndex] = useState(0)
-  const childArray = Children.toArray(children)
-  const completeElements = childArray.filter(
-    (child): child is ReactElement<OnCompleteProps> =>
-      isValidElement(child) && child.type === OnComplete
+  const childArray = toChildArray(children).filter((child): child is VNode =>
+    isValidElement(child)
   )
+  const completeElements = childArray.filter(
+    child => child.type === OnComplete
+  ) as VNode<OnCompleteProps>[]
   if (completeElements.length > 1) {
     console.warn(
       'Sequence accepts only one <OnComplete> component; additional instances will be ignored.'
@@ -170,9 +168,8 @@ export const Sequence = ({
   }
   const completeElement = completeElements[0]
   const steps = childArray.filter(
-    (child): child is ReactElement<StepProps> =>
-      isValidElement(child) && child.type === Step
-  )
+    child => child.type === Step
+  ) as VNode<StepProps>[]
   const current = steps[index]
   useEffect(() => {
     setIndex(0)

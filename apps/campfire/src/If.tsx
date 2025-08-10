@@ -1,5 +1,6 @@
-import { useMemo, type ReactNode } from 'react'
-import { Fragment, jsx, jsxs } from 'react/jsx-runtime'
+import { useMemo } from 'preact/hooks'
+import { Fragment, jsx, jsxs } from 'preact/jsx-runtime'
+import type { ComponentChild } from 'preact'
 import { unified } from 'unified'
 import remarkGfm from 'remark-gfm'
 import remarkCampfire from '@/packages/remark-campfire'
@@ -74,5 +75,5 @@ export const If = ({ test, content, fallback }: IfProps) => {
   const nodes: RootContent[] = JSON.parse(source)
   const root: Root = { type: 'root', children: nodes }
   const result = processor.processSync(root)
-  return result.result as ReactNode
+  return result.result as ComponentChild
 }

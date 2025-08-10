@@ -1,10 +1,10 @@
-import type { ButtonHTMLAttributes } from 'react'
+import type { JSX } from 'preact'
 import {
   useStoryDataStore,
   type StoryDataState
 } from '@/packages/use-story-data-store'
 
-interface LinkButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface LinkButtonProps extends JSX.HTMLAttributes<HTMLButtonElement> {
   'data-pid'?: string
   'data-name'?: string
 }
