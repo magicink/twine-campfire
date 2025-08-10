@@ -33,7 +33,7 @@ import {
   stripLabel
 } from './directives/helpers'
 import { getTranslationOptions } from './i18n'
-import { createStateManager } from './stateManager'
+import { createStateManager, type SetOptions } from './stateManager'
 
 const QUOTE_PATTERN = /^(['"`])(.*)\1$/
 const NUMERIC_PATTERN = /^\d+$/
@@ -265,10 +265,8 @@ export const useDirectiveHandlers = () => {
 
     if (Object.keys(safe).length > 0) {
       for (const [k, v] of Object.entries(safe)) {
-        state.setValue(k, v, { lock })
+        setValue(k, v, { lock })
       }
-      gameData = state.getState()
-      lockedKeys = state.getLockedKeys()
     }
 
     if (parent && typeof index === 'number') {
@@ -392,9 +390,7 @@ export const useDirectiveHandlers = () => {
       items = splitItems(inner).map(parseItem)
     }
 
-    state.setValue(key, items, { lock })
-    gameData = state.getState()
-    lockedKeys = state.getLockedKeys()
+    setValue(key, items, { lock })
 
     return removeNode(parent, index)
   }
@@ -467,9 +463,7 @@ export const useDirectiveHandlers = () => {
     }
 
     if (value !== undefined) {
-      state.setValue(key, value, { lock })
-      gameData = state.getState()
-      lockedKeys = state.getLockedKeys()
+      setValue(key, value, { lock })
     }
 
     const removed = removeNode(parent, index)
@@ -505,9 +499,10 @@ export const useDirectiveHandlers = () => {
    *
    * @param path - Dot separated path where the value should be stored.
    * @param value - The value to assign at the provided path.
+   * @param opts - Additional options controlling assignment behavior.
    */
-  const setValue = (path: string, value: unknown) => {
-    state.setValue(path, value)
+  const setValue = (path: string, value: unknown, opts: SetOptions = {}) => {
+    state.setValue(path, value, opts)
     gameData = state.getState()
     lockedKeys = state.getLockedKeys()
     onceKeys = state.getOnceKeys()
