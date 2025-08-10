@@ -43,6 +43,8 @@ const ALLOWED_ONEXIT_DIRECTIVES = new Set([
   'array',
   'arrayOnce',
   'unset',
+  'random',
+  'randomOnce',
   'if',
   'batch'
 ])
@@ -424,12 +426,19 @@ export const useDirectiveHandlers = () => {
   /**
    * Stores a random value in the provided key. Supports selecting a random
    * item from an array or generating a random integer within a range.
+   * Optionally locks the key to prevent further modification.
    *
    * @param directive - The `random` directive node being processed.
    * @param parent - The parent AST node containing this directive.
    * @param index - The index of the directive within its parent.
+   * @param lock - When true, locks the key after setting its value.
    */
-  const handleRandom: DirectiveHandler = (directive, parent, index) => {
+  const handleRandom = (
+    directive: DirectiveNode,
+    parent: Parent | undefined,
+    index: number | undefined,
+    lock = false
+  ): DirectiveHandlerResult => {
     const label = hasLabel(directive) ? directive.label : toString(directive)
     const key = ensureKey(label.trim(), parent, index)
     if (!key) return index
@@ -458,7 +467,9 @@ export const useDirectiveHandlers = () => {
     }
 
     if (value !== undefined) {
-      setValue(key, value)
+      state.setValue(key, value, { lock })
+      gameData = state.getState()
+      lockedKeys = state.getLockedKeys()
     }
 
     const removed = removeNode(parent, index)
@@ -1515,6 +1526,11 @@ export const useDirectiveHandlers = () => {
       ) => handleArray(d, p, i, true),
       show: handleShow,
       random: handleRandom,
+      randomOnce: (
+        d: DirectiveNode,
+        p: Parent | undefined,
+        i: number | undefined
+      ) => handleRandom(d, p, i, true),
       pop: handlePop,
       push: handlePush,
       shift: handleShift,
