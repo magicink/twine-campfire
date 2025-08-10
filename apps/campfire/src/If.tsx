@@ -13,6 +13,7 @@ import { useDirectiveHandlers } from './useDirectiveHandlers'
 import { LinkButton } from './LinkButton'
 import { TriggerButton } from './TriggerButton'
 import { Show } from './Show'
+import { OnExit } from './OnExit'
 import { Sequence, Step, Transition } from './Sequence'
 
 interface IfProps {
@@ -45,6 +46,7 @@ export const If = ({ test, content, fallback }: IfProps) => {
           trigger: TriggerButton,
           if: If,
           show: Show,
+          onExit: OnExit,
           sequence: Sequence,
           step: Step,
           transition: Transition

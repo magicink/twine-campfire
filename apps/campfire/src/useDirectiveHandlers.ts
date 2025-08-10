@@ -11,6 +11,7 @@ import remarkCampfire, {
   remarkCampfireIndentation
 } from '@/packages/remark-campfire'
 import type { Text as MdText, Parent, RootContent, Root } from 'mdast'
+import type { Node } from 'unist'
 import type { Text as HastText, ElementContent, Properties } from 'hast'
 import type { ContainerDirective } from 'mdast-util-directive'
 import { useStoryDataStore } from '@/packages/use-story-data-store'
@@ -35,6 +36,13 @@ import type {
 import { createStateManager } from './stateManager'
 const QUOTE_PATTERN = /^(['"`])(.*)\1$/
 const NUMERIC_PATTERN = /^\d+$/
+const ALLOWED_ONEXIT_DIRECTIVES = new Set([
+  'set',
+  'setOnce',
+  'array',
+  'arrayOnce',
+  'unset'
+])
 
 export const useDirectiveHandlers = () => {
   let state = createStateManager<Record<string, unknown>>()
@@ -65,6 +73,8 @@ export const useDirectiveHandlers = () => {
   const storeCheckpoints = useGameStore(state => state.checkpoints)
   const checkpointIdRef = useRef<string | null>(null)
   const checkpointErrorRef = useRef(false)
+  const onExitSeenRef = useRef(false)
+  const onExitErrorRef = useRef(false)
   const lastPassageIdRef = useRef<string | undefined>(undefined)
 
   const MAX_INCLUDE_DEPTH = 10
@@ -108,17 +118,20 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
-   * Resets the checkpoint state by clearing the current checkpoint ID and error flag,
-   * and updating the lastPassageIdRef to the current passage ID.
+   * Resets per-passage directive state such as checkpoints and onExit usage.
+   * Clears existing checkpoint identifiers and error flags, resets OnExit tracking,
+   * and updates the last processed passage identifier.
    */
-  const resetCheckpointState = () => {
+  const resetDirectiveState = () => {
     checkpointIdRef.current = null
     checkpointErrorRef.current = false
+    onExitSeenRef.current = false
+    onExitErrorRef.current = false
     lastPassageIdRef.current = currentPassageId
   }
 
   useEffect(() => {
-    resetCheckpointState()
+    resetDirectiveState()
   }, [currentPassageId])
 
   /**
@@ -803,6 +816,95 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
+   * Converts an `onExit` directive into an OnExit component wrapper.
+   *
+   * @param directive - The directive node representing `onExit`.
+   * @param parent - The parent AST node containing this directive.
+   * @param index - The index of the directive node within its parent.
+   * @returns The index of the inserted component.
+   */
+  /**
+   * Determines whether a node is a directive node.
+   *
+   * @param node - Node to inspect.
+   * @returns True if the node is a directive node.
+   */
+  const isDirectiveNode = (node: Node): node is DirectiveNode =>
+    node.type === 'leafDirective' ||
+    node.type === 'containerDirective' ||
+    node.type === 'textDirective'
+
+  /**
+   * Filters `onExit` directive children to allowed data directives.
+   *
+   * @param children - Raw nodes inside the directive.
+   * @param allowed - Set of permitted directive names.
+   * @returns Filtered nodes and a flag indicating invalid content.
+   */
+  const filterOnExitChildren = (
+    children: RootContent[],
+    allowed: Set<string>
+  ): [RootContent[], boolean] => {
+    let invalid = false
+    const filtered = children.filter(child => {
+      if (child.type === 'text') {
+        return toString(child).trim().length > 0
+      }
+      if (isDirectiveNode(child)) {
+        if (allowed.has(child.name)) return true
+        invalid = true
+        return false
+      }
+      if (child.type === 'paragraph' && child.children.length === 1) {
+        const first = child.children[0]
+        if (isDirectiveNode(first) && allowed.has(first.name)) return true
+      }
+      invalid = true
+      return false
+    })
+    return [filtered, invalid]
+  }
+
+  const handleOnExit: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    if (lastPassageIdRef.current !== currentPassageId) {
+      resetDirectiveState()
+    }
+    if (onExitErrorRef.current) {
+      return removeNode(parent, index)
+    }
+    if (onExitSeenRef.current) {
+      onExitErrorRef.current = true
+      const msg =
+        'Multiple onExit directives in a single passage are not allowed'
+      console.error(msg)
+      addError(msg)
+      return removeNode(parent, index)
+    }
+    onExitSeenRef.current = true
+    const container = directive as ContainerDirective
+    const allowed = ALLOWED_ONEXIT_DIRECTIVES
+    const rawChildren = stripLabel(container.children as RootContent[])
+    const [filtered, invalid] = filterOnExitChildren(rawChildren, allowed)
+    if (invalid) {
+      const allowedList = [...allowed].join(', ')
+      const msg = `onExit only supports data directives: ${allowedList}`
+      console.error(msg)
+      addError(msg)
+    }
+    const content = JSON.stringify(filtered)
+    const node: Parent = {
+      type: 'paragraph',
+      children: [{ type: 'text', value: '' }],
+      data: { hName: 'onExit', hProperties: { content } }
+    }
+    const newIndex = replaceWithIndentation(directive, parent, index, [
+      node as RootContent
+    ])
+    return [SKIP, newIndex]
+  }
+
+  /**
    * Switches the active locale using `:lang[locale]`.
    *
    * @param directive - Directive node specifying the locale.
@@ -1139,7 +1241,7 @@ export const useDirectiveHandlers = () => {
 
   const handleCheckpoint: DirectiveHandler = (directive, parent, index) => {
     if (lastPassageIdRef.current !== currentPassageId) {
-      resetCheckpointState()
+      resetDirectiveState()
     }
     if (includeDepth > 0) return removeNode(parent, index)
     const attrs = (directive.attributes || {}) as Record<string, unknown>
@@ -1332,6 +1434,7 @@ export const useDirectiveHandlers = () => {
       once: handleOnce,
       batch: handleBatch,
       trigger: handleTrigger,
+      onExit: handleOnExit,
       lang: handleLang,
       include: handleInclude,
       title: handleTitle,
