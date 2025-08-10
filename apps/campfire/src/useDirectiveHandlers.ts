@@ -986,6 +986,16 @@ export const useDirectiveHandlers = () => {
     const newIndex = replaceWithIndentation(directive, parent, index, [
       node as RootContent
     ])
+    const next = parent.children[newIndex + 1]
+    if (
+      next &&
+      next.type === 'paragraph' &&
+      next.children.length === 1 &&
+      next.children[0].type === 'text' &&
+      next.children[0].value.trim() === ':::'
+    ) {
+      parent.children.splice(newIndex + 1, 1)
+    }
     return [SKIP, newIndex]
   }
 

@@ -158,6 +158,29 @@ describe('Passage lifecycle directives', () => {
     expect(useGameStore.getState().errors).toEqual([])
   })
 
+  it('does not render stray colons when batch is inside onExit', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: 'Visible\n:::onExit\n:::batch\n:set[a=1]\n:::\n:::\n'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+    await screen.findByText('Visible')
+    expect(screen.queryByText(':::')).toBeNull()
+  })
+
   it('executes onExit directives only once on unmount', async () => {
     const root = unified()
       .use(remarkParse)
