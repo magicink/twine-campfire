@@ -329,7 +329,7 @@ Run directives on specific passage events or group actions.
   :::
   ```
 
-  Replace values as needed.
+  Supports only the following directives: `if`, `set`, `setOnce`, `array`, `arrayOnce`, and `unset`. Nested `batch` directives are not allowed.
 
 - `onExit`: Run data directives once when leaving the passage.
 
