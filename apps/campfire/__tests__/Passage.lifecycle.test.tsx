@@ -138,6 +138,25 @@ describe('Passage lifecycle directives', () => {
     expect(useGameStore.getState().errors).toEqual([])
   })
 
+  it('runs batch directives inside onExit blocks', async () => {
+    const root = unified()
+      .use(remarkParse)
+      .use(remarkDirective)
+      .parse(':::batch\n:set[a=1]\n:push{key=items value=sword}\n:::') as Root
+    const content = JSON.stringify(root.children)
+    const { unmount } = render(<OnExit content={content} />)
+    act(() => {
+      unmount()
+    })
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    const data = useGameStore.getState().gameData as Record<string, unknown>
+    expect(data.a).toBe(1)
+    expect(data.items).toEqual(['sword'])
+    expect(useGameStore.getState().errors).toEqual([])
+  })
+
   it('executes onExit directives only once on unmount', async () => {
     const root = unified()
       .use(remarkParse)
@@ -218,7 +237,7 @@ describe('Passage lifecycle directives', () => {
 
     await waitFor(() => {
       expect(useGameStore.getState().errors).toEqual([
-        'onExit only supports directives: set, setOnce, array, arrayOnce, unset, if'
+        'onExit only supports directives: set, setOnce, array, arrayOnce, unset, if, batch'
       ])
       expect(logged).toHaveLength(1)
     })
