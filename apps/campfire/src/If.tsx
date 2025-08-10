@@ -1,6 +1,5 @@
 import { useMemo, type ReactNode } from 'react'
 import * as runtime from 'react/jsx-runtime'
-import { jsxDEV } from 'react/jsx-dev-runtime'
 import { unified } from 'unified'
 import remarkGfm from 'remark-gfm'
 import remarkCampfire from '@/packages/remark-campfire'
@@ -39,8 +38,6 @@ export const If = ({ test, content, fallback }: IfProps) => {
         Fragment: runtime.Fragment,
         jsx: runtime.jsx,
         jsxs: runtime.jsxs,
-        jsxDEV,
-        development: process.env.NODE_ENV === 'development',
         components: {
           button: LinkButton,
           trigger: TriggerButton,
