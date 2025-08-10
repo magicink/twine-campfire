@@ -209,6 +209,12 @@ describe('Passage game state directives', () => {
   })
 
   it('ignores nested batch directives', async () => {
+    const logged: unknown[] = []
+    const orig = console.error
+    console.error = (...args: unknown[]) => {
+      logged.push(args)
+    }
+
     useGameStore.getState().init({})
     const passage: Element = {
       type: 'element',
@@ -229,11 +235,49 @@ describe('Passage game state directives', () => {
 
     render(<Passage />)
 
-    await waitFor(() =>
+    await waitFor(() => {
       expect(
         (useGameStore.getState().gameData as Record<string, unknown>).a
       ).toBe(1)
-    )
+      expect(useGameStore.getState().errors).toEqual([
+        'Nested batch directives are not allowed'
+      ])
+      expect(logged).toHaveLength(1)
+    })
+
+    console.error = orig
+  })
+
+  it('logs error for non-data directives in batch blocks', async () => {
+    const logged: unknown[] = []
+    const orig = console.error
+    console.error = (...args: unknown[]) => {
+      logged.push(args)
+    }
+
+    useGameStore.getState().init({})
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':::batch\n:goto[Two]\n:::' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(useGameStore.getState().errors).toEqual([
+        'batch only supports directives: set, setOnce, array, arrayOnce, unset, if'
+      ])
+      expect(logged).toHaveLength(1)
+    })
+
+    console.error = orig
   })
   it('locks keys with setOnce', async () => {
     const passage: Element = {

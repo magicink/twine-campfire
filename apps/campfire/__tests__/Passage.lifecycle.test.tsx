@@ -139,10 +139,11 @@ describe('Passage lifecycle directives', () => {
   })
 
   it('runs batch directives inside onExit blocks', async () => {
+    useGameStore.getState().setGameData({ old: true })
     const root = unified()
       .use(remarkParse)
       .use(remarkDirective)
-      .parse(':::batch\n:set[a=1]\n:push{key=items value=sword}\n:::') as Root
+      .parse(':::batch\n:set[a=1]\n:unset{key=old}\n:::') as Root
     const content = JSON.stringify(root.children)
     const { unmount } = render(<OnExit content={content} />)
     act(() => {
@@ -153,7 +154,7 @@ describe('Passage lifecycle directives', () => {
     })
     const data = useGameStore.getState().gameData as Record<string, unknown>
     expect(data.a).toBe(1)
-    expect(data.items).toEqual(['sword'])
+    expect('old' in data).toBe(false)
     expect(useGameStore.getState().errors).toEqual([])
   })
 

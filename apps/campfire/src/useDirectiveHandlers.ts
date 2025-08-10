@@ -45,6 +45,10 @@ const ALLOWED_ONEXIT_DIRECTIVES = new Set([
   'if',
   'batch'
 ])
+const ALLOWED_BATCH_DIRECTIVES = new Set(
+  [...ALLOWED_ONEXIT_DIRECTIVES].filter(name => name !== 'batch')
+)
+const BANNED_BATCH_DIRECTIVES = new Set(['batch'])
 
 /**
  * Determines whether a directive node includes a string label.
@@ -772,7 +776,7 @@ export const useDirectiveHandlers = () => {
   /**
    * Executes a block of directives against a temporary state and commits
    * the resulting changes in a single update.
-   * Nested batch directives are ignored.
+   * Only data directives are allowed; nested batch directives are not supported.
    */
   const handleBatch: DirectiveHandler = (directive, parent, index) => {
     if (!parent || typeof index !== 'number') return
@@ -783,11 +787,28 @@ export const useDirectiveHandlers = () => {
       const msg = 'Nested batch directives are not allowed'
       console.error(msg)
       addError(msg)
-      parent.children.splice(index, 1)
-      return index
+      return [SKIP, removeNode(parent, index) ?? index]
     }
+
     const container = directive as ContainerDirective
-    const content = stripLabel(container.children as RootContent[])
+    const allowed = ALLOWED_BATCH_DIRECTIVES
+    const rawChildren = stripLabel(container.children as RootContent[])
+    const [filtered, invalid, nested] = filterDirectiveChildren(
+      rawChildren,
+      allowed,
+      BANNED_BATCH_DIRECTIVES
+    )
+    if (nested) {
+      const msg = 'Nested batch directives are not allowed'
+      console.error(msg)
+      addError(msg)
+    }
+    if (invalid) {
+      const allowedList = [...allowed].join(', ')
+      const msg = `batch only supports directives: ${allowedList}`
+      console.error(msg)
+      addError(msg)
+    }
 
     const scoped = state.createScope()
     const prevState = state
@@ -796,7 +817,7 @@ export const useDirectiveHandlers = () => {
     lockedKeys = scoped.getLockedKeys()
     onceKeys = scoped.getOnceKeys()
 
-    runBlock(content)
+    runBlock(filtered)
 
     const changes = scoped.getChanges()
     state = prevState
@@ -805,7 +826,8 @@ export const useDirectiveHandlers = () => {
     lockedKeys = state.getLockedKeys()
     onceKeys = state.getOnceKeys()
 
-    return removeNode(parent, index)
+    const removedIndex = removeNode(parent, index)
+    return [SKIP, removedIndex ?? index]
   }
 
   const handleTrigger: DirectiveHandler = (directive, parent, index) => {
@@ -868,34 +890,63 @@ export const useDirectiveHandlers = () => {
     node.type === 'textDirective'
 
   /**
-   * Filters `onExit` directive children to allowed directives.
+   * Filters directive children to allowed directives, optionally flagging banned ones.
    *
    * @param children - Raw nodes inside the directive.
    * @param allowed - Set of permitted directive names.
-   * @returns Filtered nodes and a flag indicating invalid content.
+   * @param banned - Set of explicitly banned directive names.
+   * @returns Filtered nodes, a flag for other invalid content, and whether banned directives were found.
    */
-  const filterOnExitChildren = (
+  const filterDirectiveChildren = (
     children: RootContent[],
-    allowed: Set<string>
-  ): [RootContent[], boolean] => {
-    let invalid = false
-    const filtered = children.filter(child => {
+    allowed: Set<string>,
+    banned: Set<string> = new Set()
+  ): [RootContent[], boolean, boolean] => {
+    let invalidOther = false
+    let bannedFound = false
+    const filtered: RootContent[] = []
+    children.forEach(child => {
       if (child.type === 'text') {
-        return toString(child).trim().length > 0
+        if (toString(child).trim().length === 0) return
+        invalidOther = true
+        return
       }
       if (isDirectiveNode(child)) {
-        if (allowed.has(child.name)) return true
-        invalid = true
-        return false
+        if (banned.has(child.name)) {
+          bannedFound = true
+          return
+        }
+        if (allowed.has(child.name)) {
+          filtered.push(child)
+          return
+        }
+        invalidOther = true
+        return
       }
-      if (child.type === 'paragraph' && child.children.length === 1) {
-        const first = child.children[0]
-        if (isDirectiveNode(first) && allowed.has(first.name)) return true
+      if (child.type === 'paragraph') {
+        child.children.forEach(sub => {
+          if (sub.type === 'text') {
+            if (toString(sub).trim().length === 0) return
+            invalidOther = true
+            return
+          }
+          if (isDirectiveNode(sub)) {
+            if (banned.has(sub.name)) {
+              bannedFound = true
+              return
+            }
+            if (allowed.has(sub.name)) {
+              filtered.push(sub)
+              return
+            }
+          }
+          invalidOther = true
+        })
+        return
       }
-      invalid = true
-      return false
+      invalidOther = true
     })
-    return [filtered, invalid]
+    return [filtered, invalidOther, bannedFound]
   }
 
   const handleOnExit: DirectiveHandler = (directive, parent, index) => {
@@ -918,7 +969,7 @@ export const useDirectiveHandlers = () => {
     const container = directive as ContainerDirective
     const allowed = ALLOWED_ONEXIT_DIRECTIVES
     const rawChildren = stripLabel(container.children as RootContent[])
-    const [filtered, invalid] = filterOnExitChildren(rawChildren, allowed)
+    const [filtered, invalid] = filterDirectiveChildren(rawChildren, allowed)
     if (invalid) {
       const allowedList = [...allowed].join(', ')
       const msg = `onExit only supports directives: ${allowedList}`
