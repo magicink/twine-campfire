@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.49.4](https://github.com/magicink/twine-campfire/compare/v1.49.3...v1.49.4) (2025-08-10)
+
+
+### Bug Fixes
+
+* **onExit:** remove stray colons after batch ([#226](https://github.com/magicink/twine-campfire/issues/226)) ([75171ee](https://github.com/magicink/twine-campfire/commit/75171ee5ec27a689632c68082374fd3016d2d734))
+
 ## [1.49.3](https://github.com/magicink/twine-campfire/compare/v1.49.2...v1.49.3) (2025-08-10)
 
 

@@ -1,6 +1,6 @@
 {
   "name": "campfire",
-  "version": "1.49.3",
+  "version": "1.49.4",
   "private": true,
   "description": "A custom story format for TwineJS that uses Preact.",
   "exports": "./dist/format.js",
