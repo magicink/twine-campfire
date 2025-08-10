@@ -78,10 +78,10 @@ export const OnExit = ({ content }: OnExitProps) => {
    * Processes a block of nodes with the Campfire remark plugins.
    *
    * @param block - Nodes to execute.
+   * @param data - Game data for conditional evaluation.
    */
-  const runBlock = (block: RootContent[]) => {
-    const gameData = useGameStore.getState().gameData as Record<string, unknown>
-    const processed = resolveIf(block, gameData)
+  const runBlock = (block: RootContent[], data: Record<string, unknown>) => {
+    const processed = resolveIf(block, data)
     if (processed.length === 0) return
     const root: Root = { type: 'root', children: processed }
     unified()
@@ -97,7 +97,11 @@ export const OnExit = ({ content }: OnExitProps) => {
       const current = generationRef.current
       queueMicrotask(() => {
         if (generationRef.current === current && !cleanupRanRef.current) {
-          runBlock(clone(baseNodes))
+          const gameData = useGameStore.getState().gameData as Record<
+            string,
+            unknown
+          >
+          runBlock(clone(baseNodes), gameData)
           cleanupRanRef.current = true
         }
       })
