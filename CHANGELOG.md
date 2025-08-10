@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.48.1](https://github.com/magicink/twine-campfire/compare/v1.48.0...v1.48.1) (2025-08-10)
+
+
+### Bug Fixes
+
+* allow standalone OnComplete usage ([#215](https://github.com/magicink/twine-campfire/issues/215)) ([602c669](https://github.com/magicink/twine-campfire/commit/602c669e16ae7d5f2b73a57b1979ef7d57d31802))
+
 ## [1.48.0](https://github.com/magicink/twine-campfire/compare/v1.47.0...v1.48.0) (2025-08-10)
 
 
