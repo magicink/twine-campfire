@@ -4,6 +4,7 @@ import {
   isValidElement,
   useEffect,
   useLayoutEffect,
+  useRef,
   useState,
   type CSSProperties,
   type ReactElement,
@@ -209,7 +210,19 @@ export const Sequence = ({
     }
   }, [autoplay, delay, index, steps.length])
 
+  /** Tracks whether the completion handler has already executed. */
+  const completeRan = useRef(false)
+
+  useEffect(() => {
+    completeRan.current = false
+  }, [steps.length])
+
   if (!current) return null
+
+  const runComplete = index === steps.length - 1 && !completeRan.current
+  if (runComplete) {
+    completeRan.current = true
+  }
 
   const isInteractive = typeof current.props.children === 'function'
   const showContinue = !autoplay && !isInteractive && index < steps.length - 1
@@ -230,8 +243,7 @@ export const Sequence = ({
         fastForward: handleFastForward,
         rewind: handleRewind
       })}
-      {completeElement &&
-        cloneElement(completeElement, { run: index === steps.length - 1 })}
+      {completeElement && cloneElement(completeElement, { run: runComplete })}
       {showRewind && (
         <button type='button' onClick={handleRewind} aria-label={rewindAria}>
           {rewindLabel}

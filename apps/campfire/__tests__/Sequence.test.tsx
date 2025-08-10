@@ -304,6 +304,54 @@ describe('Sequence', () => {
     ).toBe(true)
   })
 
+  it('executes OnComplete only once when revisiting the final step', async () => {
+    resetStores()
+    const root = unified()
+      .use(remarkParse)
+      .use(remarkDirective)
+      .parse(':set[count=(count||0)+1]') as Root
+    const content = JSON.stringify(root.children)
+    render(
+      <Sequence rewind={{ enabled: true }}>
+        <Step>
+          {({ next }) => (
+            <button type='button' onClick={next}>
+              Next
+            </button>
+          )}
+        </Step>
+        <Step>End</Step>
+        <OnComplete content={content} />
+      </Sequence>
+    )
+    const next = screen.getByRole('button', { name: 'Next' })
+    act(() => {
+      next.click()
+    })
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    expect(
+      (useGameStore.getState().gameData as Record<string, unknown>).count
+    ).toBe(1)
+    const rewindButton = screen.getByRole('button', {
+      name: 'Rewind to previous step'
+    })
+    act(() => {
+      rewindButton.click()
+    })
+    const nextAgain = screen.getByRole('button', { name: 'Next' })
+    act(() => {
+      nextAgain.click()
+    })
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    expect(
+      (useGameStore.getState().gameData as Record<string, unknown>).count
+    ).toBe(1)
+  })
+
   it('warns when multiple OnComplete components are provided', async () => {
     resetStores()
     const rootA = unified()
