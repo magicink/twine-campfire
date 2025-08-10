@@ -4,12 +4,12 @@ import {
   isValidElement,
   useEffect,
   useLayoutEffect,
-  useMemo,
   useState,
   type CSSProperties,
   type ReactElement,
   type ReactNode
 } from 'react'
+import { OnComplete, type OnCompleteProps } from './OnComplete'
 
 interface StepProps {
   /** Content or render function for the step */
@@ -155,13 +155,14 @@ export const Sequence = ({
   rewindAriaLabel
 }: SequenceProps) => {
   const [index, setIndex] = useState(0)
-  const steps = useMemo(
-    () =>
-      Children.toArray(children).filter(
-        (child): child is ReactElement<StepProps> =>
-          isValidElement(child) && child.type === Step
-      ),
-    [children]
+  const childArray = Children.toArray(children)
+  const completeElement = childArray.find(
+    (child): child is ReactElement<OnCompleteProps> =>
+      isValidElement(child) && child.type === OnComplete
+  )
+  const steps = childArray.filter(
+    (child): child is ReactElement<StepProps> =>
+      isValidElement(child) && child.type === Step
   )
   const current = steps[index]
   useEffect(() => {
@@ -221,6 +222,8 @@ export const Sequence = ({
         fastForward: handleFastForward,
         rewind: handleRewind
       })}
+      {completeElement &&
+        cloneElement(completeElement, { run: index === steps.length - 1 })}
       {showRewind && (
         <button type='button' onClick={handleRewind} aria-label={rewindAria}>
           {rewindLabel}

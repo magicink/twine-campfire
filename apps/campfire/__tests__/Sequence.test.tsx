@@ -1,6 +1,13 @@
 import { describe, it, expect } from 'bun:test'
 import { render, screen, act } from '@testing-library/react'
 import { Sequence, Step, Transition } from '../src/Sequence'
+import { OnComplete } from '../src/OnComplete'
+import { unified } from 'unified'
+import remarkParse from 'remark-parse'
+import remarkDirective from 'remark-directive'
+import type { Root } from 'mdast'
+import { useGameStore } from '@/packages/use-game-store'
+import { resetStores } from './helpers'
 
 describe('Sequence', () => {
   it('prompts the user to continue when autoplay is false', () => {
@@ -263,5 +270,60 @@ describe('Sequence', () => {
       skipButton.click()
     })
     expect(screen.getByText('Second')).toBeInTheDocument()
+  })
+
+  it('runs OnComplete content when the sequence finishes', async () => {
+    resetStores()
+    const root = unified()
+      .use(remarkParse)
+      .use(remarkDirective)
+      .parse(':set[done=true]') as Root
+    const content = JSON.stringify(root.children)
+    render(
+      <Sequence>
+        <Step>
+          {({ next }) => (
+            <button type='button' onClick={next}>
+              Go
+            </button>
+          )}
+        </Step>
+        <Step>End</Step>
+        <OnComplete content={content} />
+      </Sequence>
+    )
+    const button = screen.getByRole('button', { name: 'Go' })
+    act(() => {
+      button.click()
+    })
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    expect(
+      (useGameStore.getState().gameData as Record<string, unknown>).done
+    ).toBe(true)
+  })
+
+  it('warns when OnComplete is used outside of Sequence', async () => {
+    resetStores()
+    const root = unified()
+      .use(remarkParse)
+      .use(remarkDirective)
+      .parse(':set[x=1]') as Root
+    const content = JSON.stringify(root.children)
+    const logged: unknown[] = []
+    const orig = console.error
+    console.error = (...args: unknown[]) => {
+      logged.push(args)
+    }
+    render(<OnComplete content={content} />)
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    expect(logged).toHaveLength(1)
+    expect(
+      (useGameStore.getState().gameData as Record<string, unknown>).x
+    ).toBeUndefined()
+    console.error = orig
   })
 })
