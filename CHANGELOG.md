@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.49.0](https://github.com/magicink/twine-campfire/compare/v1.48.1...v1.49.0) (2025-08-10)
+
+
+### Features
+
+* update :random directive API ([#217](https://github.com/magicink/twine-campfire/issues/217)) ([f702c97](https://github.com/magicink/twine-campfire/commit/f702c977464ff13e9722e89adea44c0774492fbf))
+
 ## [1.48.1](https://github.com/magicink/twine-campfire/compare/v1.48.0...v1.48.1) (2025-08-10)
 
 
