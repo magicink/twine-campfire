@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.49.2](https://github.com/magicink/twine-campfire/compare/v1.49.1...v1.49.2) (2025-08-10)
+
+
+### Bug Fixes
+
+* support batch in onExit and prevent nested batches ([#221](https://github.com/magicink/twine-campfire/issues/221)) ([7380435](https://github.com/magicink/twine-campfire/commit/7380435e6d4d4059844c889eb48c083103a5e14e))
+
 ## [1.49.1](https://github.com/magicink/twine-campfire/compare/v1.49.0...v1.49.1) (2025-08-10)
 
 
