@@ -304,6 +304,59 @@ describe('Sequence', () => {
     ).toBe(true)
   })
 
+  it('warns when multiple OnComplete components are provided', async () => {
+    resetStores()
+    const rootA = unified()
+      .use(remarkParse)
+      .use(remarkDirective)
+      .parse(':set[a=1]') as Root
+    const rootB = unified()
+      .use(remarkParse)
+      .use(remarkDirective)
+      .parse(':set[b=1]') as Root
+    const contentA = JSON.stringify(rootA.children)
+    const contentB = JSON.stringify(rootB.children)
+    const logged: unknown[][] = []
+    const orig = console.warn
+    console.warn = (...args: unknown[]) => {
+      logged.push(args)
+    }
+    render(
+      <Sequence>
+        <Step>
+          {({ next }) => (
+            <button type='button' onClick={next}>
+              Next
+            </button>
+          )}
+        </Step>
+        <Step>End</Step>
+        <OnComplete content={contentA} />
+        <OnComplete content={contentB} />
+      </Sequence>
+    )
+    const button = screen.getByRole('button', { name: 'Next' })
+    act(() => {
+      button.click()
+    })
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    expect(
+      logged.some(
+        args =>
+          typeof args[0] === 'string' &&
+          args[0].includes(
+            'Sequence accepts only one <OnComplete> component; additional instances will be ignored.'
+          )
+      )
+    ).toBe(true)
+    const gameData = useGameStore.getState().gameData as Record<string, unknown>
+    expect(gameData.a).toBe(1)
+    expect(gameData.b).toBeUndefined()
+    console.warn = orig
+  })
+
   it('warns when OnComplete is used outside of Sequence', async () => {
     resetStores()
     const root = unified()

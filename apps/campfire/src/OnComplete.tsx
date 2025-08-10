@@ -11,6 +11,7 @@ export interface OnCompleteProps {
 
 /**
  * Executes serialized directive content when a sequence reaches its final step.
+ * Only one instance should be used within a `Sequence`.
  *
  * @param content - Serialized directive block to process on completion.
  * @param run - Internal flag indicating when to execute.

@@ -140,6 +140,8 @@ interface RewindOptions {
  * based on the supplied `fastForward` options. Button text and accessible
  * labels may be customized via `continueLabel`, `skipLabel`,
  * `continueAriaLabel`, and `skipAriaLabel` props.
+ * Accepts at most one `OnComplete` child; if multiple are provided only the
+ * first will run and a warning is logged.
  */
 export const Sequence = ({
   children,
@@ -156,10 +158,16 @@ export const Sequence = ({
 }: SequenceProps) => {
   const [index, setIndex] = useState(0)
   const childArray = Children.toArray(children)
-  const completeElement = childArray.find(
+  const completeElements = childArray.filter(
     (child): child is ReactElement<OnCompleteProps> =>
       isValidElement(child) && child.type === OnComplete
   )
+  if (completeElements.length > 1) {
+    console.warn(
+      'Sequence accepts only one <OnComplete> component; additional instances will be ignored.'
+    )
+  }
+  const completeElement = completeElements[0]
   const steps = childArray.filter(
     (child): child is ReactElement<StepProps> =>
       isValidElement(child) && child.type === Step
