@@ -1,5 +1,5 @@
 import { describe, it, beforeEach, expect } from 'bun:test'
-import { render, waitFor } from '@testing-library/react'
+import { render, waitFor } from '@testing-library/preact'
 import i18next from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import type { Element } from 'hast'

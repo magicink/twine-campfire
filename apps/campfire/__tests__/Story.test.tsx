@@ -1,4 +1,4 @@
-import { render, screen, act, waitFor } from '@testing-library/react'
+import { render, screen, act, waitFor } from '@testing-library/preact'
 import { Story } from '../src/Story'
 import { useStoryDataStore } from '@/packages/use-story-data-store'
 import { useGameStore } from '@/packages/use-game-store'

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "types": ["bun", "react", "react-dom"]
+    "types": ["bun", "preact"]
   },
   "extends": "../../tsconfig.json"
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { render, screen, act } from '@testing-library/react'
+import { render, screen, act } from '@testing-library/preact'
 import i18next from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import { Show } from '../src/Show'

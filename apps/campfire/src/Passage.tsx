@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { Fragment, jsx, jsxs } from 'react/jsx-runtime'
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks'
+import { Fragment, jsx, jsxs } from 'preact/jsx-runtime'
+import type { ComponentChild } from 'preact'
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
@@ -136,7 +137,7 @@ export const Passage = () => {
   const storyData = useStoryDataStore(
     (state: StoryDataState) => state.storyData
   )
-  const [content, setContent] = useState<ReactNode>(null)
+  const [content, setContent] = useState<ComponentChild | null>(null)
   const prevPassageId = useRef<string | undefined>(undefined)
 
   useEffect(() => {
@@ -192,7 +193,7 @@ export const Passage = () => {
       if (controller.signal.aborted) return
       const file = await processor.process(normalized)
       if (controller.signal.aborted) return
-      setContent(file.result as ReactNode)
+      setContent(file.result as ComponentChild)
     })()
     return () => controller.abort()
   }, [passage, processor])

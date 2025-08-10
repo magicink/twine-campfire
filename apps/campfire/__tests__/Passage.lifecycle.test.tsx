@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { render, screen, waitFor, act } from '@testing-library/react'
+import { render, screen, waitFor, act } from '@testing-library/preact'
 import i18next from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import type { Element } from 'hast'
@@ -12,7 +12,6 @@ import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkDirective from 'remark-directive'
 import type { Root } from 'mdast'
-import { StrictMode } from 'react'
 
 describe('Passage lifecycle directives', () => {
   beforeEach(async () => {
@@ -145,11 +144,7 @@ describe('Passage lifecycle directives', () => {
       .use(remarkDirective)
       .parse(':set[count=(count||0)+1]') as Root
     const content = JSON.stringify(root.children)
-    const { unmount } = render(
-      <StrictMode>
-        <OnExit content={content} />
-      </StrictMode>
-    )
+    const { unmount } = render(<OnExit content={content} />)
     expect(
       (useGameStore.getState().gameData as Record<string, unknown>).count
     ).toBeUndefined()

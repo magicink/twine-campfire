@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "types": ["bun", "react", "react-dom", "../../matchers.d.ts"],
+    "types": ["bun", "preact", "../../matchers.d.ts"],
     "noEmit": true,
     "baseUrl": ".",
     "paths": {

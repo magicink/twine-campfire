@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'bun:test'
-import { render, screen, act } from '@testing-library/react'
+import { render, screen, act } from '@testing-library/preact'
 import { Sequence, Step, Transition } from '../src/Sequence'
 import { OnComplete } from '../src/OnComplete'
 import { unified } from 'unified'

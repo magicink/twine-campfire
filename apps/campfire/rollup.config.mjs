@@ -19,6 +19,9 @@ export default {
     resolve({ browser: true, extensions: ['.js', '.jsx', '.ts', '.tsx'] }),
     alias({
       entries: {
+        react: 'preact/compat',
+        'react-dom': 'preact/compat',
+        'react/jsx-runtime': 'preact/jsx-runtime',
         '@/packages': path.resolve(__dirname, '../../packages')
       }
     }),
@@ -34,6 +37,7 @@ export default {
       tsconfig: path.join(__dirname, 'tsconfig.json'),
       target: 'esnext',
       jsx: 'automatic',
+      jsxImportSource: 'preact',
       minify: true
     })
   ]

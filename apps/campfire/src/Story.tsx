@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'preact/hooks'
 import i18next from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import {
@@ -90,7 +90,7 @@ export const Story = () => {
    * @param {Root} tree - The HAST tree to search for the story data element.
    * @returns {Element | undefined} The found <tw-storydata> element, or undefined if not found.
    */
-  function extractStoryData(tree: Root): Element | undefined {
+  const extractStoryData = (tree: Root): Element | undefined => {
     let found: Element | undefined
     visit(tree, 'element', node => {
       if (node.type === 'element' && 'tagName' in node) {

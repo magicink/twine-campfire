@@ -5,6 +5,7 @@
     "module": "ESNext",
     "moduleDetection": "force",
     "jsx": "react-jsx",
+    "jsxImportSource": "preact",
     "allowJs": true,
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
@@ -16,7 +17,7 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false,
-    "types": ["bun", "react", "react-dom", "./matchers.d.ts"],
+    "types": ["bun", "preact", "./matchers.d.ts"],
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {

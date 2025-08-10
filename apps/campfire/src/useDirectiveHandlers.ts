@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'preact/hooks'
 import i18next from 'i18next'
 import { SKIP } from 'unist-util-visit'
 import { compile } from 'expression-eval'
