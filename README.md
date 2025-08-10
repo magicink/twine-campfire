@@ -96,15 +96,6 @@ ignores the exact indentation:
 
 Operations that set, update, or remove scalar values.
 
-- `random`: Assign a random integer. This directive is leaf-only and cannot wrap
-  content.
-
-  ```md
-  :random{key=HP min=MIN max=MAX}
-  ```
-
-  Replace `HP` with the key and `MIN`/`MAX` with bounds.
-
 - `set`: Assign a value to a key. This directive is leaf-only and cannot wrap
   content.
 
@@ -131,6 +122,15 @@ Operations that set, update, or remove scalar values.
   ```
 
   Replace `visited` with the key to lock on first use.
+
+- `random`: Assign a random integer. This directive is leaf-only and cannot wrap
+  content.
+
+  ```md
+  :random{key=HP min=MIN max=MAX}
+  ```
+
+  Replace `HP` with the key and `MIN`/`MAX` with bounds.
 
 - `unset`: Remove a key from state. This directive is leaf-only and cannot wrap
   content.
