@@ -50,6 +50,9 @@ const ALLOWED_BATCH_DIRECTIVES = new Set(
 )
 const BANNED_BATCH_DIRECTIVES = new Set(['batch'])
 
+/** Marker inserted to close directive blocks. */
+const DIRECTIVE_MARKER = ':::'
+
 /**
  * Determines whether a directive node includes a string label.
  *
@@ -642,6 +645,25 @@ export const useDirectiveHandlers = () => {
   const isTextNode = (node: RootContent): node is MdText => node.type === 'text'
 
   /**
+   * Removes a paragraph containing only the directive marker from the parent.
+   *
+   * @param parent - The parent node that may contain the marker.
+   * @param index - The index of the potential marker node.
+   */
+  const removeDirectiveMarker = (parent: Parent, index: number) => {
+    const marker = parent.children[index]
+    if (
+      marker &&
+      marker.type === 'paragraph' &&
+      marker.children.length === 1 &&
+      isTextNode(marker.children[0]) &&
+      marker.children[0].value.trim() === DIRECTIVE_MARKER
+    ) {
+      parent.children.splice(index, 1)
+    }
+  }
+
+  /**
    * Serializes `:::if` directive blocks into `<if>` components that
    * evaluate a test expression against game data and render optional
    * fallback content when the expression is falsy.
@@ -691,16 +713,7 @@ export const useDirectiveHandlers = () => {
       fallback = JSON.stringify(stripLabel(next.children as RootContent[]))
       const markerIndex = removeNode(parent, elseSiblingIndex)
       if (typeof markerIndex === 'number') {
-        const marker = parent.children[markerIndex]
-        if (
-          marker &&
-          marker.type === 'paragraph' &&
-          marker.children.length === 1 &&
-          isTextNode(marker.children[0]) &&
-          marker.children[0].value.trim() === ':::'
-        ) {
-          parent.children.splice(markerIndex, 1)
-        }
+        removeDirectiveMarker(parent, markerIndex)
       }
     }
     const content = JSON.stringify(stripLabel(main))
@@ -718,16 +731,7 @@ export const useDirectiveHandlers = () => {
       node as RootContent
     ])
     const markerIndex = newIndex + 1
-    const next = parent.children[markerIndex]
-    if (
-      next &&
-      next.type === 'paragraph' &&
-      next.children.length === 1 &&
-      isTextNode(next.children[0]) &&
-      next.children[0].value.trim() === ':::'
-    ) {
-      parent.children.splice(markerIndex, 1)
-    }
+    removeDirectiveMarker(parent, markerIndex)
     return [SKIP, newIndex]
   }
 
@@ -740,16 +744,7 @@ export const useDirectiveHandlers = () => {
     const content = stripLabel(container.children as RootContent[])
     const newIndex = replaceWithIndentation(directive, parent, index, content)
     const markerIndex = newIndex + content.length
-    const next = parent.children[markerIndex]
-    if (
-      next &&
-      next.type === 'paragraph' &&
-      next.children.length === 1 &&
-      isTextNode(next.children[0]) &&
-      next.children[0].value.trim() === ':::'
-    ) {
-      parent.children.splice(markerIndex, 1)
-    }
+    removeDirectiveMarker(parent, markerIndex)
     const offset = content.length > 0 ? content.length - 1 : 0
     return [SKIP, newIndex + offset]
   }
@@ -766,7 +761,11 @@ export const useDirectiveHandlers = () => {
     )
     if (!key) return [SKIP, index]
     if (onceKeys[key]) {
-      return removeNode(parent, index)
+      const markerIndex = removeNode(parent, index)
+      if (typeof markerIndex === 'number') {
+        removeDirectiveMarker(parent, markerIndex)
+      }
+      return markerIndex
     }
     markOnce(key)
     const content = stripLabel(container.children as RootContent[])
@@ -986,6 +985,8 @@ export const useDirectiveHandlers = () => {
     const newIndex = replaceWithIndentation(directive, parent, index, [
       node as RootContent
     ])
+    const markerIndex = newIndex + 1
+    removeDirectiveMarker(parent, markerIndex)
     return [SKIP, newIndex]
   }
 
