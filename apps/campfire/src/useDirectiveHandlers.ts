@@ -787,7 +787,8 @@ export const useDirectiveHandlers = () => {
       const msg = 'Nested batch directives are not allowed'
       console.error(msg)
       addError(msg)
-      return [SKIP, removeNode(parent, index) ?? index]
+      removeNode(parent, index)
+      return [SKIP, index]
     }
 
     const container = directive as ContainerDirective
@@ -826,8 +827,8 @@ export const useDirectiveHandlers = () => {
     lockedKeys = state.getLockedKeys()
     onceKeys = state.getOnceKeys()
 
-    const removedIndex = removeNode(parent, index)
-    return [SKIP, removedIndex ?? index]
+    removeNode(parent, index)
+    return [SKIP, index]
   }
 
   const handleTrigger: DirectiveHandler = (directive, parent, index) => {
