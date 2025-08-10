@@ -749,6 +749,14 @@ export const useDirectiveHandlers = () => {
     return [SKIP, newIndex + offset]
   }
 
+  /**
+   * Processes `:::once` blocks so their contents run only once per key.
+   *
+   * @param directive - The `once` directive node.
+   * @param parent - The directive's parent in the AST.
+   * @param index - Index of the directive within its parent.
+   * @returns Visitor instructions after processing the directive.
+   */
   const handleOnce: DirectiveHandler = (directive, parent, index) => {
     if (!parent || typeof index !== 'number') return
     const container = directive as ContainerDirective
@@ -764,8 +772,9 @@ export const useDirectiveHandlers = () => {
       const markerIndex = removeNode(parent, index)
       if (typeof markerIndex === 'number') {
         removeDirectiveMarker(parent, markerIndex)
+        return [SKIP, markerIndex]
       }
-      return markerIndex
+      return [SKIP, index]
     }
     markOnce(key)
     const content = stripLabel(container.children as RootContent[])
