@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.49.3](https://github.com/magicink/twine-campfire/compare/v1.49.2...v1.49.3) (2025-08-10)
+
+
+### Bug Fixes
+
+* restrict batch directive children ([#223](https://github.com/magicink/twine-campfire/issues/223)) ([193bcbe](https://github.com/magicink/twine-campfire/commit/193bcbeed2a68e62255777a3c40b0001d31f8987))
+
 ## [1.49.2](https://github.com/magicink/twine-campfire/compare/v1.49.1...v1.49.2) (2025-08-10)
 
 
