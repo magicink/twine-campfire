@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.54.0](https://github.com/magicink/twine-campfire/compare/v1.53.0...v1.54.0) (2025-08-11)
+
+
+### Features
+
+* **i18n:** support interpolation in t directive ([#248](https://github.com/magicink/twine-campfire/issues/248)) ([b98a6d2](https://github.com/magicink/twine-campfire/commit/b98a6d290e4078418185a802c0bd8a1a8e8dee37))
+
 ## [1.53.0](https://github.com/magicink/twine-campfire/compare/v1.52.1...v1.53.0) (2025-08-11)
 
 
