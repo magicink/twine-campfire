@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.54.3](https://github.com/magicink/twine-campfire/compare/v1.54.2...v1.54.3) (2025-08-11)
+
+
+### Bug Fixes
+
+* **campfire:** handle indented sequence steps ([#255](https://github.com/magicink/twine-campfire/issues/255)) ([6e72a39](https://github.com/magicink/twine-campfire/commit/6e72a39de1921a235212045b92c7da52186106d5))
+
 ## [1.54.2](https://github.com/magicink/twine-campfire/compare/v1.54.1...v1.54.2) (2025-08-11)
 
 
