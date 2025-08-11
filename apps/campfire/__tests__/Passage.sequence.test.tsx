@@ -65,4 +65,27 @@ describe('Passage sequence directive', () => {
     expect(await screen.findByText('How are you?')).toBeInTheDocument()
     expect(screen.queryByText(':::transition')).toBeNull()
   })
+
+  it('renders multiple transitions across sequence steps', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            ':::sequence\n:::step\n:::transition\nOne\n:::\n:::\n:::step\n:::transition\nTwo\n:::\n:::\n:::step\n:::transition\nThree\n:::\n:::\n:::\n'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+
+    expect(await screen.findByText('One')).toBeInTheDocument()
+    expect(await screen.findByText('Two')).toBeInTheDocument()
+    expect(await screen.findByText('Three')).toBeInTheDocument()
+    expect(screen.queryByText(':::transition')).toBeNull()
+  })
 })
