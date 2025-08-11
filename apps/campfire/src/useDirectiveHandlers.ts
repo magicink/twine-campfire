@@ -834,7 +834,7 @@ export const useDirectiveHandlers = () => {
   const removeDirectiveMarker = (parent: Parent, index: number) => {
     const marker = parent.children[index]
     if (!marker || marker.type !== 'paragraph') return
-    if (marker.children.every(isTextNode)) {
+    if (marker.children.length > 0 && marker.children.every(isTextNode)) {
       const combined = marker.children
         .map(child => (child as MdText).value)
         .join('')
