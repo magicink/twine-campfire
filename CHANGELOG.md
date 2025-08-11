@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.52.0](https://github.com/magicink/twine-campfire/compare/v1.51.2...v1.52.0) (2025-08-11)
+
+
+### Features
+
+* **campfire:** update debug error display ([#242](https://github.com/magicink/twine-campfire/issues/242)) ([7cd4992](https://github.com/magicink/twine-campfire/commit/7cd4992f00ffbf3053b8ca8517f53b63340234ab))
+
 ## [1.51.2](https://github.com/magicink/twine-campfire/compare/v1.51.1...v1.51.2) (2025-08-11)
 
 
