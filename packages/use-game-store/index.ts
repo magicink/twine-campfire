@@ -43,12 +43,12 @@ export interface GameState<T = Record<string, unknown>> {
    */
   saveCheckpoint: (id: string, checkpoint: CheckpointData<T>) => void
   /**
-   * Restore a checkpoint and return its data. If no ID is provided, restores
-   * the currently stored checkpoint.
+   * Load a checkpoint and return its data. If no ID is provided, loads the
+   * currently stored checkpoint.
    *
-   * @param id - Optional identifier of the checkpoint to restore.
+   * @param id - Optional identifier of the checkpoint to load.
    */
-  restoreCheckpoint: (id?: string) => Checkpoint<T> | undefined
+  loadCheckpoint: (id?: string) => Checkpoint<T> | undefined
   /** Remove a checkpoint */
   removeCheckpoint: (id: string) => void
 }
@@ -161,12 +161,12 @@ export const useGameStore = create(
         })
       ),
     /**
-     * Restores a checkpoint.
+     * Loads a checkpoint.
      *
-     * @param id - Optional identifier of the checkpoint to restore.
-     * @returns The restored checkpoint, if found.
+     * @param id - Optional identifier of the checkpoint to load.
+     * @returns The loaded checkpoint, if found.
      */
-    restoreCheckpoint: id => {
+    loadCheckpoint: id => {
       const cps = get().checkpoints
       const cp = id ? cps[id] : Object.values(cps)[0]
       if (cp) {
