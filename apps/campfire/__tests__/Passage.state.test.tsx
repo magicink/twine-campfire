@@ -166,6 +166,57 @@ describe('Passage game state directives', () => {
     await waitFor(() => expect(useGameStore.getState().gameData.num).toBe(9))
   })
 
+  it('creates range values', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':createRange[hp=5]{min=0 max=10}' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() =>
+      expect(useGameStore.getState().gameData.hp).toEqual({
+        min: 0,
+        max: 10,
+        value: 5
+      })
+    )
+  })
+
+  it('clamps values in setRange directive', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        { type: 'text', value: ':createRange[hp=5]{min=0 max=10}' },
+        { type: 'text', value: ':setRange[hp=20]' }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() =>
+      expect(useGameStore.getState().gameData.hp).toEqual({
+        min: 0,
+        max: 10,
+        value: 10
+      })
+    )
+  })
+
   it('batches state updates into one change', async () => {
     const unsetCalls: string[] = []
     const origUnset = useGameStore.getState().unsetGameData
@@ -333,7 +384,7 @@ describe('Passage game state directives', () => {
 
     await waitFor(() => {
       expect(useGameStore.getState().errors).toEqual([
-        'batch only supports directives: set, setOnce, array, arrayOnce, unset, random, randomOnce, if'
+        'batch only supports directives: set, setOnce, array, arrayOnce, createRange, setRange, unset, random, randomOnce, if'
       ])
       expect(logged).toHaveLength(1)
     })

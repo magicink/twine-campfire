@@ -4,8 +4,8 @@ import { useGameStore } from '@/packages/use-game-store'
 
 /** Range value representation */
 export interface RangeValue {
-  lower: number
-  upper: number
+  min: number
+  max: number
   value: number
 }
 
@@ -132,16 +132,12 @@ export class StateManager<T extends Record<string, unknown>> {
   /** Stores a range value at the provided path. */
   setRange = (
     path: string,
-    lower: number,
-    upper: number,
+    min: number,
+    max: number,
     value: number,
     opts: SetOptions = {}
   ) => {
-    this.setValue(
-      path,
-      { lower, upper, value: clamp(value, lower, upper) },
-      opts
-    )
+    this.setValue(path, { min, max, value: clamp(value, min, max) }, opts)
   }
 
   /** Removes a value from the provided path. */

@@ -9,8 +9,8 @@ import type {
 import type { Node } from 'unist'
 
 export interface RangeValue {
-  lower: number
-  upper: number
+  min: number
+  max: number
   value: number
 }
 
@@ -24,14 +24,14 @@ interface ParagraphLabel extends Paragraph {
  * Checks if the provided value is a RangeValue object by verifying it has the required properties.
  *
  * @param v - The value to check.
- * @returns True if the value is a RangeValue object with numeric lower, upper, and value properties.
+ * @returns True if the value is a RangeValue object with numeric min, max, and value properties.
  */
 export const isRange = (v: unknown): v is RangeValue => {
   if (!v || typeof v !== 'object') return false
   const obj = v as Record<string, unknown>
   return (
-    typeof obj.lower === 'number' &&
-    typeof obj.upper === 'number' &&
+    typeof obj.min === 'number' &&
+    typeof obj.max === 'number' &&
     typeof obj.value === 'number'
   )
 }
@@ -78,25 +78,23 @@ export const parseRange = (input: unknown): RangeValue => {
   }
   if (obj && typeof obj === 'object') {
     const data = obj as Record<string, unknown>
-    const lowerRaw = data.lower
-    const upperRaw = data.upper
-    const lower =
-      typeof lowerRaw === 'number' ? lowerRaw : parseFloat(String(lowerRaw))
-    const upper =
-      typeof upperRaw === 'number' ? upperRaw : parseFloat(String(upperRaw))
-    const l = Number.isNaN(lower) ? 0 : lower
-    const u = Number.isNaN(upper) ? 0 : upper
-    const valRaw = data.value ?? l
+    const minRaw = data.min
+    const maxRaw = data.max
+    const min = typeof minRaw === 'number' ? minRaw : parseFloat(String(minRaw))
+    const max = typeof maxRaw === 'number' ? maxRaw : parseFloat(String(maxRaw))
+    const lo = Number.isNaN(min) ? 0 : min
+    const hi = Number.isNaN(max) ? 0 : max
+    const valRaw = data.value ?? lo
     const val = typeof valRaw === 'number' ? valRaw : parseFloat(String(valRaw))
     return {
-      lower: l,
-      upper: u,
-      value: clamp(Number.isNaN(val) ? 0 : val, l, u)
+      min: lo,
+      max: hi,
+      value: clamp(Number.isNaN(val) ? 0 : val, lo, hi)
     }
   }
   const n = typeof obj === 'number' ? obj : parseFloat(String(obj))
   const num = Number.isNaN(n) ? 0 : n
-  return { lower: 0, upper: num, value: clamp(num, 0, num) }
+  return { min: 0, max: num, value: clamp(num, 0, num) }
 }
 
 /**
