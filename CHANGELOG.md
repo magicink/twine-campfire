@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.51.2](https://github.com/magicink/twine-campfire/compare/v1.51.1...v1.51.2) (2025-08-11)
+
+
+### Bug Fixes
+
+* **remark-campfire:** handle paragraph hName ([#239](https://github.com/magicink/twine-campfire/issues/239)) ([4d308c6](https://github.com/magicink/twine-campfire/commit/4d308c668aaa7f55a3df055b20bed867786839b2))
+
 ## [1.51.1](https://github.com/magicink/twine-campfire/compare/v1.51.0...v1.51.1) (2025-08-11)
 
 
