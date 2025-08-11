@@ -919,6 +919,33 @@ describe('Passage game state directives', () => {
     })
   })
 
+  it('renders show directive inside a markdown table', async () => {
+    useGameStore.setState(state => ({
+      ...state,
+      gameData: { hp: 7 }
+    }))
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: '| Stat | Value |\n| --- | --- |\n| HP | :show[hp] |'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      const span = screen.getByText('7')
+      expect(span.closest('tr')?.textContent?.replace(/\s+/g, '')).toBe('HP7')
+    })
+  })
+
   it('unsets game data with the unset directive', async () => {
     useGameStore.setState(state => ({
       ...state,
