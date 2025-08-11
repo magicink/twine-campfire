@@ -88,4 +88,24 @@ describe('Passage sequence directive', () => {
     expect(await screen.findByText('Three')).toBeInTheDocument()
     expect(screen.queryByText(':::transition')).toBeNull()
   })
+
+  it('does not render stray colons when directives close consecutively', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':::sequence\n:::step\n:::transition\nFoo\n:::\n:::\n:::\n'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+
+    expect(await screen.findByText('Foo')).toBeInTheDocument()
+    expect(screen.queryByText(':::')).toBeNull()
+  })
 })

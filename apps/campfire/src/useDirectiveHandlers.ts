@@ -826,7 +826,8 @@ export const useDirectiveHandlers = () => {
   const isTextNode = (node: RootContent): node is MdText => node.type === 'text'
 
   /**
-   * Removes a paragraph containing only the directive marker from the parent.
+   * Removes a paragraph containing only directive markers from the parent.
+   * Supports multiple markers separated by whitespace or collapsed together.
    *
    * @param parent - The parent node that may contain the marker.
    * @param index - The index of the potential marker node.
@@ -839,7 +840,9 @@ export const useDirectiveHandlers = () => {
         .map(child => (child as MdText).value)
         .join('')
         .trim()
-      if (combined === DIRECTIVE_MARKER) {
+      const stripped = combined.replace(/\s+/g, '')
+      const parts = stripped.split(DIRECTIVE_MARKER) // ensure only marker tokens remain
+      if (stripped.length > 0 && parts.every(part => part === '')) {
         parent.children.splice(index, 1)
       }
     }
