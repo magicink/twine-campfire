@@ -10,6 +10,10 @@ A cozy story format for Twine.
 4. Click **Add**, paste the copied URL into the form, then confirm.
 5. To activate the format, open a story and choose **campfire 1.x.x** from the **Story Format** dropdown in **Story > Details**.
 
+## AI Disclosure
+
+Portions of this project were created with the assistance of AI tools, including ChatGPT and GitHub Copilot.
+
 ## Twine links
 
 Campfire recognizes Twine's `[[Link]]` syntax. The text inside becomes a
