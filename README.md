@@ -472,10 +472,11 @@ Save and restore progress or store data in the browser.
 - `restore`: Load a saved state.
 
   ```md
-  :restore{id=SAVE-ID}
+  :restore
   ```
 
-  Replace `SAVE-ID` with the checkpoint to load.
+  Loads the currently stored checkpoint. Only one checkpoint can exist at a
+  time, so this directive has no attributes.
 
 - `save`: Write the current state to local storage.
 

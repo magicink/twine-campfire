@@ -39,7 +39,7 @@ describe('Passage checkpoint directives', () => {
       children: [
         {
           type: 'text',
-          value: ':::set[hp=1]\n:::\n:restore{id=cp1}'
+          value: ':::set[hp=1]\n:::\n:restore'
         }
       ]
     }
@@ -108,7 +108,7 @@ describe('Passage checkpoint directives', () => {
       children: [
         {
           type: 'text',
-          value: ':::set[hp=1]\n:::\n:restore{id=cp1}:checkpoint{id=cp2}'
+          value: ':::set[hp=1]\n:::\n:restore:checkpoint{id=cp2}'
         }
       ]
     }
@@ -346,7 +346,7 @@ describe('Passage checkpoint directives', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':restore{id=missing}' }]
+      children: [{ type: 'text', value: ':restore' }]
     }
 
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
@@ -355,9 +355,7 @@ describe('Passage checkpoint directives', () => {
 
     await waitFor(() => {
       expect(logged).toHaveLength(1)
-      expect(useGameStore.getState().errors).toEqual([
-        'Checkpoint not found: missing'
-      ])
+      expect(useGameStore.getState().errors).toEqual(['Checkpoint not found'])
     })
 
     console.error = orig
