@@ -43,4 +43,26 @@ describe('Passage sequence directive', () => {
     expect(await screen.findByText('First')).toBeInTheDocument()
     expect(await screen.findByText('Second')).toBeInTheDocument()
   })
+
+  it('handles nested directives within indented steps', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            ':::sequence\n    :::step\n        :::transition\n        Hello\n        :::\n    :::\n    :::step\n        :::transition\n        How are you?\n        :::\n    :::\n:::\n'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+
+    expect(await screen.findByText('Hello')).toBeInTheDocument()
+    expect(await screen.findByText('How are you?')).toBeInTheDocument()
+    expect(screen.queryByText(':::transition')).toBeNull()
+  })
 })
