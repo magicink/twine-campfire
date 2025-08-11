@@ -34,9 +34,7 @@ describe('Show', () => {
   })
 
   it('renders the value of range objects', () => {
-    useGameStore
-      .getState()
-      .setGameData({ hp: { lower: 0, upper: 10, value: 4 } })
+    useGameStore.getState().setGameData({ hp: { min: 0, max: 10, value: 4 } })
     render(<Show data-key='hp' />)
     expect(screen.getByText('4')).toBeInTheDocument()
   })

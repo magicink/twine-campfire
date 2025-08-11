@@ -183,8 +183,8 @@ describe('Passage game state directives', () => {
 
     await waitFor(() =>
       expect(useGameStore.getState().gameData.hp).toEqual({
-        lower: 0,
-        upper: 10,
+        min: 0,
+        max: 10,
         value: 5
       })
     )
@@ -210,8 +210,8 @@ describe('Passage game state directives', () => {
 
     await waitFor(() =>
       expect(useGameStore.getState().gameData.hp).toEqual({
-        lower: 0,
-        upper: 10,
+        min: 0,
+        max: 10,
         value: 10
       })
     )

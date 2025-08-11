@@ -518,7 +518,7 @@ export const useDirectiveHandlers = () => {
     }
 
     const newVal = parseRangeValue(valueRaw)
-    setRangeValue(key, current.lower, current.upper, newVal)
+    setRangeValue(key, current.min, current.max, newVal)
     return removeNode(parent, index)
   }
 
@@ -639,19 +639,19 @@ export const useDirectiveHandlers = () => {
    * Sets a range value within the game state using dot notation.
    *
    * @param path - Dot separated path where the range should be stored.
-   * @param lower - Minimum allowed value for the range.
-   * @param upper - Maximum allowed value for the range.
+   * @param min - Minimum allowed value for the range.
+   * @param max - Maximum allowed value for the range.
    * @param value - Current value to assign within the range.
    * @param opts - Additional options controlling assignment behavior.
    */
   const setRangeValue = (
     path: string,
-    lower: number,
-    upper: number,
+    min: number,
+    max: number,
     value: number,
     opts: SetOptions = {}
   ) => {
-    state.setRange(path, lower, upper, value, opts)
+    state.setRange(path, min, max, value, opts)
     gameData = state.getState()
     lockedKeys = state.getLockedKeys()
     onceKeys = state.getOnceKeys()

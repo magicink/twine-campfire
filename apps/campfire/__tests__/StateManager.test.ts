@@ -56,6 +56,6 @@ describe('StateManager', () => {
   it('handles range values', () => {
     const manager = createStateManager<Record<string, unknown>>()
     manager.setRange('hp', 0, 10, 20)
-    expect(manager.getValue('hp')).toEqual({ lower: 0, upper: 10, value: 10 })
+    expect(manager.getValue('hp')).toEqual({ min: 0, max: 10, value: 10 })
   })
 })
