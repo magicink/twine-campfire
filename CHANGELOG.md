@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.54.5](https://github.com/magicink/twine-campfire/compare/v1.54.4...v1.54.5) (2025-08-11)
+
+
+### Bug Fixes
+
+* **campfire:** strip extra directive markers ([#260](https://github.com/magicink/twine-campfire/issues/260)) ([200eaab](https://github.com/magicink/twine-campfire/commit/200eaabd601520c806a36da10078bb4c31d8b87b))
+
 ## [1.54.4](https://github.com/magicink/twine-campfire/compare/v1.54.3...v1.54.4) (2025-08-11)
 
 
