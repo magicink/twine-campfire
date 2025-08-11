@@ -176,6 +176,23 @@ describe('Passage lifecycle directives', () => {
     expect(data.roll).toBeLessThanOrEqual(6)
   })
 
+  it('handles array-based random directives inside batch within onExit blocks', async () => {
+    const root = unified()
+      .use(remarkParse)
+      .use(remarkDirective)
+      .parse(":::batch\n:random[item]{from=['a','b','c']}\n:::") as Root
+    const content = JSON.stringify(root.children)
+    const { unmount } = render(<OnExit content={content} />)
+    act(() => {
+      unmount()
+    })
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    const data = useGameStore.getState().gameData as Record<string, unknown>
+    expect(['a', 'b', 'c']).toContain(data.item)
+  })
+
   it('locks keys with randomOnce inside onExit blocks', async () => {
     const root = unified()
       .use(remarkParse)
