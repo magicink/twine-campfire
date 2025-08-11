@@ -506,16 +506,6 @@ Change language and handle translations.
   `namespace:key="value"` pair is allowed per directive. Repeat the directive
   for additional translations.
 
-### Error handling
-
-Clear logged errors.
-
-- `clearErrors`: Remove all game errors.
-
-  ```md
-  :clearErrors
-  ```
-
 ## Error codes
 
 Campfire prints error codes to the browser console when it encounters invalid

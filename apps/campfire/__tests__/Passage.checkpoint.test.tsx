@@ -362,19 +362,4 @@ describe('Passage checkpoint directives', () => {
 
     console.error = orig
   })
-
-  it('clears errors via directive', async () => {
-    useGameStore.setState({ errors: ['oops'] })
-    const passage: Element = {
-      type: 'element',
-      tagName: 'tw-passagedata',
-      properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':clearErrors' }]
-    }
-    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-    render(<Passage />)
-    await waitFor(() => {
-      expect(useGameStore.getState().errors).toEqual([])
-    })
-  })
 })

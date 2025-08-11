@@ -90,7 +90,6 @@ export const useDirectiveHandlers = () => {
   const restoreCheckpointFn = useGameStore(state => state.restoreCheckpoint)
   const setLoading = useGameStore(state => state.setLoading)
   const addError = useGameStore(state => state.addError)
-  const clearErrors = useGameStore(state => state.clearErrors)
   const currentPassageId = useStoryDataStore(state => state.currentPassageId)
   const setCurrentPassage = useStoryDataStore(state => state.setCurrentPassage)
   const getPassageById = useStoryDataStore(state => state.getPassageById)
@@ -1671,20 +1670,6 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
-   * Handles the `:clearErrors` directive, which removes all logged game errors.
-   * Calls the clearErrors function to reset the error state.
-   *
-   * @param _directive - The directive node representing the clearErrors directive (unused).
-   * @param parent - The parent AST node containing this directive.
-   * @param index - The index of the directive node within its parent.
-   * @returns The new index after removal.
-   */
-  const handleClearErrors: DirectiveHandler = (_directive, parent, index) => {
-    clearErrors()
-    return removeNode(parent, index)
-  }
-
-  /**
    * Handles the `:title` directive, which overrides the page title for the current passage.
    * The directive's value must be wrapped in matching quotes or backticks. If the
    * directive is used inside an included passage, it is ignored. When valid, the
@@ -1827,7 +1812,6 @@ export const useDirectiveHandlers = () => {
       checkpoint: handleCheckpoint,
       clearCheckpoint: handleClearCheckpoint,
       restore: handleRestore,
-      clearErrors: handleClearErrors,
       translations: handleTranslations,
       t: handleTranslate
     }
