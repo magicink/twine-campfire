@@ -129,7 +129,18 @@ export class StateManager<T extends Record<string, unknown>> {
     }
   }
 
-  /** Stores a range value at the provided path. */
+  /**
+   * Stores a range value at the provided path.
+   *
+   * Avoids triggering state updates when the clamped value does not change,
+   * preventing unnecessary re-renders.
+   *
+   * @param path - Dot separated path where the range should be stored.
+   * @param min - Minimum allowed value for the range.
+   * @param max - Maximum allowed value for the range.
+   * @param value - Current value to assign within the range.
+   * @param opts - Additional options controlling assignment behavior.
+   */
   setRange = (
     path: string,
     min: number,
@@ -137,7 +148,17 @@ export class StateManager<T extends Record<string, unknown>> {
     value: number,
     opts: SetOptions = {}
   ) => {
-    this.setValue(path, { min, max, value: clamp(value, min, max) }, opts)
+    const clamped = clamp(value, min, max)
+    const existing = this.getValue(path) as RangeValue | undefined
+    if (
+      existing &&
+      existing.min === min &&
+      existing.max === max &&
+      existing.value === clamped
+    )
+      return
+
+    this.setValue(path, { min, max, value: clamped }, opts)
   }
 
   /** Removes a value from the provided path. */
