@@ -444,13 +444,14 @@ Save and restore progress or store data in the browser.
   Replace `SAVE-ID` with a key and `LABEL` with a description. Saving a new
   checkpoint replaces any existing checkpoint.
 
-- `clearCheckpoint`: Remove a saved checkpoint.
+- `clearCheckpoint`: Remove the saved checkpoint.
 
   ```md
-  :clearCheckpoint{id=SAVE-ID}
+  :clearCheckpoint
   ```
 
-  Replace `SAVE-ID` with the checkpoint to remove.
+  Removes the currently stored checkpoint. Only one checkpoint can exist at a
+  time, so this directive has no attributes.
 
 - `clearSave`: Remove a stored game state.
 
@@ -471,10 +472,11 @@ Save and restore progress or store data in the browser.
 - `restore`: Load a saved state.
 
   ```md
-  :restore{id=SAVE-ID}
+  :restore
   ```
 
-  Replace `SAVE-ID` with the checkpoint to load.
+  Loads the currently stored checkpoint. Only one checkpoint can exist at a
+  time, so this directive has no attributes.
 
 - `save`: Write the current state to local storage.
 
