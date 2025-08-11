@@ -71,11 +71,11 @@ Campfire extends Markdown with
 Directives begin with a colon and let passages interact with the game state.
 They come in leaf or container form.
 
-- **Leaf/Text** – `:name[LABEL]{attr=VALUE}`
+- **Leaf/Text** – `:name[LABEL]{attr=value}`
 - **Container** –
 
   ```md
-  :::name{attr=VALUE}
+  :::name{attr=value}
   CONTENT
   :::
   ```
@@ -124,10 +124,10 @@ Operations that set, update, or remove scalar values.
   content.
 
   ```md
-  :set[KEY=VALUE]
+  :set[key=value]
   ```
 
-  Replace `KEY` with the key name and `VALUE` with the number, string, or
+  Replace `key` with the key name and `value` with the number, string, or
   expression to store. Quoted values are treated as strings, `true`/`false` as
   booleans, values wrapped in `{}` as objects, purely numeric values as numbers
   and any other value is evaluated as an expression or state reference.
@@ -151,18 +151,23 @@ Replace `visited` with the key to lock on first use.
   content.
 
   ```md
-  :random[HP]{min=MIN max=MAX}
+  :random[hp]{min=min_val max=max_val}
   ```
 
-  Replace `HP` with the key and `MIN`/`MAX` with bounds.
+  Replace `hp` with the key and `min_val`/`max_val` with bounds. You can also pick a random item from an array:
 
   ```md
-  :random[pick]{from=[A,B,C]}
-  :random[pick]{from=ITEMS}
+  :random[pick]{from=['a string',some_key,true,42]}
+  ```
+
+  :random[pick]{from=items}
+
   ```
 
   Replace `pick` with the key to store the result and supply either a literal
   array or a state key after `from`.
+
+  ```
 
 - `randomOnce`: Assign a random value once and lock the key.
 
@@ -191,10 +196,10 @@ Create or modify lists of values.
 - `array`: Create an array.
 
   ```md
-  :array[ITEMS=[1,2,'three',"four"]]
+  :array[items=[1,2,'three',"four"]]
   ```
 
-  Replace `ITEMS` with the array name. The directive accepts a single
+  Replace `items` with the array name. The directive accepts a single
   `key=[...]` pair where the value is in array notation. Items are
   automatically converted to strings, numbers, or booleans and may include
   expressions evaluated against the current state.
@@ -202,7 +207,7 @@ Create or modify lists of values.
 - `arrayOnce`: Create an array only if it has not been set.
 
   ```md
-  :arrayOnce[VISITED=['FOREST',"CAVE"]]
+  :arrayOnce[visited=['FOREST',"CAVE"]]
   ```
 
   This behaves like `array` but locks the key after execution, preventing
@@ -211,51 +216,51 @@ Create or modify lists of values.
 - `concat`: Combine arrays.
 
   ```md
-  :concat{key=ITEMS value=MORE-ITEMS}
+  :concat{key=items value=moreItems}
   ```
 
-  Replace `ITEMS` with the target array and `MORE-ITEMS` with the source.
+  Replace `items` with the target array and `moreItems` with the source.
 
 - `pop`: Remove the last item. Use `into` to store it.
 
   ```md
-  :pop{key=ITEMS into=LAST}
+  :pop{key=items into=last}
   ```
 
-  Replace `ITEMS` with the array and `LAST` with the storage key.
+  Replace `items` with the array and `last` with the storage key.
 
 - `push`: Add items to the end of an array.
 
   ```md
-  :push{key=ITEMS value=NEW-ITEM}
+  :push{key=items value=newItem}
   ```
 
-  Replace `ITEMS` with the array and `NEW-ITEM` with items to add.
+  Replace `items` with the array and `newItem` with items to add.
 
 - `shift`: Remove the first item. Use `into` to store it.
 
   ```md
-  :shift{key=ITEMS into=FIRST}
+  :shift{key=items into=FIRST}
   ```
 
-  Replace `ITEMS` with the array and `FIRST` with the storage key.
+  Replace `items` with the array and `FIRST` with the storage key.
 
 - `splice`: Remove items at an index and optionally insert new ones. Use `into`
   to store removed items.
 
   ```md
-  :splice{key=ITEMS index=VALUE count=VALUE into=REMOVED}
+  :splice{key=items index=value count=value into=REMOVED}
   ```
 
-  Replace `ITEMS` with the array and adjust attributes as needed.
+  Replace `items` with the array and adjust attributes as needed.
 
 - `unshift`: Add items to the start of an array.
 
   ```md
-  :unshift{key=ITEMS value=NEW-ITEM}
+  :unshift{key=items value=newItem}
   ```
 
-  Replace `ITEMS` with the array and `NEW-ITEM` with items to add.
+  Replace `items` with the array and `newItem` with items to add.
 
 ### Data retrieval & evaluation
 
@@ -355,7 +360,7 @@ Run directives on specific passage events or group actions.
 
   ```md
   :::batch
-  :set[HP=VALUE]
+  :set[hp=value]
   :push{key=items value=sword}
   :unset{key=old}
   :::
@@ -367,7 +372,7 @@ Run directives on specific passage events or group actions.
 
   ```md
   :::onExit
-  :set[KEY=VALUE]
+  :set[key=value]
   :::
   ```
 
@@ -379,7 +384,7 @@ Run directives on specific passage events or group actions.
 
   ```md
   :::trigger{label="Do it" class="primary" disabled}
-  :set[KEY=VALUE]
+  :set[key=value]
   :::
   ```
 
@@ -486,27 +491,27 @@ Change language and handle translations.
 - `lang`: Switch the active locale.
 
   ```md
-  :lang[LANG-CODE]
+  :lang[lang]
   ```
 
-  Replace `LANG-CODE` with a locale like `fr`.
+  Replace `lang` with a locale like `fr`.
 
 - `t`: Output a translated string. Use the optional `count` attribute for
   pluralization.
 
   ```md
-  :t[UI:APPLE]{count=2}
+  :t[ui:apple]{count=2}
   ```
 
-  Replace `APPLE` and `UI` with your key and namespace.
+  Replace `apple` and `ui` with your key and namespace.
 
 - `translations`: Add a translation.
 
   ```md
-  :translations[LANG-CODE]{UI:hello="BONJOUR"}
+  :translations[lang]{ui:hello="BONJOUR"}
   ```
 
-  Replace `LANG-CODE` with the locale and `UI` with the namespace. Only one
+  Replace `lang` with the locale and `ui` with the namespace. Only one
   `namespace:key="value"` pair is allowed per directive. Repeat the directive
   for additional translations.
 
