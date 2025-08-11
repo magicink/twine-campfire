@@ -304,10 +304,13 @@ export const useDirectiveHandlers = () => {
     parent: Parent | undefined,
     index: number | undefined
   ): { key: string; valueRaw: string } | undefined => {
-    const label = hasLabel(directive) ? directive.label : toString(directive)
+    const label = (
+      hasLabel(directive) ? directive.label : toString(directive)
+    ).trim()
     const eq = label.indexOf('=')
     if (eq === -1) {
-      const msg = `Malformed ${(directive as { name?: string }).name} directive: ${label}`
+      const name = (directive as { name?: string }).name ?? 'unknown'
+      const msg = `Malformed ${name} directive: ${label}`
       console.error(msg)
       addError(msg)
       return undefined
@@ -433,13 +436,11 @@ export const useDirectiveHandlers = () => {
    *
    * @param raw - Raw value string from the directive.
    * @param data - Game state used for expression evaluation.
-   * @param defaultValue - Value to return if evaluation fails.
    * @returns Parsed numeric value.
    */
   const evaluateToNumber = (
     raw: string,
-    data: Record<string, unknown>,
-    defaultValue = 0
+    data: Record<string, unknown>
   ): number => {
     try {
       const trimmed = raw.trim()
@@ -448,16 +449,16 @@ export const useDirectiveHandlers = () => {
       try {
         const fn = compile(trimmed)
         const evaluated = fn(data)
-        return parseNumericValue(evaluated, defaultValue)
+        return parseNumericValue(evaluated)
       } catch {
         const v = (data as Record<string, unknown>)[trimmed]
-        return parseNumericValue(v, defaultValue)
+        return parseNumericValue(v)
       }
     } catch {
       const msg = `Failed to evaluate numeric value: ${raw}`
       console.error(msg)
       addError(msg)
-      return defaultValue
+      return 0
     }
   }
 
@@ -733,14 +734,14 @@ export const useDirectiveHandlers = () => {
           break
         }
         case 'splice': {
-          const parseNum = (value: unknown, defaultValue = 0): number => {
+          const parseNum = (value: unknown): number => {
             if (typeof value === 'string')
-              return evaluateToNumber(value, gameData, defaultValue)
-            return parseNumericValue(value, defaultValue)
+              return evaluateToNumber(value, gameData)
+            return parseNumericValue(value)
           }
 
-          const start = parseNum((attrs as Record<string, unknown>).index, 0)
-          const count = parseNum((attrs as Record<string, unknown>).count, 0)
+          const start = parseNum((attrs as Record<string, unknown>).index)
+          const count = parseNum((attrs as Record<string, unknown>).count)
           const values = parseValues()
           const removed = arr.splice(start, count, ...values)
           setValue(key, arr)
