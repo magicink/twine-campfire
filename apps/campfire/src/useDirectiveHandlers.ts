@@ -1390,6 +1390,27 @@ export const useDirectiveHandlers = () => {
       }
     }
     if (!key) return removeNode(parent, index)
+    const rawAttrs = { ...(directive.attributes || {}) } as Record<
+      string,
+      unknown
+    >
+    delete rawAttrs.count
+    const vars: Record<string, unknown> = {}
+    for (const [name, raw] of Object.entries(rawAttrs)) {
+      if (raw == null) continue
+      if (typeof raw === 'string') {
+        try {
+          const fn = compile(raw) as (scope: Record<string, unknown>) => unknown
+          const value = fn(gameData)
+          vars[name] = value ?? raw
+        } catch {
+          const match = raw.match(QUOTE_PATTERN)
+          vars[name] = match ? match[2] : raw
+        }
+      } else {
+        vars[name] = raw
+      }
+    }
     if (parent && typeof index === 'number') {
       const prev = parent.children[index - 1] as MdText | undefined
       const next = parent.children[index + 1] as MdText | undefined
@@ -1398,7 +1419,10 @@ export const useDirectiveHandlers = () => {
         prev.value.endsWith('[[') &&
         next?.type === 'text' &&
         next.value.includes(']]')
-      const options = getTranslationOptions({ ns, count: attrs.count })
+      const options = {
+        ...vars,
+        ...getTranslationOptions({ ns, count: attrs.count })
+      }
       if (inLink) {
         const text = i18next.t(key, options)
         if (prev && next) {
@@ -1413,6 +1437,8 @@ export const useDirectiveHandlers = () => {
       const props: Properties = { 'data-i18n-key': key }
       if (ns) props['data-i18n-ns'] = ns
       if (options.count !== undefined) props['data-i18n-count'] = options.count
+      if (Object.keys(vars).length > 0)
+        props['data-i18n-vars'] = JSON.stringify(vars)
       const node: MdText = {
         type: 'text',
         value: '0', // non-empty placeholder required for mdast conversion

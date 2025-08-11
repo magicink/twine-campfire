@@ -13,6 +13,8 @@ interface ShowProps {
   'data-i18n-ns'?: string
   /** Pluralization count for the translation */
   'data-i18n-count'?: number
+  /** Interpolation values for the translation */
+  'data-i18n-vars'?: string
 }
 
 /**
@@ -30,10 +32,21 @@ export const Show = (props: ShowProps) => {
   )
   const tKey = props['data-i18n-key']
   if (tKey) {
-    const options = getTranslationOptions({
-      ns: props['data-i18n-ns'],
-      count: props['data-i18n-count']
-    })
+    let vars: Record<string, unknown> = {}
+    if (typeof props['data-i18n-vars'] === 'string') {
+      try {
+        vars = JSON.parse(props['data-i18n-vars']) as Record<string, unknown>
+      } catch {
+        vars = {}
+      }
+    }
+    const options = {
+      ...vars,
+      ...getTranslationOptions({
+        ns: props['data-i18n-ns'],
+        count: props['data-i18n-count']
+      })
+    }
     return <span>{t(tKey, options)}</span>
   }
   const storeKey = props['data-key']

@@ -121,6 +121,32 @@ describe('Passage i18n directives', () => {
     expect(text).toBeInTheDocument()
   })
 
+  it('supports interpolation with t directive', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':translations[en-US]{translation:greet="Hello, {{name}}!"}'
+        },
+        { type: 'text', value: ':t[greet]{name=player}' }
+      ]
+    }
+
+    useGameStore.setState({ gameData: { player: 'Sam' } })
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    const text = await screen.findByText('Hello, Sam!')
+    expect(text).toBeInTheDocument()
+  })
+
   it('resolves translations inside links', async () => {
     const start: Element = {
       type: 'element',
