@@ -1682,19 +1682,23 @@ export const useDirectiveHandlers = () => {
     return removeNode(parent, index)
   }
 
+  /**
+   * Handles the `:clearCheckpoint` directive, which removes the currently saved
+   * checkpoint. If the directive is used inside an included passage, it is
+   * ignored.
+   *
+   * @param directive - The directive node representing `:clearCheckpoint`.
+   * @param parent - The parent AST node containing this directive.
+   * @param index - The index of this directive within the parent's children.
+   * @returns The index at which processing should continue.
+   */
   const handleClearCheckpoint: DirectiveHandler = (
-    directive,
+    _directive,
     parent,
     index
   ) => {
     if (includeDepth > 0) return removeNode(parent, index)
-    const attrs = (directive.attributes || {}) as Record<string, unknown>
-    const id = typeof attrs.id === 'string' ? attrs.id : undefined
-    if (id) {
-      removeCheckpoint(id)
-    } else {
-      useGameStore.setState({ checkpoints: {} })
-    }
+    useGameStore.setState({ checkpoints: {} })
     return removeNode(parent, index)
   }
 

@@ -268,7 +268,7 @@ describe('Passage checkpoint directives', () => {
     console.error = orig
   })
 
-  it('clears a checkpoint by id', async () => {
+  it('clears a checkpoint', async () => {
     const passage: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
@@ -276,7 +276,7 @@ describe('Passage checkpoint directives', () => {
       children: [
         {
           type: 'text',
-          value: ':checkpoint{id=cp1}:clearCheckpoint{id=cp1}'
+          value: ':checkpoint{id=cp1}:clearCheckpoint'
         }
       ]
     }
@@ -290,7 +290,7 @@ describe('Passage checkpoint directives', () => {
     })
   })
 
-  it('clears all checkpoints when no id is provided', async () => {
+  it('clears a checkpoint from state', async () => {
     const state = useGameStore.getState()
     state.saveCheckpoint('cp1', {
       gameData: {},
