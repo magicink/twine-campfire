@@ -140,6 +140,19 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
+   * Preprocesses directive children to handle fallback attributes before validation.
+   * Runs the remarkCampfire plugin without handlers so only attribute parsing occurs.
+   *
+   * @param nodes - Directive child nodes to preprocess.
+   * @returns The mutated array of child nodes.
+   */
+  const preprocessBlock = (nodes: RootContent[]): RootContent[] => {
+    const root: Root = { type: 'root', children: nodes }
+    unified().use(remarkCampfireIndentation).use(remarkCampfire).runSync(root)
+    return root.children as RootContent[]
+  }
+
+  /**
    * Resets per-passage directive state such as checkpoints and onExit usage.
    * Clears existing checkpoint identifiers and error flags, resets OnExit tracking,
    * and updates the last processed passage identifier.
@@ -808,8 +821,9 @@ export const useDirectiveHandlers = () => {
     const container = directive as ContainerDirective
     const allowed = ALLOWED_BATCH_DIRECTIVES
     const rawChildren = stripLabel(container.children as RootContent[])
+    const processedChildren = preprocessBlock(rawChildren)
     const [filtered, invalid, nested] = filterDirectiveChildren(
-      rawChildren,
+      processedChildren,
       allowed,
       BANNED_BATCH_DIRECTIVES
     )
