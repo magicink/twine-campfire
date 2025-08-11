@@ -36,7 +36,10 @@ export const Show = (props: ShowProps) => {
     if (typeof props['data-i18n-vars'] === 'string') {
       try {
         vars = JSON.parse(props['data-i18n-vars']) as Record<string, unknown>
-      } catch {
+      } catch (error) {
+        const msg = 'Invalid translation variables'
+        console.error(msg, error)
+        useGameStore.getState().addError(msg)
         vars = {}
       }
     }

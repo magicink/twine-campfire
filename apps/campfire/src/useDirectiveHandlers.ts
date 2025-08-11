@@ -1403,7 +1403,10 @@ export const useDirectiveHandlers = () => {
           const fn = compile(raw) as (scope: Record<string, unknown>) => unknown
           const value = fn(gameData)
           vars[name] = value ?? raw
-        } catch {
+        } catch (error) {
+          const msg = `Failed to evaluate t directive var: ${raw}`
+          console.error(msg, error)
+          addError(msg)
           const match = raw.match(QUOTE_PATTERN)
           vars[name] = match ? match[2] : raw
         }
