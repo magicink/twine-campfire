@@ -104,6 +104,9 @@ export const useDirectiveHandlers = () => {
   const MAX_INCLUDE_DEPTH = 10
   let includeDepth = 0
 
+  /** Maximum recursion depth for expanding indented code blocks. */
+  const MAX_CODE_EXPANSION_DEPTH = 20
+
   /**
    * Replaces a directive with new nodes while restoring preserved indentation.
    *
@@ -133,28 +136,36 @@ export const useDirectiveHandlers = () => {
    *
    * This enables nested directives within constructs like `:::sequence` to be
    * written with indentation for readability without being treated as literal
-   * code blocks by the markdown parser.
+   * code blocks by the markdown parser. Expansion stops after
+   * `MAX_CODE_EXPANSION_DEPTH` to prevent infinite recursion.
    *
    * @param nodes - The nodes to expand.
+   * @param depth - Current recursion depth.
    * @returns The expanded array of nodes.
    */
-  const expandIndentedCode = (nodes: RootContent[]): RootContent[] =>
-    nodes.flatMap(node => {
+  const expandIndentedCode = (
+    nodes: RootContent[],
+    depth = 0
+  ): RootContent[] => {
+    if (depth >= MAX_CODE_EXPANSION_DEPTH) return nodes
+    return nodes.flatMap(node => {
       if (node.type === 'code' && !node.lang) {
         const root = unified()
           .use(remarkParse)
           .use(remarkGfm)
           .use(remarkDirective)
           .parse(node.value) as Root
-        return expandIndentedCode(root.children as RootContent[])
+        return expandIndentedCode(root.children as RootContent[], depth + 1)
       }
       if ('children' in node && Array.isArray(node.children)) {
         ;(node as Parent).children = expandIndentedCode(
-          (node as Parent).children as RootContent[]
+          (node as Parent).children as RootContent[],
+          depth + 1
         )
       }
       return [node]
     })
+  }
 
   /**
    * Processes a block of AST nodes using the unified processor with the remarkCampfire plugin.
