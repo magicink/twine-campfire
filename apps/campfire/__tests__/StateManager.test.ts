@@ -58,4 +58,12 @@ describe('StateManager', () => {
     manager.setRange('hp', 0, 10, 20)
     expect(manager.getValue('hp')).toEqual({ min: 0, max: 10, value: 10 })
   })
+
+  it('avoids updates when range value is unchanged', () => {
+    const manager = createStateManager<Record<string, unknown>>()
+    manager.setRange('hp', 0, 10, 5)
+    const initial = useGameStore.getState().gameData.hp
+    manager.setRange('hp', 0, 10, 5)
+    expect(useGameStore.getState().gameData.hp).toBe(initial)
+  })
 })
