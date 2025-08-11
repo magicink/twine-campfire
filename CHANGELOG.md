@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.51.1](https://github.com/magicink/twine-campfire/compare/v1.51.0...v1.51.1) (2025-08-11)
+
+
+### Bug Fixes
+
+* avoid redundant range updates ([#237](https://github.com/magicink/twine-campfire/issues/237)) ([c099868](https://github.com/magicink/twine-campfire/commit/c0998689edd3b29809eb29958795f45e15b60010))
+
 ## [1.51.0](https://github.com/magicink/twine-campfire/compare/v1.50.1...v1.51.0) (2025-08-11)
 
 
