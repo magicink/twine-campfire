@@ -80,6 +80,7 @@ export const DebugWindow = () => {
   }, [])
   const gameData = useGameStore(state => state.gameData)
   const errors = useGameStore(state => state.errors)
+  const clearErrors = useGameStore(state => state.clearErrors)
   const [visible, setVisible] = useState(true)
   const [minimized, setMinimized] = useState(false)
   const [tab, setTab] = useState<Tab>(TAB_GAME)
@@ -94,6 +95,15 @@ export const DebugWindow = () => {
    */
   const handleCopy = (): void => {
     void navigator.clipboard?.writeText(rawPassage)
+  }
+
+  /**
+   * Clears all recorded errors.
+   *
+   * @returns {void}
+   */
+  const handleClearErrors = (): void => {
+    clearErrors()
   }
 
   useEffect(() => {
@@ -188,13 +198,15 @@ export const DebugWindow = () => {
             </button>
             <button
               type='button'
-              className={`flex-1 p-2 ${tab === TAB_ERRORS ? 'font-bold' : ''}`}
+              className={`flex-1 p-2 ${
+                tab === TAB_ERRORS ? 'font-bold' : ''
+              } ${errors.length ? 'text-red-500' : ''}`}
               onClick={e => {
                 e.stopPropagation()
                 setTab(TAB_ERRORS)
               }}
             >
-              Errors
+              Errors{errors.length ? ` (${errors.length})` : ''}
             </button>
           </div>
           <div className='p-2'>
@@ -233,7 +245,18 @@ export const DebugWindow = () => {
                 {JSON.stringify(translations, null, 2)}
               </pre>
             ) : (
-              <pre className='whitespace-pre-wrap'>{errors.join('\n')}</pre>
+              <div>
+                <button
+                  type='button'
+                  onClick={e => {
+                    e.stopPropagation()
+                    handleClearErrors()
+                  }}
+                >
+                  Clear
+                </button>
+                <pre className='whitespace-pre-wrap'>{errors.join('\n')}</pre>
+              </div>
             )}
           </div>
         </div>
