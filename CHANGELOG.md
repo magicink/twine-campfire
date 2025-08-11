@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.54.1](https://github.com/magicink/twine-campfire/compare/v1.54.0...v1.54.1) (2025-08-11)
+
+
+### Bug Fixes
+
+* remove attributes from clearCheckpoint directive ([#250](https://github.com/magicink/twine-campfire/issues/250)) ([cbee185](https://github.com/magicink/twine-campfire/commit/cbee185dbeefc89671376b211f27bc7b71254ff2))
+
 ## [1.54.0](https://github.com/magicink/twine-campfire/compare/v1.53.0...v1.54.0) (2025-08-11)
 
 
