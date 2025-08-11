@@ -292,6 +292,39 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
+   * Extracts a key and raw value from a directive formatted as `key=value`.
+   *
+   * @param directive - The directive node being processed.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within its parent.
+   * @returns The parsed key and value, or undefined on failure.
+   */
+  const parseKeyEquals = (
+    directive: DirectiveNode,
+    parent: Parent | undefined,
+    index: number | undefined
+  ): { key: string; valueRaw: string } | undefined => {
+    const label = (
+      hasLabel(directive) ? directive.label : toString(directive)
+    ).trim()
+    const eq = label.indexOf('=')
+    if (eq === -1) {
+      const name = (directive as { name?: string }).name ?? 'unknown'
+      const msg = `Malformed ${name} directive: ${label}`
+      console.error(msg)
+      addError(msg)
+      return undefined
+    }
+
+    const keyRaw = label.slice(0, eq).trim()
+    const key = ensureKey(keyRaw, parent, index)
+    if (!key) return undefined
+
+    const valueRaw = label.slice(eq + 1).trim()
+    return { key, valueRaw }
+  }
+
+  /**
    * Parses and applies an array directive in the form `key=[...]`.
    * Supports basic type coercion and expression evaluation for each array item.
    *
@@ -306,24 +339,11 @@ export const useDirectiveHandlers = () => {
     index: number | undefined,
     lock = false
   ): DirectiveHandlerResult => {
-    const label = (
-      hasLabel(directive) ? directive.label : toString(directive)
-    ).trim()
-    const eq = label.indexOf('=')
-    if (eq === -1) {
-      const msg = `Malformed array directive: ${label}`
-      console.error(msg)
-      addError(msg)
-      return index
-    }
-
-    const keyRaw = label.slice(0, eq).trim()
-    const key = ensureKey(keyRaw, parent, index)
-    if (!key) return index
-
-    const valueRaw = label.slice(eq + 1).trim()
+    const parsed = parseKeyEquals(directive, parent, index)
+    if (!parsed) return index
+    const { key, valueRaw } = parsed
     if (!valueRaw.startsWith('[') || !valueRaw.endsWith(']')) {
-      const msg = `Array directive value must be in [ ] notation: ${label}`
+      const msg = `Array directive value must be in [ ] notation: ${key}=${valueRaw}`
       console.error(msg)
       addError(msg)
       return index
@@ -412,27 +432,30 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
-   * Parses a raw value for range directives, evaluating expressions or state
-   * lookups and converting the result to a number.
+   * Evaluates a raw string to a numeric value using game data context.
    *
    * @param raw - Raw value string from the directive.
-   * @returns Parsed numeric value, or 0 if parsing fails.
+   * @param data - Game state used for expression evaluation.
+   * @returns Parsed numeric value.
    */
-  const parseRangeValue = (raw: string): number => {
+  const evaluateToNumber = (
+    raw: string,
+    data: Record<string, unknown>
+  ): number => {
     try {
       const trimmed = raw.trim()
       const direct = Number(trimmed)
       if (!Number.isNaN(direct)) return direct
       try {
         const fn = compile(trimmed)
-        const evaluated = fn(gameData)
+        const evaluated = fn(data)
         return parseNumericValue(evaluated)
       } catch {
-        const v = (gameData as Record<string, unknown>)[trimmed]
+        const v = (data as Record<string, unknown>)[trimmed]
         return parseNumericValue(v)
       }
     } catch {
-      const msg = `Failed to parse range value: ${raw}`
+      const msg = `Failed to evaluate numeric value: ${raw}`
       console.error(msg)
       addError(msg)
       return 0
@@ -440,87 +463,76 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
-   * Initializes a range value with specified bounds and starting value using
-   * shorthand `key=value` notation.
+   * Shared flow for createRange and setRange directives.
    *
-   * @param directive - The directive node representing the range creation.
-   * @param parent - Parent AST node containing this directive.
+   * @param mode - Specifies whether to create or set a range.
+   * @param directive - Directive node being processed.
+   * @param parent - Parent AST node.
    * @param index - Index of the directive within its parent.
+   * @returns The index of the removed node, if any.
    */
-  const handleCreateRange: DirectiveHandler = (directive, parent, index) => {
-    const label = hasLabel(directive) ? directive.label : toString(directive)
-    const eq = label.indexOf('=')
-    if (eq === -1) {
-      const msg = `Malformed createRange directive: ${label}`
-      console.error(msg)
-      addError(msg)
-      return index
-    }
+  const processRangeDirective = (
+    mode: 'create' | 'set',
+    directive: DirectiveNode,
+    parent: Parent | undefined,
+    index: number | undefined
+  ): DirectiveHandlerResult => {
+    const parsed = parseKeyEquals(directive, parent, index)
+    if (!parsed) return index
+    const { key, valueRaw } = parsed
 
-    const keyRaw = label.slice(0, eq).trim()
-    const key = ensureKey(keyRaw, parent, index)
-    if (!key) return index
+    let lower: number
+    let upper: number
 
-    const valueRaw = label.slice(eq + 1).trim()
-    const { attrs, valid, errors } = extractAttributes(
-      directive,
-      parent,
-      index,
-      {
-        min: { type: 'number', required: true },
-        max: { type: 'number', required: true }
-      },
-      { state: gameData }
-    )
-
-    if (!valid) {
-      for (const e of errors) {
-        console.error(e)
-        addError(e)
+    if (mode === 'create') {
+      const { attrs, valid, errors } = extractAttributes(
+        directive,
+        parent,
+        index,
+        {
+          min: { type: 'number', required: true },
+          max: { type: 'number', required: true }
+        },
+        { state: gameData }
+      )
+      if (!valid) {
+        for (const e of errors) {
+          console.error(e)
+          addError(e)
+        }
+        return index
       }
-      return index
+      lower = attrs.min as number
+      upper = attrs.max as number
+    } else {
+      const current = getValue(key)
+      if (!isRange(current)) {
+        const msg = `setRange target is not a range: ${key}`
+        console.error(msg)
+        addError(msg)
+        return index
+      }
+      lower = current.min
+      upper = current.max
     }
 
-    const { min, max } = attrs
-    const initial = parseRangeValue(valueRaw)
-    setRangeValue(key, min, max, initial)
+    const value = evaluateToNumber(valueRaw, gameData)
+    withStateUpdate(() => state.setRange(key, lower, upper, value))
     return removeNode(parent, index)
   }
 
   /**
-   * Updates the value of an existing range, clamping it between its bounds.
-   *
-   * @param directive - The directive node representing the range update.
-   * @param parent - Parent AST node containing this directive.
-   * @param index - Index of the directive within its parent.
+   * Initializes a range value with specified bounds and starting value using
+   * shorthand `key=value` notation.
    */
-  const handleSetRange: DirectiveHandler = (directive, parent, index) => {
-    const label = hasLabel(directive) ? directive.label : toString(directive)
-    const eq = label.indexOf('=')
-    if (eq === -1) {
-      const msg = `Malformed setRange directive: ${label}`
-      console.error(msg)
-      addError(msg)
-      return index
-    }
+  const handleCreateRange: DirectiveHandler = (directive, parent, index) =>
+    processRangeDirective('create', directive, parent, index)
 
-    const keyRaw = label.slice(0, eq).trim()
-    const key = ensureKey(keyRaw, parent, index)
-    if (!key) return index
-
-    const valueRaw = label.slice(eq + 1).trim()
-    const current = getValue(key)
-    if (!isRange(current)) {
-      const msg = `setRange target is not a range: ${key}`
-      console.error(msg)
-      addError(msg)
-      return index
-    }
-
-    const newVal = parseRangeValue(valueRaw)
-    setRangeValue(key, current.min, current.max, newVal)
-    return removeNode(parent, index)
-  }
+  /**
+   * Updates the value of an existing range, clamping it between its bounds.
+   */
+  const handleSetRange: DirectiveHandler = (directive, parent, index) =>
+    processRangeDirective('set', directive, parent, index)
 
   /**
    * Inserts a Show component that displays the value for the provided key.
@@ -622,52 +634,34 @@ export const useDirectiveHandlers = () => {
   const getValue = (path: string): unknown => state.getValue(path)
 
   /**
+   * Executes a mutator function and refreshes cached state snapshots.
+   *
+   * @param mutator - Function performing the mutation.
+   */
+  const withStateUpdate = (mutator: () => void) => {
+    mutator()
+    gameData = state.getState()
+    lockedKeys = state.getLockedKeys()
+    onceKeys = state.getOnceKeys()
+  }
+
+  /**
    * Sets a value within the game state using dot notation.
    *
    * @param path - Dot separated path where the value should be stored.
    * @param value - The value to assign at the provided path.
    * @param opts - Additional options controlling assignment behavior.
    */
-  const setValue = (path: string, value: unknown, opts: SetOptions = {}) => {
-    state.setValue(path, value, opts)
-    gameData = state.getState()
-    lockedKeys = state.getLockedKeys()
-    onceKeys = state.getOnceKeys()
-  }
-
-  /**
-   * Sets a range value within the game state using dot notation.
-   *
-   * @param path - Dot separated path where the range should be stored.
-   * @param min - Minimum allowed value for the range.
-   * @param max - Maximum allowed value for the range.
-   * @param value - Current value to assign within the range.
-   * @param opts - Additional options controlling assignment behavior.
-   */
-  const setRangeValue = (
-    path: string,
-    min: number,
-    max: number,
-    value: number,
-    opts: SetOptions = {}
-  ) => {
-    state.setRange(path, min, max, value, opts)
-    gameData = state.getState()
-    lockedKeys = state.getLockedKeys()
-    onceKeys = state.getOnceKeys()
-  }
+  const setValue = (path: string, value: unknown, opts: SetOptions = {}) =>
+    withStateUpdate(() => state.setValue(path, value, opts))
 
   /**
    * Removes a value from the game state using dot notation.
    *
    * @param path - Dot separated path of the value to remove.
    */
-  const unsetValue = (path: string) => {
-    state.unsetValue(path)
-    gameData = state.getState()
-    lockedKeys = state.getLockedKeys()
-    onceKeys = state.getOnceKeys()
-  }
+  const unsetValue = (path: string) =>
+    withStateUpdate(() => state.unsetValue(path))
 
   /**
    * Creates a handler for array mutation directives.
@@ -740,23 +734,14 @@ export const useDirectiveHandlers = () => {
           break
         }
         case 'splice': {
-          const parseNum = (value: unknown, defaultValue = 0): number => {
-            if (typeof value === 'number') return value
-            if (typeof value === 'string') {
-              let evaluated: unknown = value
-              try {
-                const fn = compile(value)
-                evaluated = fn(gameData)
-              } catch {
-                // ignore
-              }
-              return parseNumericValue(evaluated, defaultValue)
-            }
-            return defaultValue
+          const parseNum = (value: unknown): number => {
+            if (typeof value === 'string')
+              return evaluateToNumber(value, gameData)
+            return parseNumericValue(value)
           }
 
-          const start = parseNum((attrs as Record<string, unknown>).index, 0)
-          const count = parseNum((attrs as Record<string, unknown>).count, 0)
+          const start = parseNum((attrs as Record<string, unknown>).index)
+          const count = parseNum((attrs as Record<string, unknown>).count)
           const values = parseValues()
           const removed = arr.splice(start, count, ...values)
           setValue(key, arr)
