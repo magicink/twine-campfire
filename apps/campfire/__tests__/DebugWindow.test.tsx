@@ -104,20 +104,27 @@ describe('DebugWindow', () => {
     expect(screen.getByText(/"hello"/)).toBeInTheDocument()
   })
 
-  it('shows errors from the game store', () => {
+  it('shows error count and clears errors', () => {
     useStoryDataStore.setState({ storyData: { options: 'debug' } })
     useGameStore.setState(state => ({
       ...state,
-      errors: ['something went wrong']
+      errors: ['first error', 'second error']
     }))
 
     render(<DebugWindow />)
 
-    const errTab = screen.getByRole('button', { name: 'Errors' })
+    const errTab = screen.getByRole('button', { name: 'Errors (2)' })
+    expect(errTab).toHaveClass('text-red-500')
     act(() => {
       errTab.click()
     })
-    expect(screen.getByText('something went wrong')).toBeInTheDocument()
+    expect(screen.getByText(/first error/)).toBeInTheDocument()
+    const clearButton = screen.getByRole('button', { name: 'Clear' })
+    act(() => {
+      clearButton.click()
+    })
+    expect(screen.queryByText('first error')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Errors' })).toBeInTheDocument()
   })
 
   it('shows raw current passage', () => {
