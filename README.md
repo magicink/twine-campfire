@@ -224,10 +224,10 @@ Create or modify lists of values.
 - `pop`: Remove the last item. Use `into` to store it.
 
   ```md
-  :pop{key=items into=last}
+  :pop{key=items into=lastItem}
   ```
 
-  Replace `items` with the array and `last` with the storage key.
+  Replace `items` with the array and `lastItem` with the storage key.
 
 - `push`: Add items to the end of an array.
 
@@ -240,16 +240,16 @@ Create or modify lists of values.
 - `shift`: Remove the first item. Use `into` to store it.
 
   ```md
-  :shift{key=items into=FIRST}
+  :shift{key=items into=firstItem}
   ```
 
-  Replace `items` with the array and `FIRST` with the storage key.
+  Replace `items` with the array and `firstItem` with the storage key.
 
 - `splice`: Remove items at an index and optionally insert new ones. Use `into`
   to store removed items.
 
   ```md
-  :splice{key=items index=value count=value into=REMOVED}
+  :splice{key=items index=value count=value into=removedItems}
   ```
 
   Replace `items` with the array and adjust attributes as needed.
