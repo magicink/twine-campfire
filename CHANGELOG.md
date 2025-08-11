@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.50.1](https://github.com/magicink/twine-campfire/compare/v1.50.0...v1.50.1) (2025-08-11)
+
+
+### Bug Fixes
+
+* parse random attrs in batch ([#233](https://github.com/magicink/twine-campfire/issues/233)) ([d430ddc](https://github.com/magicink/twine-campfire/commit/d430ddc8044d49d1409a8f7d4ce3fb71d80f039b))
+
 ## [1.50.0](https://github.com/magicink/twine-campfire/compare/v1.49.6...v1.50.0) (2025-08-10)
 
 
