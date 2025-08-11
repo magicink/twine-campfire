@@ -52,7 +52,7 @@ describe('useGameStore', () => {
     expect(useGameStore.getState().onceKeys).toEqual({})
   })
 
-  it('saves and restores checkpoints', () => {
+  it('saves and loads checkpoints', () => {
     useGameStore.getState().setGameData({ health: 10 })
     useGameStore.getState().saveCheckpoint('cp1', {
       gameData: { ...useGameStore.getState().gameData },
@@ -62,13 +62,13 @@ describe('useGameStore', () => {
       label: 'Start'
     })
     useGameStore.getState().setGameData({ health: 5 })
-    const cp = useGameStore.getState().restoreCheckpoint('cp1')
+    const cp = useGameStore.getState().loadCheckpoint('cp1')
     expect(useGameStore.getState().gameData).toEqual({ health: 10 })
     expect(cp?.currentPassageId).toBe('1')
     expect(cp?.timestamp).toBeGreaterThan(0)
   })
 
-  it('restores the existing checkpoint when no id is provided', () => {
+  it('loads the existing checkpoint when no id is provided', () => {
     useGameStore.getState().setGameData({ health: 10 })
     useGameStore.getState().saveCheckpoint('cp1', {
       gameData: { ...useGameStore.getState().gameData },
@@ -88,18 +88,18 @@ describe('useGameStore', () => {
     expect(useGameStore.getState().checkpoints.cp1).toBeUndefined()
     expect(useGameStore.getState().checkpoints.cp2).toBeDefined()
     useGameStore.getState().setGameData({ health: 1 })
-    const cp = useGameStore.getState().restoreCheckpoint()
+    const cp = useGameStore.getState().loadCheckpoint()
     expect(useGameStore.getState().gameData).toEqual({ health: 5 })
     expect(cp?.label).toBe('Second')
   })
 
-  it('logs and stores an error when restoring a nonexistent checkpoint', () => {
+  it('logs and stores an error when loading a nonexistent checkpoint', () => {
     const errors: unknown[] = []
     const orig = console.error
     console.error = (...args: unknown[]) => {
       errors.push(args)
     }
-    const cp = useGameStore.getState().restoreCheckpoint('missing')
+    const cp = useGameStore.getState().loadCheckpoint('missing')
     expect(cp).toBeUndefined()
     expect(errors).toHaveLength(1)
     expect(useGameStore.getState().errors).toEqual([

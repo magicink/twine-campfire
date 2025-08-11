@@ -87,7 +87,7 @@ export const useDirectiveHandlers = () => {
   }
   const saveCheckpoint = useGameStore(state => state.saveCheckpoint)
   const removeCheckpoint = useGameStore(state => state.removeCheckpoint)
-  const restoreCheckpointFn = useGameStore(state => state.restoreCheckpoint)
+  const loadCheckpointFn = useGameStore(state => state.loadCheckpoint)
   const setLoading = useGameStore(state => state.setLoading)
   const addError = useGameStore(state => state.addError)
   const currentPassageId = useStoryDataStore(state => state.currentPassageId)
@@ -1672,17 +1672,21 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
-   * Handles the `:restore` directive, which loads the saved checkpoint. If the
-   * directive is used inside an included passage, it is ignored.
+   * Handles the `:loadCheckpoint` directive, which loads the saved checkpoint.
+   * If the directive is used inside an included passage, it is ignored.
    *
-   * @param directive - The directive node representing `:restore`.
+   * @param directive - The directive node representing `:loadCheckpoint`.
    * @param parent - The parent AST node containing this directive.
    * @param index - The index of this directive within the parent's children.
    * @returns The index at which processing should continue.
    */
-  const handleRestore: DirectiveHandler = (_directive, parent, index) => {
+  const handleLoadCheckpoint: DirectiveHandler = (
+    _directive,
+    parent,
+    index
+  ) => {
     if (includeDepth > 0) return removeNode(parent, index)
-    const cp = restoreCheckpointFn()
+    const cp = loadCheckpointFn()
     if (cp?.currentPassageId) {
       setCurrentPassage(cp.currentPassageId)
     }
@@ -1851,7 +1855,7 @@ export const useDirectiveHandlers = () => {
       clearSave: handleClearSave,
       checkpoint: handleCheckpoint,
       clearCheckpoint: handleClearCheckpoint,
-      restore: handleRestore,
+      loadCheckpoint: handleLoadCheckpoint,
       translations: handleTranslations,
       t: handleTranslate
     }

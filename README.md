@@ -431,9 +431,11 @@ Control the flow between passages or how they appear.
   - `title-show-passage="false"`: Hide the passage name and show only the
     story name.
 
-### Checkpoints & persistence
+### Persistence
 
-Save and restore progress or store data in the browser.
+Save and load progress or store data in the browser.
+
+#### Checkpoints
 
 - `checkpoint`: Save the current game state.
 
@@ -453,10 +455,21 @@ Save and restore progress or store data in the browser.
   Removes the currently stored checkpoint. Only one checkpoint can exist at a
   time, so this directive has no attributes.
 
-- `clearSave`: Remove a stored game state.
+- `loadCheckpoint`: Load a saved checkpoint.
 
   ```md
-  :clearSave{id=SLOT}
+  :loadCheckpoint
+  ```
+
+  Loads the currently stored checkpoint. Only one checkpoint can exist at a
+  time, so this directive has no attributes.
+
+#### Saves
+
+- `save`: Write the current state to local storage.
+
+  ```md
+  :save{id=SLOT}
   ```
 
   Replace `SLOT` with the storage id.
@@ -469,19 +482,10 @@ Save and restore progress or store data in the browser.
 
   Replace `SLOT` with the storage id.
 
-- `restore`: Load a saved state.
+- `clearSave`: Remove a stored game state.
 
   ```md
-  :restore
-  ```
-
-  Loads the currently stored checkpoint. Only one checkpoint can exist at a
-  time, so this directive has no attributes.
-
-- `save`: Write the current state to local storage.
-
-  ```md
-  :save{id=SLOT}
+  :clearSave{id=SLOT}
   ```
 
   Replace `SLOT` with the storage id.

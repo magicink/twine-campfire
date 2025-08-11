@@ -20,7 +20,7 @@ describe('Passage checkpoint directives', () => {
     }
   })
 
-  it('saves and restores game state with checkpoints', async () => {
+  it('saves and loads game state with checkpoints', async () => {
     const start: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
@@ -39,7 +39,7 @@ describe('Passage checkpoint directives', () => {
       children: [
         {
           type: 'text',
-          value: ':::set[hp=1]\n:::\n:restore'
+          value: ':::set[hp=1]\n:::\n:loadCheckpoint'
         }
       ]
     }
@@ -89,7 +89,7 @@ describe('Passage checkpoint directives', () => {
     })
   })
 
-  it('ignores checkpoint and restore directives in included passages', async () => {
+  it('ignores checkpoint and loadCheckpoint directives in included passages', async () => {
     const start: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
@@ -108,7 +108,7 @@ describe('Passage checkpoint directives', () => {
       children: [
         {
           type: 'text',
-          value: ':::set[hp=1]\n:::\n:restore:checkpoint{id=cp2}'
+          value: ':::set[hp=1]\n:::\n:loadCheckpoint:checkpoint{id=cp2}'
         }
       ]
     }
@@ -335,7 +335,7 @@ describe('Passage checkpoint directives', () => {
     expect(useGameStore.getState().loading).toBe(false)
   })
 
-  it('stores error when restore cannot find a checkpoint', async () => {
+  it('stores error when loadCheckpoint cannot find a checkpoint', async () => {
     const logged: unknown[] = []
     const orig = console.error
     console.error = (...args: unknown[]) => {
@@ -346,7 +346,7 @@ describe('Passage checkpoint directives', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':restore' }]
+      children: [{ type: 'text', value: ':loadCheckpoint' }]
     }
 
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
