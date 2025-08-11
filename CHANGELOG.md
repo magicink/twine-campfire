@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.51.0](https://github.com/magicink/twine-campfire/compare/v1.50.1...v1.51.0) (2025-08-11)
+
+
+### Features
+
+* add range directives ([#235](https://github.com/magicink/twine-campfire/issues/235)) ([b743b07](https://github.com/magicink/twine-campfire/commit/b743b074ce106168ac8b4222619836e76b0ee86c))
+
 ## [1.50.1](https://github.com/magicink/twine-campfire/compare/v1.50.0...v1.50.1) (2025-08-11)
 
 
