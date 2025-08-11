@@ -841,11 +841,8 @@ export const useDirectiveHandlers = () => {
         .join('')
         .trim()
       const stripped = combined.replace(/\s+/g, '')
-      if (
-        stripped.length > 0 &&
-        /^:+$/.test(stripped) &&
-        stripped.length % DIRECTIVE_MARKER.length === 0
-      ) {
+      const parts = stripped.split(DIRECTIVE_MARKER) // ensure only marker tokens remain
+      if (stripped.length > 0 && parts.every(part => part === '')) {
         parent.children.splice(index, 1)
       }
     }
