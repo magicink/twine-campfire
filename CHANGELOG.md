@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.54.4](https://github.com/magicink/twine-campfire/compare/v1.54.3...v1.54.4) (2025-08-11)
+
+
+### Bug Fixes
+
+* remove stray directive markers in sequence steps ([#257](https://github.com/magicink/twine-campfire/issues/257)) ([1d69308](https://github.com/magicink/twine-campfire/commit/1d69308af63d8bb5d1337c2ac857444ff4ef26e0))
+
 ## [1.54.3](https://github.com/magicink/twine-campfire/compare/v1.54.2...v1.54.3) (2025-08-11)
 
 
