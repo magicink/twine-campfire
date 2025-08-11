@@ -412,6 +412,34 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
+   * Parses a raw value for range directives, evaluating expressions or state
+   * lookups and converting the result to a number.
+   *
+   * @param raw - Raw value string from the directive.
+   * @returns Parsed numeric value, or 0 if parsing fails.
+   */
+  const parseRangeValue = (raw: string): number => {
+    try {
+      const trimmed = raw.trim()
+      const direct = Number(trimmed)
+      if (!Number.isNaN(direct)) return direct
+      try {
+        const fn = compile(trimmed)
+        const evaluated = fn(gameData)
+        return parseNumericValue(evaluated)
+      } catch {
+        const v = (gameData as Record<string, unknown>)[trimmed]
+        return parseNumericValue(v)
+      }
+    } catch {
+      const msg = `Failed to parse range value: ${raw}`
+      console.error(msg)
+      addError(msg)
+      return 0
+    }
+  }
+
+  /**
    * Initializes a range value with specified bounds and starting value using
    * shorthand `key=value` notation.
    *
@@ -584,20 +612,6 @@ export const useDirectiveHandlers = () => {
           return [item]
         }
       })
-
-  const parseRangeValue = (raw: string): number => {
-    const trimmed = raw.trim()
-    const direct = Number(trimmed)
-    if (!Number.isNaN(direct)) return direct
-    try {
-      const fn = compile(trimmed)
-      const evaluated = fn(gameData)
-      return parseNumericValue(evaluated)
-    } catch {
-      const v = (gameData as Record<string, unknown>)[trimmed]
-      return parseNumericValue(v)
-    }
-  }
 
   /**
    * Retrieves a value from the current game state using dot notation.
