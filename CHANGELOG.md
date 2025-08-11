@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.53.0](https://github.com/magicink/twine-campfire/compare/v1.52.1...v1.53.0) (2025-08-11)
+
+
+### Features
+
+* remove clearErrors directive ([#246](https://github.com/magicink/twine-campfire/issues/246)) ([9c63230](https://github.com/magicink/twine-campfire/commit/9c63230f6f5dcc9b971217091c4bcfd427f606f2))
+
 ## [1.52.1](https://github.com/magicink/twine-campfire/compare/v1.52.0...v1.52.1) (2025-08-11)
 
 
