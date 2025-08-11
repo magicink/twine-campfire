@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.54.2](https://github.com/magicink/twine-campfire/compare/v1.54.1...v1.54.2) (2025-08-11)
+
+
+### Bug Fixes
+
+* rename restore directive to loadCheckpoint ([#253](https://github.com/magicink/twine-campfire/issues/253)) ([1b99990](https://github.com/magicink/twine-campfire/commit/1b99990ff33c1ab471cac3b57a97cf0296b8d4a8))
+
 ## [1.54.1](https://github.com/magicink/twine-campfire/compare/v1.54.0...v1.54.1) (2025-08-11)
 
 
