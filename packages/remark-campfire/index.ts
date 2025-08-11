@@ -1,6 +1,6 @@
 import { visit } from 'unist-util-visit'
 import type { Root, Parent, Paragraph, Text } from 'mdast'
-import type { Node } from 'unist'
+import type { Node, Data } from 'unist'
 import type { LeafDirective, TextDirective } from 'mdast-util-directive'
 import type { SKIP } from 'unist-util-visit'
 import type { VFile } from 'vfile'
@@ -38,6 +38,17 @@ export interface IncludeDirective extends Omit<LeafDirective, 'attributes'> {
 export interface LangDirective extends Omit<TextDirective, 'attributes'> {
   name: 'lang'
 }
+
+/**
+ * Data structure for paragraph nodes that may include custom hast element
+ * metadata.
+ */
+interface ParagraphData extends Data {
+  /** Custom element name applied by rehype */
+  hName?: string
+}
+
+type ParagraphWithData = Paragraph & { data?: ParagraphData }
 
 /**
  * Attaches indentation information to directive nodes by capturing trailing
@@ -181,7 +192,7 @@ const remarkCampfire =
       tree,
       (node: Node, index: number | undefined, parent: Parent | undefined) => {
         if (node.type === 'paragraph' && parent && typeof index === 'number') {
-          const paragraph = node as Paragraph
+          const paragraph = node as ParagraphWithData
           // Preserve paragraphs transformed into custom elements
           if (paragraph.data?.hName) return
           const hasContent = paragraph.children.some(child => {
