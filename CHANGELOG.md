@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.56.0](https://github.com/magicink/twine-campfire/compare/v1.55.1...v1.56.0) (2025-08-12)
+
+
+### Features
+
+* remove sequence rewind support ([#272](https://github.com/magicink/twine-campfire/issues/272)) ([af18fc7](https://github.com/magicink/twine-campfire/commit/af18fc71b151389474d5b5ec0ffd3efa379a23d7))
+
 ## [1.55.1](https://github.com/magicink/twine-campfire/compare/v1.55.0...v1.55.1) (2025-08-12)
 
 
