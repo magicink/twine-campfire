@@ -9,7 +9,7 @@ import rfdc from 'rfdc'
 import { compile } from 'expression-eval'
 import { useDirectiveHandlers } from './useDirectiveHandlers'
 import { useGameStore } from '@/packages/use-game-store'
-import { getLabel, stripLabel } from './directives/helpers'
+import { getLabel, stripLabel } from '@/packages/remark-campfire/helpers'
 
 const clone = rfdc()
 
