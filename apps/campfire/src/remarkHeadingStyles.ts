@@ -2,19 +2,19 @@ import { visit } from 'unist-util-visit'
 import type { Root } from 'mdast'
 
 /**
- * Applies default Tailwind font size and weight classes to Markdown heading nodes.
+ * Applies default Tailwind font family, size, and weight classes to Markdown heading nodes.
  *
  * @returns Transformer attaching class names to heading elements.
  */
 export const remarkHeadingStyles = () => (tree: Root) => {
   visit(tree, 'heading', node => {
     const mapping: Record<number, string> = {
-      1: 'text-4xl font-bold',
-      2: 'text-3xl font-bold',
-      3: 'text-2xl font-semibold',
-      4: 'text-xl font-semibold',
-      5: 'text-lg font-semibold',
-      6: 'text-base font-semibold'
+      1: 'font-cormorant text-4xl font-bold',
+      2: 'font-cormorant text-3xl font-semibold',
+      3: 'font-cormorant text-2xl font-medium',
+      4: 'font-cormorant text-xl font-normal',
+      5: 'font-cormorant text-lg font-normal',
+      6: 'font-cormorant text-base font-light'
     }
     const cls = mapping[node.depth]
     if (!cls) return

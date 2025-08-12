@@ -19,7 +19,7 @@ describe('Passage heading styles', () => {
     }
   })
 
-  it('applies default font size and weight classes to headings', async () => {
+  it('applies default font family, size, and weight classes to headings', async () => {
     const passage: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
@@ -31,11 +31,14 @@ describe('Passage heading styles', () => {
     const h1 = await screen.findByRole('heading', { level: 1 })
     const h2 = screen.getByRole('heading', { level: 2 })
     const h3 = screen.getByRole('heading', { level: 3 })
+    expect(h1.className).toContain('font-cormorant')
     expect(h1.className).toContain('text-4xl')
     expect(h1.className).toContain('font-bold')
+    expect(h2.className).toContain('font-cormorant')
     expect(h2.className).toContain('text-3xl')
-    expect(h2.className).toContain('font-bold')
+    expect(h2.className).toContain('font-semibold')
+    expect(h3.className).toContain('font-cormorant')
     expect(h3.className).toContain('text-2xl')
-    expect(h3.className).toContain('font-semibold')
+    expect(h3.className).toContain('font-medium')
   })
 })
