@@ -228,6 +228,29 @@ describe('Sequence', () => {
     expect(wrapper.style.opacity).toBe('1')
   })
 
+  it('waits for transitions before advancing steps in autoplay', async () => {
+    render(
+      <Sequence autoplay>
+        <Step>
+          <Transition duration={100}>First</Transition>
+        </Step>
+        <Step>
+          <Transition duration={100}>Second</Transition>
+        </Step>
+      </Sequence>
+    )
+    expect(screen.getByText('First')).toBeInTheDocument()
+    expect(screen.queryByText('Second')).toBeNull()
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 50))
+    })
+    expect(screen.queryByText('Second')).toBeNull()
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 60))
+    })
+    expect(screen.getByText('Second')).toBeInTheDocument()
+  })
+
   it('allows nesting sequences within steps', () => {
     render(
       <Sequence>
