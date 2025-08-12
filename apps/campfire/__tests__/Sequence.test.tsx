@@ -142,74 +142,6 @@ describe('Sequence', () => {
     ).toBeNull()
   })
 
-  it('rewinds to the previous step by default', () => {
-    render(
-      <Sequence rewind={{ enabled: true }}>
-        <Step>
-          {({ next }) => (
-            <>
-              <div>First</div>
-              <button type='button' onClick={next}>
-                Go
-              </button>
-            </>
-          )}
-        </Step>
-        <Step>Second</Step>
-      </Sequence>
-    )
-    const next = screen.getByRole('button', { name: 'Go' })
-    act(() => {
-      next.click()
-    })
-    expect(screen.getByText('Second')).toBeInTheDocument()
-    const rewind = screen.getByRole('button', {
-      name: 'Rewind to previous step'
-    })
-    act(() => {
-      rewind.click()
-    })
-    expect(screen.getByText('First')).toBeInTheDocument()
-    expect(
-      screen.queryByRole('button', { name: 'Rewind to previous step' })
-    ).toBeNull()
-  })
-
-  it('rewinds to the beginning when configured', () => {
-    render(
-      <Sequence rewind={{ enabled: true, toStart: true }}>
-        <Step>
-          {({ next }) => (
-            <>
-              <div>First</div>
-              <button type='button' onClick={next}>
-                Go
-              </button>
-            </>
-          )}
-        </Step>
-        <Step>Middle</Step>
-        <Step>End</Step>
-      </Sequence>
-    )
-    const next = screen.getByRole('button', { name: 'Go' })
-    act(() => {
-      next.click()
-    })
-    const continueButton = screen.getByRole('button', {
-      name: 'Continue to next step'
-    })
-    act(() => {
-      continueButton.click()
-    })
-    expect(screen.getByText('End')).toBeInTheDocument()
-    const rewind = screen.getByRole('button', { name: 'Rewind to start' })
-    act(() => {
-      rewind.click()
-    })
-    expect(screen.getByText('First')).toBeInTheDocument()
-  })
-
   it('renders step content with a fade-in transition', async () => {
     render(
       <Sequence>
@@ -325,54 +257,6 @@ describe('Sequence', () => {
     expect(
       (useGameStore.getState().gameData as Record<string, unknown>).done
     ).toBe(true)
-  })
-
-  it('executes OnComplete only once when revisiting the final step', async () => {
-    resetStores()
-    const root = unified()
-      .use(remarkParse)
-      .use(remarkDirective)
-      .parse(':set[count=(count||0)+1]') as Root
-    const content = JSON.stringify(root.children)
-    render(
-      <Sequence rewind={{ enabled: true }}>
-        <Step>
-          {({ next }) => (
-            <button type='button' onClick={next}>
-              Next
-            </button>
-          )}
-        </Step>
-        <Step>End</Step>
-        <OnComplete content={content} />
-      </Sequence>
-    )
-    const next = screen.getByRole('button', { name: 'Next' })
-    act(() => {
-      next.click()
-    })
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0))
-    })
-    expect(
-      (useGameStore.getState().gameData as Record<string, unknown>).count
-    ).toBe(1)
-    const rewindButton = screen.getByRole('button', {
-      name: 'Rewind to previous step'
-    })
-    act(() => {
-      rewindButton.click()
-    })
-    const nextAgain = screen.getByRole('button', { name: 'Next' })
-    act(() => {
-      nextAgain.click()
-    })
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0))
-    })
-    expect(
-      (useGameStore.getState().gameData as Record<string, unknown>).count
-    ).toBe(1)
   })
 
   it('warns when multiple OnComplete components are provided', async () => {

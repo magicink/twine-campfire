@@ -1257,13 +1257,10 @@ export const useDirectiveHandlers = () => {
         autoplay: { type: 'boolean' },
         delay: { type: 'number' },
         fastForward: { type: 'object' },
-        rewind: { type: 'object' },
         continueLabel: { type: 'string' },
         skipLabel: { type: 'string' },
-        rewindLabel: { type: 'string' },
         continueAriaLabel: { type: 'string' },
-        skipAriaLabel: { type: 'string' },
-        rewindAriaLabel: { type: 'string' }
+        skipAriaLabel: { type: 'string' }
       },
       { state: gameData }
     )
