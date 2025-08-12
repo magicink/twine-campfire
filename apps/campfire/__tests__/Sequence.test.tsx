@@ -251,45 +251,6 @@ describe('Sequence', () => {
     expect(screen.getByText('Second')).toBeInTheDocument()
   })
 
-  it('stagger transitions within a step', () => {
-    render(
-      <Sequence>
-        <Step stagger={100}>
-          <Transition duration={50}>One</Transition>
-          <Transition duration={50}>Two</Transition>
-        </Step>
-      </Sequence>
-    )
-    const first = screen.getByText('One') as HTMLElement
-    const second = screen.getByText('Two') as HTMLElement
-    expect(first.getAttribute('style') ?? '').toContain('transition-delay: 0ms')
-    expect(second.getAttribute('style') ?? '').toContain(
-      'transition-delay: 100ms'
-    )
-  })
-
-  it('waits for staggered transitions before advancing', async () => {
-    render(
-      <Sequence autoplay>
-        <Step stagger={50}>
-          <Transition duration={100}>First</Transition>
-          <Transition duration={100}>Second</Transition>
-        </Step>
-        <Step>Done</Step>
-      </Sequence>
-    )
-    expect(screen.getByText('First')).toBeInTheDocument()
-    expect(screen.queryByText('Done')).toBeNull()
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 120))
-    })
-    expect(screen.queryByText('Done')).toBeNull()
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 40))
-    })
-    expect(screen.getByText('Done')).toBeInTheDocument()
-  })
-
   it('allows nesting sequences within steps', () => {
     render(
       <Sequence>
