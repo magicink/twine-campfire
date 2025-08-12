@@ -40,8 +40,6 @@ export const Step = ({
   rewind,
   stagger = 0
 }: StepProps) => {
-  const stepStagger =
-    typeof stagger === 'number' ? stagger : Number(stagger) || 0
   const content =
     typeof children === 'function'
       ? (
@@ -63,9 +61,8 @@ export const Step = ({
       if (!isValidElement(child)) return child
       if (child.type === Transition) {
         const props = child.props as TransitionProps
-        const delay =
-          (typeof props.delay === 'number' ? props.delay : 0) + offset
-        offset += stepStagger
+        const delay = (props.delay ?? 0) + offset
+        offset += stagger
         return cloneElement(child as VNode<TransitionProps>, { delay })
       }
       if (child.props?.children) {
@@ -245,13 +242,9 @@ export const Sequence = ({
         if (!isValidElement(child)) continue
         if (child.type === Transition) {
           const props = child.props as TransitionProps
-          const d =
-            typeof props.duration === 'number'
-              ? props.duration
-              : DEFAULT_TRANSITION_DURATION
-          const delay =
-            (typeof props.delay === 'number' ? props.delay : 0) + offset
-          const total = delay + d
+          const duration = props.duration ?? DEFAULT_TRANSITION_DURATION
+          const delay = (props.delay ?? 0) + offset
+          const total = delay + duration
           if (total > max) max = total
           offset += stagger
         }
@@ -268,9 +261,7 @@ export const Sequence = ({
     if (autoplay && index < steps.length - 1 && current) {
       const transitionDelay = getMaxDuration(
         current.props.children || [],
-        typeof current.props.stagger === 'number'
-          ? current.props.stagger
-          : Number(current.props.stagger) || 0
+        current.props.stagger ?? 0
       )
       const id = setTimeout(handleNext, delay + transitionDelay)
       return () => clearTimeout(id)
