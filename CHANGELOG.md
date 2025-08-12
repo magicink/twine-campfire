@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.55.0](https://github.com/magicink/twine-campfire/compare/v1.54.6...v1.55.0) (2025-08-12)
+
+
+### Features
+
+* **campfire:** add transition staggering ([#264](https://github.com/magicink/twine-campfire/issues/264)) ([196efd9](https://github.com/magicink/twine-campfire/commit/196efd9f9a6f1769b5f6b16112f8766b968315e3))
+
 ## [1.54.6](https://github.com/magicink/twine-campfire/compare/v1.54.5...v1.54.6) (2025-08-12)
 
 
