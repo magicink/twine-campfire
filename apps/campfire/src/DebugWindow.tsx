@@ -12,13 +12,11 @@ const TAB_GAME = 'game' as const
 const TAB_STORY = 'story' as const
 const TAB_PASSAGE = 'passage' as const
 const TAB_TRANSLATIONS = 'translations' as const
-const TAB_ERRORS = 'errors' as const
 type Tab =
   | typeof TAB_GAME
   | typeof TAB_STORY
   | typeof TAB_PASSAGE
   | typeof TAB_TRANSLATIONS
-  | typeof TAB_ERRORS
 
 /**
  * Extracts the raw text from a passage element.
@@ -38,7 +36,7 @@ const getRawPassage = (passage: Element | undefined): string => {
 }
 
 /**
- * Renders a debug window showing game, story, translation and error data.
+ * Renders a debug window showing game, story, translation and passage data.
  * Also displays passage information when the debug option is enabled.
  */
 export const DebugWindow = () => {
@@ -79,8 +77,6 @@ export const DebugWindow = () => {
     }
   }, [])
   const gameData = useGameStore(state => state.gameData)
-  const errors = useGameStore(state => state.errors)
-  const clearErrors = useGameStore(state => state.clearErrors)
   const [visible, setVisible] = useState(true)
   const [minimized, setMinimized] = useState(false)
   const [tab, setTab] = useState<Tab>(TAB_GAME)
@@ -95,15 +91,6 @@ export const DebugWindow = () => {
    */
   const handleCopy = (): void => {
     void navigator.clipboard?.writeText(rawPassage)
-  }
-
-  /**
-   * Clears all recorded errors.
-   *
-   * @returns {void}
-   */
-  const handleClearErrors = (): void => {
-    clearErrors()
   }
 
   useEffect(() => {
@@ -196,18 +183,6 @@ export const DebugWindow = () => {
             >
               Translations
             </button>
-            <button
-              type='button'
-              className={`flex-1 p-2 ${
-                tab === TAB_ERRORS ? 'font-bold' : ''
-              } ${errors.length ? 'text-red-500' : ''}`}
-              onClick={e => {
-                e.stopPropagation()
-                setTab(TAB_ERRORS)
-              }}
-            >
-              Errors{errors.length ? ` (${errors.length})` : ''}
-            </button>
           </div>
           <div className='p-2'>
             {tab === TAB_GAME ? (
@@ -244,20 +219,7 @@ export const DebugWindow = () => {
               <pre className='whitespace-pre-wrap'>
                 {JSON.stringify(translations, null, 2)}
               </pre>
-            ) : (
-              <div>
-                <button
-                  type='button'
-                  onClick={e => {
-                    e.stopPropagation()
-                    handleClearErrors()
-                  }}
-                >
-                  Clear
-                </button>
-                <pre className='whitespace-pre-wrap'>{errors.join('\n')}</pre>
-              </div>
-            )}
+            ) : null}
           </div>
         </div>
       )}
