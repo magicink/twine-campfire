@@ -6,10 +6,8 @@ import type { SKIP } from 'unist-util-visit'
 import type { VFile } from 'vfile'
 import type { DirectiveNode } from './helpers'
 
-/** Error code for unquoted trigger labels */
-const ERR_TRIGGER_LABEL_UNQUOTED = 'CF001'
 /** Error message for unquoted trigger labels */
-const MSG_TRIGGER_LABEL_UNQUOTED = `${ERR_TRIGGER_LABEL_UNQUOTED}: trigger label must be a quoted string`
+const MSG_TRIGGER_LABEL_UNQUOTED = 'trigger label must be a quoted string'
 
 export type DirectiveHandlerResult = number | [typeof SKIP, number] | void
 

@@ -41,7 +41,11 @@ describe('trigger label attribute', () => {
   it('rejects unquoted labels', () => {
     const { node, file } = parseTrigger(':::trigger{label=Fire}\n:::')
     expect(node?.attributes).toEqual({})
-    expect(file.messages.some(m => m.message.includes('CF001'))).toBe(true)
+    expect(
+      file.messages.some(m =>
+        m.message.includes('trigger label must be a quoted string')
+      )
+    ).toBe(true)
   })
 
   it('rejects mismatched quotes', () => {

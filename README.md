@@ -563,14 +563,7 @@ Change language and handle translations.
   `namespace:key="value"` pair is allowed per directive. Repeat the directive
   for additional translations.
 
-## Error codes
-
-Campfire prints error codes to the browser console when it encounters invalid
-markup. These codes help identify and debug issues in story passages.
-
-| Code  | Meaning                                                            |
-| ----- | ------------------------------------------------------------------ |
-| CF001 | Trigger `label` must be a quoted string. The attribute is ignored. |
+Campfire prints descriptive error messages to the browser console when it encounters invalid markup.
 
 ## Further reading
 
