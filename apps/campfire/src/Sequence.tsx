@@ -16,14 +16,11 @@ interface StepProps {
     | ((controls: {
         next: () => void
         fastForward: () => void
-        rewind: () => void
       }) => ComponentChildren)
   /** Callback to advance to the next step. Supplied by Sequence. */
   next?: () => void
   /** Callback to fast-forward the sequence. Supplied by Sequence. */
   fastForward?: () => void
-  /** Callback to rewind the sequence. Supplied by Sequence. */
-  rewind?: () => void
 }
 
 /**
@@ -31,19 +28,17 @@ interface StepProps {
  * The content can be static React nodes or a render function
  * receiving `next` and `fastForward` callbacks to control progression.
  */
-export const Step = ({ children, next, fastForward, rewind }: StepProps) => {
+export const Step = ({ children, next, fastForward }: StepProps) => {
   const content =
     typeof children === 'function'
       ? (
           children as (controls: {
             next: () => void
             fastForward: () => void
-            rewind: () => void
           }) => ComponentChildren
         )({
           next: next ?? (() => {}),
-          fastForward: fastForward ?? (() => {}),
-          rewind: rewind ?? (() => {})
+          fastForward: fastForward ?? (() => {})
         })
       : children
 
@@ -102,20 +97,14 @@ interface SequenceProps {
   delay?: number
   /** Configuration for fast-forward behavior */
   fastForward?: FastForwardOptions
-  /** Configuration for rewind behavior */
-  rewind?: RewindOptions
   /** Text for the manual continue button */
   continueLabel?: string
   /** Text for the fast-forward skip button */
   skipLabel?: string
-  /** Text for the rewind button */
-  rewindLabel?: string
   /** Accessible label for the manual continue button */
   continueAriaLabel?: string
   /** Accessible label for the fast-forward skip button */
   skipAriaLabel?: string
-  /** Accessible label for the rewind button */
-  rewindAriaLabel?: string
 }
 
 /** Options for configuring fast-forward behavior */
@@ -125,15 +114,6 @@ interface FastForwardOptions {
   /** Whether to skip to the end of the sequence when fast-forwarding */
   toEnd?: boolean
 }
-
-/** Options for configuring rewind behavior */
-interface RewindOptions {
-  /** Whether rewinding is enabled */
-  enabled?: boolean
-  /** Whether to jump to the start of the sequence when rewinding */
-  toStart?: boolean
-}
-
 /**
  * Renders `Step` children sequentially, displaying only the active step.
  * Each step receives a `next` callback to advance to the following step.
@@ -151,13 +131,10 @@ export const Sequence = ({
   autoplay = false,
   delay = 0,
   fastForward,
-  rewind,
   continueLabel = 'Continue',
   skipLabel = 'Skip',
-  rewindLabel = 'Back',
   continueAriaLabel = 'Continue to next step',
-  skipAriaLabel,
-  rewindAriaLabel
+  skipAriaLabel
 }: SequenceProps) => {
   const [index, setIndex] = useState(0)
   const childArray = toChildArray(children).filter((child): child is VNode =>
@@ -191,17 +168,6 @@ export const Sequence = ({
       setIndex(steps.length - 1)
     } else {
       handleNext()
-    }
-  }
-
-  /** Rewinds either to the previous step or the start of the sequence */
-  const handleRewind = () => {
-    const { enabled = false, toStart = false } = rewind ?? {}
-    if (!enabled) return
-    if (toStart) {
-      setIndex(0)
-    } else {
-      setIndex(i => (i > 0 ? i - 1 : i))
     }
   }
 
@@ -254,28 +220,17 @@ export const Sequence = ({
   const isInteractive = typeof current.props.children === 'function'
   const showContinue = !autoplay && !isInteractive && index < steps.length - 1
   const fastForwardEnabled = fastForward?.enabled !== false
-  const rewindEnabled = rewind?.enabled === true
   const showSkip = fastForwardEnabled && index < steps.length - 1
-  const showRewind = rewindEnabled && index > 0
   const skipAria =
     skipAriaLabel ?? (fastForward?.toEnd ? 'Skip to end' : 'Skip to next step')
-  const rewindAria =
-    rewindAriaLabel ??
-    (rewind?.toStart ? 'Rewind to start' : 'Rewind to previous step')
 
   return (
     <>
       {cloneElement(current, {
         next: handleNext,
-        fastForward: handleFastForward,
-        rewind: handleRewind
+        fastForward: handleFastForward
       })}
       {completeElement && cloneElement(completeElement, { run: runComplete })}
-      {showRewind && (
-        <button type='button' onClick={handleRewind} aria-label={rewindAria}>
-          {rewindLabel}
-        </button>
-      )}
       {showContinue && (
         <button
           type='button'
@@ -298,6 +253,5 @@ export {
   type SequenceProps,
   type StepProps,
   type FastForwardOptions,
-  type RewindOptions,
   type TransitionProps
 }

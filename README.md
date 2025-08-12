@@ -411,8 +411,8 @@ Reveal content step by step and animate its appearance.
   ```
 
   Use `autoplay` with `delay` to advance automatically. Customize button text
-  with `continueLabel`, `skipLabel`, and `rewindLabel`. `fastForward` and
-  `rewind` attributes accept objects for advanced control.
+  with `continueLabel` and `skipLabel`. The `fastForward` attribute accepts an
+  object for advanced control.
 
 - `step`: Define a single stage within a sequence.
 
