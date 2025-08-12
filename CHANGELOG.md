@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.55.1](https://github.com/magicink/twine-campfire/compare/v1.55.0...v1.55.1) (2025-08-12)
+
+
+### Bug Fixes
+
+* **campfire:** remove step stagger attribute ([#266](https://github.com/magicink/twine-campfire/issues/266)) ([fefb095](https://github.com/magicink/twine-campfire/commit/fefb0953d1ba5cb0cfd52731986ba20635f6d136))
+
 ## [1.55.0](https://github.com/magicink/twine-campfire/compare/v1.54.6...v1.55.0) (2025-08-12)
 
 
