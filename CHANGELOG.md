@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.54.6](https://github.com/magicink/twine-campfire/compare/v1.54.5...v1.54.6) (2025-08-12)
+
+
+### Bug Fixes
+
+* **campfire:** wait for step transitions before advancing sequence ([#262](https://github.com/magicink/twine-campfire/issues/262)) ([d2bd9c6](https://github.com/magicink/twine-campfire/commit/d2bd9c6f459675e8f53419f22e633c90507d0eec))
+
 ## [1.54.5](https://github.com/magicink/twine-campfire/compare/v1.54.4...v1.54.5) (2025-08-11)
 
 
