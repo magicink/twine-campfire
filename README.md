@@ -392,6 +392,48 @@ Run directives on specific passage events or group actions.
   or backtick quotes. Replace the label, classes, disabled state, and directives
   as needed.
 
+### Sequences & transitions
+
+Reveal content step by step and animate its appearance.
+
+- `sequence`: Display `step` blocks one at a time.
+
+  ```md
+  :::sequence{autoplay delay=1000}
+  :::step
+  First message
+  :::
+  :::step
+  :::transition{type="fade-in" duration=500}
+  Second message
+  :::
+  :::
+  ```
+
+  Use `autoplay` with `delay` to advance automatically. Customize button text
+  with `continueLabel`, `skipLabel`, and `rewindLabel`. `fastForward` and
+  `rewind` attributes accept objects for advanced control.
+
+- `step`: Define a single stage within a sequence.
+
+  ```md
+  :::step
+  Content for this step
+  :::
+  ```
+
+  Steps may contain `transition` blocks and other directives.
+
+- `transition`: Animate the appearance of content within a step.
+
+  ```md
+  :::transition{type="fade-in" duration=300 delay=100}
+  Fades in after 100ms.
+  :::
+  ```
+
+  `type` currently supports `fade-in`. `duration` and `delay` are in milliseconds.
+
 ### Navigation & composition
 
 Control the flow between passages or how they appear.
