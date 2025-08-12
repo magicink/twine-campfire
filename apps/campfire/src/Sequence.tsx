@@ -61,12 +61,15 @@ interface TransitionProps {
   children: ComponentChildren
 }
 
+/** Default duration used when a transition does not specify one. */
+const DEFAULT_TRANSITION_DURATION = 300
+
 /**
  * Animates its children using a simple CSS-based transition.
  */
 export const Transition = ({
   type = 'fade-in',
-  duration = 300,
+  duration = DEFAULT_TRANSITION_DURATION,
   children
 }: TransitionProps) => {
   const [visible, setVisible] = useState(false)
@@ -200,12 +203,34 @@ export const Sequence = ({
     }
   }
 
+  /**
+   * Recursively determines the longest transition duration within a step.
+   */
+  const getMaxDuration = (children: ComponentChildren): number => {
+    let max = 0
+    for (const child of toChildArray(children)) {
+      if (!isValidElement(child)) continue
+      if (child.type === Transition) {
+        const props = child.props as TransitionProps
+        const d =
+          typeof props.duration === 'number'
+            ? props.duration
+            : DEFAULT_TRANSITION_DURATION
+        if (d > max) max = d
+      }
+      const nested = getMaxDuration(child.props.children || [])
+      if (nested > max) max = nested
+    }
+    return max
+  }
+
   useEffect(() => {
-    if (autoplay && index < steps.length - 1) {
-      const id = setTimeout(handleNext, delay)
+    if (autoplay && index < steps.length - 1 && current) {
+      const transitionDelay = getMaxDuration(current.props.children || [])
+      const id = setTimeout(handleNext, delay + transitionDelay)
       return () => clearTimeout(id)
     }
-  }, [autoplay, delay, index, steps.length])
+  }, [autoplay, delay, index, steps.length, current])
 
   /** Tracks whether the completion handler has already executed. */
   const completeRan = useRef(false)
