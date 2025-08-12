@@ -3,9 +3,16 @@
   <head>
     <title>{{STORY_NAME}}: {{PASSAGE_NAME}}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300..700;1,300..700&display=swap"
+      rel="stylesheet"
+    />
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style type="text/tailwindcss">
       @theme {
+        --font-cormorant: "Cormorant", serif;
         --color-red-50: oklch(0.971 0.013 17.38);
         --color-red-100: oklch(0.936 0.032 17.717);
         --color-red-200: oklch(0.885 0.062 18.334);
@@ -17,6 +24,14 @@
         --color-red-800: oklch(0.444 0.177 26.899);
         --color-red-900: oklch(0.396 0.141 25.723);
         --color-red-950: oklch(0.258 0.092 26.042);
+      }
+
+      @layer utilities {
+        .font-cormorant {
+          font-family: var(--font-cormorant);
+          font-optical-sizing: auto;
+          font-style: normal;
+        }
       }
     </style>
   </head>
