@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.57.0](https://github.com/magicink/twine-campfire/compare/v1.56.0...v1.57.0) (2025-08-12)
+
+
+### Features
+
+* apply default heading typography ([#275](https://github.com/magicink/twine-campfire/issues/275)) ([a445b46](https://github.com/magicink/twine-campfire/commit/a445b460d11edd1e6f83e953d00d671cb0996d05))
+
 ## [1.56.0](https://github.com/magicink/twine-campfire/compare/v1.55.1...v1.56.0) (2025-08-12)
 
 
