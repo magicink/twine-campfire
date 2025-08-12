@@ -218,7 +218,7 @@ export const Sequence = ({
             : DEFAULT_TRANSITION_DURATION
         if (d > max) max = d
       }
-      const nested = getMaxDuration(child.props.children)
+      const nested = getMaxDuration(child.props.children || [])
       if (nested > max) max = nested
     }
     return max
@@ -226,7 +226,7 @@ export const Sequence = ({
 
   useEffect(() => {
     if (autoplay && index < steps.length - 1 && current) {
-      const transitionDelay = getMaxDuration(current.props.children)
+      const transitionDelay = getMaxDuration(current.props.children || [])
       const id = setTimeout(handleNext, delay + transitionDelay)
       return () => clearTimeout(id)
     }
