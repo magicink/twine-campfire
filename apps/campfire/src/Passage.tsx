@@ -11,6 +11,7 @@ import rehypeCampfire from '@/packages/rehype-campfire'
 import rehypeReact from 'rehype-react'
 import type { Text, Content } from 'hast'
 import { useDirectiveHandlers } from './useDirectiveHandlers'
+import { remarkHeadingStyles } from './remarkHeadingStyles'
 import { isTitleOverridden, clearTitleOverride } from './titleState'
 import {
   useStoryDataStore,
@@ -113,6 +114,7 @@ export const Passage = () => {
         .use(remarkGfm)
         .use(remarkDirective)
         .use(remarkCampfire, { handlers })
+        .use(remarkHeadingStyles)
         .use(remarkRehype)
         .use(rehypeCampfire)
         .use(rehypeReact, {
