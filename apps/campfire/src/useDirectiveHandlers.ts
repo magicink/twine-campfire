@@ -1189,9 +1189,7 @@ export const useDirectiveHandlers = () => {
    */
   const handleStep: DirectiveHandler = (directive, parent, index) => {
     if (!parent || typeof index !== 'number') return
-    const { attrs } = extractAttributes(directive, parent, index, {
-      stagger: { type: 'number' }
-    })
+    const { attrs } = extractAttributes(directive, parent, index, {})
     const container = directive as ContainerDirective
     const children = stripLabel(container.children as RootContent[])
     runBlock(children)
