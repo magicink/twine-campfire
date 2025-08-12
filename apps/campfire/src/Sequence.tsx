@@ -24,6 +24,8 @@ interface StepProps {
   fastForward?: () => void
   /** Callback to rewind the sequence. Supplied by Sequence. */
   rewind?: () => void
+  /** Delay in milliseconds between transition children */
+  stagger?: number
 }
 
 /**
@@ -31,11 +33,18 @@ interface StepProps {
  * The content can be static React nodes or a render function
  * receiving `next` and `fastForward` callbacks to control progression.
  */
-export const Step = ({ children, next, fastForward, rewind }: StepProps) => {
-  if (typeof children === 'function') {
-    return (
-      <>
-        {(
+export const Step = ({
+  children,
+  next,
+  fastForward,
+  rewind,
+  stagger = 0
+}: StepProps) => {
+  const stepStagger =
+    typeof stagger === 'number' ? stagger : Number(stagger) || 0
+  const content =
+    typeof children === 'function'
+      ? (
           children as (controls: {
             next: () => void
             fastForward: () => void
@@ -45,11 +54,29 @@ export const Step = ({ children, next, fastForward, rewind }: StepProps) => {
           next: next ?? (() => {}),
           fastForward: fastForward ?? (() => {}),
           rewind: rewind ?? (() => {})
-        })}
-      </>
-    )
-  }
-  return <>{children}</>
+        })
+      : children
+
+  let offset = 0
+  const mapChildren = (nodes: ComponentChildren): ComponentChildren =>
+    toChildArray(nodes).map(child => {
+      if (!isValidElement(child)) return child
+      if (child.type === Transition) {
+        const props = child.props as TransitionProps
+        const delay =
+          (typeof props.delay === 'number' ? props.delay : 0) + offset
+        offset += stepStagger
+        return cloneElement(child as VNode<TransitionProps>, { delay })
+      }
+      if (child.props?.children) {
+        return cloneElement(child as VNode, {
+          children: mapChildren(child.props.children)
+        })
+      }
+      return child
+    })
+
+  return <>{mapChildren(content)}</>
 }
 
 interface TransitionProps {
@@ -57,6 +84,8 @@ interface TransitionProps {
   type?: 'fade-in'
   /** Duration of the transition in milliseconds */
   duration?: number
+  /** Delay before starting the transition in milliseconds */
+  delay?: number
   /** Content to render with the transition */
   children: ComponentChildren
 }
@@ -70,6 +99,7 @@ const DEFAULT_TRANSITION_DURATION = 300
 export const Transition = ({
   type = 'fade-in',
   duration = DEFAULT_TRANSITION_DURATION,
+  delay = 0,
   children
 }: TransitionProps) => {
   const [visible, setVisible] = useState(false)
@@ -81,6 +111,7 @@ export const Transition = ({
     type === 'fade-in'
       ? {
           transition: `opacity ${duration}ms ease-in`,
+          transitionDelay: `${delay}ms`,
           opacity: visible ? 1 : 0
         }
       : {}
@@ -206,27 +237,41 @@ export const Sequence = ({
   /**
    * Recursively determines the longest transition duration within a step.
    */
-  const getMaxDuration = (children: ComponentChildren): number => {
+  const getMaxDuration = (children: ComponentChildren, stagger = 0): number => {
     let max = 0
-    for (const child of toChildArray(children)) {
-      if (!isValidElement(child)) continue
-      if (child.type === Transition) {
-        const props = child.props as TransitionProps
-        const d =
-          typeof props.duration === 'number'
-            ? props.duration
-            : DEFAULT_TRANSITION_DURATION
-        if (d > max) max = d
+    let offset = 0
+    const walk = (nodes: ComponentChildren) => {
+      for (const child of toChildArray(nodes)) {
+        if (!isValidElement(child)) continue
+        if (child.type === Transition) {
+          const props = child.props as TransitionProps
+          const d =
+            typeof props.duration === 'number'
+              ? props.duration
+              : DEFAULT_TRANSITION_DURATION
+          const delay =
+            (typeof props.delay === 'number' ? props.delay : 0) + offset
+          const total = delay + d
+          if (total > max) max = total
+          offset += stagger
+        }
+        if (child.props?.children) {
+          walk(child.props.children)
+        }
       }
-      const nested = getMaxDuration(child.props.children || [])
-      if (nested > max) max = nested
     }
+    walk(children)
     return max
   }
 
   useEffect(() => {
     if (autoplay && index < steps.length - 1 && current) {
-      const transitionDelay = getMaxDuration(current.props.children || [])
+      const transitionDelay = getMaxDuration(
+        current.props.children || [],
+        typeof current.props.stagger === 'number'
+          ? current.props.stagger
+          : Number(current.props.stagger) || 0
+      )
       const id = setTimeout(handleNext, delay + transitionDelay)
       return () => clearTimeout(id)
     }

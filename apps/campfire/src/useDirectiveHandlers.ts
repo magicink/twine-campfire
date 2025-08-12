@@ -1189,13 +1189,16 @@ export const useDirectiveHandlers = () => {
    */
   const handleStep: DirectiveHandler = (directive, parent, index) => {
     if (!parent || typeof index !== 'number') return
+    const { attrs } = extractAttributes(directive, parent, index, {
+      stagger: { type: 'number' }
+    })
     const container = directive as ContainerDirective
     const children = stripLabel(container.children as RootContent[])
     runBlock(children)
     const node: Parent = {
       type: 'paragraph',
       children,
-      data: { hName: 'step' }
+      data: { hName: 'step', hProperties: attrs }
     }
     const newIndex = replaceWithIndentation(directive, parent, index, [
       node as RootContent
@@ -1218,7 +1221,8 @@ export const useDirectiveHandlers = () => {
     if (!parent || typeof index !== 'number') return
     const { attrs } = extractAttributes(directive, parent, index, {
       type: { type: 'string' },
-      duration: { type: 'number' }
+      duration: { type: 'number' },
+      delay: { type: 'number' }
     })
     const container = directive as ContainerDirective
     const children = stripLabel(container.children as RootContent[])
