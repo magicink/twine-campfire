@@ -104,7 +104,7 @@ describe('DebugWindow', () => {
     expect(screen.getByText(/"hello"/)).toBeInTheDocument()
   })
 
-  it('shows error count and clears errors', () => {
+  it('does not show an error tab', () => {
     useStoryDataStore.setState({ storyData: { options: 'debug' } })
     useGameStore.setState(state => ({
       ...state,
@@ -112,19 +112,7 @@ describe('DebugWindow', () => {
     }))
 
     render(<DebugWindow />)
-
-    const errTab = screen.getByRole('button', { name: 'Errors (2)' })
-    expect(errTab).toHaveClass('text-red-500')
-    act(() => {
-      errTab.click()
-    })
-    expect(screen.getByText(/first error/)).toBeInTheDocument()
-    const clearButton = screen.getByRole('button', { name: 'Clear' })
-    act(() => {
-      clearButton.click()
-    })
-    expect(screen.queryByText('first error')).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Errors' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Errors/ })).toBeNull()
   })
 
   it('shows raw current passage', () => {
