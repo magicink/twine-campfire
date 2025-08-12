@@ -1,5 +1,5 @@
 import rfdc from 'rfdc'
-import { clamp } from './directives/helpers'
+import { clamp } from '@/packages/remark-campfire/helpers'
 import { useGameStore } from '@/packages/use-game-store'
 
 /** Range value representation */

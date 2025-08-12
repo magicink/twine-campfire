@@ -32,7 +32,7 @@ import {
   parseNumericValue,
   removeNode,
   stripLabel
-} from './directives/helpers'
+} from '@/packages/remark-campfire/helpers'
 import { getTranslationOptions } from './i18n'
 import { createStateManager, type SetOptions } from './stateManager'
 
