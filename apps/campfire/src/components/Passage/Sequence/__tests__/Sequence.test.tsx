@@ -16,7 +16,7 @@ import { resetStores } from '@campfire/test-utils/helpers'
 describe('Sequence', () => {
   it('prompts the user to continue when autoplay is false', () => {
     render(
-      <Sequence>
+      <Sequence autoplay={false}>
         <Step>First</Step>
         <Step>Second</Step>
       </Sequence>
