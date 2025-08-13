@@ -12,18 +12,84 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style type="text/tailwindcss">
       @theme {
-        --font-libertinus: "Libertinus Serif", serif;
-        --color-red-50: oklch(0.971 0.013 17.38);
-        --color-red-100: oklch(0.936 0.032 17.717);
-        --color-red-200: oklch(0.885 0.062 18.334);
-        --color-red-300: oklch(0.808 0.114 19.571);
-        --color-red-400: oklch(0.704 0.191 22.216);
-        --color-red-500: oklch(0.637 0.237 25.331);
-        --color-red-600: oklch(0.577 0.245 27.325);
-        --color-red-700: oklch(0.505 0.213 27.518);
-        --color-red-800: oklch(0.444 0.177 26.899);
-        --color-red-900: oklch(0.396 0.141 25.723);
-        --color-red-950: oklch(0.258 0.092 26.042);
+        --font-libertinus: 'Libertinus Serif', serif;
+        /* Gray scale */
+        --color-gray-50: oklch(0.98 0 0);
+        --color-gray-100: oklch(0.95 0 0);
+        --color-gray-200: oklch(0.9 0 0);
+        --color-gray-300: oklch(0.8 0 0);
+        --color-gray-400: oklch(0.7 0 0);
+        --color-gray-500: oklch(0.6 0 0);
+        --color-gray-600: oklch(0.5 0 0);
+        --color-gray-700: oklch(0.4 0 0);
+        --color-gray-800: oklch(0.3 0 0);
+        --color-gray-900: oklch(0.2 0 0);
+        --color-gray-950: oklch(0.12 0 0);
+        /* Pastel blues */
+        --color-blue-50: oklch(0.97 0.02 236);
+        --color-blue-100: oklch(0.94 0.025 236);
+        --color-blue-200: oklch(0.9 0.03 236);
+        --color-blue-300: oklch(0.85 0.035 236);
+        --color-blue-400: oklch(0.8 0.04 236);
+        --color-blue-500: oklch(0.75 0.045 236);
+        --color-blue-600: oklch(0.7 0.05 236);
+        --color-blue-700: oklch(0.65 0.055 236);
+        --color-blue-800: oklch(0.6 0.06 236);
+        --color-blue-900: oklch(0.55 0.065 236);
+        --color-blue-950: oklch(0.5 0.07 236);
+        /* Pastel reds to match blues */
+        --color-red-50: oklch(0.97 0.02 25);
+        --color-red-100: oklch(0.94 0.025 25);
+        --color-red-200: oklch(0.9 0.03 25);
+        --color-red-300: oklch(0.85 0.035 25);
+        --color-red-400: oklch(0.8 0.04 25);
+        --color-red-500: oklch(0.75 0.045 25);
+        --color-red-600: oklch(0.7 0.05 25);
+        --color-red-700: oklch(0.65 0.055 25);
+        --color-red-800: oklch(0.6 0.06 25);
+        --color-red-900: oklch(0.55 0.065 25);
+        --color-red-950: oklch(0.5 0.07 25);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        @theme {
+          /* Gray scale */
+          --color-gray-50: oklch(0.2 0 0);
+          --color-gray-100: oklch(0.25 0 0);
+          --color-gray-200: oklch(0.3 0 0);
+          --color-gray-300: oklch(0.4 0 0);
+          --color-gray-400: oklch(0.5 0 0);
+          --color-gray-500: oklch(0.6 0 0);
+          --color-gray-600: oklch(0.7 0 0);
+          --color-gray-700: oklch(0.8 0 0);
+          --color-gray-800: oklch(0.9 0 0);
+          --color-gray-900: oklch(0.95 0 0);
+          --color-gray-950: oklch(0.98 0 0);
+          /* Pastel blues */
+          --color-blue-50: oklch(0.85 0.04 236);
+          --color-blue-100: oklch(0.8 0.04 236);
+          --color-blue-200: oklch(0.7 0.05 236);
+          --color-blue-300: oklch(0.6 0.055 236);
+          --color-blue-400: oklch(0.5 0.06 236);
+          --color-blue-500: oklch(0.45 0.06 236);
+          --color-blue-600: oklch(0.4 0.055 236);
+          --color-blue-700: oklch(0.35 0.05 236);
+          --color-blue-800: oklch(0.3 0.045 236);
+          --color-blue-900: oklch(0.25 0.04 236);
+          --color-blue-950: oklch(0.2 0.035 236);
+          /* Pastel reds */
+          --color-red-50: oklch(0.85 0.04 25);
+          --color-red-100: oklch(0.8 0.04 25);
+          --color-red-200: oklch(0.7 0.05 25);
+          --color-red-300: oklch(0.6 0.055 25);
+          --color-red-400: oklch(0.5 0.06 25);
+          --color-red-500: oklch(0.45 0.06 25);
+          --color-red-600: oklch(0.4 0.055 25);
+          --color-red-700: oklch(0.35 0.05 25);
+          --color-red-800: oklch(0.3 0.045 25);
+          --color-red-900: oklch(0.25 0.04 25);
+          --color-red-950: oklch(0.2 0.035 25);
+        }
       }
 
       @layer utilities {
@@ -35,8 +101,20 @@
       }
 
       @layer base {
-        html { font-size: 22px; }
-        p, h1, h2, h3, h4, h5, h6, input, textarea, button {
+        html {
+          font-size: 22px;
+          color-scheme: light dark;
+        }
+        p,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        input,
+        textarea,
+        button {
           @apply font-libertinus;
         }
       }
