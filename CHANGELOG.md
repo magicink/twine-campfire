@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.59.1](https://github.com/magicink/twine-campfire/compare/v1.59.0...v1.59.1) (2025-08-13)
+
+
+### Bug Fixes
+
+* forward transition styles to trigger buttons ([#300](https://github.com/magicink/twine-campfire/issues/300)) ([a98680b](https://github.com/magicink/twine-campfire/commit/a98680be4a8bffe48f6c9a2672a948cdfc8c5acb))
+
 ## [1.59.0](https://github.com/magicink/twine-campfire/compare/v1.58.0...v1.59.0) (2025-08-13)
 
 
