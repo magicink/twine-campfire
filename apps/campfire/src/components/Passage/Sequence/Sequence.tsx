@@ -124,7 +124,7 @@ export const Sequence = ({
 
   useEffect(() => {
     if (autoplayEnabled && index < steps.length - 1 && current) {
-      const transitionDelay = getMaxDuration(current.props.children || [])
+      const transitionDelay = getMaxDuration(current)
       const id = setTimeout(handleNext, delay + transitionDelay)
       return () => clearTimeout(id)
     }
