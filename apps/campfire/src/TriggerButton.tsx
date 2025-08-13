@@ -50,7 +50,7 @@ export const TriggerButton = ({
   return (
     <button
       type='button'
-      className={['campfire-trigger', ...classes].join(' ')}
+      className={['campfire-trigger', 'font-cormorant', ...classes].join(' ')}
       disabled={disabled}
       onClick={() => runBlock(clone(JSON.parse(content)))}
     >
