@@ -75,5 +75,6 @@ export const If = ({ test, content, fallback }: IfProps) => {
   const nodes: RootContent[] = JSON.parse(source)
   const root: Root = { type: 'root', children: nodes }
   const result = processor.processSync(root)
-  return result.result as ComponentChild
+  const output = result.result as ComponentChild | ComponentChild[]
+  return Array.isArray(output) ? jsxs(Fragment, { children: output }) : output
 }

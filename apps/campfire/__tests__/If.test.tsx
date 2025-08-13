@@ -133,4 +133,13 @@ describe('If', () => {
       expect(useGameStore.getState().gameData.fired).toBe(true)
     })
   })
+
+  it('renders multiple container directives', () => {
+    const content = makeMixedContent(
+      ':::trigger{label="One"}\n:::\n:::trigger{label="Two"}\n:::\n:::'
+    )
+    render(<If test='true' content={content} />)
+    expect(screen.getByRole('button', { name: 'One' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Two' })).toBeInTheDocument()
+  })
 })
