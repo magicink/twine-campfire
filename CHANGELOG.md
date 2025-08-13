@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.57.4](https://github.com/magicink/twine-campfire/compare/v1.57.3...v1.57.4) (2025-08-13)
+
+
+### Bug Fixes
+
+* **campfire:** use Cormorant font for buttons ([#285](https://github.com/magicink/twine-campfire/issues/285)) ([d5f2b87](https://github.com/magicink/twine-campfire/commit/d5f2b872b41850960f1bb04ec517ac17384fdb18))
+
 ## [1.57.3](https://github.com/magicink/twine-campfire/compare/v1.57.2...v1.57.3) (2025-08-13)
 
 
