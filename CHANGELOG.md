@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.59.3](https://github.com/magicink/twine-campfire/compare/v1.59.2...v1.59.3) (2025-08-13)
+
+
+### Bug Fixes
+
+* enforce exclusive random directive attributes ([#305](https://github.com/magicink/twine-campfire/issues/305)) ([3ae8aff](https://github.com/magicink/twine-campfire/commit/3ae8aff0dec22a35346514a96754e5fc65b8b212))
+
 ## [1.59.2](https://github.com/magicink/twine-campfire/compare/v1.59.1...v1.59.2) (2025-08-13)
 
 
