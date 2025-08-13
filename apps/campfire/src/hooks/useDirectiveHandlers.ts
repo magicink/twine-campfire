@@ -910,10 +910,12 @@ export const useDirectiveHandlers = () => {
      * @param nodes - Nodes to prepare for serialization.
      * @returns Cleaned array without whitespace-only text nodes.
      */
-    const processNodes = (nodes: RootContent[]): RootContent[] =>
-      preprocessBlock(stripLabel(nodes)).filter(
+    const processNodes = (nodes: RootContent[]): RootContent[] => {
+      const cloned = stripLabel(nodes).map(node => structuredClone(node))
+      return preprocessBlock(cloned).filter(
         node => !(isTextNode(node) && node.value.trim() === '')
       )
+    }
     const content = JSON.stringify(processNodes(main))
     const fallback = fallbackNodes
       ? JSON.stringify(processNodes(fallbackNodes))
