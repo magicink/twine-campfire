@@ -41,7 +41,16 @@ describe('Passage sequence directive', () => {
     render(<Passage />)
 
     expect(await screen.findByText('First')).toBeInTheDocument()
+    const continueBtn = await screen.findByRole('button', {
+      name: 'Continue to next step'
+    })
+    act(() => {
+      continueBtn.click()
+    })
     expect(await screen.findByText('Second')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(useGameStore.getState().gameData.done).toBe(true)
+    })
   })
 
   it('handles nested directives within indented steps', async () => {
@@ -171,6 +180,12 @@ describe('Passage sequence directive', () => {
 
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
     expect(() => render(<Passage />)).not.toThrow()
+    const continueBtn = await screen.findByRole('button', {
+      name: 'Continue to next step'
+    })
+    act(() => {
+      continueBtn.click()
+    })
     expect(await screen.findByText('Inner')).toBeInTheDocument()
   })
 

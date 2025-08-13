@@ -64,6 +64,7 @@ export const Sequence = ({
   continueAriaLabel = 'Continue to next step',
   skipAriaLabel
 }: SequenceProps) => {
+  const autoplayEnabled = typeof autoplay === 'string' ? true : autoplay
   const [index, setIndex] = useState(0)
   const childArray = toChildArray(children).filter((child): child is VNode =>
     isValidElement(child)
@@ -122,12 +123,12 @@ export const Sequence = ({
   }
 
   useEffect(() => {
-    if (autoplay && index < steps.length - 1 && current) {
+    if (autoplayEnabled && index < steps.length - 1 && current) {
       const transitionDelay = getMaxDuration(current.props.children || [])
       const id = setTimeout(handleNext, delay + transitionDelay)
       return () => clearTimeout(id)
     }
-  }, [autoplay, delay, index, steps.length, current])
+  }, [autoplayEnabled, delay, index, steps.length, current])
 
   /** Tracks whether the completion handler has already executed. */
   const completeRan = useRef(false)
@@ -144,7 +145,8 @@ export const Sequence = ({
   }
 
   const isInteractive = typeof current.type === 'function'
-  const showContinue = !autoplay && !isInteractive && index < steps.length - 1
+  const showContinue =
+    !autoplayEnabled && !isInteractive && index < steps.length - 1
   const fastForwardEnabled = fastForward?.enabled !== false
   const showSkip = fastForwardEnabled && index < steps.length - 1
   const skipAria =

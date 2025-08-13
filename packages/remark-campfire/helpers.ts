@@ -333,6 +333,7 @@ export const extractAttributes = <S extends AttributeSchema>(
       case 'boolean': {
         if (typeof raw === 'boolean') return raw
         if (typeof raw === 'string') {
+          if (raw === '') return true
           if (spec.expression === false) return raw === 'true'
           const evaluated = evalExpr(raw)
           return typeof evaluated === 'boolean' ? evaluated : raw === 'true'

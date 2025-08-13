@@ -78,4 +78,11 @@ describe('extractAttributes', () => {
     })
     expect(result.label).toBe('Label text')
   })
+
+  it('treats empty string boolean attributes as true', () => {
+    const directive = createDirective({ flag: '' })
+    const schema = { flag: { type: 'boolean' } } as const
+    const result = extractAttributes(directive, undefined, undefined, schema)
+    expect((result.attrs as Record<string, unknown>).flag).toBe(true)
+  })
 })
