@@ -9,7 +9,20 @@ interface LinkButtonProps extends JSX.HTMLAttributes<HTMLButtonElement> {
   'data-name'?: string
 }
 
-export const LinkButton = ({ children, onClick, ...rest }: LinkButtonProps) => {
+/**
+ * Button that navigates to another passage when clicked.
+ *
+ * @param children - Button label.
+ * @param onClick - Optional click handler.
+ * @param className - Optional CSS classes.
+ * @param rest - Additional button properties including passage identifiers.
+ */
+export const LinkButton = ({
+  children,
+  onClick,
+  className,
+  ...rest
+}: LinkButtonProps) => {
   const setCurrent = useStoryDataStore(
     (state: StoryDataState) => state.setCurrentPassage
   )
@@ -18,6 +31,9 @@ export const LinkButton = ({ children, onClick, ...rest }: LinkButtonProps) => {
   return (
     <button
       type='button'
+      className={[className, 'font-cormorant']
+        .filter(c => c != null && c !== '')
+        .join(' ')}
       {...rest}
       onClick={e => {
         onClick?.(e)

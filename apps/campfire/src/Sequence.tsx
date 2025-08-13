@@ -234,6 +234,7 @@ export const Sequence = ({
       {showContinue && (
         <button
           type='button'
+          className='font-cormorant'
           onClick={handleNext}
           aria-label={continueAriaLabel}
         >
@@ -241,7 +242,12 @@ export const Sequence = ({
         </button>
       )}
       {showSkip && (
-        <button type='button' onClick={handleFastForward} aria-label={skipAria}>
+        <button
+          type='button'
+          className='font-cormorant'
+          onClick={handleFastForward}
+          aria-label={skipAria}
+        >
           {skipLabel}
         </button>
       )}
