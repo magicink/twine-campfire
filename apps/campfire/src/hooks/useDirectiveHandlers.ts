@@ -1320,7 +1320,8 @@ export const useDirectiveHandlers = () => {
     )
     const container = directive as ContainerDirective
     const rawChildren = stripLabel(container.children as RootContent[])
-    const children = runBlock(rawChildren)
+    const preprocessed = preprocessBlock(rawChildren)
+    const children = runBlock(preprocessed)
     const node: Parent = {
       type: 'paragraph',
       children,
