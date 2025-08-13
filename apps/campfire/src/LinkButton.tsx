@@ -31,7 +31,9 @@ export const LinkButton = ({
   return (
     <button
       type='button'
-      className={['font-cormorant', className].filter(Boolean).join(' ')}
+      className={[className, 'font-cormorant']
+        .filter(c => c != null && c !== '')
+        .join(' ')}
       {...rest}
       onClick={e => {
         onClick?.(e)
