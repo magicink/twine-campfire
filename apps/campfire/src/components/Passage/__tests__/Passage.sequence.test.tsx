@@ -173,4 +173,24 @@ describe('Passage sequence directive', () => {
     expect(() => render(<Passage />)).not.toThrow()
     expect(await screen.findByText('Inner')).toBeInTheDocument()
   })
+
+  it('does not render sequence steps when if condition is false', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            ':::sequence\n:::step\nOuter\n:::\n:::\n:::if{false}\n:::sequence\n:::step\n:::transition\nFirst\n:::\n:::\n:::step\n:::transition{delay=450}\nSecond\n:::\n:::\n:::\n'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    expect(screen.queryByText('First')).toBeNull()
+    expect(screen.queryByText('Second')).toBeNull()
+  })
 })
