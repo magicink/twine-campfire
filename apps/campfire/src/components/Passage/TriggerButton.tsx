@@ -5,6 +5,7 @@ import remarkCampfire, {
 import type { RootContent, Root } from 'mdast'
 import rfdc from 'rfdc'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
+import type { JSX } from 'preact'
 
 const clone = rfdc()
 
@@ -13,6 +14,7 @@ interface TriggerButtonProps {
   content: string
   children?: string
   disabled?: boolean
+  style?: JSX.CSSProperties
 }
 
 /**
@@ -22,12 +24,14 @@ interface TriggerButtonProps {
  * @param content - Serialized directive block.
  * @param children - Button label.
  * @param disabled - Disables the button when true.
+ * @param style - Optional inline styles.
  */
 export const TriggerButton = ({
   className,
   content,
   children,
-  disabled
+  disabled,
+  style
 }: TriggerButtonProps) => {
   const handlers = useDirectiveHandlers()
   /**
@@ -52,6 +56,7 @@ export const TriggerButton = ({
       type='button'
       className={['campfire-trigger', 'font-libertinus', ...classes].join(' ')}
       disabled={disabled}
+      style={style}
       onClick={() => runBlock(clone(JSON.parse(content)))}
     >
       {children}

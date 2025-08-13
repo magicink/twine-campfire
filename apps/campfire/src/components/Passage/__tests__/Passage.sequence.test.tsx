@@ -134,6 +134,27 @@ describe('Passage sequence directive', () => {
     })
   })
 
+  it('applies transition styles to trigger directives', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            ':::sequence\n:::step\n:::transition{delay=500}\n:::trigger{label="Fire"}\n:::\n:::\n:::\n'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    const button = await screen.findByRole('button', { name: 'Fire' })
+    expect(button.style.transition).toContain('opacity 300ms ease-in')
+    expect(button.style.transitionDelay).toBe('500ms')
+  })
+
   it('renders sequences within if directives', async () => {
     const passage: Element = {
       type: 'element',
