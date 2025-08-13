@@ -1191,7 +1191,8 @@ export const useDirectiveHandlers = () => {
     if (!parent || typeof index !== 'number') return
     const { attrs } = extractAttributes(directive, parent, index, {})
     const container = directive as ContainerDirective
-    const children = stripLabel(container.children as RootContent[])
+    const rawChildren = stripLabel(container.children as RootContent[])
+    const children = preprocessBlock(rawChildren)
     runBlock(children)
     const node: Parent = {
       type: 'paragraph',
@@ -1223,7 +1224,8 @@ export const useDirectiveHandlers = () => {
       delay: { type: 'number' }
     })
     const container = directive as ContainerDirective
-    const children = stripLabel(container.children as RootContent[])
+    const rawChildren = stripLabel(container.children as RootContent[])
+    const children = preprocessBlock(rawChildren)
     runBlock(children)
     const node: Parent = {
       type: 'paragraph',

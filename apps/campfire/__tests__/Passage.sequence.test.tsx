@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { render, screen, act } from '@testing-library/preact'
+import { render, screen, act, waitFor } from '@testing-library/preact'
 import i18next from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import type { Element } from 'hast'
@@ -107,6 +107,31 @@ describe('Passage sequence directive', () => {
 
     expect(await screen.findByText('Foo')).toBeInTheDocument()
     expect(screen.queryByText(':::')).toBeNull()
+  })
+
+  it('handles trigger directives inside transitions', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            ':::sequence\n:::step\n:::transition\n:::trigger{label="Fire"}\n:::set[fired=true]\n:::\n:::\n:::\n'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    const button = await screen.findByRole('button', { name: 'Fire' })
+    act(() => {
+      button.click()
+    })
+    await waitFor(() => {
+      expect(useGameStore.getState().gameData.fired).toBe(true)
+    })
   })
 
   it('renders sequences within if directives', async () => {
