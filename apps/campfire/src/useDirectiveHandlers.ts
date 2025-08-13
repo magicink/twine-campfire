@@ -887,21 +887,34 @@ export const useDirectiveHandlers = () => {
         child.type === 'containerDirective' &&
         (child as ContainerDirective).name === 'else'
     )
-    let fallback: string | undefined
+    let fallbackNodes: RootContent[] | undefined
     let main = children
     if (elseIndex !== -1) {
       const next = children[elseIndex] as ContainerDirective
       main = children.slice(0, elseIndex)
-      fallback = JSON.stringify(stripLabel(next.children as RootContent[]))
+      fallbackNodes = next.children as RootContent[]
     } else if (elseSiblingIndex !== -1) {
       const next = parent.children[elseSiblingIndex] as ContainerDirective
-      fallback = JSON.stringify(stripLabel(next.children as RootContent[]))
+      fallbackNodes = next.children as RootContent[]
       const markerIndex = removeNode(parent, elseSiblingIndex)
       if (typeof markerIndex === 'number') {
         removeDirectiveMarker(parent, markerIndex)
       }
     }
-    const content = JSON.stringify(stripLabel(main))
+    /**
+     * Strips directive labels, runs preprocessing and removes empty text nodes.
+     *
+     * @param nodes - Nodes to prepare for serialization.
+     * @returns Cleaned array without whitespace-only text nodes.
+     */
+    const processNodes = (nodes: RootContent[]): RootContent[] =>
+      preprocessBlock(stripLabel(nodes)).filter(
+        node => !(isTextNode(node) && node.value.trim() === '')
+      )
+    const content = JSON.stringify(processNodes(main))
+    const fallback = fallbackNodes
+      ? JSON.stringify(processNodes(fallbackNodes))
+      : undefined
     const node: Parent = {
       type: 'paragraph',
       children: [],
