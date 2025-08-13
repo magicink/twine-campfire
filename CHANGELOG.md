@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.57.5](https://github.com/magicink/twine-campfire/compare/v1.57.4...v1.57.5) (2025-08-13)
+
+
+### Bug Fixes
+
+* **template:** set base font size and apply Cormorant font to paragraphs ([0d01a84](https://github.com/magicink/twine-campfire/commit/0d01a84f31886933082d2b9222f9048a1b2b264d))
+
 ## [1.57.4](https://github.com/magicink/twine-campfire/compare/v1.57.3...v1.57.4) (2025-08-13)
 
 
