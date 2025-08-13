@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.59.0](https://github.com/magicink/twine-campfire/compare/v1.58.0...v1.59.0) (2025-08-13)
+
+
+### Features
+
+* add Campfire Beta demo with sequenced transitions ([456b130](https://github.com/magicink/twine-campfire/commit/456b1309930f540282c06602201010901ef4f17a))
+
+
+### Bug Fixes
+
+* **sequence:** handle string autoplay ([#299](https://github.com/magicink/twine-campfire/issues/299)) ([2687d8f](https://github.com/magicink/twine-campfire/commit/2687d8f83f1a5bdab5ae97a85e5e2ec12267d42e))
+
 ## [1.58.0](https://github.com/magicink/twine-campfire/compare/v1.57.8...v1.58.0) (2025-08-13)
 
 
