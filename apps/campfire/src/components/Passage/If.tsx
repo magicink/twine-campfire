@@ -70,7 +70,15 @@ export const If = ({ test, content, fallback }: IfProps) => {
       has: () => true,
       get: (obj, key) => (obj as Record<string, unknown>)[key as string]
     })
-    condition = !!fn(proxy)
+    const result = fn(proxy)
+    condition =
+      typeof result === 'string'
+        ? result.trim() !== '' &&
+          result !== 'false' &&
+          result !== '0' &&
+          result !== 'null' &&
+          result !== 'undefined'
+        : !!result
   } catch {
     condition = false
   }
