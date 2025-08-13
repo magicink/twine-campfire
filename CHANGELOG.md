@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.59.2](https://github.com/magicink/twine-campfire/compare/v1.59.1...v1.59.2) (2025-08-13)
+
+
+### Bug Fixes
+
+* preserve nodes when preprocessing if blocks ([#303](https://github.com/magicink/twine-campfire/issues/303)) ([b570c6b](https://github.com/magicink/twine-campfire/commit/b570c6bbc2e78ca08c3a332a7faaf649b9fa0942))
+
 ## [1.59.1](https://github.com/magicink/twine-campfire/compare/v1.59.0...v1.59.1) (2025-08-13)
 
 
