@@ -6,7 +6,7 @@ Campfire Beta
 {
   "ifid": "2F9B03ED-06D7-4B22-B449-BF1A9707C6F9",
   "format": "campfire",
-  "format-version": "1.58.0",
+  "format-version": "1.59.1",
   "start": "sequences",
   "zoom": 1
 }
