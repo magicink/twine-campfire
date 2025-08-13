@@ -29,6 +29,21 @@ describe('Sequence', () => {
     expect(screen.getByText('Second')).toBeInTheDocument()
   })
 
+  it('treats the string "false" as disabled autoplay', () => {
+    render(
+      <Sequence autoplay='false'>
+        <Step>First</Step>
+        <Step>Second</Step>
+      </Sequence>
+    )
+    expect(screen.getByText('First')).toBeInTheDocument()
+    const button = screen.getByRole('button', { name: 'Continue to next step' })
+    act(() => {
+      button.click()
+    })
+    expect(screen.getByText('Second')).toBeInTheDocument()
+  })
+
   it('allows customizing continue button text', () => {
     render(
       <Sequence continueLabel='Next step'>

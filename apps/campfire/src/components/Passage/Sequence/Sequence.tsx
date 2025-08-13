@@ -23,8 +23,12 @@ import {
 interface SequenceProps {
   /** Collection of Step elements */
   children: ComponentChildren
-  /** Automatically advance through steps without user interaction */
-  autoplay?: boolean
+  /**
+   * Automatically advance through steps without user interaction.
+   * Accepts boolean values or the strings "true" and "false" to accommodate
+   * directive attribute parsing.
+   */
+  autoplay?: boolean | string
   /** Delay in milliseconds between automatic steps. Only used when autoplay is true */
   delay?: number
   /** Configuration for fast-forward behavior */
@@ -60,7 +64,7 @@ interface FastForwardOptions {
  */
 export const Sequence = ({
   children,
-  autoplay = false,
+  autoplay,
   delay = 0,
   fastForward,
   continueLabel = 'Continue',
@@ -69,6 +73,12 @@ export const Sequence = ({
   skipAriaLabel
 }: SequenceProps) => {
   const [index, setIndex] = useState(0)
+  /**
+   * Determines whether autoplay is enabled. Directive attributes may pass
+   * string values, so both boolean and string representations are supported.
+   */
+  const isAutoplay =
+    typeof autoplay === 'string' ? autoplay !== 'false' : !!autoplay
   const childArray = toChildArray(children).filter((child): child is VNode =>
     isValidElement(child)
   )
@@ -128,12 +138,12 @@ export const Sequence = ({
   }
 
   useEffect(() => {
-    if (autoplay && index < steps.length - 1 && current) {
+    if (isAutoplay && index < steps.length - 1 && current) {
       const transitionDelay = getMaxDuration(current.props.children || [])
       const id = setTimeout(handleNext, delay + transitionDelay)
       return () => clearTimeout(id)
     }
-  }, [autoplay, delay, index, steps.length, current])
+  }, [isAutoplay, delay, index, steps.length, current])
 
   /** Tracks whether the completion handler has already executed. */
   const completeRan = useRef(false)
@@ -150,7 +160,7 @@ export const Sequence = ({
   }
 
   const isInteractive = typeof current.props.children === 'function'
-  const showContinue = !autoplay && !isInteractive && index < steps.length - 1
+  const showContinue = !isAutoplay && !isInteractive && index < steps.length - 1
   const fastForwardEnabled = fastForward?.enabled !== false
   const showSkip = fastForwardEnabled && index < steps.length - 1
   const skipAria =
