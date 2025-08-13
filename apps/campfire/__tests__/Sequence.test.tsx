@@ -152,12 +152,12 @@ describe('Sequence', () => {
         </Step>
       </Sequence>
     )
-    const wrapper = screen.getByText('First').parentElement as HTMLElement
-    expect(wrapper.style.transition).toBe('opacity 200ms ease-in')
+    const element = screen.getByText('First') as HTMLElement
+    expect(element.style.transition).toBe('opacity 200ms ease-in')
     await act(async () => {
       await new Promise(requestAnimationFrame)
     })
-    expect(wrapper.style.opacity).toBe('1')
+    expect(element.style.opacity).toBe('1')
   })
 
   it('waits for transitions before advancing steps in autoplay', async () => {

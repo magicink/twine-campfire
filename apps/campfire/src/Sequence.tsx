@@ -61,6 +61,9 @@ const DEFAULT_TRANSITION_DURATION = 300
 
 /**
  * Animates its children using a simple CSS-based transition.
+ * If a single element child is provided, the styles are applied directly
+ * to that element to avoid introducing additional wrapper nodes that can
+ * disrupt document structure.
  */
 export const Transition = ({
   type = 'fade-in',
@@ -81,6 +84,16 @@ export const Transition = ({
           opacity: visible ? 1 : 0
         }
       : {}
+  const nodes = toChildArray(children)
+  const single = nodes.length === 1 && isValidElement(nodes[0])
+  if (single) {
+    const child = nodes[0] as VNode<any>
+    const merged: JSX.CSSProperties = {
+      ...(child.props?.style as JSX.CSSProperties),
+      ...style
+    }
+    return cloneElement(child, { style: merged })
+  }
   return (
     <div style={style} role='presentation'>
       {children}
