@@ -209,6 +209,18 @@ Operations that set, update, or remove scalar values.
 
   Replace `visited` with the key to remove.
 
+### Ranges
+
+Create and update numeric ranges.
+
+```md
+:createRange[score=0]{min=0 max=10}
+:setRange[score=(score.value+1)]
+```
+
+Range values are objects with `value`, `min`, and `max` properties. Access them
+using dot notation such as `score.value`, `score.min`, and `score.max`.
+
 ### Arrays & collection management
 
 Create or modify lists of values.
