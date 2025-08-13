@@ -31,7 +31,7 @@ export const LinkButton = ({
   return (
     <button
       type='button'
-      className={[className, 'font-cormorant']
+      className={[className, 'font-libertinus']
         .filter(c => c != null && c !== '')
         .join(' ')}
       {...rest}

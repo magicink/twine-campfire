@@ -24,7 +24,7 @@ export const remarkParagraphStyles = () => (tree: Root) => {
       : typeof existing === 'string'
         ? [existing]
         : []
-    classes.push('font-cormorant', 'text-lg')
+    classes.push('font-libertinus', 'text-base')
     props.className = classes
   })
 }
