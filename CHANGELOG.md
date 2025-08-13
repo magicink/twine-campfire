@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.57.2](https://github.com/magicink/twine-campfire/compare/v1.57.1...v1.57.2) (2025-08-13)
+
+
+### Bug Fixes
+
+* default paragraph font and size ([#278](https://github.com/magicink/twine-campfire/issues/278)) ([8135923](https://github.com/magicink/twine-campfire/commit/81359237d6579fe4f6db42601de0f3302cb6778a))
+
 ## [1.57.1](https://github.com/magicink/twine-campfire/compare/v1.57.0...v1.57.1) (2025-08-13)
 
 
