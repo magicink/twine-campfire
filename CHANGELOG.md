@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.57.6](https://github.com/magicink/twine-campfire/compare/v1.57.5...v1.57.6) (2025-08-13)
+
+
+### Bug Fixes
+
+* **if:** handle multiple container directives ([#288](https://github.com/magicink/twine-campfire/issues/288)) ([cd35a30](https://github.com/magicink/twine-campfire/commit/cd35a305a347ebb62b9a1131a04b1e2abb8b2022))
+
 ## [1.57.5](https://github.com/magicink/twine-campfire/compare/v1.57.4...v1.57.5) (2025-08-13)
 
 
