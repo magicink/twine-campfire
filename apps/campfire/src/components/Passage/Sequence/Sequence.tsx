@@ -99,26 +99,28 @@ export const Sequence = ({
   }
 
   /**
-   * Recursively determines the longest transition duration within a step.
+   * Recursively determines the longest transition duration within a node.
+   *
+   * @param node - Root element to inspect.
+   * @returns Maximum combined delay and duration.
    */
-  const getMaxDuration = (children: ComponentChildren): number => {
+  const getMaxDuration = (node: VNode): number => {
     let max = 0
-    const walk = (nodes: ComponentChildren) => {
-      for (const child of toChildArray(nodes)) {
-        if (!isValidElement(child)) continue
-        if (child.type === Transition) {
-          const props = child.props as TransitionProps
-          const duration = props.duration ?? DEFAULT_TRANSITION_DURATION
-          const delay = props.delay ?? 0
-          const total = delay + duration
-          if (total > max) max = total
-        }
-        if (child.props?.children) {
-          walk(child.props.children)
+    const visit = (el: VNode): void => {
+      if (el.type === Transition) {
+        const props = el.props as TransitionProps
+        const duration = props.duration ?? DEFAULT_TRANSITION_DURATION
+        const delay = props.delay ?? 0
+        const total = delay + duration
+        if (total > max) max = total
+      }
+      if (el.props?.children) {
+        for (const child of toChildArray(el.props.children)) {
+          if (isValidElement(child)) visit(child)
         }
       }
     }
-    walk(children)
+    visit(node)
     return max
   }
 

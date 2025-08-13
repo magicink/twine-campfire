@@ -1289,13 +1289,6 @@ export const useDirectiveHandlers = () => {
       },
       { state: gameData }
     )
-    if (
-      (directive.attributes as Record<string, unknown>)?.autoplay !==
-        undefined &&
-      attrs.autoplay !== true
-    ) {
-      attrs.autoplay = true
-    }
     const container = directive as ContainerDirective
     const rawChildren = stripLabel(container.children as RootContent[])
     const preprocessed = preprocessBlock(rawChildren)
