@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.58.0](https://github.com/magicink/twine-campfire/compare/v1.57.8...v1.58.0) (2025-08-13)
+
+
+### Features
+
+* add pastel theme palette with dark mode ([#296](https://github.com/magicink/twine-campfire/issues/296)) ([e57e8ab](https://github.com/magicink/twine-campfire/commit/e57e8ab23d98d08efea77b90528b71d63f74cc60))
+
 ## [1.57.8](https://github.com/magicink/twine-campfire/compare/v1.57.7...v1.57.8) (2025-08-13)
 
 
