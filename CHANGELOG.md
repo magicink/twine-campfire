@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.59.4](https://github.com/magicink/twine-campfire/compare/v1.59.3...v1.59.4) (2025-08-13)
+
+
+### Bug Fixes
+
+* process nested directives in if sequences ([#308](https://github.com/magicink/twine-campfire/issues/308)) ([578cfca](https://github.com/magicink/twine-campfire/commit/578cfcad749d8326f9161593b5508b0003b19c8c))
+
 ## [1.59.3](https://github.com/magicink/twine-campfire/compare/v1.59.2...v1.59.3) (2025-08-13)
 
 
