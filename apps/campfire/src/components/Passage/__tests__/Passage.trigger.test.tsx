@@ -38,7 +38,7 @@ describe('Passage trigger directives', () => {
     const button = await screen.findByRole('button', { name: 'Fire' })
     expect(button.className).toContain('campfire-trigger')
     expect(button.className).toContain('extra')
-    expect(button.className).toContain('font-cormorant')
+    expect(button.className).toContain('font-libertinus')
     act(() => {
       button.click()
     })

@@ -166,7 +166,7 @@ export const Sequence = ({
       {showContinue && (
         <button
           type='button'
-          className='font-cormorant'
+          className='font-libertinus'
           onClick={handleNext}
           aria-label={continueAriaLabel}
         >
@@ -176,7 +176,7 @@ export const Sequence = ({
       {showSkip && (
         <button
           type='button'
-          className='font-cormorant'
+          className='font-libertinus'
           onClick={handleFastForward}
           aria-label={skipAria}
         >

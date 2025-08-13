@@ -6,13 +6,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300..700;1,300..700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Libertinus+Serif:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap"
       rel="stylesheet"
     />
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style type="text/tailwindcss">
       @theme {
-        --font-cormorant: "Cormorant", serif;
+        --font-libertinus: "Libertinus Serif", serif;
         --color-red-50: oklch(0.971 0.013 17.38);
         --color-red-100: oklch(0.936 0.032 17.717);
         --color-red-200: oklch(0.885 0.062 18.334);
@@ -27,16 +27,18 @@
       }
 
       @layer utilities {
-        .font-cormorant {
-          font-family: var(--font-cormorant);
+        .font-libertinus {
+          font-family: var(--font-libertinus);
           font-optical-sizing: auto;
           font-style: normal;
         }
       }
 
       @layer base {
-        html { font-size: 18px; }
-        p { @apply font-cormorant; }
+        html { font-size: 22px; }
+        p, h1, h2, h3, h4, h5, h6, input, textarea, button {
+          @apply font-libertinus;
+        }
       }
     </style>
   </head>

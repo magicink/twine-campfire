@@ -31,8 +31,8 @@ describe('Passage paragraph styles', () => {
     const paragraphs = await screen.findAllByText(/paragraph/)
     expect(paragraphs).toHaveLength(2)
     paragraphs.forEach(p => {
-      expect(p.className).toContain('font-cormorant')
-      expect(p.className).toContain('text-lg')
+      expect(p.className).toContain('font-libertinus')
+      expect(p.className).toContain('text-base')
     })
   })
 })

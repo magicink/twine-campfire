@@ -9,12 +9,12 @@ import type { Root } from 'mdast'
 export const remarkHeadingStyles = () => (tree: Root) => {
   visit(tree, 'heading', node => {
     const mapping: Record<number, string> = {
-      1: 'font-cormorant text-4xl font-bold',
-      2: 'font-cormorant text-3xl font-semibold',
-      3: 'font-cormorant text-2xl font-medium',
-      4: 'font-cormorant text-xl font-normal',
-      5: 'font-cormorant text-lg font-normal',
-      6: 'font-cormorant text-base font-light'
+      1: 'font-libertinus text-4xl font-bold',
+      2: 'font-libertinus text-3xl font-semibold',
+      3: 'font-libertinus text-2xl font-medium',
+      4: 'font-libertinus text-xl font-normal',
+      5: 'font-libertinus text-lg font-normal',
+      6: 'font-libertinus text-base font-light'
     }
     const cls = mapping[node.depth]
     if (!cls) return
