@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.57.3](https://github.com/magicink/twine-campfire/compare/v1.57.2...v1.57.3) (2025-08-13)
+
+
+### Bug Fixes
+
+* **campfire:** preprocess transition children ([#282](https://github.com/magicink/twine-campfire/issues/282)) ([a5f165a](https://github.com/magicink/twine-campfire/commit/a5f165a56338904199c1ec7a0119dbabdb8f1037))
+
 ## [1.57.2](https://github.com/magicink/twine-campfire/compare/v1.57.1...v1.57.2) (2025-08-13)
 
 
