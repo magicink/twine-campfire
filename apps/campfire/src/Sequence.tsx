@@ -87,9 +87,9 @@ export const Transition = ({
   const nodes = toChildArray(children)
   const single = nodes.length === 1 && isValidElement(nodes[0])
   if (single) {
-    const child = nodes[0] as VNode<any>
+    const child = nodes[0] as VNode<{ style?: JSX.CSSProperties }>
     const merged: JSX.CSSProperties = {
-      ...(child.props?.style as JSX.CSSProperties),
+      ...(child.props.style ?? {}),
       ...style
     }
     return cloneElement(child, { style: merged })
