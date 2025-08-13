@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.57.1](https://github.com/magicink/twine-campfire/compare/v1.57.0...v1.57.1) (2025-08-13)
+
+
+### Bug Fixes
+
+* support sequences inside if directives ([#279](https://github.com/magicink/twine-campfire/issues/279)) ([c9164bb](https://github.com/magicink/twine-campfire/commit/c9164bbb983c38e3bd0ed0c4adca7f4f2ede7811))
+
 ## [1.57.0](https://github.com/magicink/twine-campfire/compare/v1.56.0...v1.57.0) (2025-08-12)
 
 
