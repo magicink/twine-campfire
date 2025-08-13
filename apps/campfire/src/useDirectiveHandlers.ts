@@ -909,7 +909,7 @@ export const useDirectiveHandlers = () => {
      */
     const processNodes = (nodes: RootContent[]): RootContent[] =>
       preprocessBlock(stripLabel(nodes)).filter(
-        node => !(node.type === 'text' && (node as MdText).value.trim() === '')
+        node => !(isTextNode(node) && node.value.trim() === '')
       )
     const content = JSON.stringify(processNodes(main))
     const fallback = fallbackNodes
