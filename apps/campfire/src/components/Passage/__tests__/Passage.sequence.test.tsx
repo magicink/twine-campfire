@@ -32,7 +32,7 @@ describe('Passage sequence directive', () => {
         {
           type: 'text',
           value:
-            ':::sequence\n:::step\nFirst\n:::\n:::step\nSecond\n:::\n:::onComplete\n:set[done=true]\n:::\n:::\n'
+            ':::sequence{autoplay}\nFirst\n\nSecond\n\n:::onComplete\n:set[done=true]\n:::\n:::\n'
         }
       ]
     }
@@ -53,7 +53,7 @@ describe('Passage sequence directive', () => {
         {
           type: 'text',
           value:
-            ':::sequence\n    :::step\n        :::transition\n        Hello\n        :::\n    :::\n    :::step\n        :::transition\n        How are you?\n        :::\n    :::\n:::\n'
+            ':::sequence\n    :::transition\n    Hello\n    :::\n\n    :::transition\n    How are you?\n    :::\n:::\n'
         }
       ]
     }
@@ -75,7 +75,7 @@ describe('Passage sequence directive', () => {
         {
           type: 'text',
           value:
-            ':::sequence\n:::step\n:::transition\nOne\n:::\n:::\n:::step\n:::transition\nTwo\n:::\n:::\n:::step\n:::transition\nThree\n:::\n:::\n:::\n'
+            ':::sequence\n:::transition\nOne\n:::\n\n:::transition\nTwo\n:::\n\n:::transition\nThree\n:::\n:::\n'
         }
       ]
     }
@@ -97,7 +97,7 @@ describe('Passage sequence directive', () => {
       children: [
         {
           type: 'text',
-          value: ':::sequence\n:::step\n:::transition\nFoo\n:::\n:::\n:::\n'
+          value: ':::sequence\n:::transition\nFoo\n:::\n:::\n'
         }
       ]
     }
@@ -118,7 +118,7 @@ describe('Passage sequence directive', () => {
         {
           type: 'text',
           value:
-            ':::sequence\n:::step\n:::transition\n:::trigger{label="Fire"}\n:::set[fired=true]\n:::\n:::\n:::\n'
+            ':::sequence\n:::transition\n:::trigger{label="Fire"}\n:::set[fired=true]\n:::\n:::\n'
         }
       ]
     }
@@ -143,7 +143,7 @@ describe('Passage sequence directive', () => {
         {
           type: 'text',
           value:
-            ':::sequence\n:::step\n:::transition{delay=500}\n:::trigger{label="Fire"}\n:::\n:::\n:::\n'
+            ':::sequence\n:::transition{delay=500}\n:::trigger{label="Fire"}\n:::\n:::\n'
         }
       ]
     }
@@ -164,7 +164,7 @@ describe('Passage sequence directive', () => {
         {
           type: 'text',
           value:
-            ':::sequence\n:::step\nOuter\n:::\n:::\n:::if{true}\n:::sequence\n:::step\nInner\n:::\n:::\n:::\n'
+            ':::sequence{autoplay}\nOuter\n\n:::if{true}\n:::sequence\nInner\n:::\n:::\n'
         }
       ]
     }
@@ -183,7 +183,7 @@ describe('Passage sequence directive', () => {
         {
           type: 'text',
           value:
-            ':::sequence\n:::step\nOuter\n:::\n:::\n:::if{false}\n:::sequence\n:::step\n:::transition\nFirst\n:::\n:::\n:::step\n:::transition{delay=450}\nSecond\n:::\n:::\n:::\n'
+            ':::sequence\nOuter\n\n:::if{false}\n:::sequence\n:::transition\nFirst\n:::\n\n:::transition{delay=450}\nSecond\n:::\n:::\n'
         }
       ]
     }

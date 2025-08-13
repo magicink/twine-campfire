@@ -11,17 +11,13 @@ import {
   type OnCompleteProps
 } from '@campfire/components/Passage/OnComplete'
 import {
-  Step,
-  type StepProps
-} from '@campfire/components/Passage/Sequence/Step'
-import {
   Transition,
   DEFAULT_TRANSITION_DURATION,
   type TransitionProps
 } from '@campfire/components/Passage/Sequence/Transition'
 
 interface SequenceProps {
-  /** Collection of Step elements */
+  /** Collection of elements to display sequentially */
   children: ComponentChildren
   /** Automatically advance through steps without user interaction */
   autoplay?: boolean
@@ -47,16 +43,16 @@ interface FastForwardOptions {
   toEnd?: boolean
 }
 /**
- * Renders `Step` children sequentially, displaying only the active step.
- * Each step receives a `next` callback to advance to the following step.
- * If `autoplay` is true, steps advance automatically after an optional `delay`.
- * Otherwise a "Continue" button is shown for non-interactive steps.
- * A `fastForward` control is provided to skip steps or jump to the end
- * based on the supplied `fastForward` options. Button text and accessible
- * labels may be customized via `continueLabel`, `skipLabel`,
- * `continueAriaLabel`, and `skipAriaLabel` props.
- * Accepts at most one `OnComplete` child; if multiple are provided only the
- * first will run and a warning is logged.
+ * Renders child elements sequentially, displaying only the active step.
+ * Components receive `next` and `fastForward` callbacks to control
+ * progression. When `autoplay` is true, steps advance automatically after
+ * an optional `delay`. Otherwise a "Continue" button is shown for
+ * non-interactive steps. A `fastForward` control is provided to skip steps
+ * or jump to the end based on the supplied `fastForward` options. Button
+ * text and accessible labels may be customized via `continueLabel`,
+ * `skipLabel`, `continueAriaLabel`, and `skipAriaLabel` props. Accepts at
+ * most one `OnComplete` child; if multiple are provided only the first will
+ * run and a warning is logged.
  */
 export const Sequence = ({
   children,
@@ -81,10 +77,8 @@ export const Sequence = ({
     )
   }
   const completeElement = completeElements[0]
-  const steps = childArray.filter(
-    child => child.type === Step
-  ) as VNode<StepProps>[]
-  const current = steps[index]
+  const steps = childArray.filter(child => child.type !== OnComplete)
+  const current = steps[index] as VNode | undefined
   useEffect(() => {
     setIndex(0)
   }, [steps.length])
@@ -149,7 +143,7 @@ export const Sequence = ({
     completeRan.current = true
   }
 
-  const isInteractive = typeof current.props.children === 'function'
+  const isInteractive = typeof current.type === 'function'
   const showContinue = !autoplay && !isInteractive && index < steps.length - 1
   const fastForwardEnabled = fastForward?.enabled !== false
   const showSkip = fastForwardEnabled && index < steps.length - 1
@@ -158,10 +152,12 @@ export const Sequence = ({
 
   return (
     <>
-      {cloneElement(current, {
-        next: handleNext,
-        fastForward: handleFastForward
-      })}
+      {cloneElement(
+        current,
+        typeof current.type === 'function'
+          ? { next: handleNext, fastForward: handleFastForward }
+          : {}
+      )}
       {completeElement && cloneElement(completeElement, { run: runComplete })}
       {showContinue && (
         <button

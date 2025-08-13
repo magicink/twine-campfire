@@ -26,11 +26,7 @@ import { TriggerButton } from '@campfire/components/Passage/TriggerButton'
 import { If } from '@campfire/components/Passage/If'
 import { Show } from '@campfire/components/Passage/Show'
 import { OnExit } from '@campfire/components/Passage/OnExit'
-import {
-  Sequence,
-  Step,
-  Transition
-} from '@campfire/components/Passage/Sequence'
+import { Sequence, Transition } from '@campfire/components/Passage/Sequence'
 import { OnComplete } from '@campfire/components/Passage/OnComplete'
 
 const DIRECTIVE_MARKER_PATTERN = '(:::[^\\n]*|:[^\\n]*|<<)'
@@ -137,7 +133,6 @@ export const Passage = () => {
             show: Show,
             onExit: OnExit,
             sequence: Sequence,
-            step: Step,
             transition: Transition,
             onComplete: OnComplete
           }

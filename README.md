@@ -182,7 +182,6 @@ both. When using a numeric range, both `min` and `max` are required.
 | max   | Maximum value for numeric range                 |
 | from  | Array or state key to select a random item from |
 
-
 - `randomOnce`: Assign a random value once and lock the key.
 
   ```md
@@ -526,14 +525,12 @@ Run directives on specific passage events or group actions.
 
 Reveal content step by step and animate its appearance.
 
-- `sequence`: Display `step` blocks one at a time.
+- `sequence`: Display child blocks one at a time.
 
   ```md
   :::sequence{autoplay delay=1000}
-  :::step
   First message
-  :::
-  :::step
+
   :::transition{type="fade-in" duration=500}
   Second message
   :::
@@ -552,21 +549,7 @@ Reveal content step by step and animate its appearance.
   | skipLabel     | Text for the skip button                 |
   | fastForward   | Object controlling fast-forward behavior |
 
-- `step`: Define a single stage within a sequence.
-
-  ```md
-  :::step
-  Content for this step
-  :::
-  ```
-
-  Steps may contain `transition` blocks and other directives.
-
-  | Input    | Description                  |
-  | -------- | ---------------------------- |
-  | _(none)_ | This directive has no inputs |
-
-- `transition`: Animate the appearance of content within a step.
+- `transition`: Animate the appearance of content within a sequence.
 
   ```md
   :::transition{type="fade-in" duration=300 delay=100}

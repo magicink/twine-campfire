@@ -14,11 +14,7 @@ import { LinkButton } from '@campfire/components/Passage/LinkButton'
 import { TriggerButton } from '@campfire/components/Passage/TriggerButton'
 import { Show } from '@campfire/components/Passage/Show'
 import { OnExit } from '@campfire/components/Passage/OnExit'
-import {
-  Sequence,
-  Step,
-  Transition
-} from '@campfire/components/Passage/Sequence'
+import { Sequence, Transition } from '@campfire/components/Passage/Sequence'
 
 interface IfProps {
   test: string
@@ -50,7 +46,6 @@ export const If = ({ test, content, fallback }: IfProps) => {
           show: Show,
           onExit: OnExit,
           sequence: Sequence,
-          step: Step,
           transition: Transition
         }
       })

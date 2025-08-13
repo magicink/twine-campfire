@@ -1231,35 +1231,6 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
-   * Converts `:::step` directive blocks into `<step>` components.
-   * Processes nested directives within the step content.
-   *
-   * @param directive - The `step` directive node.
-   * @param parent - Parent node containing this directive.
-   * @param index - Index of the directive within its parent.
-   * @returns The index of the inserted component.
-   */
-  const handleStep: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
-    const { attrs } = extractAttributes(directive, parent, index, {})
-    const container = directive as ContainerDirective
-    const rawChildren = stripLabel(container.children as RootContent[])
-    const preprocessed = preprocessBlock(rawChildren)
-    const children = runBlock(preprocessed)
-    const node: Parent = {
-      type: 'paragraph',
-      children,
-      data: { hName: 'step', hProperties: attrs }
-    }
-    const newIndex = replaceWithIndentation(directive, parent, index, [
-      node as RootContent
-    ])
-    const markerIndex = newIndex + 1
-    removeDirectiveMarker(parent, markerIndex)
-    return [SKIP, newIndex]
-  }
-
-  /**
    * Converts `:::transition` directive blocks into `<transition>` components.
    * Processes nested directives within the transition content.
    *
@@ -1294,7 +1265,7 @@ export const useDirectiveHandlers = () => {
 
   /**
    * Converts `:::sequence` directive blocks into `<sequence>` components.
-   * Processes nested directives including steps and completion handlers.
+   * Processes nested directives including completion handlers.
    *
    * @param directive - The `sequence` directive node.
    * @param parent - Parent node containing this directive.
@@ -1943,7 +1914,6 @@ export const useDirectiveHandlers = () => {
       trigger: handleTrigger,
       onComplete: handleOnComplete,
       sequence: handleSequence,
-      step: handleStep,
       transition: handleTransition,
       onExit: handleOnExit,
       lang: handleLang,

@@ -1,4 +1,3 @@
-:: StoryTitle
 Campfire Beta
 
 
@@ -14,38 +13,31 @@ Campfire Beta
 
 :: sequences {"position":"1025,475","size":"100,100"}
 \:::sequence
-	:::step
-    	:::transition
+        :::transition
         # Header 1
         :::
-    :::
-    :::step
-    	:::transition{delay=450}
+
+        :::transition{delay=450}
         ## Header 2
         :::
-    :::
-    :::step
-    	:::transition{delay=900}
+
+        :::transition{delay=900}
         ### Header 3
         :::
-    :::
-    :::step
-    	:::transition{delay=1350}
+
+        :::transition{delay=1350}
         #### Header 4
         :::
-    :::
-    :::step
-    	:::transition{delay=1800}
+
+        :::transition{delay=1800}
         ##### Header 5
         :::
-    :::
-    :::step
-    	:::transition{delay=2250}
+
+        :::transition{delay=2250}
         ###### Header 6
         :::
-    :::
-    :::step
-    	:::transition{delay=2700}
+
+        :::transition{delay=2700}
         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
         :::
         :::transition{delay=3050}
@@ -53,20 +45,16 @@ Campfire Beta
             :set[showNext=true]
           :::
         :::
-    :::
 \:::
 
 \:::if{showNext}
   :::sequence
-    :::step
-      :::transition
-      Moving on...
-      :::
+    :::transition
+    Moving on...
     :::
-    :::step
-      :::transition{delay=450}
-      Next slide
-      :::
+
+    :::transition{delay=450}
+    Next slide
     :::
   :::
 \:::

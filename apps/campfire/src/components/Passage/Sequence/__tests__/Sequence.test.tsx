@@ -1,10 +1,6 @@
 import { describe, it, expect } from 'bun:test'
 import { render, screen, act } from '@testing-library/preact'
-import {
-  Sequence,
-  Step,
-  Transition
-} from '@campfire/components/Passage/Sequence'
+import { Sequence, Transition } from '@campfire/components/Passage/Sequence'
 import { OnComplete } from '@campfire/components/Passage/OnComplete'
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
@@ -13,12 +9,18 @@ import type { Root } from 'mdast'
 import { useGameStore } from '@/packages/use-game-store'
 import { resetStores } from '@campfire/test-utils/helpers'
 
+const ButtonStep = ({ next }: { next?: () => void }) => (
+  <button type='button' onClick={next}>
+    Go
+  </button>
+)
+
 describe('Sequence', () => {
   it('prompts the user to continue when autoplay is false', () => {
     render(
       <Sequence autoplay={false}>
-        <Step>First</Step>
-        <Step>Second</Step>
+        <div>First</div>
+        <div>Second</div>
       </Sequence>
     )
     expect(screen.getByText('First')).toBeInTheDocument()
@@ -32,8 +34,8 @@ describe('Sequence', () => {
   it('allows customizing continue button text', () => {
     render(
       <Sequence continueLabel='Next step'>
-        <Step>First</Step>
-        <Step>Second</Step>
+        <div>First</div>
+        <div>Second</div>
       </Sequence>
     )
     const button = screen.getByRole('button', { name: 'Continue to next step' })
@@ -47,8 +49,8 @@ describe('Sequence', () => {
   it('advances automatically when autoplay is true', async () => {
     render(
       <Sequence autoplay>
-        <Step>First</Step>
-        <Step>Second</Step>
+        <div>First</div>
+        <div>Second</div>
       </Sequence>
     )
     await screen.findByText('Second')
@@ -58,14 +60,8 @@ describe('Sequence', () => {
   it('supports custom next handlers', () => {
     render(
       <Sequence>
-        <Step>
-          {({ next }) => (
-            <button type='button' onClick={next}>
-              Go
-            </button>
-          )}
-        </Step>
-        <Step>Done</Step>
+        <ButtonStep />
+        <div>Done</div>
       </Sequence>
     )
     const button = screen.getByRole('button', { name: 'Go' })
@@ -78,8 +74,8 @@ describe('Sequence', () => {
   it('respects delay when autoplay is true', async () => {
     render(
       <Sequence autoplay delay={50}>
-        <Step>First</Step>
-        <Step>Second</Step>
+        <div>First</div>
+        <div>Second</div>
       </Sequence>
     )
     expect(screen.getByText('First')).toBeInTheDocument()
@@ -93,8 +89,8 @@ describe('Sequence', () => {
   it('fast-forwards to the next step by default', () => {
     render(
       <Sequence>
-        <Step>First</Step>
-        <Step>Done</Step>
+        <div>First</div>
+        <div>Done</div>
       </Sequence>
     )
     const button = screen.getByRole('button', { name: 'Skip to next step' })
@@ -107,8 +103,8 @@ describe('Sequence', () => {
   it('allows customizing skip button text', () => {
     render(
       <Sequence skipLabel='Fast forward'>
-        <Step>First</Step>
-        <Step>Done</Step>
+        <div>First</div>
+        <div>Done</div>
       </Sequence>
     )
     const button = screen.getByRole('button', { name: 'Skip to next step' })
@@ -122,9 +118,9 @@ describe('Sequence', () => {
   it('fast-forwards to the end when configured', () => {
     render(
       <Sequence fastForward={{ toEnd: true }}>
-        <Step>First</Step>
-        <Step>Middle</Step>
-        <Step>End</Step>
+        <div>First</div>
+        <div>Middle</div>
+        <div>End</div>
       </Sequence>
     )
     const button = screen.getByRole('button', { name: 'Skip to end' })
@@ -137,8 +133,8 @@ describe('Sequence', () => {
   it('ignores fast-forward when disabled', () => {
     render(
       <Sequence fastForward={{ enabled: false }}>
-        <Step>First</Step>
-        <Step>Second</Step>
+        <div>First</div>
+        <div>Second</div>
       </Sequence>
     )
     expect(
@@ -149,11 +145,9 @@ describe('Sequence', () => {
   it('renders step content with a fade-in transition', async () => {
     render(
       <Sequence>
-        <Step>
-          <Transition type='fade-in' duration={200}>
-            <div>First</div>
-          </Transition>
-        </Step>
+        <Transition type='fade-in' duration={200}>
+          <div>First</div>
+        </Transition>
       </Sequence>
     )
     const element = screen.getByText('First') as HTMLElement
@@ -167,12 +161,8 @@ describe('Sequence', () => {
   it('waits for transitions before advancing steps in autoplay', async () => {
     render(
       <Sequence autoplay>
-        <Step>
-          <Transition duration={100}>First</Transition>
-        </Step>
-        <Step>
-          <Transition duration={100}>Second</Transition>
-        </Step>
+        <Transition duration={100}>First</Transition>
+        <Transition duration={100}>Second</Transition>
       </Sequence>
     )
     expect(screen.getByText('First')).toBeInTheDocument()
@@ -190,13 +180,13 @@ describe('Sequence', () => {
   it('allows nesting sequences within steps', () => {
     render(
       <Sequence>
-        <Step>
+        <div>
           <Sequence continueLabel='Inner next' continueAriaLabel='Inner next'>
-            <Step>Inner first</Step>
-            <Step>Inner second</Step>
+            <div>Inner first</div>
+            <div>Inner second</div>
           </Sequence>
-        </Step>
-        <Step>Outer second</Step>
+        </div>
+        <div>Outer second</div>
       </Sequence>
     )
     expect(screen.getByText('Inner first')).toBeInTheDocument()
@@ -217,8 +207,8 @@ describe('Sequence', () => {
   it('allows customizing aria labels', () => {
     render(
       <Sequence continueAriaLabel='Advance' skipAriaLabel='Jump ahead'>
-        <Step>First</Step>
-        <Step>Second</Step>
+        <div>First</div>
+        <div>Second</div>
       </Sequence>
     )
     const continueButton = screen.getByRole('button', { name: 'Advance' })
@@ -238,16 +228,15 @@ describe('Sequence', () => {
       .use(remarkDirective)
       .parse(':set[done=true]') as Root
     const content = JSON.stringify(root.children)
+    const GoStep = ({ next }: { next?: () => void }) => (
+      <button type='button' onClick={next}>
+        Go
+      </button>
+    )
     render(
       <Sequence>
-        <Step>
-          {({ next }) => (
-            <button type='button' onClick={next}>
-              Go
-            </button>
-          )}
-        </Step>
-        <Step>End</Step>
+        <GoStep />
+        <div>End</div>
         <OnComplete content={content} />
       </Sequence>
     )
@@ -280,16 +269,15 @@ describe('Sequence', () => {
     console.warn = (...args: unknown[]) => {
       logged.push(args)
     }
+    const NextStep = ({ next }: { next?: () => void }) => (
+      <button type='button' onClick={next}>
+        Next
+      </button>
+    )
     render(
       <Sequence>
-        <Step>
-          {({ next }) => (
-            <button type='button' onClick={next}>
-              Next
-            </button>
-          )}
-        </Step>
-        <Step>End</Step>
+        <NextStep />
+        <div>End</div>
         <OnComplete content={contentA} />
         <OnComplete content={contentB} />
       </Sequence>
