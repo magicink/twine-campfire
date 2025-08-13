@@ -10,7 +10,7 @@ import replace from '@rollup/plugin-replace'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default {
-  input: path.join(__dirname, 'src', 'main.tsx'),
+  input: path.join(__dirname, 'src', 'index.tsx'),
   output: {
     file: path.join(__dirname, 'dist', 'main.js'),
     format: 'iife'
@@ -22,7 +22,8 @@ export default {
         react: 'preact/compat',
         'react-dom': 'preact/compat',
         'react/jsx-runtime': 'preact/jsx-runtime',
-        '@/packages': path.resolve(__dirname, '../../packages')
+        '@/packages': path.resolve(__dirname, '../../packages'),
+        '@campfire': path.resolve(__dirname, 'src')
       }
     }),
     replace({
