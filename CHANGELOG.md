@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.57.8](https://github.com/magicink/twine-campfire/compare/v1.57.7...v1.57.8) (2025-08-13)
+
+
+### Bug Fixes
+
+* sanitize if directive content for multiple container blocks ([#292](https://github.com/magicink/twine-campfire/issues/292)) ([1876d96](https://github.com/magicink/twine-campfire/commit/1876d96e3f3f470bcd4c2925f8c7594bd52c7ca0))
+* use Libertinus Serif font ([#295](https://github.com/magicink/twine-campfire/issues/295)) ([9882790](https://github.com/magicink/twine-campfire/commit/9882790b631345714b87c288aa14244e29193417))
+
 ## [1.57.7](https://github.com/magicink/twine-campfire/compare/v1.57.6...v1.57.7) (2025-08-13)
 
 
