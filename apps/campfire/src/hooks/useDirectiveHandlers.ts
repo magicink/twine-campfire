@@ -171,16 +171,20 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
-   * Processes a block of AST nodes using the unified processor with the remarkCampfire plugin.
+   * Processes a block of AST nodes using the remarkCampfire plugin and returns
+   * the transformed children. This ensures nested directives are fully
+   * expanded and directive markers removed.
    *
    * @param nodes - An array of RootContent nodes to process.
+   * @returns The processed array of nodes.
    */
-  const runBlock = (nodes: RootContent[]) => {
+  const runBlock = (nodes: RootContent[]): RootContent[] => {
     const root: Root = { type: 'root', children: expandIndentedCode(nodes) }
     unified()
       .use(remarkCampfireIndentation)
       .use(remarkCampfire, { handlers: handlersRef.current })
       .runSync(root)
+    return root.children as RootContent[]
   }
 
   /**
@@ -1240,8 +1244,8 @@ export const useDirectiveHandlers = () => {
     const { attrs } = extractAttributes(directive, parent, index, {})
     const container = directive as ContainerDirective
     const rawChildren = stripLabel(container.children as RootContent[])
-    const children = preprocessBlock(rawChildren)
-    runBlock(children)
+    const preprocessed = preprocessBlock(rawChildren)
+    const children = runBlock(preprocessed)
     const node: Parent = {
       type: 'paragraph',
       children,
@@ -1273,8 +1277,8 @@ export const useDirectiveHandlers = () => {
     })
     const container = directive as ContainerDirective
     const rawChildren = stripLabel(container.children as RootContent[])
-    const children = preprocessBlock(rawChildren)
-    runBlock(children)
+    const preprocessed = preprocessBlock(rawChildren)
+    const children = runBlock(preprocessed)
     const node: Parent = {
       type: 'paragraph',
       children,
@@ -1315,8 +1319,9 @@ export const useDirectiveHandlers = () => {
       { state: gameData }
     )
     const container = directive as ContainerDirective
-    const children = stripLabel(container.children as RootContent[])
-    runBlock(children)
+    const rawChildren = stripLabel(container.children as RootContent[])
+    const preprocessed = preprocessBlock(rawChildren)
+    const children = runBlock(preprocessed)
     const node: Parent = {
       type: 'paragraph',
       children,
