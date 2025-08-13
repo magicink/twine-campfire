@@ -1,6 +1,6 @@
 import { useMemo } from 'preact/hooks'
 import { Fragment, jsx, jsxs } from 'preact/jsx-runtime'
-import type { ComponentChild } from 'preact'
+import { isValidElement, type ComponentChild } from 'preact'
 import { unified } from 'unified'
 import remarkGfm from 'remark-gfm'
 import remarkCampfire from '@/packages/remark-campfire'
@@ -75,6 +75,22 @@ export const If = ({ test, content, fallback }: IfProps) => {
   const nodes: RootContent[] = JSON.parse(source)
   const root: Root = { type: 'root', children: nodes }
   const result = processor.processSync(root)
-  const output = result.result as ComponentChild | ComponentChild[]
-  return Array.isArray(output) ? jsxs(Fragment, { children: output }) : output
+  const output = result.result
+  /**
+   * Runtime check to determine if a value is renderable by Preact.
+   */
+  const isComponentChild = (
+    value: unknown
+  ): value is ComponentChild | ComponentChild[] =>
+    Array.isArray(value)
+      ? value.every(isComponentChild)
+      : value == null ||
+        typeof value === 'string' ||
+        typeof value === 'number' ||
+        typeof value === 'boolean' ||
+        isValidElement(value)
+  if (!isComponentChild(output)) return null
+  return Array.isArray(output)
+    ? jsxs(Fragment, { children: output })
+    : (output as ComponentChild)
 }
