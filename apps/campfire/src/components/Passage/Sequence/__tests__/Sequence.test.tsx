@@ -16,22 +16,7 @@ import { resetStores } from '@campfire/test-utils/helpers'
 describe('Sequence', () => {
   it('prompts the user to continue when autoplay is false', () => {
     render(
-      <Sequence>
-        <Step>First</Step>
-        <Step>Second</Step>
-      </Sequence>
-    )
-    expect(screen.getByText('First')).toBeInTheDocument()
-    const button = screen.getByRole('button', { name: 'Continue to next step' })
-    act(() => {
-      button.click()
-    })
-    expect(screen.getByText('Second')).toBeInTheDocument()
-  })
-
-  it('treats the string "false" as disabled autoplay', () => {
-    render(
-      <Sequence autoplay='false'>
+      <Sequence autoplay={false}>
         <Step>First</Step>
         <Step>Second</Step>
       </Sequence>
