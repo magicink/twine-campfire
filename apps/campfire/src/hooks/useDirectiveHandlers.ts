@@ -605,6 +605,7 @@ export const useDirectiveHandlers = () => {
   /**
    * Stores a random value in the provided key. Supports selecting a random
    * item from an array or generating a random integer within a range.
+   * Accepts either a `from` attribute or a `min`/`max` pair, but not both.
    * Optionally locks the key to prevent further modification.
    *
    * @param directive - The `random` directive node being processed.
@@ -622,6 +623,14 @@ export const useDirectiveHandlers = () => {
     const key = ensureKey(label.trim(), parent, index)
     if (!key) return index
 
+    const rawAttrs = (directive.attributes || {}) as Record<string, unknown>
+    if ('from' in rawAttrs && ('min' in rawAttrs || 'max' in rawAttrs)) {
+      const msg = 'random accepts either "from" or "min"/"max", not both'
+      console.error(msg)
+      addError(msg)
+      return removeNode(parent, index)
+    }
+
     const { attrs } = extractAttributes(
       directive,
       parent,
@@ -636,13 +645,34 @@ export const useDirectiveHandlers = () => {
 
     let value: unknown
     const optionList = attrs.from as unknown[] | undefined
-    if (optionList && optionList.length) {
-      value = getRandomItem(optionList)
-    } else {
-      const { min, max } = attrs
-      if (typeof min !== 'undefined' && typeof max !== 'undefined') {
-        value = getRandomInt(min, max)
+    const hasFrom = typeof attrs.from !== 'undefined'
+    const hasMin = typeof attrs.min !== 'undefined'
+    const hasMax = typeof attrs.max !== 'undefined'
+
+    if (hasFrom) {
+      if (optionList && optionList.length) {
+        value = getRandomItem(optionList)
+      } else {
+        const msg = 'random "from" attribute must be a non-empty array'
+        console.error(msg)
+        addError(msg)
+        return removeNode(parent, index)
       }
+    } else if (hasMin || hasMax) {
+      if (hasMin && hasMax) {
+        const { min, max } = attrs as { min: number; max: number }
+        value = getRandomInt(min, max)
+      } else {
+        const msg = 'random requires both "min" and "max" when "from" is absent'
+        console.error(msg)
+        addError(msg)
+        return removeNode(parent, index)
+      }
+    } else {
+      const msg = 'random requires either "from" or both "min" and "max"'
+      console.error(msg)
+      addError(msg)
+      return removeNode(parent, index)
     }
 
     if (value !== undefined) {
