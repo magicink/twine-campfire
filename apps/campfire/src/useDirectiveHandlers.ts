@@ -904,7 +904,7 @@ export const useDirectiveHandlers = () => {
     const content = JSON.stringify(stripLabel(main))
     const node: Parent = {
       type: 'paragraph',
-      children: [{ type: 'text', value: '' }],
+      children: [],
       data: {
         hName: 'if',
         hProperties: fallback
