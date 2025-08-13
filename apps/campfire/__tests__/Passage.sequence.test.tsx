@@ -108,4 +108,23 @@ describe('Passage sequence directive', () => {
     expect(await screen.findByText('Foo')).toBeInTheDocument()
     expect(screen.queryByText(':::')).toBeNull()
   })
+
+  it('renders sequences within if directives', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            ':::sequence\n:::step\nOuter\n:::\n:::\n:::if{true}\n:::sequence\n:::step\nInner\n:::\n:::\n:::\n'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    expect(() => render(<Passage />)).not.toThrow()
+    expect(await screen.findByText('Inner')).toBeInTheDocument()
+  })
 })
