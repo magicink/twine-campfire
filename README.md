@@ -196,7 +196,7 @@ both. When using a numeric range, both `min` and `max` are required.
 | max   | Maximum value for numeric range                 |
 | from  | Array or state key to select a random item from |
 
-Provide either `min`/`max` or `from`.
+**For both `random` and `randomOnce`, provide either `min`/`max` or `from`.**
 
 Use this to store a random value that should not change on subsequent runs.
 
