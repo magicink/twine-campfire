@@ -718,6 +718,74 @@ describe('Passage game state directives', () => {
     })
   })
 
+  it('logs error when mixing range and array in random directive', async () => {
+    const logged: unknown[] = []
+    const orig = console.error
+    console.error = (...args: unknown[]) => {
+      logged.push(args)
+    }
+
+    useGameStore.setState(state => ({
+      ...state,
+      gameData: { items: ['a', 'b'] }
+    }))
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        { type: 'text', value: ':random[pick]{from=items min=1 max=2}' }
+      ]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(
+        (useGameStore.getState().gameData as Record<string, unknown>).pick
+      ).toBeUndefined()
+      expect(useGameStore.getState().errors).toEqual([
+        'random accepts either "from" or "min"/"max", not both'
+      ])
+      expect(logged).toHaveLength(1)
+    })
+
+    console.error = orig
+  })
+
+  it('logs error when only one range bound is provided in random directive', async () => {
+    const logged: unknown[] = []
+    const orig = console.error
+    console.error = (...args: unknown[]) => {
+      logged.push(args)
+    }
+
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':random[roll]{min=1}' }]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(
+        (useGameStore.getState().gameData as Record<string, unknown>).roll
+      ).toBeUndefined()
+      expect(useGameStore.getState().errors).toEqual([
+        'random requires both "min" and "max" when "from" is absent'
+      ])
+      expect(logged).toHaveLength(1)
+    })
+
+    console.error = orig
+  })
+
   it('locks keys with randomOnce directive', async () => {
     const passage: Element = {
       type: 'element',
