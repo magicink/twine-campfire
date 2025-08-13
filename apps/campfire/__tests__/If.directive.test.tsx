@@ -37,6 +37,30 @@ describe('If directive', () => {
     ).toBeInTheDocument()
   })
 
+  it('does not wrap container directives in paragraphs', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            ':::if{true}\n  :::trigger{label="One"}\n  :::\n  :::trigger{label="Two"}\n  :::\n:::'
+        }
+      ]
+    }
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+    render(<Passage />)
+    const one = await screen.findByRole('button', { name: 'One' })
+    const two = await screen.findByRole('button', { name: 'Two' })
+    expect(one.parentElement?.tagName.toLowerCase()).not.toBe('p')
+    expect(two.parentElement?.tagName.toLowerCase()).not.toBe('p')
+  })
+
   it('skips all directives when condition is false', async () => {
     const passage: Element = {
       type: 'element',
