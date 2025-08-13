@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.57.7](https://github.com/magicink/twine-campfire/compare/v1.57.6...v1.57.7) (2025-08-13)
+
+
+### Bug Fixes
+
+* **campfire:** apply transition styles to child ([#290](https://github.com/magicink/twine-campfire/issues/290)) ([b97420e](https://github.com/magicink/twine-campfire/commit/b97420eef5d220458020d3d44d5d0f88b7aa8f1d))
+
 ## [1.57.6](https://github.com/magicink/twine-campfire/compare/v1.57.5...v1.57.6) (2025-08-13)
 
 
