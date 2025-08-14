@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.64.0](https://github.com/magicink/twine-campfire/compare/v1.63.0...v1.64.0) (2025-08-14)
+
+
+### Features
+
+* **slide:** support directive hooks on deck slides ([#322](https://github.com/magicink/twine-campfire/issues/322)) ([6088640](https://github.com/magicink/twine-campfire/commit/6088640e065a4c64cc9b1d48acb93b038172e634))
+
 ## [1.63.0](https://github.com/magicink/twine-campfire/compare/v1.62.0...v1.63.0) (2025-08-14)
 
 
