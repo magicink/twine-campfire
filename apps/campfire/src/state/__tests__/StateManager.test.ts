@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'bun:test'
 import { createStateManager } from '@campfire/state/stateManager'
-import { useGameStore } from '@/packages/use-game-store'
+import { useGameStore } from '@campfire/use-game-store'
 import { resetStores } from '@campfire/test-utils/helpers'
 
 describe('StateManager', () => {

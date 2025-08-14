@@ -22,7 +22,6 @@ export default {
         react: 'preact/compat',
         'react-dom': 'preact/compat',
         'react/jsx-runtime': 'preact/jsx-runtime',
-        '@/packages': path.resolve(__dirname, '../../packages'),
         '@campfire': path.resolve(__dirname, 'src')
       }
     }),

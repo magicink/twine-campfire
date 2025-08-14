@@ -1,6 +1,6 @@
 import { type ComponentChildren, type JSX } from 'preact'
 import { useEffect, useRef } from 'preact/hooks'
-import { useDeckStore } from '@/packages/use-deck-store'
+import { useDeckStore } from '@campfire/use-deck-store'
 import { useSerializedDirectiveRunner } from '@campfire/hooks/useSerializedDirectiveRunner'
 
 export type TransitionType = 'none' | 'fade' | 'slide' | 'zoom'

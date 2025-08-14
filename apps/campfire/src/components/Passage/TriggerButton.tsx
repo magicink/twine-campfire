@@ -1,7 +1,7 @@
 import { unified } from 'unified'
 import remarkCampfire, {
   remarkCampfireIndentation
-} from '@/packages/remark-campfire'
+} from '@campfire/remark-campfire'
 import type { RootContent, Root } from 'mdast'
 import rfdc from 'rfdc'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'

@@ -21,7 +21,6 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
-      "@/packages/*": ["packages/*"],
       "@campfire/*": ["apps/campfire/src/*"]
     }
   }
