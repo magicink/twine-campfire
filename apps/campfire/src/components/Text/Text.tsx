@@ -39,8 +39,8 @@ export const Text = ({
 }: TextProps): JSX.Element => {
   const Tag = as
   const style: JSX.CSSProperties = {
-    fontSize: size,
-    fontWeight: weight,
+    fontSize: size !== undefined ? `${size}px` : undefined,
+    fontWeight: weight !== undefined ? String(weight) : undefined,
     lineHeight: lineHeight ? String(lineHeight) : undefined,
     color,
     textAlign: align
