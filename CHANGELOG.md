@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.61.0](https://github.com/magicink/twine-campfire/compare/v1.60.0...v1.61.0) (2025-08-14)
+
+
+### Features
+
+* add useScale hook ([#314](https://github.com/magicink/twine-campfire/issues/314)) ([2dd0050](https://github.com/magicink/twine-campfire/commit/2dd0050272a620ac5d6d4fe764144d4c3401847b))
+
 ## [1.60.0](https://github.com/magicink/twine-campfire/compare/v1.59.4...v1.60.0) (2025-08-14)
 
 
