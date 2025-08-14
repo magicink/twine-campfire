@@ -13,7 +13,7 @@ const config: StorybookConfig = {
     options: {}
   },
   /**
-   * Adjusts the Vite configuration to resolve the `@campfire` alias.
+   * Adjusts the Vite configuration to resolve local workspace aliases.
    *
    * @param config - The existing Vite configuration.
    * @returns The updated Vite configuration with aliases.
@@ -22,7 +22,8 @@ const config: StorybookConfig = {
     config.resolve = config.resolve ?? {}
     config.resolve.alias = {
       ...(config.resolve.alias || {}),
-      '@campfire': resolve(__dirname, '../../campfire/src')
+      '@campfire': resolve(__dirname, '../../campfire/src'),
+      '@/packages': resolve(__dirname, '../../packages')
     }
     return config
   }
