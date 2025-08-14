@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.62.0](https://github.com/magicink/twine-campfire/compare/v1.61.0...v1.62.0) (2025-08-14)
+
+
+### Features
+
+* add Deck component to campfire app ([#316](https://github.com/magicink/twine-campfire/issues/316)) ([cd63ea0](https://github.com/magicink/twine-campfire/commit/cd63ea0c23cf7482c7af7aa6ee7cc7dba437183a))
+
 ## [1.61.0](https://github.com/magicink/twine-campfire/compare/v1.60.0...v1.61.0) (2025-08-14)
 
 
