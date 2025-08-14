@@ -171,16 +171,16 @@ Operations that set, update, or remove scalar values.
   :random[pick]{from=items}
   ```
 
-Replace `pick` with the key to store the result and supply either a literal
-array or a state key after `from`. Use either `min`/`max` _or_ `from`, but not
-both. When using a numeric range, both `min` and `max` are required.
+  Replace `pick` with the key to store the result and supply either a literal
+  array or a state key after `from`. Use either `min`/`max` _or_ `from`, but not
+  both. When using a numeric range, both `min` and `max` are required.
 
-| Input | Description                                     |
-| ----- | ----------------------------------------------- |
-| key   | State key to assign                             |
-| min   | Minimum value for numeric range                 |
-| max   | Maximum value for numeric range                 |
-| from  | Array or state key to select a random item from |
+  | Input | Description                                     |
+  | ----- | ----------------------------------------------- |
+  | key   | State key to assign                             |
+  | min   | Minimum value for numeric range                 |
+  | max   | Maximum value for numeric range                 |
+  | from  | Array or state key to select a random item from |
 
 - `randomOnce`: Assign a random value once and lock the key.
 
@@ -188,16 +188,16 @@ both. When using a numeric range, both `min` and `max` are required.
   :randomOnce[roll]{min=1 max=6}
   ```
 
-| Input | Description                                     |
-| ----- | ----------------------------------------------- |
-| key   | State key to assign                             |
-| min   | Minimum value for numeric range                 |
-| max   | Maximum value for numeric range                 |
-| from  | Array or state key to select a random item from |
+  | Input | Description                                     |
+  | ----- | ----------------------------------------------- |
+  | key   | State key to assign                             |
+  | min   | Minimum value for numeric range                 |
+  | max   | Maximum value for numeric range                 |
+  | from  | Array or state key to select a random item from |
 
-**For both `random` and `randomOnce`, provide either `min`/`max` or `from`.**
+  **For both `random` and `randomOnce`, provide either `min`/`max` or `from`.**
 
-Use this to store a random value that should not change on subsequent runs.
+  Use this to store a random value that should not change on subsequent runs.
 
 - `unset`: Remove a key from state. This directive is leaf-only and cannot wrap
   content.
