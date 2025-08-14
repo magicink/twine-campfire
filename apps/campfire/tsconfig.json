@@ -4,8 +4,7 @@
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
-      "@campfire/*": ["src/*"],
-      "@/packages/*": ["../../packages/*"]
+      "@campfire/*": ["src/*"]
     },
     "allowImportingTsExtensions": false
   },

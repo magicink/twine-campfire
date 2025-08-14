@@ -4,7 +4,7 @@ import { initReactI18next } from 'react-i18next'
 import {
   type StoryDataState,
   useStoryDataStore
-} from '@/packages/use-story-data-store'
+} from '@campfire/use-story-data-store'
 import { Passage } from '@campfire/components/Passage/Passage'
 import { DebugWindow } from '@campfire/components/DebugWindow/DebugWindow'
 import { fromDom } from 'hast-util-from-dom'
