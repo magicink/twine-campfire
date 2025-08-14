@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.66.2](https://github.com/magicink/twine-campfire/compare/v1.66.1...v1.66.2) (2025-08-14)
+
+
+### Bug Fixes
+
+* reverted table style changes ([#332](https://github.com/magicink/twine-campfire/issues/332)) ([03bf2ef](https://github.com/magicink/twine-campfire/commit/03bf2ef0dd4f99168e265784a246d29ed1fa9682))
+
 ## [1.66.1](https://github.com/magicink/twine-campfire/compare/v1.66.0...v1.66.1) (2025-08-14)
 
 
