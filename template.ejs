@@ -80,13 +80,14 @@
         h6,
         input,
         textarea,
-        button {
+        button,
+        table {
           @apply font-libertinus;
         }
         table {
           border-collapse: separate;
           border-spacing: 0;
-          border-radius: 0.5rem;
+          border-radius: var(--size-xxs);
           overflow: hidden;
         }
         th,
@@ -99,12 +100,10 @@
           border-right: none;
         }
         thead tr {
-          border-bottom: 1px solid var(--color-gray-300);
+          border-bottom: 1px solid var(--color-gray-200);
+          background-color: var(--color-gray-50);
         }
         tr:nth-child(even) {
-          background-color: var(--color-gray-100);
-        }
-        tr:nth-child(odd) {
           background-color: var(--color-gray-50);
         }
       }
@@ -116,14 +115,11 @@
             padding: var(--size-xxs) var(--size-xs);
           }
           thead tr {
-            border-bottom: 1px solid var(--color-gray-600);
+            border-bottom: 1px solid var(--color-gray-700);
             background-color: var(--color-gray-100);
           }
           tr:nth-child(even) {
-            background-color: var(--color-gray-300);
-          }
-          tr:nth-child(odd) {
-            background-color: var(--color-gray-200);
+            background-color: var(--color-gray-100);
           }
         }
       }
