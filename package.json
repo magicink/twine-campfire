@@ -11,6 +11,7 @@
   ],
   "workspaces": [
     "apps/campfire",
+    "apps/campfire-storybook",
     "packages/*"
   ],
   "scripts": {
