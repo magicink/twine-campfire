@@ -1,8 +1,9 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { render, screen } from '@testing-library/preact'
 import { Deck } from '@campfire/components/Deck/Deck'
-import { Slide } from '@campfire/components/Slide/Slide'
+import { Slide, type SlideProps } from '@campfire/components/Slide/Slide'
 import { useDeckStore } from '@/packages/use-deck-store'
+import type { VNode } from 'preact'
 
 /**
  * Resets the deck store to a clean initial state.
@@ -54,10 +55,10 @@ describe('Slide', () => {
   it('exposes transition metadata without applying animations', () => {
     const slide = (
       <Slide transition={{ type: 'fade', duration: 300 }}>Slide 1</Slide>
-    )
+    ) as VNode<SlideProps>
     render(<Deck>{slide}</Deck>)
-    const el = screen.getByText('Slide 1').parentElement as HTMLElement
-    expect((slide as any).props.transition).toEqual({
+    const el = screen.getByText('Slide 1') as HTMLElement
+    expect(slide.props.transition).toEqual({
       type: 'fade',
       duration: 300
     })
