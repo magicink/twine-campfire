@@ -25,30 +25,20 @@
         --color-gray-800: oklch(0.3 0 0);
         --color-gray-900: oklch(0.2 0 0);
         --color-gray-950: oklch(0.12 0 0);
-        /* Pastel blues */
-        --color-blue-50: oklch(0.97 0.02 236);
-        --color-blue-100: oklch(0.94 0.025 236);
-        --color-blue-200: oklch(0.9 0.03 236);
-        --color-blue-300: oklch(0.85 0.035 236);
-        --color-blue-400: oklch(0.8 0.04 236);
-        --color-blue-500: oklch(0.75 0.045 236);
-        --color-blue-600: oklch(0.7 0.05 236);
-        --color-blue-700: oklch(0.65 0.055 236);
-        --color-blue-800: oklch(0.6 0.06 236);
-        --color-blue-900: oklch(0.55 0.065 236);
-        --color-blue-950: oklch(0.5 0.07 236);
-        /* Pastel reds to match blues */
-        --color-red-50: oklch(0.97 0.02 25);
-        --color-red-100: oklch(0.94 0.025 25);
-        --color-red-200: oklch(0.9 0.03 25);
-        --color-red-300: oklch(0.85 0.035 25);
-        --color-red-400: oklch(0.8 0.04 25);
-        --color-red-500: oklch(0.75 0.045 25);
-        --color-red-600: oklch(0.7 0.05 25);
-        --color-red-700: oklch(0.65 0.055 25);
-        --color-red-800: oklch(0.6 0.06 25);
-        --color-red-900: oklch(0.55 0.065 25);
-        --color-red-950: oklch(0.5 0.07 25);
+        /* Breakpoints */
+        --breakpoint-xs: 400px;
+        --breakpoint-sm: 640px;
+        --breakpoint-md: 768px;
+        --breakpoint-lg: 1024px;
+        --breakpoint-xl: 1280px;
+        /* Sizes */
+        --size-xxs: 0.25rem;   /* 4px */
+        --size-xs: 0.5rem;    /* 8px */
+        --size-sm: 0.75rem;   /* 12px */
+        --size-md: 1rem;      /* 16px */
+        --size-lg: 1.5rem;    /* 24px */
+        --size-xl: 2rem;      /* 32px */
+        --size-2xl: 3rem;     /* 48px */
       }
 
       @media (prefers-color-scheme: dark) {
@@ -65,30 +55,6 @@
           --color-gray-800: oklch(0.9 0 0);
           --color-gray-900: oklch(0.95 0 0);
           --color-gray-950: oklch(0.98 0 0);
-          /* Pastel blues */
-          --color-blue-50: oklch(0.85 0.04 236);
-          --color-blue-100: oklch(0.8 0.04 236);
-          --color-blue-200: oklch(0.7 0.05 236);
-          --color-blue-300: oklch(0.6 0.055 236);
-          --color-blue-400: oklch(0.5 0.06 236);
-          --color-blue-500: oklch(0.45 0.06 236);
-          --color-blue-600: oklch(0.4 0.055 236);
-          --color-blue-700: oklch(0.35 0.05 236);
-          --color-blue-800: oklch(0.3 0.045 236);
-          --color-blue-900: oklch(0.25 0.04 236);
-          --color-blue-950: oklch(0.2 0.035 236);
-          /* Pastel reds */
-          --color-red-50: oklch(0.85 0.04 25);
-          --color-red-100: oklch(0.8 0.04 25);
-          --color-red-200: oklch(0.7 0.05 25);
-          --color-red-300: oklch(0.6 0.055 25);
-          --color-red-400: oklch(0.5 0.06 25);
-          --color-red-500: oklch(0.45 0.06 25);
-          --color-red-600: oklch(0.4 0.055 25);
-          --color-red-700: oklch(0.35 0.05 25);
-          --color-red-800: oklch(0.3 0.045 25);
-          --color-red-900: oklch(0.25 0.04 25);
-          --color-red-950: oklch(0.2 0.035 25);
         }
       }
 
@@ -116,6 +82,45 @@
         textarea,
         button {
           @apply font-libertinus;
+        }
+        table {
+          border-collapse: collapse;
+        }
+        th,
+        td {
+          border-right: 1px solid var(--color-gray-200);
+          padding: var(--size-xxs) var(--size-xs);
+        }
+        th:last-child,
+        td:last-child {
+          border-right: none;
+        }
+        thead tr {
+          border-bottom: 1px solid var(--color-gray-300);
+        }
+        tr:nth-child(even) {
+          background-color: var(--color-gray-100);
+        }
+        tr:nth-child(odd) {
+          background-color: var(--color-gray-50);
+        }
+      }
+      @media (prefers-color-scheme: dark) {
+        @layer base {
+          th,
+          td {
+            border-right: 1px solid var(--color-gray-700);
+            padding: var(--size-xxs) var(--size-xs);
+          }
+          thead tr {
+            border-bottom: 1px solid var(--color-gray-600);
+          }
+          tr:nth-child(even) {
+            background-color: var(--color-gray-900);
+          }
+          tr:nth-child(odd) {
+            background-color: var(--color-gray-950);
+          }
         }
       }
     </style>
