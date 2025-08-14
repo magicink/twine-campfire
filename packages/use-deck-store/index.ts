@@ -24,18 +24,21 @@ export interface DeckState {
   goTo: (slide: number, step?: number) => void
 }
 
+/** Zustand store for tracking slide and step navigation */
 export const useDeckStore = create<DeckState>((set, get) => ({
   currentSlide: 0,
   currentStep: 0,
   maxSteps: 0,
   slidesCount: 0,
   stepsPerSlide: {},
+  /** Update the total slide count */
   setSlidesCount: n =>
     set(
       produce((state: DeckState) => {
         state.slidesCount = n
       })
     ),
+  /** Update the maximum steps for the current slide */
   setMaxSteps: n =>
     set(
       produce((state: DeckState) => {
@@ -43,17 +46,19 @@ export const useDeckStore = create<DeckState>((set, get) => ({
         state.stepsPerSlide[state.currentSlide] = n
       })
     ),
+  /** Advance to the next step or slide */
   next: () => {
     const { currentStep, maxSteps, currentSlide, slidesCount, stepsPerSlide } =
       get()
+    const nextSlide = currentSlide + 1
+    // Move to the next slide only if it exists
     if (currentStep < maxSteps) {
       set(
         produce((state: DeckState) => {
           state.currentStep += 1
         })
       )
-    } else if (currentSlide < slidesCount - 1) {
-      const nextSlide = currentSlide + 1
+    } else if (nextSlide < slidesCount) {
       const nextMaxSteps = stepsPerSlide[nextSlide] ?? 0
       set(
         produce((state: DeckState) => {
@@ -64,6 +69,7 @@ export const useDeckStore = create<DeckState>((set, get) => ({
       )
     }
   },
+  /** Go back to the previous step or slide */
   prev: () => {
     const { currentStep, currentSlide, stepsPerSlide } = get()
     if (currentStep > 0) {
@@ -84,13 +90,18 @@ export const useDeckStore = create<DeckState>((set, get) => ({
       )
     }
   },
+  /** Jump to a specific slide and step */
   goTo: (slide, step = 0) =>
     set(
       produce((state: DeckState) => {
-        const { stepsPerSlide } = state
-        state.currentSlide = slide
-        state.currentStep = step
-        state.maxSteps = stepsPerSlide[slide] ?? 0
+        const { slidesCount, stepsPerSlide } = state
+        const maxSlideIndex = Math.max(slidesCount - 1, 0)
+        const targetSlide = Math.min(Math.max(slide, 0), maxSlideIndex)
+        const maxStepsForSlide = stepsPerSlide[targetSlide] ?? 0
+        const targetStep = Math.min(Math.max(step, 0), maxStepsForSlide)
+        state.currentSlide = targetSlide
+        state.currentStep = targetStep
+        state.maxSteps = maxStepsForSlide
       })
     )
 }))
