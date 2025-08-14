@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.65.0](https://github.com/magicink/twine-campfire/compare/v1.64.0...v1.65.0) (2025-08-14)
+
+
+### Features
+
+* add slide directive lifecycle hooks ([#324](https://github.com/magicink/twine-campfire/issues/324)) ([240b007](https://github.com/magicink/twine-campfire/commit/240b0079087e8335a4662c753bb75fdd3437f7a6))
+
 ## [1.64.0](https://github.com/magicink/twine-campfire/compare/v1.63.0...v1.64.0) (2025-08-14)
 
 
