@@ -69,8 +69,9 @@ export const useSerializedDirectiveRunner = (content: string) => {
       .runSync(root)
   }
 
+  const gameData = useGameStore(state => state.gameData)
+
   return useCallback(() => {
-    const gameData = useGameStore.getState().gameData as Record<string, unknown>
-    runBlock(clone(baseNodes), gameData)
-  }, [baseNodes, handlers])
+    runBlock(clone(baseNodes), gameData as Record<string, unknown>)
+  }, [baseNodes, handlers, gameData])
 }

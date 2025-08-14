@@ -50,7 +50,8 @@ export const Slide = ({
   onExit,
   children
 }: SlideProps): JSX.Element => {
-  const { maxSteps, setMaxSteps } = useDeckStore()
+  const maxSteps = useDeckStore(state => state.maxSteps)
+  const setMaxSteps = useDeckStore(state => state.setMaxSteps)
   const runEnter = useSerializedDirectiveRunner(onEnter ?? '[]')
   const runExit = useSerializedDirectiveRunner(onExit ?? '[]')
   const cleanupRanRef = useRef(false)
