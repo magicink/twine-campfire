@@ -1,4 +1,11 @@
-import { toChildArray, type ComponentChildren, type JSX } from 'preact'
+import {
+  cloneElement,
+  toChildArray,
+  type ComponentChild,
+  type ComponentChildren,
+  type JSX,
+  type VNode
+} from 'preact'
 import { useEffect, useMemo } from 'preact/hooks'
 import { useDeckStore } from '@/packages/use-deck-store'
 import { useScale, type DeckSize } from '@campfire/hooks/useScale'
@@ -24,7 +31,22 @@ export const Deck = ({
   children,
   className
 }: DeckProps) => {
-  const slides = toChildArray(children)
+  /**
+   * Type guard to determine whether a child is a valid {@link VNode}.
+   *
+   * @param node - The child to test.
+   * @returns True if the child is a {@link VNode}.
+   */
+  const isVNode = (node: ComponentChild): node is VNode =>
+    typeof node === 'object' && node !== null && 'type' in node
+
+  const slides = useMemo(
+    () =>
+      toChildArray(children).map((slide, index) =>
+        isVNode(slide) ? cloneElement(slide, { key: index }) : slide
+      ),
+    [children]
+  )
   const { currentSlide, next, prev, goTo, setSlidesCount } = useDeckStore()
 
   useEffect(() => {
