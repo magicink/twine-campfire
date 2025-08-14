@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { render, act } from '@testing-library/preact'
-import { Deck } from '@campfire/components/Deck/Deck'
-import { Slide } from '@campfire/components/Slide/Slide'
+import { render, act, fireEvent } from '@testing-library/preact'
+import { Deck, Slide, TriggerButton } from '@campfire/components'
 import { useDeckStore } from '@/packages/use-deck-store'
 import { useGameStore } from '@/packages/use-game-store'
 import { resetStores } from '@campfire/test-utils/helpers'
@@ -76,5 +75,20 @@ describe('Slide directive hooks', () => {
     })
     const data = useGameStore.getState().gameData as Record<string, unknown>
     expect(data.exited).toBe(true)
+  })
+
+  it('runs TriggerButton directives inside slides', () => {
+    const btnContent = makeDirective(':set[clicked=true]')
+    const { getByRole } = render(
+      <Deck>
+        <Slide>
+          <TriggerButton content={btnContent}>Click</TriggerButton>
+        </Slide>
+      </Deck>
+    )
+    const button = getByRole('button')
+    fireEvent.click(button)
+    const data = useGameStore.getState().gameData as Record<string, unknown>
+    expect(data.clicked).toBe(true)
   })
 })

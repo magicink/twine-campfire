@@ -63,10 +63,10 @@ export const Slide = ({
   }, [steps, maxSteps, setMaxSteps])
 
   useEffect(() => {
-    if (onEnter) {
-      runEnter()
-    }
-  }, [onEnter, runEnter])
+    runEnter()
+    // Run once when the slide becomes active
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     if (!onExit) return

@@ -1,4 +1,9 @@
-import { toChildArray, type ComponentChildren, type JSX } from 'preact'
+import {
+  cloneElement,
+  toChildArray,
+  type ComponentChildren,
+  type JSX
+} from 'preact'
 import { useEffect, useMemo } from 'preact/hooks'
 import { useDeckStore } from '@/packages/use-deck-store'
 import { useScale, type DeckSize } from '@campfire/hooks/useScale'
@@ -24,7 +29,15 @@ export const Deck = ({
   children,
   className
 }: DeckProps) => {
-  const slides = toChildArray(children)
+  const slides = useMemo(
+    () =>
+      toChildArray(children).map((slide, index) =>
+        typeof slide === 'object' && slide !== null && 'type' in slide
+          ? cloneElement(slide as any, { key: index })
+          : slide
+      ),
+    [children]
+  )
   const { currentSlide, next, prev, goTo, setSlidesCount } = useDeckStore()
 
   useEffect(() => {
