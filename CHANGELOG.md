@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.66.0](https://github.com/magicink/twine-campfire/compare/v1.65.0...v1.66.0) (2025-08-14)
+
+
+### Features
+
+* add Appear component for slide builds ([#326](https://github.com/magicink/twine-campfire/issues/326)) ([ee2966c](https://github.com/magicink/twine-campfire/commit/ee2966c4fcb6655a69dcbe74c611f10a5e0d2261))
+
 ## [1.65.0](https://github.com/magicink/twine-campfire/compare/v1.64.0...v1.65.0) (2025-08-14)
 
 
