@@ -118,7 +118,10 @@ export const Appear = ({
   interruptBehavior = 'jumpToEnd',
   children
 }: AppearProps): JSX.Element | null => {
-  const { currentStep, currentSlide, maxSteps, setMaxSteps } = useDeckStore()
+  const currentStep = useDeckStore(state => state.currentStep)
+  const currentSlide = useDeckStore(state => state.currentSlide)
+  const maxSteps = useDeckStore(state => state.maxSteps)
+  const setMaxSteps = useDeckStore(state => state.setMaxSteps)
   const [present, setPresent] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const animationRef = useRef<Animation | null>(null)

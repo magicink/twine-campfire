@@ -47,7 +47,11 @@ export const Deck = ({
       ),
     [children]
   )
-  const { currentSlide, next, prev, goTo, setSlidesCount } = useDeckStore()
+  const currentSlide = useDeckStore(state => state.currentSlide)
+  const next = useDeckStore(state => state.next)
+  const prev = useDeckStore(state => state.prev)
+  const goTo = useDeckStore(state => state.goTo)
+  const setSlidesCount = useDeckStore(state => state.setSlidesCount)
 
   useEffect(() => {
     setSlidesCount(slides.length)
