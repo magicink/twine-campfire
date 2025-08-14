@@ -95,6 +95,14 @@
         "unist-util-visit": "^5.0.0",
       },
     },
+    "packages/use-deck-store": {
+      "name": "use-deck-store",
+      "version": "0.0.0",
+      "dependencies": {
+        "immer": "^10.1.1",
+        "zustand": "^5.0.6",
+      },
+    },
     "packages/use-game-store": {
       "name": "use-game-store",
       "version": "0.0.0",
@@ -1174,6 +1182,8 @@
     "universal-user-agent": ["universal-user-agent@6.0.1", "", {}, "sha512-yCzhz6FN2wU1NiiQRogkTQszlQSlpWaw8SvVegAc+bDxbzHgh1vX8uIe8OYyMH6DwH+sdTJsgMl36+mSMdRJIQ=="],
 
     "unplugin-utils": ["unplugin-utils@0.2.4", "", { "dependencies": { "pathe": "^2.0.2", "picomatch": "^4.0.2" } }, "sha512-8U/MtpkPkkk3Atewj1+RcKIjb5WBimZ/WSLhhR3w6SsIj8XJuKTacSP8g+2JhfSGw0Cb125Y+2zA/IzJZDVbhA=="],
+
+    "use-deck-store": ["use-deck-store@workspace:packages/use-deck-store"],
 
     "use-game-store": ["use-game-store@workspace:packages/use-game-store"],
 

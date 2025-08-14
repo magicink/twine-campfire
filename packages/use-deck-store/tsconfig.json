@@ -1,0 +1,6 @@
+{
+  "compilerOptions": {
+    "types": ["bun", "preact"]
+  },
+  "extends": "../../tsconfig.json"
+}
