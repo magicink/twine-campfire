@@ -3,9 +3,11 @@ import { useEffect, useMemo } from 'preact/hooks'
 import { useDeckStore } from '@/packages/use-deck-store'
 import { useScale, type DeckSize } from '@campfire/hooks/useScale'
 
+export type ThemeTokens = Record<string, string | number>
+
 export interface DeckProps {
   size?: DeckSize
-  theme?: Record<string, string | number>
+  theme?: ThemeTokens
   children?: ComponentChildren
   className?: string
 }
