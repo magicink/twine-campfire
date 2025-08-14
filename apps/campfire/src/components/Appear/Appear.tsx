@@ -146,7 +146,11 @@ export const Appear = ({
 
   useEffect(() => {
     const el = ref.current
-    const interrupt = () => {
+
+    /**
+     * Stops and clears the current animation based on the interrupt policy.
+     */
+    const clearAnimation = (): void => {
       if (animationRef.current) {
         if (interruptBehavior === 'jumpToEnd') {
           animationRef.current.finish()
@@ -157,7 +161,7 @@ export const Appear = ({
       }
     }
 
-    interrupt()
+    clearAnimation()
 
     if (jumped || reduceMotion) {
       if (visible) {
@@ -168,38 +172,18 @@ export const Appear = ({
       } else if (present) {
         setPresent(false)
       }
-      return () => {
-        if (animationRef.current) {
-          if (interruptBehavior === 'jumpToEnd') {
-            animationRef.current.finish()
-          } else {
-            animationRef.current.cancel()
-          }
-          animationRef.current = null
-        }
-      }
+      return clearAnimation
     }
 
     if (skipNextAnimationRef.current) {
       skipNextAnimationRef.current = false
-      return () => {
-        if (animationRef.current) {
-          if (interruptBehavior === 'jumpToEnd') {
-            animationRef.current.finish()
-          } else {
-            animationRef.current.cancel()
-          }
-          animationRef.current = null
-        }
-      }
+      return clearAnimation
     }
 
     if (visible) {
       if (!present) {
         setPresent(true)
-        return () => {
-          animationRef.current?.cancel()
-        }
+        return clearAnimation
       }
       if (el) {
         animationRef.current = runAnimation(
@@ -223,16 +207,7 @@ export const Appear = ({
       }
     }
 
-    return () => {
-      if (animationRef.current) {
-        if (interruptBehavior === 'jumpToEnd') {
-          animationRef.current.finish()
-        } else {
-          animationRef.current.cancel()
-        }
-        animationRef.current = null
-      }
-    }
+    return clearAnimation
   }, [
     at,
     exitAt,
