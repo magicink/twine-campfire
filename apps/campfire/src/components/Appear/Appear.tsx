@@ -58,25 +58,14 @@ const buildKeyframes = (
         from = offset
       }
       const start = `translate${axis}(${from}px)`
-      const end = 'translateX(0px)'
-      if (axis === 'Y') {
-        return mode === 'in'
-          ? [
-              { transform: start, opacity: 0 },
-              { transform: 'translateY(0px)', opacity: 1 }
-            ]
-          : [
-              { transform: 'translateY(0px)', opacity: 1 },
-              { transform: start, opacity: 0 }
-            ]
-      }
+      const end = `translate${axis}(0px)`
       return mode === 'in'
         ? [
             { transform: start, opacity: 0 },
-            { transform: 'translateX(0px)', opacity: 1 }
+            { transform: end, opacity: 1 }
           ]
         : [
-            { transform: 'translateX(0px)', opacity: 1 },
+            { transform: end, opacity: 1 },
             { transform: start, opacity: 0 }
           ]
     }
