@@ -1,8 +1,10 @@
 import {
   cloneElement,
   toChildArray,
+  type ComponentChild,
   type ComponentChildren,
-  type JSX
+  type JSX,
+  type VNode
 } from 'preact'
 import { useEffect, useMemo } from 'preact/hooks'
 import { useDeckStore } from '@/packages/use-deck-store'
@@ -29,12 +31,19 @@ export const Deck = ({
   children,
   className
 }: DeckProps) => {
+  /**
+   * Type guard to determine whether a child is a valid {@link VNode}.
+   *
+   * @param node - The child to test.
+   * @returns True if the child is a {@link VNode}.
+   */
+  const isVNode = (node: ComponentChild): node is VNode =>
+    typeof node === 'object' && node !== null && 'type' in node
+
   const slides = useMemo(
     () =>
       toChildArray(children).map((slide, index) =>
-        typeof slide === 'object' && slide !== null && 'type' in slide
-          ? cloneElement(slide as any, { key: index })
-          : slide
+        isVNode(slide) ? cloneElement(slide, { key: index }) : slide
       ),
     [children]
   )
