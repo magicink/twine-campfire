@@ -10,7 +10,8 @@
     "dist"
   ],
   "workspaces": [
-    "apps/campfire"
+    "apps/campfire",
+    "apps/storybook"
   ],
   "scripts": {
     "build": "rimraf apps/campfire/dist && bunx rollup -c apps/campfire/rollup.config.mjs && node build-format.mjs",
