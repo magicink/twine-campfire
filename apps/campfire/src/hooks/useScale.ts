@@ -1,6 +1,11 @@
 import { useLayoutEffect, useRef, useState } from 'preact/hooks'
 
 /**
+ * Minimum allowed scale factor to ensure content remains visible.
+ */
+export const MIN_SCALE = 0.01
+
+/**
  * Dimensions of the content to scale within the container.
  */
 export interface DeckSize {
@@ -28,7 +33,7 @@ export const useScale = (size: DeckSize) => {
       const { clientWidth: cw, clientHeight: ch } = el
       const sx = cw / size.width
       const sy = ch / size.height
-      const s = Math.max(0.01, Math.min(sx, sy))
+      const s = Math.max(MIN_SCALE, Math.min(sx, sy))
       setScale(s)
     })
 

@@ -1,6 +1,6 @@
 import { render, act } from '@testing-library/preact'
 import { describe, it, expect } from 'bun:test'
-import { useScale } from '@campfire/hooks/useScale'
+import { useScale, MIN_SCALE } from '@campfire/hooks/useScale'
 
 /**
  * Replaces the global ResizeObserver with a mock that allows manual
@@ -53,7 +53,7 @@ describe('useScale', () => {
     expect(currentScale).toBe(2)
   })
 
-  it('prevents scale from dropping below 0.01', () => {
+  it('prevents scale from dropping below the minimum', () => {
     const trigger = setupResizeObserver()
     let currentScale = 1
 
@@ -72,6 +72,6 @@ describe('useScale', () => {
     Object.defineProperty(el, 'clientWidth', { value: 1, configurable: true })
     Object.defineProperty(el, 'clientHeight', { value: 1, configurable: true })
     act(() => trigger())
-    expect(currentScale).toBe(0.01)
+    expect(currentScale).toBe(MIN_SCALE)
   })
 })
