@@ -17,7 +17,14 @@ const config: StorybookConfig = {
     config.resolve ??= {}
     config.resolve.alias = {
       ...(config.resolve.alias ?? {}),
-      '@campfire': path.resolve(__dirname, '../../campfire/src')
+      '@campfire': path.resolve(__dirname, '../../campfire/src'),
+      react: 'preact/compat',
+      'react-dom': 'preact/compat',
+      'react-dom/test-utils': 'preact/test-utils',
+      '@preact/compat/test-utils': path.resolve(
+        __dirname,
+        './preact-test-utils-shim.ts'
+      )
     }
     config.build ??= {}
     config.build.sourcemap = true
