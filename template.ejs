@@ -12,7 +12,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style type="text/tailwindcss">
       @theme {
-        --font-libertinus: 'Libertinus Serif', serif;
+        --font-libertinus: 'Libertinus Serif';
         /* Gray scale */
         --color-gray-50: oklch(0.98 0 0);
         --color-gray-100: oklch(0.95 0 0);
@@ -60,7 +60,7 @@
 
       @layer utilities {
         .font-libertinus {
-          font-family: var(--font-libertinus);
+          font-family: var(--font-libertinus), serif;
           font-optical-sizing: auto;
           font-style: normal;
         }
@@ -84,42 +84,40 @@
           @apply font-libertinus;
         }
         table {
-          border-collapse: collapse;
+          @apply border-separate border-spacing-0 rounded-lg overflow-hidden;
         }
         th,
         td {
-          border-right: 1px solid var(--color-gray-200);
-          padding: var(--size-xxs) var(--size-xs);
+          @apply border-r border-gray-200 py-xxs px-xs;
         }
         th:last-child,
         td:last-child {
-          border-right: none;
+          @apply border-r-0;
         }
         thead tr {
-          border-bottom: 1px solid var(--color-gray-300);
+          @apply border-b border-gray-300;
         }
         tr:nth-child(even) {
-          background-color: var(--color-gray-100);
+          @apply bg-gray-100;
         }
         tr:nth-child(odd) {
-          background-color: var(--color-gray-50);
+          @apply bg-gray-50;
         }
       }
       @media (prefers-color-scheme: dark) {
         @layer base {
           th,
           td {
-            border-right: 1px solid var(--color-gray-700);
-            padding: var(--size-xxs) var(--size-xs);
+            @apply border-r border-gray-700 py-xxs px-xs;
           }
           thead tr {
-            border-bottom: 1px solid var(--color-gray-600);
+            @apply border-b border-gray-600 bg-gray-100;
           }
           tr:nth-child(even) {
-            background-color: var(--color-gray-900);
+            @apply bg-gray-300;
           }
           tr:nth-child(odd) {
-            background-color: var(--color-gray-950);
+            @apply bg-gray-200;
           }
         }
       }
