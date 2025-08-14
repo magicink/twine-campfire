@@ -7,7 +7,7 @@ import {
   type VNode
 } from 'preact'
 import { useEffect, useMemo } from 'preact/hooks'
-import { useDeckStore } from '@/packages/use-deck-store'
+import { useDeckStore } from '@campfire/state/useDeckStore'
 import { useScale, type DeckSize } from '@campfire/hooks/useScale'
 
 export type ThemeTokens = Record<string, string | number>

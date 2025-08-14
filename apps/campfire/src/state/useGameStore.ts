@@ -71,6 +71,9 @@ export interface Checkpoint<T = Record<string, unknown>>
   timestamp: number
 }
 
+/**
+ * Zustand store for managing global game state, persistence, and checkpoints.
+ */
 export const useGameStore = create(
   subscribeWithSelector<InternalState<Record<string, unknown>>>((set, get) => ({
     gameData: {},

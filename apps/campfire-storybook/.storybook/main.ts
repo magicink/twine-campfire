@@ -22,8 +22,7 @@ const config: StorybookConfig = {
     config.resolve = config.resolve ?? {}
     config.resolve.alias = {
       ...(config.resolve.alias || {}),
-      '@campfire': resolve(__dirname, '../../campfire/src'),
-      '@/packages': resolve(__dirname, '../../packages')
+      '@campfire': resolve(__dirname, '../../campfire/src')
     }
     return config
   }

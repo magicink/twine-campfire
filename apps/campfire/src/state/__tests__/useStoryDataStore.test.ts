@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { useStoryDataStore } from '../index'
+import { useStoryDataStore } from '../useStoryDataStore'
 import type { Element } from 'hast'
 
 beforeEach(() => {

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { render, screen, fireEvent, act } from '@testing-library/preact'
 import { Deck } from '@campfire/components/Deck/Deck'
-import { useDeckStore } from '@/packages/use-deck-store'
+import { useDeckStore } from '@campfire/state/useDeckStore'
 
 /**
  * Resets the deck store to a clean initial state.

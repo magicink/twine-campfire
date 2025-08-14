@@ -1,7 +1,7 @@
-import { useGameStore } from '@/packages/use-game-store'
+import { useGameStore } from '@campfire/state/useGameStore'
 import { useTranslation } from 'react-i18next'
 import i18next from 'i18next'
-import { isRange } from '@/packages/remark-campfire/helpers'
+import { isRange } from '@campfire/remark-campfire/helpers'
 import { getTranslationOptions } from '@campfire/utils/i18n'
 
 interface ShowProps {

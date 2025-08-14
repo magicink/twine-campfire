@@ -10,16 +10,16 @@ import remarkDirective from 'remark-directive'
 import type {
   DirectiveHandler,
   DirectiveHandlerResult
-} from '@/packages/remark-campfire'
+} from '@campfire/remark-campfire'
 import remarkCampfire, {
   remarkCampfireIndentation
-} from '@/packages/remark-campfire'
+} from '@campfire/remark-campfire'
 import type { Parent, Root, RootContent, Text as MdText } from 'mdast'
 import type { Node } from 'unist'
 import type { ElementContent, Properties, Text as HastText } from 'hast'
 import type { ContainerDirective } from 'mdast-util-directive'
-import { useStoryDataStore } from '@/packages/use-story-data-store'
-import { type Checkpoint, useGameStore } from '@/packages/use-game-store'
+import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
+import { type Checkpoint, useGameStore } from '@campfire/state/useGameStore'
 import { markTitleOverridden } from '@campfire/state/titleState'
 import {
   type DirectiveNode,
@@ -32,7 +32,7 @@ import {
   parseNumericValue,
   removeNode,
   stripLabel
-} from '@/packages/remark-campfire/helpers'
+} from '@campfire/remark-campfire/helpers'
 import { getTranslationOptions } from '@campfire/utils/i18n'
 import {
   createStateManager,

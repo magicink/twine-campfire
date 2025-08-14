@@ -14,6 +14,9 @@ export interface StoryDataState {
   getPassageByName: (name: string) => Element | undefined
 }
 
+/**
+ * Zustand store for story data and passage navigation helpers.
+ */
 export const useStoryDataStore = create<StoryDataState>((set, get) => ({
   storyData: {},
   passages: [],

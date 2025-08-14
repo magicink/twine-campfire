@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { useDeckStore } from '../index'
+import { useDeckStore } from '../useDeckStore'
 
 beforeEach(() => {
   useDeckStore.setState({

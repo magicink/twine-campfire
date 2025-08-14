@@ -1,4 +1,4 @@
-import { useGameStore } from '../index'
+import { useGameStore } from '../useGameStore'
 import { describe, it, expect, beforeEach } from 'bun:test'
 
 // Reset store state before each test

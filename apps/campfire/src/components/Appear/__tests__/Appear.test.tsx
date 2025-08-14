@@ -3,7 +3,7 @@ import { render, screen, act } from '@testing-library/preact'
 import { Deck } from '@campfire/components/Deck/Deck'
 import { Slide } from '@campfire/components/Slide/Slide'
 import { Appear } from '@campfire/components/Appear/Appear'
-import { useDeckStore } from '@/packages/use-deck-store'
+import { useDeckStore } from '@campfire/state/useDeckStore'
 
 /**
  * Resets the deck store to a clean initial state.

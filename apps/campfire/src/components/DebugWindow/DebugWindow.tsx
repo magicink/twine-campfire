@@ -2,8 +2,8 @@ import { useState, useEffect, useRef } from 'preact/hooks'
 import {
   useStoryDataStore,
   type StoryDataState
-} from '@/packages/use-story-data-store'
-import { useGameStore } from '@/packages/use-game-store'
+} from '@campfire/state/useStoryDataStore'
+import { useGameStore } from '@campfire/state/useGameStore'
 import i18next from 'i18next'
 import type { Element, Text, Content } from 'hast'
 
