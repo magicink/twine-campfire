@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "@storybook/addon-essentials": "^8.3.5",
+    "@storybook/preact": "^8.3.5",
     "@storybook/preact-vite": "^8.3.5",
     "storybook": "^8.3.5",
     "typescript": "^5.3.3"
