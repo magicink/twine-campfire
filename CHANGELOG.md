@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.60.0](https://github.com/magicink/twine-campfire/compare/v1.59.4...v1.60.0) (2025-08-14)
+
+
+### Features
+
+* add deck store for slide navigation ([#312](https://github.com/magicink/twine-campfire/issues/312)) ([a778d7b](https://github.com/magicink/twine-campfire/commit/a778d7b058e6a5bd39c1bdaa9d7bd731a4971744))
+
 ## [1.59.4](https://github.com/magicink/twine-campfire/compare/v1.59.3...v1.59.4) (2025-08-13)
 
 
