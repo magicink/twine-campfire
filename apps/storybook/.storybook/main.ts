@@ -15,14 +15,12 @@ const config: StorybookConfig = {
    */
   viteFinal: async config => {
     config.resolve ??= {}
-    config.resolve.alias = [
-      ...(config.resolve.alias ?? []),
-      {
-        find: '@campfire',
-        replacement: path.resolve(__dirname, '../../campfire/src')
-      }
-    ]
-
+    config.resolve.alias = {
+      ...(config.resolve.alias ?? {}),
+      '@campfire': path.resolve(__dirname, '../../campfire/src')
+    }
+    config.build ??= {}
+    config.build.sourcemap = true
     return config
   }
 }
