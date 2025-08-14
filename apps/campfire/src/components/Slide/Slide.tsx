@@ -1,6 +1,7 @@
 import { type ComponentChildren, type JSX } from 'preact'
-import { useEffect } from 'preact/hooks'
+import { useEffect, useRef } from 'preact/hooks'
 import { useDeckStore } from '@/packages/use-deck-store'
+import { useSerializedDirectiveRunner } from '@campfire/hooks/useSerializedDirectiveRunner'
 
 export type TransitionType = 'none' | 'fade' | 'slide' | 'zoom'
 export type Direction = 'left' | 'right' | 'up' | 'down'
@@ -27,6 +28,10 @@ export interface SlideProps {
     | string
     | { image: string; fit?: 'cover' | 'contain' | 'fill'; position?: string }
   className?: string
+  /** Serialized directive block to run when the slide becomes active. */
+  onEnter?: string
+  /** Serialized directive block to run when the slide unmounts. */
+  onExit?: string
   children?: ComponentChildren
 }
 
@@ -41,15 +46,42 @@ export const Slide = ({
   transition,
   background,
   className,
+  onEnter,
+  onExit,
   children
 }: SlideProps): JSX.Element => {
   const { maxSteps, setMaxSteps } = useDeckStore()
+  const runEnter = useSerializedDirectiveRunner(onEnter ?? '[]')
+  const runExit = useSerializedDirectiveRunner(onExit ?? '[]')
+  const cleanupRanRef = useRef(false)
+  const generationRef = useRef(0)
 
   useEffect(() => {
     if (typeof steps === 'number' && steps !== maxSteps) {
       setMaxSteps(steps)
     }
   }, [steps, maxSteps, setMaxSteps])
+
+  useEffect(() => {
+    if (onEnter) {
+      runEnter()
+    }
+  }, [onEnter, runEnter])
+
+  useEffect(() => {
+    if (!onExit) return
+    generationRef.current++
+    cleanupRanRef.current = false
+    return () => {
+      const current = generationRef.current
+      queueMicrotask(() => {
+        if (generationRef.current === current && !cleanupRanRef.current) {
+          runExit()
+          cleanupRanRef.current = true
+        }
+      })
+    }
+  }, [onExit, runExit])
 
   const bgClass =
     typeof background === 'string' ? background : 'bg-gray-100 dark:bg-gray-900'
