@@ -2,7 +2,7 @@ import type { JSX } from 'preact'
 import {
   useStoryDataStore,
   type StoryDataState
-} from '@/packages/use-story-data-store'
+} from '@campfire/use-story-data-store'
 
 interface LinkButtonProps extends JSX.HTMLAttributes<HTMLButtonElement> {
   'data-pid'?: string

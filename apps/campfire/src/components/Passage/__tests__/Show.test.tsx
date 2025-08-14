@@ -3,7 +3,7 @@ import { render, screen, act } from '@testing-library/preact'
 import i18next from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import { Show } from '@campfire/components/Passage/Show'
-import { useGameStore } from '@/packages/use-game-store'
+import { useGameStore } from '@campfire/use-game-store'
 
 /**
  * Resets the game store to an empty state before each test.

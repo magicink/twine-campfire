@@ -5,9 +5,9 @@ import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
 import remarkDirective from 'remark-directive'
-import remarkCampfire from '@/packages/remark-campfire'
+import remarkCampfire from '@campfire/remark-campfire'
 import remarkRehype from 'remark-rehype'
-import rehypeCampfire from '@/packages/rehype-campfire'
+import rehypeCampfire from '@campfire/rehype-campfire'
 import rehypeReact from 'rehype-react'
 import type { Text, Content } from 'hast'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
@@ -20,7 +20,7 @@ import {
 import {
   useStoryDataStore,
   type StoryDataState
-} from '@/packages/use-story-data-store'
+} from '@campfire/use-story-data-store'
 import { LinkButton } from '@campfire/components/Passage/LinkButton'
 import { TriggerButton } from '@campfire/components/Passage/TriggerButton'
 import { If } from '@campfire/components/Passage/If'

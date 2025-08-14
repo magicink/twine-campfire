@@ -1,6 +1,6 @@
 import rfdc from 'rfdc'
-import { clamp } from '@/packages/remark-campfire/helpers'
-import { useGameStore } from '@/packages/use-game-store'
+import { clamp } from '@campfire/remark-campfire/helpers'
+import { useGameStore } from '@campfire/use-game-store'
 
 /** Range value representation */
 export interface RangeValue {

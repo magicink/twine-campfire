@@ -1,6 +1,6 @@
 import type { Element } from 'hast'
-import { useGameStore } from '@/packages/use-game-store'
-import { useStoryDataStore } from '@/packages/use-story-data-store'
+import { useGameStore } from '@campfire/use-game-store'
+import { useStoryDataStore } from '@campfire/use-story-data-store'
 
 export const samplePassage: Element = {
   type: 'element',

@@ -2,14 +2,14 @@ import { useCallback, useMemo } from 'preact/hooks'
 import { unified } from 'unified'
 import remarkCampfire, {
   remarkCampfireIndentation
-} from '@/packages/remark-campfire'
+} from '@campfire/remark-campfire'
 import type { RootContent, Root } from 'mdast'
 import type { ContainerDirective } from 'mdast-util-directive'
 import rfdc from 'rfdc'
 import { compile } from 'expression-eval'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
-import { useGameStore } from '@/packages/use-game-store'
-import { getLabel, stripLabel } from '@/packages/remark-campfire/helpers'
+import { useGameStore } from '@campfire/use-game-store'
+import { getLabel, stripLabel } from '@campfire/remark-campfire/helpers'
 
 const clone = rfdc()
 

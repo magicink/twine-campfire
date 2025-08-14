@@ -4,8 +4,8 @@ import i18next from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import type { Element } from 'hast'
 import { Passage } from '@campfire/components/Passage/Passage'
-import { useStoryDataStore } from '@/packages/use-story-data-store'
-import { useGameStore } from '@/packages/use-game-store'
+import { useStoryDataStore } from '@campfire/use-story-data-store'
+import { useGameStore } from '@campfire/use-game-store'
 import { resetStores } from '@campfire/test-utils/helpers'
 
 describe('Passage game state directives', () => {
