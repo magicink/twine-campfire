@@ -66,8 +66,7 @@ export const Slide = ({
     if (onEnter) {
       runEnter()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [onEnter, runEnter])
 
   useEffect(() => {
     if (!onExit) return

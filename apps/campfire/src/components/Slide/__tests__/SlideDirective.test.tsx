@@ -33,12 +33,13 @@ const resetDeckStore = () => {
 // Minimal ResizeObserver stub for the tests
 class StubResizeObserver {
   observe() {}
+  unobserve() {}
   disconnect() {}
 }
 
 beforeEach(() => {
-  // @ts-expect-error override for tests
-  globalThis.ResizeObserver = StubResizeObserver
+  globalThis.ResizeObserver =
+    StubResizeObserver as unknown as typeof ResizeObserver
   resetDeckStore()
   resetStores()
   document.body.innerHTML = ''
