@@ -1,0 +1,121 @@
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Libertinus+Serif:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap"
+  rel="stylesheet"
+/>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<style type="text/tailwindcss">
+  @theme {
+    --font-libertinus: 'Libertinus Serif';
+    /* Gray scale */
+    --color-gray-50: oklch(0.98 0 0);
+    --color-gray-100: oklch(0.95 0 0);
+    --color-gray-200: oklch(0.9 0 0);
+    --color-gray-300: oklch(0.8 0 0);
+    --color-gray-400: oklch(0.7 0 0);
+    --color-gray-500: oklch(0.6 0 0);
+    --color-gray-600: oklch(0.5 0 0);
+    --color-gray-700: oklch(0.4 0 0);
+    --color-gray-800: oklch(0.3 0 0);
+    --color-gray-900: oklch(0.2 0 0);
+    --color-gray-950: oklch(0.12 0 0);
+    /* Breakpoints */
+    --breakpoint-xs: 400px;
+    --breakpoint-sm: 640px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 1024px;
+    --breakpoint-xl: 1280px;
+    /* Sizes */
+    --size-xxs: 0.25rem; /* 4px */
+    --size-xs: 0.5rem; /* 8px */
+    --size-sm: 0.75rem; /* 12px */
+    --size-md: 1rem; /* 16px */
+    --size-lg: 1.5rem; /* 24px */
+    --size-xl: 2rem; /* 32px */
+    --size-2xl: 3rem; /* 48px */
+  }
+
+  @media (prefers-color-scheme: dark) {
+    @theme {
+      /* Gray scale */
+      --color-gray-50: oklch(0.2 0 0);
+      --color-gray-100: oklch(0.25 0 0);
+      --color-gray-200: oklch(0.3 0 0);
+      --color-gray-300: oklch(0.4 0 0);
+      --color-gray-400: oklch(0.5 0 0);
+      --color-gray-500: oklch(0.6 0 0);
+      --color-gray-600: oklch(0.7 0 0);
+      --color-gray-700: oklch(0.8 0 0);
+      --color-gray-800: oklch(0.9 0 0);
+      --color-gray-900: oklch(0.95 0 0);
+      --color-gray-950: oklch(0.98 0 0);
+    }
+  }
+
+  @layer utilities {
+    .font-libertinus {
+      font-family: var(--font-libertinus), serif;
+      font-optical-sizing: auto;
+      font-style: normal;
+    }
+  }
+
+  @layer base {
+    html {
+      font-size: 22px;
+      color-scheme: light dark;
+    }
+    p,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    input,
+    textarea,
+    button,
+    table {
+      @apply font-libertinus;
+    }
+    table {
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: var(--size-xxs);
+      overflow: hidden;
+    }
+    th,
+    td {
+      border-right: 1px solid var(--color-gray-200);
+      padding: var(--size-xxs) var(--size-xs);
+    }
+    th:last-child,
+    td:last-child {
+      border-right: none;
+    }
+    thead tr {
+      border-bottom: 1px solid var(--color-gray-200);
+      background-color: var(--color-gray-50);
+    }
+    tr:nth-child(even) {
+      background-color: var(--color-gray-50);
+    }
+  }
+  @media (prefers-color-scheme: dark) {
+    @layer base {
+      th,
+      td {
+        border-right: 1px solid var(--color-gray-700);
+        padding: var(--size-xxs) var(--size-xs);
+      }
+      thead tr {
+        border-bottom: 1px solid var(--color-gray-700);
+        background-color: var(--color-gray-100);
+      }
+      tr:nth-child(even) {
+        background-color: var(--color-gray-100);
+      }
+    }
+  }
+</style>

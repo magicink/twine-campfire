@@ -1,0 +1,17 @@
+{
+  "name": "campfire-storybook",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "storybook build",
+    "dev": "storybook dev -p 6006"
+  },
+  "dependencies": {
+    "preact": "^10.24.1"
+  },
+  "devDependencies": {
+    "@storybook/preact": "^9.1.2",
+    "@storybook/preact-vite": "^9.1.2",
+    "typescript": "^5.3.3"
+  }
+}
