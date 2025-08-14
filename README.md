@@ -182,7 +182,6 @@ both. When using a numeric range, both `min` and `max` are required.
 | max   | Maximum value for numeric range                 |
 | from  | Array or state key to select a random item from |
 
-
 - `randomOnce`: Assign a random value once and lock the key.
 
   ```md
@@ -521,66 +520,6 @@ Run directives on specific passage events or group actions.
   | label    | Text displayed on the button           |
   | class    | Optional space-separated classes       |
   | disabled | Optional boolean to disable the button |
-
-### Sequences & transitions
-
-Reveal content step by step and animate its appearance.
-
-- `sequence`: Display `step` blocks one at a time.
-
-  ```md
-  :::sequence{autoplay delay=1000}
-  :::step
-  First message
-  :::
-  :::step
-  :::transition{type="fade-in" duration=500}
-  Second message
-  :::
-  :::
-  ```
-
-  Use `autoplay` with `delay` to advance automatically. Customize button text
-  with `continueLabel` and `skipLabel`. The `fastForward` attribute accepts an
-  object for advanced control.
-
-  | Input         | Description                              |
-  | ------------- | ---------------------------------------- |
-  | autoplay      | Automatically advance steps when true    |
-  | delay         | Time in ms between automatic advances    |
-  | continueLabel | Text for the continue button             |
-  | skipLabel     | Text for the skip button                 |
-  | fastForward   | Object controlling fast-forward behavior |
-
-- `step`: Define a single stage within a sequence.
-
-  ```md
-  :::step
-  Content for this step
-  :::
-  ```
-
-  Steps may contain `transition` blocks and other directives.
-
-  | Input    | Description                  |
-  | -------- | ---------------------------- |
-  | _(none)_ | This directive has no inputs |
-
-- `transition`: Animate the appearance of content within a step.
-
-  ```md
-  :::transition{type="fade-in" duration=300 delay=100}
-  Fades in after 100ms.
-  :::
-  ```
-
-  `type` currently supports `fade-in`. `duration` and `delay` are in milliseconds.
-
-  | Input    | Description                        |
-  | -------- | ---------------------------------- |
-  | type     | Animation style (e.g., `fade-in`)  |
-  | duration | Animation length in milliseconds   |
-  | delay    | Time in ms before animation starts |
 
 ### Navigation & composition
 
