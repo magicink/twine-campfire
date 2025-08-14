@@ -6,7 +6,8 @@ beforeEach(() => {
     currentSlide: 0,
     currentStep: 0,
     maxSteps: 0,
-    slidesCount: 0
+    slidesCount: 0,
+    stepsPerSlide: {}
   })
 })
 
@@ -36,14 +37,19 @@ describe('useDeckStore', () => {
     useDeckStore.getState().next()
     useDeckStore.getState().prev()
     expect(useDeckStore.getState().currentSlide).toBe(0)
-    expect(useDeckStore.getState().currentStep).toBe(0)
+    expect(useDeckStore.getState().currentStep).toBe(1)
+    expect(useDeckStore.getState().maxSteps).toBe(1)
   })
 
   it('jumps to a specific slide and step', () => {
     useDeckStore.getState().setSlidesCount(3)
+    useDeckStore.getState().setMaxSteps(2)
+    useDeckStore.getState().goTo(2)
+    useDeckStore.getState().setMaxSteps(4)
+    useDeckStore.getState().goTo(0)
     useDeckStore.getState().goTo(2, 1)
     expect(useDeckStore.getState().currentSlide).toBe(2)
     expect(useDeckStore.getState().currentStep).toBe(1)
-    expect(useDeckStore.getState().maxSteps).toBe(0)
+    expect(useDeckStore.getState().maxSteps).toBe(4)
   })
 })
