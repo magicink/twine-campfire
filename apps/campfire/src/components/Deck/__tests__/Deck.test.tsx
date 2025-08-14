@@ -41,6 +41,15 @@ describe('Deck', () => {
     expect(screen.getByText('Slide 1')).toBeInTheDocument()
   })
 
+  it('uses gray backgrounds for light and dark modes', () => {
+    const { container } = render(
+      <Deck>
+        <div>Slide 1</div>
+      </Deck>
+    )
+    expect(container.firstChild).toHaveClass('bg-gray-100', 'dark:bg-gray-900')
+  })
+
   it('advances and reverses slides via click and keyboard', () => {
     render(
       <Deck>
