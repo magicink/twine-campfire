@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.63.0](https://github.com/magicink/twine-campfire/compare/v1.62.0...v1.63.0) (2025-08-14)
+
+
+### Features
+
+* add slide component ([#320](https://github.com/magicink/twine-campfire/issues/320)) ([b6a3b7c](https://github.com/magicink/twine-campfire/commit/b6a3b7c43f53f9db773ea401212c2b0354905d8d))
+
 ## [1.62.0](https://github.com/magicink/twine-campfire/compare/v1.61.0...v1.62.0) (2025-08-14)
 
 
