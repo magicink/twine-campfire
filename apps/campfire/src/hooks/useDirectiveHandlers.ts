@@ -1066,6 +1066,56 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
+   * Converts `:::appear` directives into Appear elements.
+   *
+   * @param directive - The appear directive node.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within its parent.
+   * @returns Visitor instructions after replacement.
+   */
+  const handleAppear: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    const container = directive as ContainerDirective
+
+    const { attrs } = extractAttributes<AppearSchema>(
+      directive,
+      parent,
+      index,
+      appearSchema
+    )
+
+    const content = runBlock(stripLabel(container.children as RootContent[]))
+
+    const props: Record<string, unknown> = {}
+    if (typeof attrs.at === 'number') props.at = attrs.at
+    if (typeof attrs.exitAt === 'number') props.exitAt = attrs.exitAt
+    if (attrs.enter) props.enter = attrs.enter
+    if (attrs.exit) props.exit = attrs.exit
+    if (attrs.interruptBehavior)
+      props.interruptBehavior = attrs.interruptBehavior
+
+    applyAdditionalAttributes(
+      (directive.attributes || {}) as Record<string, unknown>,
+      props,
+      ['at', 'exitAt', 'enter', 'exit', 'interruptBehavior']
+    )
+
+    const appearNode: Parent = {
+      type: 'paragraph',
+      children: content,
+      data: {
+        hName: 'appear',
+        hProperties: props as Properties
+      }
+    }
+
+    const newIndex = replaceWithIndentation(directive, parent, index, [
+      appearNode as RootContent
+    ])
+    return [SKIP, newIndex]
+  }
+
+  /**
    * Switches the active locale using `:lang[locale]`.
    *
    * @param directive - Directive node specifying the locale.
@@ -1568,6 +1618,18 @@ export const useDirectiveHandlers = () => {
     }
   }
 
+  /** Schema describing supported appear directive attributes. */
+  const appearSchema = {
+    at: { type: 'number' },
+    exitAt: { type: 'number' },
+    enter: { type: 'string' },
+    exit: { type: 'string' },
+    interruptBehavior: { type: 'string' }
+  } as const
+
+  type AppearSchema = typeof appearSchema
+  type AppearAttrs = ExtractedAttrs<AppearSchema>
+
   /** Schema describing supported slide directive attributes. */
   const slideSchema = {
     transition: { type: 'string' },
@@ -1886,6 +1948,7 @@ export const useDirectiveHandlers = () => {
       batch: handleBatch,
       trigger: handleTrigger,
       onExit: handleOnExit,
+      appear: handleAppear,
       deck: handleDeck,
       lang: handleLang,
       include: handleInclude,
