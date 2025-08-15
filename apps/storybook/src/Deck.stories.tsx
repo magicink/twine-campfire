@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/preact'
 import { h } from 'preact'
-import { Deck, Slide } from '@campfire/components'
+import { Deck, Slide, Text } from '@campfire/components'
 
 const meta: Meta<typeof Deck> = {
   component: Deck,
@@ -22,7 +22,9 @@ const render: StoryObj<typeof Deck>['render'] = () => (
         exit: { type: 'fade', duration: 300 }
       }}
     >
-      <h2 class='text-4xl'>Fade Slide</h2>
+      <Text as={'h2'}>
+        <h2 className='text-4xl text-[var(--color-gray-50)]'>Fade Slide</h2>
+      </Text>
     </Slide>
     <Slide
       transition={{
@@ -30,7 +32,9 @@ const render: StoryObj<typeof Deck>['render'] = () => (
         exit: { type: 'slide', dir: 'right', duration: 300 }
       }}
     >
-      <h2 class='text-4xl'>Slide Transition</h2>
+      <Text as={'h2'}>
+        <h2 class='text-4xl text-[var(--color-gray-50)]'>Slide Transition</h2>
+      </Text>
     </Slide>
     <Slide
       transition={{
@@ -38,7 +42,9 @@ const render: StoryObj<typeof Deck>['render'] = () => (
         exit: { type: 'zoom', duration: 300 }
       }}
     >
-      <h2 class='text-4xl'>Zoom Slide</h2>
+      <Text as={'h2'}>
+        <h2 class='text-4xl text-[var(--color-gray-50)]'>Zoom Slide</h2>
+      </Text>
     </Slide>
   </Deck>
 )
