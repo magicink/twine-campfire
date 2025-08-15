@@ -23,6 +23,7 @@ import { type Checkpoint, useGameStore } from '@campfire/use-game-store'
 import { markTitleOverridden } from '@campfire/state/titleState'
 import {
   type DirectiveNode,
+  type ExtractedAttrs,
   ensureKey,
   extractAttributes,
   getLabel,
@@ -1674,10 +1675,22 @@ export const useDirectiveHandlers = () => {
     return removeNode(parent, index)
   }
 
+  /** Default deck width when parsing sizes. */
+  const DEFAULT_DECK_WIDTH = 1920
+
+  /** Default deck height when parsing sizes. */
+  const DEFAULT_DECK_HEIGHT = 1080
+
+  /**
+   * When both parsed dimensions are less than or equal to this threshold, the
+   * value is treated as an aspect ratio instead of explicit pixel dimensions.
+   */
+  const ASPECT_RATIO_THRESHOLD = 100
+
   /**
    * Parses a deck size string such as "1920x1080" or an aspect ratio like
    * "16x9" into a width/height object. Aspect ratios assume a default width of
-   * 1920 pixels.
+   * {@link DEFAULT_DECK_WIDTH} pixels.
    *
    * @param value - Raw size attribute value.
    * @returns Parsed deck size object.
@@ -1687,14 +1700,14 @@ export const useDirectiveHandlers = () => {
     if (match) {
       const w = parseInt(match[1], 10)
       const h = parseInt(match[2], 10)
-      if (w <= 100 && h <= 100) {
-        const width = 1920
+      if (w <= ASPECT_RATIO_THRESHOLD && h <= ASPECT_RATIO_THRESHOLD) {
+        const width = DEFAULT_DECK_WIDTH
         const height = Math.round((width * h) / w)
         return { width, height }
       }
       return { width: w, height: h }
     }
-    return { width: 1920, height: 1080 }
+    return { width: DEFAULT_DECK_WIDTH, height: DEFAULT_DECK_HEIGHT }
   }
 
   /**
@@ -1720,15 +1733,25 @@ export const useDirectiveHandlers = () => {
     return undefined
   }
 
+  /** Schema describing supported slide directive attributes. */
+  const slideSchema = {
+    transition: { type: 'string' },
+    background: { type: 'string' },
+    steps: { type: 'number' },
+    onEnter: { type: 'string' },
+    onExit: { type: 'string' }
+  } as const
+
+  type SlideSchema = typeof slideSchema
+  type SlideAttrs = ExtractedAttrs<SlideSchema>
+
   /**
    * Builds a props object for the Slide component from extracted attributes.
    *
    * @param attrs - Extracted slide attributes.
    * @returns Slide props object.
    */
-  const buildSlideProps = (
-    attrs: Record<string, unknown>
-  ): Record<string, unknown> => {
+  const buildSlideProps = (attrs: SlideAttrs): Record<string, unknown> => {
     const props: Record<string, unknown> = {}
     if (attrs.transition) {
       props.transition =
@@ -1746,7 +1769,7 @@ export const useDirectiveHandlers = () => {
           key
         )
       ) {
-        props[key] = attrs[key]
+        props[key] = attrs[key as keyof SlideAttrs]
       }
     }
     return props
@@ -1792,14 +1815,6 @@ export const useDirectiveHandlers = () => {
       }
     }
 
-    const slideSchema = {
-      transition: { type: 'string' },
-      background: { type: 'string' },
-      steps: { type: 'number' },
-      onEnter: { type: 'string' },
-      onExit: { type: 'string' }
-    } as const
-
     const slides: Parent[] = []
 
     const following: RootContent[] = []
@@ -1837,7 +1852,7 @@ export const useDirectiveHandlers = () => {
         attributes: pendingAttrs as Record<string, string | null>,
         children: []
       }
-      const { attrs: parsed } = extractAttributes(
+      const { attrs: parsed } = extractAttributes<SlideSchema>(
         dummy,
         undefined,
         undefined,
@@ -1849,7 +1864,7 @@ export const useDirectiveHandlers = () => {
         children: content,
         data: {
           hName: 'slide',
-          hProperties: buildSlideProps(parsed as any) as Properties
+          hProperties: buildSlideProps(parsed) as Properties
         }
       }
       slides.push(slideNode)
@@ -1864,7 +1879,7 @@ export const useDirectiveHandlers = () => {
       ) {
         commitPending()
         const slideDir = child as ContainerDirective
-        const { attrs: parsed } = extractAttributes(
+        const { attrs: parsed } = extractAttributes<SlideSchema>(
           slideDir,
           container,
           i,
@@ -1876,7 +1891,7 @@ export const useDirectiveHandlers = () => {
           children: content,
           data: {
             hName: 'slide',
-            hProperties: buildSlideProps(parsed as any) as Properties
+            hProperties: buildSlideProps(parsed) as Properties
           }
         }
         slides.push(slideNode)
@@ -1885,13 +1900,13 @@ export const useDirectiveHandlers = () => {
         (child as DirectiveNode).name === 'slide'
       ) {
         commitPending()
-        const { attrs: parsed } = extractAttributes(
+        const { attrs: parsed } = extractAttributes<SlideSchema>(
           child as DirectiveNode,
           container,
           i,
           slideSchema
         )
-        pendingAttrs = parsed as Record<string, unknown>
+        pendingAttrs = parsed
       } else {
         pendingNodes.push(child)
       }
