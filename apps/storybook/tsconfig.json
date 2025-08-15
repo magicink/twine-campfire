@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "types": ["../../twine-jsx.d.ts"]
+    "types": ["../../twine-jsx"]
   },
   "extends": "../../tsconfig.json",
   "include": ["**/*.ts", "**/*.tsx"]
