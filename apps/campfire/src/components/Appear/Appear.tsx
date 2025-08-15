@@ -1,5 +1,5 @@
 import { type ComponentChildren, type JSX } from 'preact'
-import { useEffect, useRef, useState } from 'preact/hooks'
+import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks'
 import { useDeckStore } from '@campfire/use-deck-store'
 import { type Transition } from '@campfire/components/Slide/Slide'
 import {
@@ -60,7 +60,7 @@ export const Appear = ({
     }
   }, [at, exitAt, maxSteps, setMaxSteps])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = ref.current
 
     /**
