@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.67.0](https://github.com/magicink/twine-campfire/compare/v1.66.2...v1.67.0) (2025-08-15)
+
+
+### Features
+
+* add Text component for positioned typography ([#336](https://github.com/magicink/twine-campfire/issues/336)) ([0171350](https://github.com/magicink/twine-campfire/commit/0171350df702e97c013d6d277266ecbc53991d8e))
+
+
+### Bug Fixes
+
+* apply slide transitions ([#347](https://github.com/magicink/twine-campfire/issues/347)) ([7954b5d](https://github.com/magicink/twine-campfire/commit/7954b5d4c659ed13cbe9c2cb3726c96124e29284))
+* optimize store bindings ([#343](https://github.com/magicink/twine-campfire/issues/343)) ([f37f394](https://github.com/magicink/twine-campfire/commit/f37f3946264ba2ce58a947283f096cce6f04f954))
+* **slide:** ensure onExit directives run on unmount ([#349](https://github.com/magicink/twine-campfire/issues/349)) ([28eea1e](https://github.com/magicink/twine-campfire/commit/28eea1e2ddf460c4205905c52feead5e4d5cbb3e))
+* **storybook:** add campfire alias ([#341](https://github.com/magicink/twine-campfire/issues/341)) ([bde2886](https://github.com/magicink/twine-campfire/commit/bde288607e0f74c8e8d9b1d4c657ca078967ff8c))
+* **storybook:** map test utils to preact ([#344](https://github.com/magicink/twine-campfire/issues/344)) ([2b5b8bc](https://github.com/magicink/twine-campfire/commit/2b5b8bc822805f2ad62adce398bf362c6a77ee4e))
+* update table styles ([#335](https://github.com/magicink/twine-campfire/issues/335)) ([f92de4a](https://github.com/magicink/twine-campfire/commit/f92de4aed3d8f984dd1307f97470aebddc9bdb12))
+* use Appear in Deck story ([#346](https://github.com/magicink/twine-campfire/issues/346)) ([397ea3d](https://github.com/magicink/twine-campfire/commit/397ea3d6df78fe2f57c51c973f1c1b189e543057))
+* **vite:** update alias configuration and enable sourcemaps ([#342](https://github.com/magicink/twine-campfire/issues/342)) ([fc47e3c](https://github.com/magicink/twine-campfire/commit/fc47e3c246a257923c490712f16483d7ffe7db77))
+
 ## [1.66.2](https://github.com/magicink/twine-campfire/compare/v1.66.1...v1.66.2) (2025-08-14)
 
 
