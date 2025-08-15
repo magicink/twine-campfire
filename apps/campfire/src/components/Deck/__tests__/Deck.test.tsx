@@ -144,4 +144,48 @@ describe('Deck', () => {
     expect(zoomCall).toBeTruthy()
     expect(zoomCall?.keyframes[0].transform).toBe('scale(1)')
   })
+
+  it('runs enter animation when slide changes', async () => {
+    class StubAnimation {
+      finished: Promise<void>
+      private resolve!: () => void
+      constructor() {
+        this.finished = new Promise<void>(res => {
+          this.resolve = res
+        })
+        setTimeout(() => this.finish(), 0)
+      }
+      cancel() {
+        this.resolve()
+      }
+      finish() {
+        this.resolve()
+      }
+    }
+    const calls: Array<{ keyframes: Keyframe[] }> = []
+    const animateMock: typeof HTMLElement.prototype.animate = (
+      k: Keyframe[] | PropertyIndexedKeyframes,
+      o?: number | KeyframeAnimationOptions
+    ) => {
+      calls.push({ keyframes: k as Keyframe[] })
+      return new StubAnimation() as unknown as Animation
+    }
+    HTMLElement.prototype.animate = animateMock
+    render(
+      <Deck>
+        <Slide>One</Slide>
+        <Slide>Two</Slide>
+      </Deck>
+    )
+    act(() => {
+      useDeckStore.getState().next()
+    })
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    const enterCall = calls.find(
+      c => c.keyframes[0].opacity === 0 && c.keyframes.at(-1)?.opacity === 1
+    )
+    expect(enterCall).toBeTruthy()
+  })
 })

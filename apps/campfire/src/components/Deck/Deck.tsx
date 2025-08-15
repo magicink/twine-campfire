@@ -112,7 +112,8 @@ export const Deck = ({
   useLayoutEffect(() => {
     const container = slideRef.current
     if (!container) return
-    const [prevEl, currentEl] = Array.from(container.children) as HTMLElement[]
+    const currentEl = container.lastElementChild as HTMLElement | null
+    const prevEl = currentEl?.previousElementSibling as HTMLElement | null
     if (
       currentEl &&
       !(reduceMotion || getTransition(currentVNode, 'enter').type === 'none')
