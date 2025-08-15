@@ -5,6 +5,7 @@ import type { ComponentChild } from 'preact'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { Deck } from '@campfire/components/Deck'
 import { Slide } from '@campfire/components/Deck/Slide'
+import { DEFAULT_DECK_HEIGHT, DEFAULT_DECK_WIDTH } from '@campfire/constants'
 import { renderDirectiveMarkdown } from '@campfire/components/Deck/Slide/renderDirectiveMarkdown'
 
 let output: ComponentChild | null = null
@@ -44,8 +45,8 @@ describe('deck directive', () => {
     }
     const deck = getDeck(output)
     expect(deck.type).toBe(Deck)
-    expect(deck.props.size.width).toBe(1920)
-    expect(deck.props.size.height).toBe(1080)
+    expect(deck.props.size.width).toBe(DEFAULT_DECK_WIDTH)
+    expect(deck.props.size.height).toBe(DEFAULT_DECK_HEIGHT)
     const slides = Array.isArray(deck.props.children)
       ? deck.props.children
       : [deck.props.children]
