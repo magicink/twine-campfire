@@ -15,6 +15,7 @@ import {
 } from 'preact/hooks'
 import { useDeckStore } from '@campfire/state/useDeckStory'
 import { useScale, type DeckSize } from '@campfire/hooks/useScale'
+import { DEFAULT_DECK_HEIGHT, DEFAULT_DECK_WIDTH } from '@campfire/constants'
 import {
   defaultTransition,
   prefersReducedMotion,
@@ -38,7 +39,7 @@ export interface DeckProps {
  * @returns A deck element that renders the current slide.
  */
 export const Deck = ({
-  size = { width: 1920, height: 1080 },
+  size = { width: DEFAULT_DECK_WIDTH, height: DEFAULT_DECK_HEIGHT },
   theme,
   children,
   className
