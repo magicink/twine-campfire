@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.68.0](https://github.com/magicink/twine-campfire/compare/v1.67.1...v1.68.0) (2025-08-15)
+
+
+### Features
+
+* add deck container directive ([#360](https://github.com/magicink/twine-campfire/issues/360)) ([9e593d3](https://github.com/magicink/twine-campfire/commit/9e593d3b9137586c5420507799fee350993f5d99))
+* **campfire:** add appear directive ([#366](https://github.com/magicink/twine-campfire/issues/366)) ([8a102e7](https://github.com/magicink/twine-campfire/commit/8a102e7f0ad48ad9f38eb632918e7e9291a958b5))
+
+
+### Bug Fixes
+
+* **campfire:** avoid entering unseen items on slide change ([#358](https://github.com/magicink/twine-campfire/issues/358)) ([429af97](https://github.com/magicink/twine-campfire/commit/429af9737c0d04ffc7d7844dd29188a36da38c6e))
+* **tsconfig:** add twine-jsx type definitions to compiler options ([#359](https://github.com/magicink/twine-campfire/issues/359)) ([cad391c](https://github.com/magicink/twine-campfire/commit/cad391c46642c46b2405f8e4adee491cbd1a161a))
+
 ## [1.67.1](https://github.com/magicink/twine-campfire/compare/v1.67.0...v1.67.1) (2025-08-15)
 
 
