@@ -101,7 +101,7 @@ export const Deck = ({
     const nextVNode = slides[currentSlide] as VNode
     setPrevVNode(currentVNode)
     setCurrentVNode(nextVNode)
-  }, [currentSlide, slides, currentVNode])
+  }, [currentSlide, slides])
 
   useEffect(() => {
     const container = slideRef.current
