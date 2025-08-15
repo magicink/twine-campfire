@@ -4,7 +4,7 @@ import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
 import remarkDirective from 'remark-directive'
 import { toString } from 'mdast-util-to-string'
-import type { Parent, Root, RootContent } from 'mdast'
+import type { Parent, Root, RootContent, Code } from 'mdast'
 import type { DirectiveNode } from '@campfire/remark-campfire/helpers'
 import { ensureKey, removeNode } from '@campfire/remark-campfire/helpers'
 
@@ -134,7 +134,7 @@ export const expandIndentedCode = (
         .use(remarkParse)
         .use(remarkGfm)
         .use(remarkDirective)
-        .parse((node as any).value) as Root
+        .parse((node as Code).value) as Root
       return expandIndentedCode(
         root.children as RootContent[],
         depth + 1,
