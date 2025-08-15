@@ -1,5 +1,5 @@
 import { type ComponentChildren, type JSX } from 'preact'
-import { useEffect, useRef, useState } from 'preact/hooks'
+import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks'
 import { useDeckStore } from '@campfire/use-deck-store'
 import { type Transition } from '@campfire/components/Slide/Slide'
 import {
@@ -46,8 +46,9 @@ export const Appear = ({
   const prevStepRef = useRef(currentStep)
   const prevSlideRef = useRef(currentSlide)
   const jumped =
-    prevSlideRef.current !== currentSlide ||
-    Math.abs(prevStepRef.current - currentStep) > 1
+    Math.abs(prevSlideRef.current - currentSlide) > 1 ||
+    (prevSlideRef.current === currentSlide &&
+      Math.abs(prevStepRef.current - currentStep) > 1)
   useEffect(() => {
     prevStepRef.current = currentStep
     prevSlideRef.current = currentSlide
@@ -60,7 +61,7 @@ export const Appear = ({
     }
   }, [at, exitAt, maxSteps, setMaxSteps])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = ref.current
 
     /**

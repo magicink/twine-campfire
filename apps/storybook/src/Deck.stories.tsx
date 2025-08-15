@@ -11,8 +11,9 @@ export default meta
 
 /**
  * Renders the Deck story with three slides and transitions using the Appear
- * component to progressively reveal content. Text layers are positioned so
- * they do not overlap.
+ * component to progressively reveal content. The first slide demonstrates
+ * three sequential Appear elements to showcase entrance and exit animations.
+ * Text layers are positioned so they do not overlap.
  *
  * @returns The rendered Deck element.
  */
@@ -41,6 +42,15 @@ const render: StoryObj<typeof Deck>['render'] = () => (
           size={24}
           color='var(--color-gray-50)'
           content='Second step'
+        />
+      </Appear>
+      <Appear at={2}>
+        <Text
+          x={500}
+          y={500}
+          size={24}
+          color='var(--color-gray-50)'
+          content='Third step'
         />
       </Appear>
     </Slide>
