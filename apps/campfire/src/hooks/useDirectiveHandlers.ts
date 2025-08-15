@@ -34,6 +34,14 @@ import {
   removeNode,
   stripLabel
 } from '@campfire/remark-campfire/helpers'
+import {
+  parseTypedValue,
+  extractKeyValue,
+  replaceWithIndentation,
+  expandIndentedCode,
+  applyKeyValue
+} from '@campfire/helpers'
+import { DEFAULT_DECK_HEIGHT, DEFAULT_DECK_WIDTH } from '@campfire/constants'
 import { getTranslationOptions } from '@campfire/utils/i18n'
 import {
   createStateManager,
@@ -62,12 +70,6 @@ const BANNED_BATCH_DIRECTIVES = new Set(['batch'])
 
 /** Marker inserted to close directive blocks. */
 const DIRECTIVE_MARKER = ':::'
-
-/** Default deck width when parsing sizes. */
-const DEFAULT_DECK_WIDTH = 1920
-
-/** Default deck height when parsing sizes. */
-const DEFAULT_DECK_HEIGHT = 1080
 
 /**
  * When both parsed dimensions are less than or equal to this threshold, the
@@ -119,69 +121,6 @@ export const useDirectiveHandlers = () => {
 
   const MAX_INCLUDE_DEPTH = 10
   let includeDepth = 0
-
-  /** Maximum recursion depth for expanding indented code blocks. */
-  const MAX_CODE_EXPANSION_DEPTH = 20
-
-  /**
-   * Replaces a directive with new nodes while restoring preserved indentation.
-   *
-   * @param directive - Directive being replaced.
-   * @param parent - Parent of the directive.
-   * @param index - Index of the directive in its parent.
-   * @param nodes - Nodes to insert.
-   * @returns The index of the first inserted node.
-   */
-  const replaceWithIndentation = (
-    directive: DirectiveNode,
-    parent: Parent,
-    index: number,
-    nodes: RootContent[]
-  ): number => {
-    const indent = (directive.data as { indentation?: string } | undefined)
-      ?.indentation
-    const insert: RootContent[] = indent
-      ? ([{ type: 'text', value: indent } as MdText, ...nodes] as RootContent[])
-      : nodes
-    parent.children.splice(index, 1, ...insert)
-    return index + (indent ? 1 : 0)
-  }
-
-  /**
-   * Recursively expands indented code blocks into parsed markdown nodes.
-   *
-   * This enables nested directives within constructs like `:::sequence` to be
-   * written with indentation for readability without being treated as literal
-   * code blocks by the markdown parser. Expansion stops after
-   * `MAX_CODE_EXPANSION_DEPTH` to prevent infinite recursion.
-   *
-   * @param nodes - The nodes to expand.
-   * @param depth - Current recursion depth.
-   * @returns The expanded array of nodes.
-   */
-  const expandIndentedCode = (
-    nodes: RootContent[],
-    depth = 0
-  ): RootContent[] => {
-    if (depth >= MAX_CODE_EXPANSION_DEPTH) return nodes
-    return nodes.flatMap(node => {
-      if (node.type === 'code' && !node.lang) {
-        const root = unified()
-          .use(remarkParse)
-          .use(remarkGfm)
-          .use(remarkDirective)
-          .parse(node.value) as Root
-        return expandIndentedCode(root.children as RootContent[], depth + 1)
-      }
-      if ('children' in node && Array.isArray(node.children)) {
-        ;(node as Parent).children = expandIndentedCode(
-          (node as Parent).children as RootContent[],
-          depth + 1
-        )
-      }
-      return [node]
-    })
-  }
 
   /**
    * Processes a block of AST nodes using the remarkCampfire plugin and returns
@@ -261,46 +200,6 @@ export const useDirectiveHandlers = () => {
     const safe: Record<string, unknown> = {}
 
     /**
-     * Parses a value supplied via the shorthand `:set[key=value]` syntax. Values
-     * are interpreted as strings when wrapped in quotes or backticks, booleans
-     * for literal `true`/`false`, objects when enclosed in curly braces, numbers
-     * when they contain only digits, and expressions evaluated against the
-     * current game state otherwise.
-     *
-     * @param raw - Raw value string from the directive.
-     * @returns The parsed value or `undefined` on failure.
-     */
-    const parseShorthandValue = (raw: string): unknown => {
-      const trimmed = raw.trim()
-      const quoted = trimmed.match(QUOTE_PATTERN)
-      if (quoted) return quoted[2]
-      if (trimmed === 'true') return true
-      if (trimmed === 'false') return false
-      if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
-        const inner = trimmed.slice(1, -1)
-        const obj: Record<string, unknown> = {}
-        for (const part of inner.split(',')) {
-          const colonIndex = part.indexOf(':')
-          if (colonIndex === -1) continue
-          const key = part.slice(0, colonIndex).trim()
-          if (!key) continue
-          const value = part.slice(colonIndex + 1)
-          const parsed = parseShorthandValue(value)
-          if (typeof parsed !== 'undefined') obj[key] = parsed
-        }
-        return obj
-      }
-      const num = Number(trimmed)
-      if (!Number.isNaN(num)) return num
-      try {
-        const fn = compile(trimmed)
-        return fn(gameData)
-      } catch {
-        return (gameData as Record<string, unknown>)[trimmed]
-      }
-    }
-
-    /**
      * Extracts and assigns values from shorthand `key=value` pairs placed in the
      * directive label.
      *
@@ -318,7 +217,7 @@ export const useDirectiveHandlers = () => {
       const valueRaw = pair.slice(eq + 1)
       const key = ensureKey(keyRaw, parent, index)
       if (!key) return
-      const parsed = parseShorthandValue(valueRaw)
+      const parsed = parseTypedValue(valueRaw, gameData)
       if (typeof parsed !== 'undefined') {
         safe[key] = parsed
       }
@@ -353,39 +252,6 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
-   * Extracts a key and raw value from a directive formatted as `key=value`.
-   *
-   * @param directive - The directive node being processed.
-   * @param parent - Parent node containing the directive.
-   * @param index - Index of the directive within its parent.
-   * @returns The parsed key and value, or undefined on failure.
-   */
-  const parseKeyEquals = (
-    directive: DirectiveNode,
-    parent: Parent | undefined,
-    index: number | undefined
-  ): { key: string; valueRaw: string } | undefined => {
-    const label = (
-      hasLabel(directive) ? directive.label : toString(directive)
-    ).trim()
-    const eq = label.indexOf('=')
-    if (eq === -1) {
-      const name = (directive as { name?: string }).name ?? 'unknown'
-      const msg = `Malformed ${name} directive: ${label}`
-      console.error(msg)
-      addError(msg)
-      return undefined
-    }
-
-    const keyRaw = label.slice(0, eq).trim()
-    const key = ensureKey(keyRaw, parent, index)
-    if (!key) return undefined
-
-    const valueRaw = label.slice(eq + 1).trim()
-    return { key, valueRaw }
-  }
-
-  /**
    * Parses and applies an array directive in the form `key=[...]`.
    * Supports basic type coercion and expression evaluation for each array item.
    *
@@ -400,16 +266,6 @@ export const useDirectiveHandlers = () => {
     index: number | undefined,
     lock = false
   ): DirectiveHandlerResult => {
-    const parsed = parseKeyEquals(directive, parent, index)
-    if (!parsed) return index
-    const { key, valueRaw } = parsed
-    if (!valueRaw.startsWith('[') || !valueRaw.endsWith(']')) {
-      const msg = `Array directive value must be in [ ] notation: ${key}=${valueRaw}`
-      console.error(msg)
-      addError(msg)
-      return index
-    }
-
     const splitItems = (input: string): string[] => {
       const result: string[] = []
       let current = ''
@@ -457,39 +313,27 @@ export const useDirectiveHandlers = () => {
       return result
     }
 
-    const parseItem = (value: string): unknown => {
-      const trimmed = value.trim()
-      if (!trimmed) return undefined
-      const quoted = trimmed.match(QUOTE_PATTERN)
-      if (quoted) return quoted[2]
-      if (trimmed === 'true') return true
-      if (trimmed === 'false') return false
-      const num = Number(trimmed)
-      if (!Number.isNaN(num)) return num
-      try {
-        const fn = compile(trimmed)
-        return fn(gameData)
-      } catch {
-        return trimmed
-      }
-    }
-
-    let items: unknown[] = []
-    try {
-      const parsed = JSON.parse(valueRaw)
-      if (Array.isArray(parsed)) {
-        items = parsed
-      } else {
-        throw new Error('not an array')
-      }
-    } catch {
-      const inner = valueRaw.slice(1, -1)
-      items = splitItems(inner).map(parseItem)
-    }
-
-    setValue(key, items, { lock })
-
-    return removeNode(parent, index)
+    return applyKeyValue(directive, parent, index, {
+      parse: (valueRaw, key) => {
+        if (!valueRaw.startsWith('[') || !valueRaw.endsWith(']')) {
+          const msg = `Array directive value must be in [ ] notation: ${key}=${valueRaw}`
+          console.error(msg)
+          addError(msg)
+          return []
+        }
+        try {
+          const parsed = JSON.parse(valueRaw)
+          if (Array.isArray(parsed)) return parsed
+          throw new Error('not an array')
+        } catch {
+          const inner = valueRaw.slice(1, -1)
+          return splitItems(inner).map(item => parseTypedValue(item, gameData))
+        }
+      },
+      setValue,
+      onError: addError,
+      lock
+    })
   }
 
   /**
@@ -499,30 +343,6 @@ export const useDirectiveHandlers = () => {
    * @param data - Game state used for expression evaluation.
    * @returns Parsed numeric value.
    */
-  const evaluateToNumber = (
-    raw: string,
-    data: Record<string, unknown>
-  ): number => {
-    try {
-      const trimmed = raw.trim()
-      const direct = Number(trimmed)
-      if (!Number.isNaN(direct)) return direct
-      try {
-        const fn = compile(trimmed)
-        const evaluated = fn(data)
-        return parseNumericValue(evaluated)
-      } catch {
-        const v = (data as Record<string, unknown>)[trimmed]
-        return parseNumericValue(v)
-      }
-    } catch {
-      const msg = `Failed to evaluate numeric value: ${raw}`
-      console.error(msg)
-      addError(msg)
-      return 0
-    }
-  }
-
   /**
    * Shared flow for createRange and setRange directives.
    *
@@ -538,7 +358,7 @@ export const useDirectiveHandlers = () => {
     parent: Parent | undefined,
     index: number | undefined
   ): DirectiveHandlerResult => {
-    const parsed = parseKeyEquals(directive, parent, index)
+    const parsed = extractKeyValue(directive, parent, index, addError)
     if (!parsed) return index
     const { key, valueRaw } = parsed
 
@@ -577,7 +397,7 @@ export const useDirectiveHandlers = () => {
       upper = current.max
     }
 
-    const value = evaluateToNumber(valueRaw, gameData)
+    const value = parseNumericValue(parseTypedValue(valueRaw, gameData))
     withStateUpdate(() => state.setRange(key, lower, upper, value))
     return removeNode(parent, index)
   }
@@ -706,14 +526,9 @@ export const useDirectiveHandlers = () => {
       .map(s => s.trim())
       .filter(Boolean)
       .flatMap(item => {
-        try {
-          const fn = compile(item)
-          const evaluated = fn(gameData)
-          if (evaluated === undefined) return [item]
-          return Array.isArray(evaluated) ? evaluated : [evaluated]
-        } catch {
-          return [item]
-        }
+        const value = parseTypedValue(item, gameData)
+        if (value === undefined) return [item]
+        return Array.isArray(value) ? value : [value]
       })
 
   /**
@@ -827,7 +642,7 @@ export const useDirectiveHandlers = () => {
         case 'splice': {
           const parseNum = (value: unknown): number => {
             if (typeof value === 'string')
-              return evaluateToNumber(value, gameData)
+              return parseNumericValue(parseTypedValue(value, gameData))
             return parseNumericValue(value)
           }
 
