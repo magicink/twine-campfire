@@ -63,6 +63,18 @@ const BANNED_BATCH_DIRECTIVES = new Set(['batch'])
 /** Marker inserted to close directive blocks. */
 const DIRECTIVE_MARKER = ':::'
 
+/** Default deck width when parsing sizes. */
+const DEFAULT_DECK_WIDTH = 1920
+
+/** Default deck height when parsing sizes. */
+const DEFAULT_DECK_HEIGHT = 1080
+
+/**
+ * When both parsed dimensions are less than or equal to this threshold, the
+ * value is treated as an aspect ratio instead of explicit pixel dimensions.
+ */
+const ASPECT_RATIO_THRESHOLD = 100
+
 /**
  * Determines whether a directive node includes a string label.
  *
@@ -1675,18 +1687,6 @@ export const useDirectiveHandlers = () => {
     return removeNode(parent, index)
   }
 
-  /** Default deck width when parsing sizes. */
-  const DEFAULT_DECK_WIDTH = 1920
-
-  /** Default deck height when parsing sizes. */
-  const DEFAULT_DECK_HEIGHT = 1080
-
-  /**
-   * When both parsed dimensions are less than or equal to this threshold, the
-   * value is treated as an aspect ratio instead of explicit pixel dimensions.
-   */
-  const ASPECT_RATIO_THRESHOLD = 100
-
   /**
    * Parses a deck size string such as "1920x1080" or an aspect ratio like
    * "16x9" into a width/height object. Aspect ratios assume a default width of
@@ -1733,6 +1733,26 @@ export const useDirectiveHandlers = () => {
     return undefined
   }
 
+  /**
+   * Copies attributes from a source map into a target props object, excluding
+   * keys specified in {@link exclude}.
+   *
+   * @param source - Raw attribute map.
+   * @param target - Props object to receive the attributes.
+   * @param exclude - Keys to omit when copying.
+   */
+  const applyAdditionalAttributes = (
+    source: Record<string, unknown>,
+    target: Record<string, unknown>,
+    exclude: readonly string[]
+  ) => {
+    for (const key of Object.keys(source)) {
+      if (!exclude.includes(key)) {
+        target[key] = source[key]
+      }
+    }
+  }
+
   /** Schema describing supported slide directive attributes. */
   const slideSchema = {
     transition: { type: 'string' },
@@ -1763,15 +1783,13 @@ export const useDirectiveHandlers = () => {
     if (typeof attrs.steps === 'number') props.steps = attrs.steps
     if (attrs.onEnter) props.onEnter = attrs.onEnter
     if (attrs.onExit) props.onExit = attrs.onExit
-    for (const key of Object.keys(attrs)) {
-      if (
-        !['transition', 'background', 'steps', 'onEnter', 'onExit'].includes(
-          key
-        )
-      ) {
-        props[key] = attrs[key as keyof SlideAttrs]
-      }
-    }
+    applyAdditionalAttributes(attrs as Record<string, unknown>, props, [
+      'transition',
+      'background',
+      'steps',
+      'onEnter',
+      'onExit'
+    ])
     return props
   }
 
@@ -1809,11 +1827,11 @@ export const useDirectiveHandlers = () => {
       if (theme) deckProps.theme = theme
     }
     const rawDeckAttrs = (directive.attributes || {}) as Record<string, unknown>
-    for (const key of Object.keys(rawDeckAttrs)) {
-      if (!['size', 'transition', 'theme'].includes(key)) {
-        deckProps[key] = rawDeckAttrs[key]
-      }
-    }
+    applyAdditionalAttributes(rawDeckAttrs, deckProps, [
+      'size',
+      'transition',
+      'theme'
+    ])
 
     const slides: Parent[] = []
 
