@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
 
-import { evaluateUserScript } from '@campfire/components/Story/evaluateUserScript'
+import { evaluateUserScript } from '@campfire/components/Campfire/evaluateUserScript'
 
 let mockDoc: Pick<Document, 'getElementById'>
 

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, mock } from 'bun:test'
 import { render, screen, act } from '@testing-library/preact'
-import { DebugWindow } from '@campfire/components/DebugWindow/DebugWindow'
+import { DebugWindow } from '@campfire/components/DebugWindow'
 import { useStoryDataStore } from '@campfire/use-story-data-store'
 import { useGameStore } from '@campfire/use-game-store'
 import i18next from 'i18next'
