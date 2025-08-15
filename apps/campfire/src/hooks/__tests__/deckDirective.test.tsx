@@ -1,51 +1,23 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { render } from '@testing-library/preact'
-import { Fragment, jsx, jsxs } from 'preact/jsx-runtime'
-import { unified } from 'unified'
-import remarkParse from 'remark-parse'
-import remarkGfm from 'remark-gfm'
-import remarkDirective from 'remark-directive'
-import remarkCampfire from '@campfire/remark-campfire'
-import remarkRehype from 'remark-rehype'
-import rehypeCampfire from '@campfire/rehype-campfire'
-import rehypeReact from 'rehype-react'
+import { Fragment } from 'preact/jsx-runtime'
 import type { ComponentChild } from 'preact'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { Deck } from '@campfire/components/Deck'
 import { Slide } from '@campfire/components/Deck/Slide'
-import { LinkButton } from '@campfire/components/Passage/LinkButton'
-import { TriggerButton } from '@campfire/components/Passage/TriggerButton'
-import { If } from '@campfire/components/Passage/If'
-import { Show } from '@campfire/components/Passage/Show'
-import { OnExit } from '@campfire/components/Passage/OnExit'
+import { renderDirectiveMarkdown } from '@campfire/components/Deck/Slide/renderDirectiveMarkdown'
 
 let output: ComponentChild | null = null
 
+/**
+ * Component used in tests to render markdown with directive handlers.
+ *
+ * @param markdown - Markdown string that may include directive containers.
+ * @returns Nothing; sets `output` with rendered content.
+ */
 const MarkdownRunner = ({ markdown }: { markdown: string }) => {
   const handlers = useDirectiveHandlers()
-  const processor = unified()
-    .use(remarkParse)
-    .use(remarkGfm)
-    .use(remarkDirective)
-    .use(remarkCampfire, { handlers })
-    .use(remarkRehype)
-    .use(rehypeCampfire)
-    .use(rehypeReact, {
-      Fragment,
-      jsx,
-      jsxs,
-      components: {
-        button: LinkButton,
-        trigger: TriggerButton,
-        if: If,
-        show: Show,
-        onExit: OnExit,
-        deck: Deck,
-        slide: Slide
-      }
-    })
-  const file = processor.processSync(markdown)
-  output = file.result as ComponentChild
+  output = renderDirectiveMarkdown(markdown, handlers)
   return null
 }
 
