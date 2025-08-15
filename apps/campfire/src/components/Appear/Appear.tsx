@@ -45,10 +45,9 @@ export const Appear = ({
 
   const prevStepRef = useRef(currentStep)
   const prevSlideRef = useRef(currentSlide)
-  const jumped =
-    Math.abs(prevSlideRef.current - currentSlide) > 1 ||
-    (prevSlideRef.current === currentSlide &&
-      Math.abs(prevStepRef.current - currentStep) > 1)
+  const slideChanged = prevSlideRef.current !== currentSlide
+  const stepJumped =
+    !slideChanged && Math.abs(prevStepRef.current - currentStep) > 1
   useEffect(() => {
     prevStepRef.current = currentStep
     prevSlideRef.current = currentSlide
@@ -80,7 +79,25 @@ export const Appear = ({
 
     clearAnimation()
 
-    if (jumped || reduceMotion) {
+    if (slideChanged) {
+      if (present) {
+        if (!reduceMotion && el) {
+          const anim = runAnimation(el, exit ?? defaultTransition, 'out')
+          animationRef.current = anim
+          anim.finished.then(() => {
+            if (animationRef.current === anim) {
+              setPresent(false)
+              animationRef.current = null
+            }
+          })
+        } else {
+          setPresent(false)
+        }
+      }
+      return clearAnimation
+    }
+
+    if (stepJumped || reduceMotion) {
       if (visible) {
         if (!present) {
           setPresent(true)
@@ -133,7 +150,8 @@ export const Appear = ({
     enter,
     exit,
     interruptBehavior,
-    jumped,
+    slideChanged,
+    stepJumped,
     reduceMotion
   ])
 
