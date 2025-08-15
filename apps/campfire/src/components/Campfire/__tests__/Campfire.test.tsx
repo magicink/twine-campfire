@@ -1,5 +1,5 @@
 import { render, screen, act, waitFor } from '@testing-library/preact'
-import { Story } from '@campfire/components/Story/Story'
+import { Campfire } from '@campfire/components/Campfire'
 import { useStoryDataStore } from '@campfire/use-story-data-store'
 import { useGameStore } from '@campfire/use-game-store'
 import { samplePassage } from '@campfire/test-utils/helpers'
@@ -34,7 +34,7 @@ describe('Story', () => {
   })
 
   it('renders nothing when no passage is set', () => {
-    render(<Story />)
+    render(<Campfire />)
 
     expect(document.body.textContent).toBe('')
   })
@@ -45,7 +45,7 @@ describe('Story', () => {
       currentPassageId: '1'
     })
 
-    render(<Story />)
+    render(<Campfire />)
 
     const text = await screen.findByText(/Hello/)
     expect(text).toBeInTheDocument()
@@ -56,7 +56,7 @@ describe('Story', () => {
     el.setAttribute('name', 'Story Test')
     document.body.appendChild(el)
 
-    render(<Story />)
+    render(<Campfire />)
 
     expect(useStoryDataStore.getState().storyData).toEqual({
       name: 'Story Test'
@@ -68,7 +68,7 @@ describe('Story', () => {
     el.setAttribute('options', 'debug')
     document.body.appendChild(el)
 
-    render(<Story />)
+    render(<Campfire />)
 
     expect(i18next.options.debug).toBe(true)
   })
@@ -92,7 +92,7 @@ is open!
 :::</tw-passagedata>
 </tw-storydata>
     `
-    render(<Story />)
+    render(<Campfire />)
     await screen.findByText('is open!')
     expect(screen.queryByText('not open')).toBeNull()
     const button = await screen.findByRole('button', { name: 'open' })
@@ -118,7 +118,7 @@ is open!
 </tw-passagedata>
 </tw-storydata>
     `
-    render(<Story />)
+    render(<Campfire />)
     const button = await screen.findByRole('button', { name: 'open' })
     expect(button).toBeInTheDocument()
     act(() => {
@@ -140,7 +140,7 @@ not open
 :::</tw-passagedata>
 </tw-storydata>
     `
-    render(<Story />)
+    render(<Campfire />)
     await waitFor(() => expect(screen.queryByText('not open')).toBeNull())
     expect(screen.queryByText(':::if{!open}')).toBeNull()
   })
@@ -158,7 +158,7 @@ not open
   </tw-passagedata>
 </tw-storydata>
     `
-    render(<Story />)
+    render(<Campfire />)
     await waitFor(() =>
       expect(useGameStore.getState().gameData.done).toBe(true)
     )
@@ -181,7 +181,7 @@ not open
   </tw-passagedata>
 </tw-storydata>
     `
-    render(<Story />)
+    render(<Campfire />)
     await waitFor(() => expect(useGameStore.getState().gameData.yes).toBe(true))
     expect(useGameStore.getState().gameData.no).toBeUndefined()
     expect(screen.queryByText(':::')).toBeNull()
@@ -203,7 +203,7 @@ not open
   </tw-passagedata>
 </tw-storydata>
     `
-    render(<Story />)
+    render(<Campfire />)
     await waitFor(() => expect(useGameStore.getState().gameData.no).toBe(true))
     expect(useGameStore.getState().gameData.yes).toBeUndefined()
     expect(screen.queryByText(':::')).toBeNull()

@@ -23,7 +23,7 @@ import {
 import {
   type Transition,
   type SlideTransition
-} from '@campfire/components/Slide/Slide'
+} from '@campfire/components/Slide'
 
 export type ThemeTokens = Record<string, string | number>
 
