@@ -1,7 +1,7 @@
 import { type ComponentChildren, type JSX } from 'preact'
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks'
-import { useDeckStore } from '@campfire/use-deck-store'
-import { type Transition } from '@campfire/components/Slide'
+import { useDeckStore } from '@campfire/state/useDeckStory'
+import { type Transition } from '../'
 import {
   defaultTransition,
   prefersReducedMotion,
@@ -162,3 +162,5 @@ export const Appear = ({
     </div>
   )
 }
+
+export default Appear

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'bun:test'
 import { render, screen } from '@testing-library/preact'
 import type { Element } from 'hast'
 import { Passage } from '@campfire/components/Passage/Passage'
-import { useStoryDataStore } from '@campfire/use-story-data-store'
+import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
 import { resetStores } from '@campfire/test-utils/helpers'
 
 describe('If directive', () => {

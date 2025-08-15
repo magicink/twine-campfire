@@ -1,4 +1,4 @@
-import { useGameStore } from '@campfire/use-game-store'
+import { useGameStore } from '@campfire/state/useGameStore'
 import { useTranslation } from 'react-i18next'
 import i18next from 'i18next'
 import { isRange } from '@campfire/remark-campfire/helpers'
@@ -24,6 +24,7 @@ interface ShowProps {
  * change.
  */
 export const Show = (props: ShowProps) => {
+  const addError = useGameStore(state => state.addError)
   const { t } = useTranslation(
     typeof props['data-i18n-ns'] === 'string'
       ? props['data-i18n-ns']
@@ -39,7 +40,7 @@ export const Show = (props: ShowProps) => {
       } catch (error) {
         const msg = 'Invalid translation variables'
         console.error(msg, error)
-        useGameStore.getState().addError(msg)
+        addError(msg)
         vars = {}
       }
     }

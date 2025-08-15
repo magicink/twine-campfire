@@ -8,7 +8,7 @@ import type { ContainerDirective } from 'mdast-util-directive'
 import rfdc from 'rfdc'
 import { compile } from 'expression-eval'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
-import { useGameStore } from '@campfire/use-game-store'
+import { useGameStore } from '@campfire/state/useGameStore'
 import { getLabel, stripLabel } from '@campfire/remark-campfire/helpers'
 
 const clone = rfdc()

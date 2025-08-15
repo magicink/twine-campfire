@@ -4,7 +4,7 @@ import i18next from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import type { Element } from 'hast'
 import { Passage } from '@campfire/components/Passage/Passage'
-import { useStoryDataStore } from '@campfire/use-story-data-store'
+import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
 import { resetStores } from '@campfire/test-utils/helpers'
 
 describe('Passage heading styles', () => {

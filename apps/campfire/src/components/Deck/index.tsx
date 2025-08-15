@@ -13,17 +13,14 @@ import {
   useRef,
   useState
 } from 'preact/hooks'
-import { useDeckStore } from '@campfire/use-deck-store'
+import { useDeckStore } from '@campfire/state/useDeckStory'
 import { useScale, type DeckSize } from '@campfire/hooks/useScale'
 import {
   defaultTransition,
   prefersReducedMotion,
   runAnimation
 } from '@campfire/components/transition'
-import {
-  type Transition,
-  type SlideTransition
-} from '@campfire/components/Slide'
+import { type Transition, type SlideTransition } from './Slide'
 
 export type ThemeTokens = Record<string, string | number>
 
