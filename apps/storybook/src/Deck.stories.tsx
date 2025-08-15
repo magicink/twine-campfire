@@ -11,7 +11,8 @@ export default meta
 
 /**
  * Renders the Deck story with three slides and transitions using the Appear
- * component to progressively reveal content.
+ * component to progressively reveal content. Text layers are positioned so
+ * they do not overlap.
  *
  * @returns The rendered Deck element.
  */
@@ -24,14 +25,23 @@ const render: StoryObj<typeof Deck>['render'] = () => (
       }}
     >
       <Appear at={0}>
-        <Text as={'h2'}>
-          <h2 className='text-4xl text-[var(--color-gray-50)]'>Fade Slide</h2>
-        </Text>
+        <Text
+          as='h2'
+          x={80}
+          y={80}
+          size={36}
+          color='var(--color-gray-50)'
+          content='Fade Slide'
+        />
       </Appear>
       <Appear at={1}>
-        <Text as={'p'}>
-          <p className='text-2xl text-[var(--color-gray-50)]'>Second step</p>
-        </Text>
+        <Text
+          x={500}
+          y={400}
+          size={24}
+          color='var(--color-gray-50)'
+          content='Second step'
+        />
       </Appear>
     </Slide>
     <Slide
@@ -41,14 +51,23 @@ const render: StoryObj<typeof Deck>['render'] = () => (
       }}
     >
       <Appear at={0}>
-        <Text as={'h2'}>
-          <h2 class='text-4xl text-[var(--color-gray-50)]'>Slide Transition</h2>
-        </Text>
+        <Text
+          as='h2'
+          x={80}
+          y={80}
+          size={36}
+          color='var(--color-gray-50)'
+          content='Slide Transition'
+        />
       </Appear>
       <Appear at={1}>
-        <Text as={'p'}>
-          <p class='text-2xl text-[var(--color-gray-50)]'>Second step</p>
-        </Text>
+        <Text
+          x={500}
+          y={400}
+          size={24}
+          color='var(--color-gray-50)'
+          content='Second step'
+        />
       </Appear>
     </Slide>
     <Slide
@@ -58,14 +77,23 @@ const render: StoryObj<typeof Deck>['render'] = () => (
       }}
     >
       <Appear at={0}>
-        <Text as={'h2'}>
-          <h2 class='text-4xl text-[var(--color-gray-50)]'>Zoom Slide</h2>
-        </Text>
+        <Text
+          as='h2'
+          x={80}
+          y={80}
+          size={36}
+          color='var(--color-gray-50)'
+          content='Zoom Slide'
+        />
       </Appear>
       <Appear at={1}>
-        <Text as={'p'}>
-          <p class='text-2xl text-[var(--color-gray-50)]'>Second step</p>
-        </Text>
+        <Text
+          x={500}
+          y={400}
+          size={24}
+          color='var(--color-gray-50)'
+          content='Second step'
+        />
       </Appear>
     </Slide>
   </Deck>

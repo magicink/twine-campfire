@@ -21,7 +21,10 @@ export type SlideTransition =
 export interface SlideProps {
   /** Optional build steps on this slide (used by the Deck store when active). */
   steps?: number
-  /** Transition metadata consumed by Deck’s WAAPI wrapper. */
+  /**
+   * Transition metadata consumed by Deck’s WAAPI wrapper and exposed via the
+   * `data-transition` attribute.
+   */
   transition?: SlideTransition
   /** Color classes or image background config. */
   background?:
@@ -100,6 +103,7 @@ export const Slide = ({
     <div
       className={`relative w-full h-full overflow-hidden ${bgClass} ${className ?? ''}`}
       style={bgStyle}
+      data-transition={transition ? JSON.stringify(transition) : undefined}
     >
       {children}
     </div>
