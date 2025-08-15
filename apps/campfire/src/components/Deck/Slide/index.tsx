@@ -1,6 +1,6 @@
 import { type ComponentChildren, type JSX } from 'preact'
 import { useEffect, useRef } from 'preact/hooks'
-import { useDeckStore } from '@campfire/use-deck-store'
+import { useDeckStore } from '@campfire/state/useDeckStory'
 import { useSerializedDirectiveRunner } from '@campfire/hooks/useSerializedDirectiveRunner'
 
 export type TransitionType = 'none' | 'fade' | 'slide' | 'zoom'
@@ -107,3 +107,5 @@ export const Slide = ({
     </div>
   )
 }
+
+export default Slide

@@ -6,7 +6,7 @@ import remarkGfm from 'remark-gfm'
 import remarkDirective from 'remark-directive'
 import type { RootContent } from 'mdast'
 import { If } from '@campfire/components/Passage/If'
-import { useGameStore } from '@campfire/use-game-store'
+import { useGameStore } from '@campfire/state/useGameStore'
 
 /**
  * Serializes plain text into a JSON string representing markdown nodes.
