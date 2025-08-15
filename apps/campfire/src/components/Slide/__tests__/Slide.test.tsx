@@ -63,5 +63,8 @@ describe('Slide', () => {
       duration: 300
     })
     expect(el.style.animationName).toBe('')
+    expect(el.dataset.transition).toBe(
+      JSON.stringify({ type: 'fade', duration: 300 })
+    )
   })
 })
