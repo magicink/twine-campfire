@@ -6,12 +6,12 @@ import {
   useStoryDataStore
 } from '@campfire/use-story-data-store'
 import { Passage } from '@campfire/components/Passage/Passage'
-import { DebugWindow } from '@campfire/components/DebugWindow/DebugWindow'
+import { DebugWindow } from '@campfire/components/DebugWindow'
 import { fromDom } from 'hast-util-from-dom'
 import type { Element, Root } from 'hast'
 import { EXIT, visit } from 'unist-util-visit'
-import { applyUserStyles } from '@campfire/components/Story/applyUserStyles'
-import { evaluateUserScript } from '@campfire/components/Story/evaluateUserScript'
+import { applyUserStyles } from '@campfire/components/Campfire/applyUserStyles'
+import { evaluateUserScript } from '@campfire/components/Campfire/evaluateUserScript'
 
 /**
  * React component that renders the main story interface.
@@ -21,7 +21,7 @@ import { evaluateUserScript } from '@campfire/components/Story/evaluateUserScrip
  *
  * @component
  */
-export const Story = () => {
+export const Campfire = () => {
   const [i18nInitialized, setI18nInitialized] = useState(i18next.isInitialized)
   const passage = useStoryDataStore((state: StoryDataState) =>
     state.getCurrentPassage()

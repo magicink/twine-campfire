@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
 
-import { applyUserStyles } from '@campfire/components/Story/applyUserStyles'
+import { applyUserStyles } from '@campfire/components/Campfire/applyUserStyles'
 
 let doc: Document
 

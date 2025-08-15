@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/preact'
 import { h, Fragment } from 'preact'
+import { Campfire } from '@campfire/components'
 
 const meta: Meta = {
   title: 'Campfire/Twine Elements'
@@ -17,9 +18,22 @@ export const InDom: StoryObj = {
         startnode='1'
         data-demo={true}
         tags='demo'
+        options='debug'
       >
         <tw-passagedata pid='1' name='Start'>
-          Hello Storybook
+          {`
+# Hello World!
+
+:set[test=true]
+
+:::trigger{label="Click me"}
+  :set[test=false]
+:::
+
+:::if{!test}
+[[Go to second passage->Second]]
+:::
+`}
         </tw-passagedata>
         <tw-passagedata pid='2' name='Second'>
           Second passage
@@ -31,6 +45,7 @@ export const InDom: StoryObj = {
         <tw-hook name='content'></tw-hook>
         <tw-enchantment></tw-enchantment>
       </tw-story>
+      <Campfire />
     </Fragment>
   )
 }
