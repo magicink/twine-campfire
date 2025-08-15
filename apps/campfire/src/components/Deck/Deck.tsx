@@ -13,7 +13,7 @@ import {
   useRef,
   useState
 } from 'preact/hooks'
-import { useDeckStore } from '@campfire/use-deck-store'
+import { useDeckStore } from '@campfire/state/useDeckStory'
 import { useScale, type DeckSize } from '@campfire/hooks/useScale'
 import {
   defaultTransition,

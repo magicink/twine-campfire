@@ -1,5 +1,5 @@
 import { type ComponentChildren, type JSX } from 'preact'
-import { Layer, type LayerProps } from '@campfire/components/Layer'
+import { Layer, type LayerProps } from '@campfire/components/Deck/Slide/Layer'
 
 export interface TextProps extends Omit<LayerProps, 'children'> {
   /** The HTML tag to render. Defaults to 'p'. */

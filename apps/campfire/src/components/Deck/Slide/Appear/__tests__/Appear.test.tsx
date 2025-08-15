@@ -1,8 +1,9 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { render, screen, act } from '@testing-library/preact'
 import { Deck } from '@campfire/components/Deck'
-import { Slide, Appear } from '@campfire/components/Deck/Slide'
-import { useDeckStore } from '@campfire/use-deck-store'
+import { Slide } from '@campfire/components/Deck/Slide'
+import { Appear } from '@campfire/components/Deck/Slide/Appear'
+import { useDeckStore } from '@campfire/state/useDeckStory'
 import { StubAnimation } from '@campfire/test-utils/stub-animation'
 
 /**

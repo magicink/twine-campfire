@@ -18,8 +18,8 @@ import type { Parent, Root, RootContent, Text as MdText } from 'mdast'
 import type { Node } from 'unist'
 import type { ElementContent, Properties, Text as HastText } from 'hast'
 import type { ContainerDirective } from 'mdast-util-directive'
-import { useStoryDataStore } from '@campfire/use-story-data-store'
-import { type Checkpoint, useGameStore } from '@campfire/use-game-store'
+import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
+import { type Checkpoint, useGameStore } from '@campfire/state/useGameStore'
 import { markTitleOverridden } from '@campfire/state/titleState'
 import {
   type DirectiveNode,

@@ -20,14 +20,14 @@ import {
 import {
   useStoryDataStore,
   type StoryDataState
-} from '@campfire/use-story-data-store'
+} from '@campfire/state/useStoryDataStore'
 import { LinkButton } from '@campfire/components/Passage/LinkButton'
 import { TriggerButton } from '@campfire/components/Passage/TriggerButton'
 import { If } from '@campfire/components/Passage/If'
 import { Show } from '@campfire/components/Passage/Show'
 import { OnExit } from '@campfire/components/Passage/OnExit'
 import { Deck } from '@campfire/components/Deck/Deck'
-import { Slide } from '@campfire/components/Deck/Slide/Slide'
+import { Slide } from '@campfire/components/Deck/Slide'
 
 const DIRECTIVE_MARKER_PATTERN = '(:::[^\\n]*|:[^\\n]*|<<)'
 
