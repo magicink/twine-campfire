@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/preact'
 import { h } from 'preact'
-import { Deck, Slide, Text } from '@campfire/components'
+import { Deck, Slide, Text, Appear } from '@campfire/components'
 
 const meta: Meta<typeof Deck> = {
   component: Deck,
@@ -10,7 +10,9 @@ const meta: Meta<typeof Deck> = {
 export default meta
 
 /**
- * Renders the Deck story with three slides and transitions.
+ * Renders the Deck story with three slides and transitions using the Appear
+ * component to progressively reveal content. Text layers are positioned so
+ * they do not overlap.
  *
  * @returns The rendered Deck element.
  */
@@ -22,9 +24,25 @@ const render: StoryObj<typeof Deck>['render'] = () => (
         exit: { type: 'fade', duration: 300 }
       }}
     >
-      <Text as={'h2'}>
-        <h2 className='text-4xl text-[var(--color-gray-50)]'>Fade Slide</h2>
-      </Text>
+      <Appear at={0}>
+        <Text
+          as='h2'
+          x={80}
+          y={80}
+          size={36}
+          color='var(--color-gray-50)'
+          content='Fade Slide'
+        />
+      </Appear>
+      <Appear at={1}>
+        <Text
+          x={500}
+          y={400}
+          size={24}
+          color='var(--color-gray-50)'
+          content='Second step'
+        />
+      </Appear>
     </Slide>
     <Slide
       transition={{
@@ -32,9 +50,25 @@ const render: StoryObj<typeof Deck>['render'] = () => (
         exit: { type: 'slide', dir: 'right', duration: 300 }
       }}
     >
-      <Text as={'h2'}>
-        <h2 class='text-4xl text-[var(--color-gray-50)]'>Slide Transition</h2>
-      </Text>
+      <Appear at={0}>
+        <Text
+          as='h2'
+          x={80}
+          y={80}
+          size={36}
+          color='var(--color-gray-50)'
+          content='Slide Transition'
+        />
+      </Appear>
+      <Appear at={1}>
+        <Text
+          x={500}
+          y={400}
+          size={24}
+          color='var(--color-gray-50)'
+          content='Second step'
+        />
+      </Appear>
     </Slide>
     <Slide
       transition={{
@@ -42,9 +76,25 @@ const render: StoryObj<typeof Deck>['render'] = () => (
         exit: { type: 'zoom', duration: 300 }
       }}
     >
-      <Text as={'h2'}>
-        <h2 class='text-4xl text-[var(--color-gray-50)]'>Zoom Slide</h2>
-      </Text>
+      <Appear at={0}>
+        <Text
+          as='h2'
+          x={80}
+          y={80}
+          size={36}
+          color='var(--color-gray-50)'
+          content='Zoom Slide'
+        />
+      </Appear>
+      <Appear at={1}>
+        <Text
+          x={500}
+          y={400}
+          size={24}
+          color='var(--color-gray-50)'
+          content='Second step'
+        />
+      </Appear>
     </Slide>
   </Deck>
 )
