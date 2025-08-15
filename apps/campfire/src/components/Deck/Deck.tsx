@@ -20,10 +20,7 @@ import {
   prefersReducedMotion,
   runAnimation
 } from '@campfire/components/transition'
-import {
-  type Transition,
-  type SlideTransition
-} from '@campfire/components/Slide'
+import { type Transition, type SlideTransition } from './Slide'
 
 export type ThemeTokens = Record<string, string | number>
 

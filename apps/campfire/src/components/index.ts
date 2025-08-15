@@ -9,8 +9,10 @@ export { Show } from '@campfire/components/Passage/Show'
 export { OnExit } from '@campfire/components/Passage/OnExit'
 export { DebugWindow } from '@campfire/components/DebugWindow'
 export { Deck } from '@campfire/components/Deck'
-export { Slide } from '@campfire/components/Slide'
-export { renderDirectiveMarkdown } from '@campfire/components/Slide/renderDirectiveMarkdown'
-export { Appear } from '@campfire/components/Appear'
+export {
+  Slide,
+  Appear,
+  renderDirectiveMarkdown
+} from '@campfire/components/Deck/Slide'
 export { Layer } from '@campfire/components/Layer'
 export { Text } from '@campfire/components/Text'

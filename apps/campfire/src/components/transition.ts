@@ -1,4 +1,7 @@
-import { type Transition, type Direction } from '@campfire/components/Slide'
+import {
+  type Transition,
+  type Direction
+} from '@campfire/components/Deck/Slide'
 
 /**
  * Returns whether the user prefers reduced motion.
