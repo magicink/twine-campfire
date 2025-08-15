@@ -24,15 +24,16 @@ class StubResizeObserver {
 }
 
 beforeEach(() => {
-  // @ts-expect-error override for tests
-  globalThis.ResizeObserver = StubResizeObserver
+  ;(globalThis as any).ResizeObserver = StubResizeObserver
   resetStore()
   document.body.innerHTML = ''
-  ;(HTMLElement.prototype as any).animate = () => ({
-    finished: Promise.resolve({} as Animation),
-    cancel() {},
-    finish() {}
-  })
+  const animateStub: typeof HTMLElement.prototype.animate = () =>
+    ({
+      finished: Promise.resolve({} as Animation),
+      cancel() {},
+      finish() {}
+    }) as unknown as Animation
+  HTMLElement.prototype.animate = animateStub
 })
 
 describe('Deck', () => {
@@ -114,14 +115,17 @@ describe('Deck', () => {
       keyframes: Keyframe[]
       options: KeyframeAnimationOptions
     }> = []
-    // @ts-expect-error override animate
-    HTMLElement.prototype.animate = (
-      k: Keyframe[],
-      o: KeyframeAnimationOptions
+    const animateMock: typeof HTMLElement.prototype.animate = (
+      k: Keyframe[] | PropertyIndexedKeyframes,
+      o?: number | KeyframeAnimationOptions
     ) => {
-      calls.push({ keyframes: k, options: o })
-      return new StubAnimation()
+      calls.push({
+        keyframes: k as Keyframe[],
+        options: o as KeyframeAnimationOptions
+      })
+      return new StubAnimation() as unknown as Animation
     }
+    HTMLElement.prototype.animate = animateMock
     render(
       <Deck>
         <Slide transition={{ exit: { type: 'zoom', duration: 500 } }}>

@@ -69,6 +69,17 @@ export const Deck = ({
   const firstRenderRef = useRef(true)
 
   /**
+   * Type guard to determine whether props include a transition configuration.
+   *
+   * @param props - Props to test.
+   * @returns True if the props contain a transition.
+   */
+  const hasTransition = (
+    props: unknown
+  ): props is { transition?: SlideTransition } =>
+    typeof props === 'object' && props !== null && 'transition' in props
+
+  /**
    * Retrieves the transition configuration for a slide and mode.
    *
    * @param slide - Slide vnode.
@@ -76,7 +87,7 @@ export const Deck = ({
    * @returns Transition configuration.
    */
   const getTransition = (slide: VNode, mode: 'enter' | 'exit'): Transition => {
-    const t: SlideTransition | undefined = (slide.props as any).transition
+    const t = hasTransition(slide.props) ? slide.props.transition : undefined
     if (!t) return defaultTransition
     if ('type' in t) return t
     return t[mode] ?? defaultTransition

@@ -29,6 +29,8 @@ export const buildKeyframes = (
   mode: 'in' | 'out'
 ): Keyframe[] => {
   switch (transition.type) {
+    case 'none':
+      return []
     case 'fade':
       return mode === 'in'
         ? [{ opacity: 0 }, { opacity: 1 }]
