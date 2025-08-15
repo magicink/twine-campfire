@@ -3,6 +3,7 @@ import { render, screen, fireEvent, act } from '@testing-library/preact'
 import { Deck } from '@campfire/components/Deck/Deck'
 import { Slide } from '@campfire/components/Slide/Slide'
 import { useDeckStore } from '@campfire/use-deck-store'
+import { StubAnimation } from '@campfire/test-utils/stub-animation'
 
 /**
  * Resets the deck store to a clean initial state.
@@ -95,22 +96,6 @@ describe('Deck', () => {
   })
 
   it('applies slide transition type and duration', async () => {
-    class StubAnimation {
-      finished: Promise<void>
-      private resolve!: () => void
-      constructor() {
-        this.finished = new Promise<void>(res => {
-          this.resolve = res
-        })
-        setTimeout(() => this.finish(), 0)
-      }
-      cancel() {
-        this.resolve()
-      }
-      finish() {
-        this.resolve()
-      }
-    }
     const calls: Array<{
       keyframes: Keyframe[]
       options: KeyframeAnimationOptions
@@ -146,22 +131,6 @@ describe('Deck', () => {
   })
 
   it('runs enter animation when slide changes', async () => {
-    class StubAnimation {
-      finished: Promise<void>
-      private resolve!: () => void
-      constructor() {
-        this.finished = new Promise<void>(res => {
-          this.resolve = res
-        })
-        setTimeout(() => this.finish(), 0)
-      }
-      cancel() {
-        this.resolve()
-      }
-      finish() {
-        this.resolve()
-      }
-    }
     const calls: Array<{ keyframes: Keyframe[] }> = []
     const animateMock: typeof HTMLElement.prototype.animate = (
       k: Keyframe[] | PropertyIndexedKeyframes,

@@ -4,6 +4,7 @@ import { Deck, Slide, TriggerButton } from '@campfire/components'
 import { useDeckStore } from '@campfire/use-deck-store'
 import { useGameStore } from '@campfire/use-game-store'
 import { resetStores } from '@campfire/test-utils/helpers'
+import { StubAnimation } from '@campfire/test-utils/stub-animation'
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkDirective from 'remark-directive'
@@ -39,22 +40,6 @@ class StubResizeObserver {
 beforeEach(() => {
   globalThis.ResizeObserver =
     StubResizeObserver as unknown as typeof ResizeObserver
-  class StubAnimation {
-    finished: Promise<void>
-    private resolve!: () => void
-    constructor() {
-      this.finished = new Promise<void>(res => {
-        this.resolve = res
-      })
-      setTimeout(() => this.finish(), 0)
-    }
-    cancel() {
-      this.resolve()
-    }
-    finish() {
-      this.resolve()
-    }
-  }
   // @ts-expect-error override animate
   HTMLElement.prototype.animate = () => new StubAnimation()
   resetDeckStore()
