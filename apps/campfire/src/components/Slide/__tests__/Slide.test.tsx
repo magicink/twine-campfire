@@ -27,6 +27,24 @@ class StubResizeObserver {
 beforeEach(() => {
   // @ts-expect-error override for tests
   globalThis.ResizeObserver = StubResizeObserver
+  class StubAnimation {
+    finished: Promise<void>
+    private resolve!: () => void
+    constructor() {
+      this.finished = new Promise<void>(res => {
+        this.resolve = res
+      })
+      setTimeout(() => this.finish(), 0)
+    }
+    cancel() {
+      this.resolve()
+    }
+    finish() {
+      this.resolve()
+    }
+  }
+  // @ts-expect-error override animate
+  HTMLElement.prototype.animate = () => new StubAnimation()
   resetStore()
   document.body.innerHTML = ''
 })

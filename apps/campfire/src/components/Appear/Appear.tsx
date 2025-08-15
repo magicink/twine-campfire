@@ -46,8 +46,9 @@ export const Appear = ({
   const prevStepRef = useRef(currentStep)
   const prevSlideRef = useRef(currentSlide)
   const jumped =
-    prevSlideRef.current !== currentSlide ||
-    Math.abs(prevStepRef.current - currentStep) > 1
+    Math.abs(prevSlideRef.current - currentSlide) > 1 ||
+    (prevSlideRef.current === currentSlide &&
+      Math.abs(prevStepRef.current - currentStep) > 1)
   useEffect(() => {
     prevStepRef.current = currentStep
     prevSlideRef.current = currentSlide

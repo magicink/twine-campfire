@@ -39,6 +39,24 @@ class StubResizeObserver {
 beforeEach(() => {
   globalThis.ResizeObserver =
     StubResizeObserver as unknown as typeof ResizeObserver
+  class StubAnimation {
+    finished: Promise<void>
+    private resolve!: () => void
+    constructor() {
+      this.finished = new Promise<void>(res => {
+        this.resolve = res
+      })
+      setTimeout(() => this.finish(), 0)
+    }
+    cancel() {
+      this.resolve()
+    }
+    finish() {
+      this.resolve()
+    }
+  }
+  // @ts-expect-error override animate
+  HTMLElement.prototype.animate = () => new StubAnimation()
   resetDeckStore()
   resetStores()
   document.body.innerHTML = ''
