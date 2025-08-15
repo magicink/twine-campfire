@@ -93,4 +93,38 @@ describe('Appear', () => {
     })
     expect(screen.getByText('Skip')).toBeTruthy()
   })
+
+  it('unmounts visible elements and does not mount unseen ones on slide change', async () => {
+    // @ts-expect-error override animate
+    HTMLElement.prototype.animate = () => new StubAnimation()
+
+    render(
+      <Deck>
+        <Slide>
+          <Appear at={0}>First</Appear>
+          <Appear at={1}>Second</Appear>
+        </Slide>
+        <Slide>
+          <Appear at={0}>Next</Appear>
+        </Slide>
+      </Deck>
+    )
+
+    expect(screen.getByText('First')).toBeTruthy()
+    expect(screen.queryByText('Second')).toBeNull()
+
+    act(() => {
+      useDeckStore.getState().goTo(1, 0)
+    })
+
+    expect(screen.queryByText('Second')).toBeNull()
+    expect(screen.getByText('First')).toBeTruthy()
+
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+
+    expect(screen.queryByText('First')).toBeNull()
+    expect(screen.queryByText('Second')).toBeNull()
+  })
 })
