@@ -57,8 +57,8 @@ export const Slide = ({
   const setMaxSteps = useDeckStore(state => state.setMaxSteps)
   const runEnter = useSerializedDirectiveRunner(onEnter ?? '[]')
   const runExit = useSerializedDirectiveRunner(onExit ?? '[]')
-  const cleanupRanRef = useRef(false)
-  const generationRef = useRef(0)
+  const runExitRef = useRef(runExit)
+  const onExitRef = useRef(onExit)
 
   useEffect(() => {
     if (typeof steps === 'number' && steps !== maxSteps) {
@@ -73,19 +73,17 @@ export const Slide = ({
   }, [])
 
   useEffect(() => {
-    if (!onExit) return
-    generationRef.current++
-    cleanupRanRef.current = false
+    runExitRef.current = runExit
+    onExitRef.current = onExit
+  }, [runExit, onExit])
+
+  useEffect(() => {
     return () => {
-      const current = generationRef.current
-      queueMicrotask(() => {
-        if (generationRef.current === current && !cleanupRanRef.current) {
-          runExit()
-          cleanupRanRef.current = true
-        }
-      })
+      if (onExitRef.current) {
+        runExitRef.current()
+      }
     }
-  }, [onExit, runExit])
+  }, [])
 
   const bgClass =
     typeof background === 'string' ? background : 'bg-gray-100 dark:bg-gray-900'
