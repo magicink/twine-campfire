@@ -4,6 +4,7 @@ import { Deck } from '@campfire/components/Deck/Deck'
 import { Slide, type SlideProps } from '@campfire/components/Slide/Slide'
 import { useDeckStore } from '@campfire/use-deck-store'
 import type { VNode } from 'preact'
+import { StubAnimation } from '@campfire/test-utils/stub-animation'
 
 /**
  * Resets the deck store to a clean initial state.
@@ -27,22 +28,6 @@ class StubResizeObserver {
 beforeEach(() => {
   // @ts-expect-error override for tests
   globalThis.ResizeObserver = StubResizeObserver
-  class StubAnimation {
-    finished: Promise<void>
-    private resolve!: () => void
-    constructor() {
-      this.finished = new Promise<void>(res => {
-        this.resolve = res
-      })
-      setTimeout(() => this.finish(), 0)
-    }
-    cancel() {
-      this.resolve()
-    }
-    finish() {
-      this.resolve()
-    }
-  }
   // @ts-expect-error override animate
   HTMLElement.prototype.animate = () => new StubAnimation()
   resetStore()

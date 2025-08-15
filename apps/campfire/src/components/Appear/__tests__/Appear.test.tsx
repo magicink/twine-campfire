@@ -4,6 +4,7 @@ import { Deck } from '@campfire/components/Deck/Deck'
 import { Slide } from '@campfire/components/Slide/Slide'
 import { Appear } from '@campfire/components/Appear/Appear'
 import { useDeckStore } from '@campfire/use-deck-store'
+import { StubAnimation } from '@campfire/test-utils/stub-animation'
 
 /**
  * Resets the deck store to a clean initial state.
@@ -33,22 +34,6 @@ beforeEach(() => {
 
 describe('Appear', () => {
   it('toggles visibility at the configured steps', async () => {
-    class StubAnimation {
-      finished: Promise<void>
-      private resolve!: () => void
-      constructor() {
-        this.finished = new Promise<void>(res => {
-          this.resolve = res
-        })
-        setTimeout(() => this.finish(), 0)
-      }
-      cancel() {
-        this.resolve()
-      }
-      finish() {
-        this.resolve()
-      }
-    }
     // @ts-expect-error override animate
     HTMLElement.prototype.animate = () => new StubAnimation()
 
@@ -70,22 +55,6 @@ describe('Appear', () => {
   })
 
   it('runs exit animation and unmounts after completion', async () => {
-    class StubAnimation {
-      finished: Promise<void>
-      private resolve!: () => void
-      constructor() {
-        this.finished = new Promise<void>(res => {
-          this.resolve = res
-        })
-        setTimeout(() => this.finish(), 0)
-      }
-      cancel() {
-        this.resolve()
-      }
-      finish() {
-        this.resolve()
-      }
-    }
     // @ts-expect-error override animate
     HTMLElement.prototype.animate = () => new StubAnimation()
 
