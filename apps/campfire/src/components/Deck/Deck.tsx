@@ -6,9 +6,18 @@ import {
   type JSX,
   type VNode
 } from 'preact'
-import { useEffect, useMemo } from 'preact/hooks'
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks'
 import { useDeckStore } from '@campfire/use-deck-store'
 import { useScale, type DeckSize } from '@campfire/hooks/useScale'
+import {
+  defaultTransition,
+  prefersReducedMotion,
+  runAnimation
+} from '@campfire/components/transition'
+import {
+  type Transition,
+  type SlideTransition
+} from '@campfire/components/Slide/Slide'
 
 export type ThemeTokens = Record<string, string | number>
 
@@ -52,6 +61,71 @@ export const Deck = ({
   const prev = useDeckStore(state => state.prev)
   const goTo = useDeckStore(state => state.goTo)
   const setSlidesCount = useDeckStore(state => state.setSlidesCount)
+
+  const [currentVNode, setCurrentVNode] = useState(slides[0] as VNode)
+  const [prevVNode, setPrevVNode] = useState<VNode | null>(null)
+  const slideRef = useRef<HTMLDivElement>(null)
+  const reduceMotion = prefersReducedMotion()
+  const firstRenderRef = useRef(true)
+
+  /**
+   * Type guard to determine whether props include a transition configuration.
+   *
+   * @param props - Props to test.
+   * @returns True if the props contain a transition.
+   */
+  const hasTransition = (
+    props: unknown
+  ): props is { transition?: SlideTransition } =>
+    typeof props === 'object' && props !== null && 'transition' in props
+
+  /**
+   * Retrieves the transition configuration for a slide and mode.
+   *
+   * @param slide - Slide vnode.
+   * @param mode - Whether the slide is entering or exiting.
+   * @returns Transition configuration.
+   */
+  const getTransition = (slide: VNode, mode: 'enter' | 'exit'): Transition => {
+    const t = hasTransition(slide.props) ? slide.props.transition : undefined
+    if (!t) return defaultTransition
+    if ('type' in t) return t
+    return t[mode] ?? defaultTransition
+  }
+
+  useEffect(() => {
+    if (firstRenderRef.current) {
+      firstRenderRef.current = false
+      return
+    }
+    const nextVNode = slides[currentSlide] as VNode
+    setPrevVNode(currentVNode)
+    setCurrentVNode(nextVNode)
+  }, [currentSlide, slides])
+
+  useEffect(() => {
+    const container = slideRef.current
+    if (!container) return
+    const [prevEl, currentEl] = Array.from(container.children) as HTMLElement[]
+    if (
+      currentEl &&
+      !(reduceMotion || getTransition(currentVNode, 'enter').type === 'none')
+    ) {
+      runAnimation(currentEl, getTransition(currentVNode, 'enter'), 'in')
+    }
+    if (prevVNode && prevEl) {
+      if (reduceMotion || getTransition(prevVNode, 'exit').type === 'none') {
+        setPrevVNode(null)
+      } else {
+        const anim = runAnimation(
+          prevEl,
+          getTransition(prevVNode, 'exit'),
+          'out'
+        )
+        anim.finished.then(() => setPrevVNode(null))
+      }
+    }
+  }, [currentVNode, prevVNode, reduceMotion])
 
   useEffect(() => {
     setSlidesCount(slides.length)
@@ -116,6 +190,7 @@ export const Deck = ({
       style={themeStyle}
     >
       <div
+        ref={slideRef}
         style={{
           width: size.width,
           height: size.height,
@@ -125,7 +200,8 @@ export const Deck = ({
         className='absolute left-1/2 top-1/2'
         onClick={next}
       >
-        {slides[currentSlide]}
+        {prevVNode}
+        {currentVNode}
       </div>
     </div>
   )
