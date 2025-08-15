@@ -1675,6 +1675,241 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
+   * Parses a deck size string such as "1920x1080" or an aspect ratio like
+   * "16x9" into a width/height object. Aspect ratios assume a default width of
+   * 1920 pixels.
+   *
+   * @param value - Raw size attribute value.
+   * @returns Parsed deck size object.
+   */
+  const parseDeckSize = (value: string): { width: number; height: number } => {
+    const match = value.match(/^(\d+)x(\d+)$/)
+    if (match) {
+      const w = parseInt(match[1], 10)
+      const h = parseInt(match[2], 10)
+      if (w <= 100 && h <= 100) {
+        const width = 1920
+        const height = Math.round((width * h) / w)
+        return { width, height }
+      }
+      return { width: w, height: h }
+    }
+    return { width: 1920, height: 1080 }
+  }
+
+  /**
+   * Parses a theme attribute value, accepting either a string token or a JSON
+   * object string.
+   *
+   * @param value - Raw theme attribute value.
+   * @returns Theme token map when parsable.
+   */
+  const parseThemeValue = (
+    value: unknown
+  ): Record<string, string | number> | undefined => {
+    if (!value) return undefined
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value)
+      } catch {
+        return { theme: value }
+      }
+    }
+    if (typeof value === 'object')
+      return value as Record<string, string | number>
+    return undefined
+  }
+
+  /**
+   * Builds a props object for the Slide component from extracted attributes.
+   *
+   * @param attrs - Extracted slide attributes.
+   * @returns Slide props object.
+   */
+  const buildSlideProps = (
+    attrs: Record<string, unknown>
+  ): Record<string, unknown> => {
+    const props: Record<string, unknown> = {}
+    if (attrs.transition) {
+      props.transition =
+        typeof attrs.transition === 'string'
+          ? { type: attrs.transition }
+          : attrs.transition
+    }
+    if (attrs.background) props.background = attrs.background
+    if (typeof attrs.steps === 'number') props.steps = attrs.steps
+    if (attrs.onEnter) props.onEnter = attrs.onEnter
+    if (attrs.onExit) props.onExit = attrs.onExit
+    for (const key of Object.keys(attrs)) {
+      if (
+        !['transition', 'background', 'steps', 'onEnter', 'onExit'].includes(
+          key
+        )
+      ) {
+        props[key] = attrs[key]
+      }
+    }
+    return props
+  }
+
+  /**
+   * Converts a `:::deck` directive into a Deck element with Slide children.
+   *
+   * @param directive - The deck directive node.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within its parent.
+   * @returns Visitor instructions after replacement.
+   */
+  const handleDeck: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    const container = directive as ContainerDirective
+
+    const { attrs: deckAttrs } = extractAttributes(
+      directive,
+      parent,
+      index,
+      {
+        size: { type: 'string' },
+        transition: { type: 'string' },
+        theme: { type: 'string' }
+      },
+      { label: false }
+    )
+
+    const deckProps: Record<string, unknown> = {}
+    if (typeof deckAttrs.size === 'string') {
+      deckProps.size = parseDeckSize(deckAttrs.size)
+    }
+    if (deckAttrs.transition) deckProps.transition = deckAttrs.transition
+    if (typeof deckAttrs.theme !== 'undefined') {
+      const theme = parseThemeValue(deckAttrs.theme)
+      if (theme) deckProps.theme = theme
+    }
+    const rawDeckAttrs = (directive.attributes || {}) as Record<string, unknown>
+    for (const key of Object.keys(rawDeckAttrs)) {
+      if (!['size', 'transition', 'theme'].includes(key)) {
+        deckProps[key] = rawDeckAttrs[key]
+      }
+    }
+
+    const slideSchema = {
+      transition: { type: 'string' },
+      background: { type: 'string' },
+      steps: { type: 'number' },
+      onEnter: { type: 'string' },
+      onExit: { type: 'string' }
+    } as const
+
+    const slides: Parent[] = []
+
+    const following: RootContent[] = []
+    let markerPos = index + 1
+    while (markerPos < parent.children.length) {
+      const node = parent.children[markerPos]
+      if (
+        node.type === 'paragraph' &&
+        node.children.length > 0 &&
+        node.children.every(isTextNode) &&
+        node.children
+          .map(c => (c as MdText).value)
+          .join('')
+          .trim() === ':::'
+      ) {
+        break
+      }
+      following.push(node as RootContent)
+      markerPos++
+    }
+    parent.children.splice(index + 1, markerPos - index)
+
+    const children = stripLabel([
+      ...(container.children as RootContent[]),
+      ...following
+    ])
+    let pendingAttrs: Record<string, unknown> = {}
+    let pendingNodes: RootContent[] = []
+
+    const commitPending = () => {
+      if (!pendingNodes.length && Object.keys(pendingAttrs).length === 0) return
+      const dummy: DirectiveNode = {
+        type: 'containerDirective',
+        name: 'slide',
+        attributes: pendingAttrs as Record<string, string | null>,
+        children: []
+      }
+      const { attrs: parsed } = extractAttributes(
+        dummy,
+        undefined,
+        undefined,
+        slideSchema
+      )
+      const content = runBlock(stripLabel(pendingNodes))
+      const slideNode: Parent = {
+        type: 'paragraph',
+        children: content,
+        data: {
+          hName: 'slide',
+          hProperties: buildSlideProps(parsed as any) as Properties
+        }
+      }
+      slides.push(slideNode)
+      pendingAttrs = {}
+      pendingNodes = []
+    }
+
+    children.forEach((child, i) => {
+      if (
+        child.type === 'containerDirective' &&
+        (child as ContainerDirective).name === 'slide'
+      ) {
+        commitPending()
+        const slideDir = child as ContainerDirective
+        const { attrs: parsed } = extractAttributes(
+          slideDir,
+          container,
+          i,
+          slideSchema
+        )
+        const content = runBlock(stripLabel(slideDir.children as RootContent[]))
+        const slideNode: Parent = {
+          type: 'paragraph',
+          children: content,
+          data: {
+            hName: 'slide',
+            hProperties: buildSlideProps(parsed as any) as Properties
+          }
+        }
+        slides.push(slideNode)
+      } else if (
+        child.type === 'leafDirective' &&
+        (child as DirectiveNode).name === 'slide'
+      ) {
+        commitPending()
+        const { attrs: parsed } = extractAttributes(
+          child as DirectiveNode,
+          container,
+          i,
+          slideSchema
+        )
+        pendingAttrs = parsed as Record<string, unknown>
+      } else {
+        pendingNodes.push(child)
+      }
+    })
+    commitPending()
+
+    const deckNode: Parent = {
+      type: 'paragraph',
+      children: slides as RootContent[],
+      data: { hName: 'deck', hProperties: deckProps as Properties }
+    }
+    const newIndex = replaceWithIndentation(directive, parent, index, [
+      deckNode as RootContent
+    ])
+    return [SKIP, newIndex]
+  }
+
+  /**
    * Handles the `:title` directive, which overrides the page title for the current passage.
    * The directive's value must be wrapped in matching quotes or backticks. If the
    * directive is used inside an included passage, it is ignored. When valid, the
@@ -1803,6 +2038,7 @@ export const useDirectiveHandlers = () => {
       batch: handleBatch,
       trigger: handleTrigger,
       onExit: handleOnExit,
+      deck: handleDeck,
       lang: handleLang,
       include: handleInclude,
       title: handleTitle,
