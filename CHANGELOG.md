@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.67.1](https://github.com/magicink/twine-campfire/compare/v1.67.0...v1.67.1) (2025-08-15)
+
+
+### Bug Fixes
+
+* **appear:** handle slide transitions for multiple elements ([#354](https://github.com/magicink/twine-campfire/issues/354)) ([1e94c06](https://github.com/magicink/twine-campfire/commit/1e94c060429675cd7f78b2837902155a0eedc259))
+* **deck:** ensure enter animations run ([#353](https://github.com/magicink/twine-campfire/issues/353)) ([79bf29d](https://github.com/magicink/twine-campfire/commit/79bf29daf42d3986395a218e0b8926c6826b4db6))
+* **deck:** ensure enter animations run ([#353](https://github.com/magicink/twine-campfire/issues/353)) ([962a6ec](https://github.com/magicink/twine-campfire/commit/962a6ecfd5b80055fb0797a0a8b4acf8a9f6b756))
+* run entry animations before paint ([#352](https://github.com/magicink/twine-campfire/issues/352)) ([c0c221d](https://github.com/magicink/twine-campfire/commit/c0c221d6b5dfb8cb4c6c51b0cac8a8e1a5a5bc8f))
+* run entry animations before paint ([#352](https://github.com/magicink/twine-campfire/issues/352)) ([ed7f210](https://github.com/magicink/twine-campfire/commit/ed7f2102cb005ee51b6dbb454bfcc66e3f712b82))
+
 ## [1.67.0](https://github.com/magicink/twine-campfire/compare/v1.66.2...v1.67.0) (2025-08-15)
 
 
