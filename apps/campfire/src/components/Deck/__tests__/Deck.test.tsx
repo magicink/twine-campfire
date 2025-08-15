@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { render, screen, fireEvent, act } from '@testing-library/preact'
 import { Deck } from '@campfire/components/Deck/Deck'
+import { Slide } from '@campfire/components/Slide/Slide'
 import { useDeckStore } from '@campfire/use-deck-store'
 
 /**
@@ -23,10 +24,16 @@ class StubResizeObserver {
 }
 
 beforeEach(() => {
-  // @ts-expect-error override for tests
-  globalThis.ResizeObserver = StubResizeObserver
+  ;(globalThis as any).ResizeObserver = StubResizeObserver
   resetStore()
   document.body.innerHTML = ''
+  const animateStub: typeof HTMLElement.prototype.animate = () =>
+    ({
+      finished: Promise.resolve({} as Animation),
+      cancel() {},
+      finish() {}
+    }) as unknown as Animation
+  HTMLElement.prototype.animate = animateStub
 })
 
 describe('Deck', () => {
@@ -62,7 +69,7 @@ describe('Deck', () => {
       fireEvent.click(inner)
     })
     expect(useDeckStore.getState().currentSlide).toBe(1)
-    expect(screen.getByText('Slide 2')).toBeInTheDocument()
+    expect(screen.getAllByText('Slide 2')[0]).toBeInTheDocument()
     act(() => {
       window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft' }))
     })
@@ -85,5 +92,56 @@ describe('Deck', () => {
       window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home' }))
     })
     expect(useDeckStore.getState().currentSlide).toBe(0)
+  })
+
+  it('applies slide transition type and duration', async () => {
+    class StubAnimation {
+      finished: Promise<void>
+      private resolve!: () => void
+      constructor() {
+        this.finished = new Promise<void>(res => {
+          this.resolve = res
+        })
+        setTimeout(() => this.finish(), 0)
+      }
+      cancel() {
+        this.resolve()
+      }
+      finish() {
+        this.resolve()
+      }
+    }
+    const calls: Array<{
+      keyframes: Keyframe[]
+      options: KeyframeAnimationOptions
+    }> = []
+    const animateMock: typeof HTMLElement.prototype.animate = (
+      k: Keyframe[] | PropertyIndexedKeyframes,
+      o?: number | KeyframeAnimationOptions
+    ) => {
+      calls.push({
+        keyframes: k as Keyframe[],
+        options: o as KeyframeAnimationOptions
+      })
+      return new StubAnimation() as unknown as Animation
+    }
+    HTMLElement.prototype.animate = animateMock
+    render(
+      <Deck>
+        <Slide transition={{ exit: { type: 'zoom', duration: 500 } }}>
+          One
+        </Slide>
+        <Slide>Two</Slide>
+      </Deck>
+    )
+    act(() => {
+      useDeckStore.getState().next()
+    })
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    const zoomCall = calls.find(c => c.options.duration === 500)
+    expect(zoomCall).toBeTruthy()
+    expect(zoomCall?.keyframes[0].transform).toBe('scale(1)')
   })
 })
