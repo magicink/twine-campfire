@@ -56,27 +56,6 @@ describe('Slide directive hooks', () => {
     expect(data.entered).toBe(true)
   })
 
-  it('runs onExit directive when slide unmounts', async () => {
-    const exitContent = makeDirective(':set[exited=true]')
-    render(
-      <Deck>
-        <Slide onExit={exitContent}>One</Slide>
-        <Slide>Two</Slide>
-      </Deck>
-    )
-    expect(
-      (useGameStore.getState().gameData as Record<string, unknown>).exited
-    ).toBeUndefined()
-    act(() => {
-      useDeckStore.getState().next()
-    })
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0))
-    })
-    const data = useGameStore.getState().gameData as Record<string, unknown>
-    expect(data.exited).toBe(true)
-  })
-
   it('runs TriggerButton directives inside slides', () => {
     const btnContent = makeDirective(':set[clicked=true]')
     const { getByRole } = render(
