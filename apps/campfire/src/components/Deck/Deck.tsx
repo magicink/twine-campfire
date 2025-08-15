@@ -6,7 +6,13 @@ import {
   type JSX,
   type VNode
 } from 'preact'
-import { useEffect, useMemo, useRef, useState } from 'preact/hooks'
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'preact/hooks'
 import { useDeckStore } from '@campfire/use-deck-store'
 import { useScale, type DeckSize } from '@campfire/hooks/useScale'
 import {
@@ -103,7 +109,7 @@ export const Deck = ({
     setCurrentVNode(nextVNode)
   }, [currentSlide, slides])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const container = slideRef.current
     if (!container) return
     const [prevEl, currentEl] = Array.from(container.children) as HTMLElement[]
