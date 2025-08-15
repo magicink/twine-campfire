@@ -99,7 +99,7 @@ export const Deck = ({
     return t[mode] ?? defaultTransition
   }
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (firstRenderRef.current) {
       firstRenderRef.current = false
       return
