@@ -20,6 +20,7 @@ export interface LayerProps {
     | 'bottom-right'
   className?: string
   children?: ComponentChildren
+  [key: string]: unknown
 }
 
 /**
@@ -38,7 +39,8 @@ export const Layer = ({
   scale,
   anchor = 'top-left',
   className,
-  children
+  children,
+  ...rest
 }: LayerProps): JSX.Element => {
   const style: JSX.CSSProperties = {
     position: 'absolute',
@@ -69,7 +71,7 @@ export const Layer = ({
     style.transformOrigin = originMap[anchor]
   }
   return (
-    <div className={className} style={style}>
+    <div className={className} style={style} {...rest}>
       {children}
     </div>
   )

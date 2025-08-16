@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/preact'
 import { h } from 'preact'
-import { Deck, Slide, Text, Appear } from '@campfire/components'
+import { Deck, Slide, DeckText, Appear } from '@campfire/components'
 
 const meta: Meta<typeof Deck> = {
   component: Deck,
@@ -26,19 +26,19 @@ const render: StoryObj<typeof Deck>['render'] = () => (
       }}
     >
       <Appear at={0}>
-        <Text as='h2' x={80} y={80} size={36} color='var(--color-gray-50)'>
+        <DeckText as='h2' x={80} y={80} size={36} color='var(--color-gray-50)'>
           Fade Slide
-        </Text>
+        </DeckText>
       </Appear>
       <Appear at={1}>
-        <Text x={500} y={400} size={24} color='var(--color-gray-50)'>
+        <DeckText x={500} y={400} size={24} color='var(--color-gray-50)'>
           Second step
-        </Text>
+        </DeckText>
       </Appear>
       <Appear at={2}>
-        <Text x={500} y={500} size={24} color='var(--color-gray-50)'>
+        <DeckText x={500} y={500} size={24} color='var(--color-gray-50)'>
           Third step
-        </Text>
+        </DeckText>
       </Appear>
     </Slide>
     <Slide
@@ -48,14 +48,14 @@ const render: StoryObj<typeof Deck>['render'] = () => (
       }}
     >
       <Appear at={0}>
-        <Text as='h2' x={80} y={80} size={36} color='var(--color-gray-50)'>
+        <DeckText as='h2' x={80} y={80} size={36} color='var(--color-gray-50)'>
           Slide Transition
-        </Text>
+        </DeckText>
       </Appear>
       <Appear at={1}>
-        <Text x={500} y={400} size={24} color='var(--color-gray-50)'>
+        <DeckText x={500} y={400} size={24} color='var(--color-gray-50)'>
           Second step
-        </Text>
+        </DeckText>
       </Appear>
     </Slide>
     <Slide
@@ -65,14 +65,14 @@ const render: StoryObj<typeof Deck>['render'] = () => (
       }}
     >
       <Appear at={0}>
-        <Text as='h2' x={80} y={80} size={36} color='var(--color-gray-50)'>
+        <DeckText as='h2' x={80} y={80} size={36} color='var(--color-gray-50)'>
           Zoom Slide
-        </Text>
+        </DeckText>
       </Appear>
       <Appear at={1}>
-        <Text x={500} y={400} size={24} color='var(--color-gray-50)'>
+        <DeckText x={500} y={400} size={24} color='var(--color-gray-50)'>
           Second step
-        </Text>
+        </DeckText>
       </Appear>
     </Slide>
   </Deck>

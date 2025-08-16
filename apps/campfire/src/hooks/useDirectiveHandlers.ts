@@ -16,7 +16,12 @@ import remarkCampfire, {
 } from '@campfire/remark-campfire'
 import type { Parent, Root, RootContent, Text as MdText } from 'mdast'
 import type { Node } from 'unist'
-import type { ElementContent, Properties, Text as HastText } from 'hast'
+import type {
+  Element,
+  ElementContent,
+  Properties,
+  Text as HastText
+} from 'hast'
 import type { ContainerDirective } from 'mdast-util-directive'
 import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
 import { type Checkpoint, useGameStore } from '@campfire/state/useGameStore'
@@ -1666,7 +1671,7 @@ export const useDirectiveHandlers = () => {
   type TextAttrs = ExtractedAttrs<TextSchema>
 
   /**
-   * Converts a `:::text` directive into a Text element.
+   * Converts a `:::text` directive into a DeckText element.
    *
    * @param directive - The text directive node.
    * @param parent - Parent node containing the directive.
@@ -1739,6 +1744,8 @@ export const useDirectiveHandlers = () => {
     const classes = ['text-base', 'font-normal']
     if (classAttr) classes.unshift(classAttr)
     props.className = classes.join(' ')
+    props['data-component'] = 'deck-text'
+    props['data-as'] = tagName
 
     applyAdditionalAttributes(rawAttrs, props, [
       'x',

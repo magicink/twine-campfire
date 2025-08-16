@@ -4,6 +4,7 @@ import { Fragment } from 'preact/jsx-runtime'
 import type { ComponentChild } from 'preact'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { renderDirectiveMarkdown } from '@campfire/components/Deck/Slide/renderDirectiveMarkdown'
+import { DeckText } from '@campfire/components/Deck/Slide/DeckText'
 
 let output: ComponentChild | null = null
 
@@ -16,7 +17,7 @@ let output: ComponentChild | null = null
 const MarkdownRunner = ({ markdown }: { markdown: string }) => {
   const handlers = useDirectiveHandlers()
   output = renderDirectiveMarkdown(markdown, handlers)
-  return null
+  return <>{output}</>
 }
 
 beforeEach(() => {
@@ -25,52 +26,45 @@ beforeEach(() => {
 })
 
 describe('text directive', () => {
-  it('renders a positioned HTML element with styles', () => {
+  it('renders a DeckText component with styles', () => {
     const md =
       ':::text{x=10 y=20 w=100 h=50 z=5 rotate=45 scale=1.5 anchor=center as="h2" align=center size=24 weight=700 lineHeight=1.2 color="red" class="underline" data-test="ok"}\nHello\n:::'
     render(<MarkdownRunner markdown={md} />)
-    const getEl = (node: any): any => {
-      if (Array.isArray(node)) return getEl(node[0])
-      if (node?.type === Fragment) return getEl(node.props.children)
-      return node
-    }
-    const el = getEl(output)
-    expect(el.type).toBe('h2')
-    const rawStyle = el.props.style
-    const style =
-      typeof rawStyle === 'string'
-        ? Object.fromEntries(
-            rawStyle
-              .split(';')
-              .filter(Boolean)
-              .map(rule => {
-                const [prop, ...rest] = rule.split(':')
-                const name = prop
-                  .trim()
-                  .replace(/-([a-z])/g, (_, c) => c.toUpperCase())
-                return [name, rest.join(':').trim()]
-              })
-          )
-        : rawStyle
-    expect(style.position).toBe('absolute')
-    expect(style.left).toBe('10px')
-    expect(style.top).toBe('20px')
-    expect(style.width).toBe('100px')
-    expect(style.height).toBe('50px')
-    expect(style.zIndex).toBe('5')
-    expect(style.transform).toContain('rotate(45deg)')
-    expect(style.transform).toContain('scale(1.5)')
-    expect(style.transformOrigin).toBe('50% 50%')
-    expect(style.textAlign).toBe('center')
-    expect(style.fontSize).toBe('24px')
-    expect(style.fontWeight).toBe('700')
-    expect(style.lineHeight).toBe('1.2')
-    expect(style.color).toBe('red')
-    expect(el.props.className.split(' ')).toEqual(
+    const el = document.querySelector(
+      '[data-testid="deck-text"]'
+    ) as HTMLElement
+    expect(el).toBeTruthy()
+    const inner = el.firstElementChild as HTMLElement
+    expect(inner.tagName).toBe('H2')
+    const rawStyle = inner.getAttribute('style') || ''
+    const style = rawStyle
+      .split(';')
+      .filter(Boolean)
+      .map(rule => {
+        const [prop, ...rest] = rule.split(':')
+        const name = prop.trim().replace(/-([a-z])/g, (_, c) => c.toUpperCase())
+        return [name, rest.join(':').trim()]
+      })
+    const styleObj = Object.fromEntries(style)
+    expect(styleObj.position).toBe('absolute')
+    expect(styleObj.left).toBe('10px')
+    expect(styleObj.top).toBe('20px')
+    expect(styleObj.width).toBe('100px')
+    expect(styleObj.height).toBe('50px')
+    expect(styleObj.zIndex).toBe('5')
+    expect(styleObj.transform).toContain('rotate(45deg)')
+    expect(styleObj.transform).toContain('scale(1.5)')
+    expect(styleObj.transformOrigin).toBe('50% 50%')
+    expect(styleObj.textAlign).toBe('center')
+    expect(styleObj.fontSize).toBe('24px')
+    expect(styleObj.fontWeight).toBe('700')
+    expect(styleObj.lineHeight).toBe('1.2')
+    expect(styleObj.color).toBe('red')
+    expect(inner.className.split(' ')).toEqual(
       expect.arrayContaining(['underline', 'text-base', 'font-normal'])
     )
-    expect(el.props['data-test']).toBe('ok')
-    expect(el.props.children).toBe('Hello')
+    expect(el.getAttribute('data-test')).toBe('ok')
+    expect(inner.textContent).toBe('Hello')
   })
 
   it('does not render stray colons when text contains directives', () => {

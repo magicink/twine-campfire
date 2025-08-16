@@ -23,7 +23,7 @@ describe('Passage text directive', () => {
     }
   })
 
-  it('renders Text components without stray markers', async () => {
+  it('renders DeckText components without stray markers', async () => {
     const passage: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
@@ -38,12 +38,9 @@ describe('Passage text directive', () => {
     }
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
     render(<Passage />)
-    const heading = await screen.findByRole('heading', {
-      level: 2,
-      name: 'Hello'
-    })
-    expect(heading).toBeTruthy()
-    expect(document.body.innerHTML).not.toContain('<Text')
+    const el = await screen.findByTestId('deck-text')
+    expect(el).toBeTruthy()
+    expect(document.body.innerHTML).not.toContain('<DeckText')
     expect(document.body.textContent).not.toContain(':::')
   })
 })
