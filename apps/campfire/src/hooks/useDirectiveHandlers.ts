@@ -1872,8 +1872,6 @@ export const useDirectiveHandlers = () => {
 
     const slides: Parent[] = []
 
-    const following: RootContent[] = []
-    let markerPos = index + 1
     const isMarkerParagraph = (node: RootContent) => {
       if (
         node.type === 'paragraph' &&
@@ -1887,24 +1885,38 @@ export const useDirectiveHandlers = () => {
       }
       return false
     }
-    while (markerPos < parent.children.length) {
-      const node = parent.children[markerPos]
-      if (isMarkerParagraph(node as RootContent)) break
-      following.push(node as RootContent)
-      markerPos++
-    }
-    if (markerPos > index + 1) {
-      parent.children.splice(index + 1, markerPos - (index + 1))
-    }
 
-    const children = stripLabel([
-      ...(container.children as RootContent[]),
-      ...following
-    ])
+    let endPos = parent.children.length
+    for (let i = parent.children.length - 1; i > index; i--) {
+      if (isMarkerParagraph(parent.children[i] as RootContent)) {
+        endPos = i
+        break
+      }
+    }
+    const rawFollowing = parent.children.slice(index + 1, endPos)
+    if (endPos > index + 1) {
+      parent.children.splice(index + 1, endPos - (index + 1))
+    }
+    const following = rawFollowing.filter(
+      node => !isMarkerParagraph(node as RootContent)
+    )
+
+    const children = preprocessBlock(
+      stripLabel([...(container.children as RootContent[]), ...following])
+    )
     let pendingAttrs: Record<string, unknown> = {}
     let pendingNodes: RootContent[] = []
 
+    /**
+     * Finalizes the currently buffered slide content and adds it to the deck.
+     * Removes any trailing directive markers before running the remark
+     * pipeline so stray markers do not render in the output.
+     */
     const commitPending = () => {
+      const tempParent: Parent = { type: 'root', children: pendingNodes }
+      removeDirectiveMarker(tempParent, tempParent.children.length - 1)
+      pendingNodes = tempParent.children
+
       if (!pendingNodes.length && Object.keys(pendingAttrs).length === 0) return
       const dummy: DirectiveNode = {
         type: 'containerDirective',
