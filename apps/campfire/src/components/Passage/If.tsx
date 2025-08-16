@@ -14,8 +14,8 @@ import { LinkButton } from '@campfire/components/Passage/LinkButton'
 import { TriggerButton } from '@campfire/components/Passage/TriggerButton'
 import { Show } from '@campfire/components/Passage/Show'
 import { OnExit } from '@campfire/components/Passage/OnExit'
-import { Appear } from '@campfire/components/Deck/Slide/Appear'
-import { DeckText } from '@campfire/components/Deck/Slide/DeckText'
+import { Appear } from '@campfire/components/Deck/Slide'
+import { DeckText } from '@campfire/components/Deck/Slide'
 import { rehypeDeckText } from '@campfire/utils/rehypeDeckText'
 
 interface IfProps {
