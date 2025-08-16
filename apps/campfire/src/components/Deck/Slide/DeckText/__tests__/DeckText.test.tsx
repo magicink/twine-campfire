@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'bun:test'
 import { render, screen } from '@testing-library/preact'
-import { DeckText } from '@campfire/components/Deck/Slide/DeckText'
+import { DeckText } from '@campfire/components/Deck/Slide'
 
 describe('DeckText', () => {
   it('renders the specified HTML tag', () => {
