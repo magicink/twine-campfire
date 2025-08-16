@@ -10,13 +10,7 @@ import { StubAnimation } from '@campfire/test-utils/stub-animation'
  * Resets the deck store to a clean initial state.
  */
 const resetStore = () => {
-  useDeckStore.setState({
-    currentSlide: 0,
-    currentStep: 0,
-    maxSteps: 0,
-    slidesCount: 0,
-    stepsPerSlide: {}
-  })
+  useDeckStore.getState().reset()
 }
 
 // Minimal ResizeObserver stub for the tests

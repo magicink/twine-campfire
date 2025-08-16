@@ -65,6 +65,7 @@ export const Deck = ({
   const prev = useDeckStore(state => state.prev)
   const goTo = useDeckStore(state => state.goTo)
   const setSlidesCount = useDeckStore(state => state.setSlidesCount)
+  const reset = useDeckStore(state => state.reset)
 
   const [currentVNode, setCurrentVNode] = useState(slides[0] as VNode)
   const [prevVNode, setPrevVNode] = useState<VNode | null>(null)
@@ -188,11 +189,18 @@ export const Deck = ({
     return () => window.removeEventListener('keydown', onKey)
   }, [next, prev, goTo, slides.length])
 
+  useEffect(() => {
+    return () => {
+      reset()
+    }
+  }, [reset])
+
   return (
     <div
       ref={hostRef}
       className={`relative w-full h-full overflow-hidden bg-gray-100 dark:bg-gray-900 ${className ?? ''}`}
       style={themeStyle}
+      data-testid='deck'
     >
       <div
         ref={slideRef}
