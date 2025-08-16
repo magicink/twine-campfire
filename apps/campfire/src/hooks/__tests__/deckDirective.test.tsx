@@ -28,6 +28,20 @@ beforeEach(() => {
   document.body.innerHTML = ''
 })
 
+/**
+ * Recursively concatenates text content from a component node tree.
+ *
+ * @param node - The node to extract text from.
+ * @returns A string containing all text within the node.
+ */
+const getText = (node: any): string => {
+  if (!node) return ''
+  if (typeof node === 'string') return node
+  if (Array.isArray(node)) return node.map(getText).join('')
+  if (node.props?.children) return getText(node.props.children)
+  return ''
+}
+
 describe('deck directive', () => {
   it('renders a deck with slide children', () => {
     const md = `:::deck{size=16x9 transition=slide}
@@ -77,13 +91,6 @@ describe('deck directive', () => {
   it('does not render stray colons when slide contains directives', () => {
     const md = `:::deck\n:::slide\n:::if{true}\nHi\n:::\n:::\n:::\n`
     render(<MarkdownRunner markdown={md} />)
-    const getText = (node: any): string => {
-      if (!node) return ''
-      if (typeof node === 'string') return node
-      if (Array.isArray(node)) return node.map(getText).join('')
-      if (node.props?.children) return getText(node.props.children)
-      return ''
-    }
     const text = getText(output)
     expect(text).not.toContain(':::')
   })
@@ -121,13 +128,6 @@ describe('deck directive', () => {
     expect(slideChildren.length).toBe(2)
     expect(slideChildren[0].type).toBe(Appear)
     expect(slideChildren[1].type).toBe(Appear)
-    const getText = (node: any): string => {
-      if (!node) return ''
-      if (typeof node === 'string') return node
-      if (Array.isArray(node)) return node.map(getText).join('')
-      if (node.props?.children) return getText(node.props.children)
-      return ''
-    }
     const text = getText(output)
     expect(text).not.toContain(':::')
   })
