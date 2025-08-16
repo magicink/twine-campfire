@@ -656,6 +656,52 @@ Save and load progress or store data in the browser.
   | ----- | --------------------- |
   | id    | Storage key to remove |
 
+### Presentation decks
+
+Embed slide decks directly in passages using the `deck`, `slide`, and `appear` directives.
+
+```md
+:::deck{class="w-[800px] h-[600px]"}
+:::slide
+:::appear{at=0}
+
+# Slide One
+
+:::
+:::appear{at=1}
+This line appears second.
+:::
+:::
+:::slide
+:::appear{at=0}
+
+# Slide Two
+
+:::
+:::appear{at=1}
+This line appears second.
+:::
+:::
+:::slide
+:::appear{at=0}
+
+# Slide Three
+
+:::
+:::appear{at=1}
+This line appears second.
+:::
+:::
+```
+
+`deck` wraps multiple `slide` blocks, each defining a slide. Inside a `slide`, the `appear` directive reveals content when the deck advances steps.
+
+| Directive | Description                                                                      | Key inputs                    |
+| --------- | -------------------------------------------------------------------------------- | ----------------------------- |
+| `deck`    | Container for slides; supports options such as `size`, `class`, and `transition` | `size`, `class`, `transition` |
+| `slide`   | Defines a single slide within the deck                                           | _(none)_                      |
+| `appear`  | Reveals content at a specific step in the current slide                          | `at`                          |
+
 ### Localization & internationalization
 
 Change language and handle translations.
