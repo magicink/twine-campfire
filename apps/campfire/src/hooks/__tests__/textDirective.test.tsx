@@ -36,7 +36,22 @@ describe('text directive', () => {
     }
     const el = getEl(output)
     expect(el.type).toBe('h2')
-    const style = el.props.style
+    const rawStyle = el.props.style
+    const style =
+      typeof rawStyle === 'string'
+        ? Object.fromEntries(
+            rawStyle
+              .split(';')
+              .filter(Boolean)
+              .map(rule => {
+                const [prop, ...rest] = rule.split(':')
+                const name = prop
+                  .trim()
+                  .replace(/-([a-z])/g, (_, c) => c.toUpperCase())
+                return [name, rest.join(':').trim()]
+              })
+          )
+        : rawStyle
     expect(style.position).toBe('absolute')
     expect(style.left).toBe('10px')
     expect(style.top).toBe('20px')
