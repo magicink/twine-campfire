@@ -30,7 +30,7 @@ export const createMarkdownProcessor = (
     .use(remarkGfm)
     .use(remarkDirective)
     .use(remarkCampfire, { handlers })
-    .use(remarkPlugins as any)
+    .use(remarkPlugins)
     .use(remarkRehype)
     .use(rehypeCampfire)
     .use(rehypeDeckText)

@@ -720,6 +720,38 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
+   * Determines whether a paragraph consists solely of directive markers.
+   *
+   * @param node - Node to examine.
+   * @returns True if the node contains only marker tokens and whitespace.
+   */
+  const isMarkerParagraph = (node: RootContent): boolean => {
+    if (
+      node.type === 'paragraph' &&
+      node.children.length > 0 &&
+      node.children.every(isTextNode)
+    ) {
+      const combined = node.children.map(c => (c as MdText).value).join('')
+      const stripped = combined.replace(/\s+/g, '')
+      const parts = stripped.split(DIRECTIVE_MARKER)
+      return stripped.length > 0 && parts.every(part => part === '')
+    }
+    return false
+  }
+
+  /**
+   * Determines whether a node contains only whitespace or marker tokens.
+   *
+   * @param node - Node to examine.
+   * @returns True if the node has no meaningful content.
+   */
+  const isWhitespaceNode = (node: RootContent): boolean =>
+    (node.type === 'text' && node.value.trim() === '') ||
+    (node.type === 'paragraph' &&
+      node.children.every(isTextNode) &&
+      (toString(node).trim() === '' || isMarkerParagraph(node)))
+
+  /**
    * Serializes `:::if` directive blocks into `<if>` components that
    * evaluate a test expression against game data and render optional
    * fallback content when the expression is falsy.
@@ -1599,7 +1631,7 @@ export const useDirectiveHandlers = () => {
       beforeRemove?: (parent: Parent, markerIndex: number) => void
     ): DirectiveHandler =>
     (directive, parent, index) => {
-      if (!parent || typeof index !== 'number') return index
+      if (!parent || typeof index !== 'number') return
       const container = directive as ContainerDirective
       const { attrs } = extractAttributes<S>(directive, parent, index, schema)
       const rawAttrs = (directive.attributes || {}) as Record<string, unknown>
@@ -1875,26 +1907,6 @@ export const useDirectiveHandlers = () => {
     ])
 
     const slides: Parent[] = []
-
-    const isMarkerParagraph = (node: RootContent) => {
-      if (
-        node.type === 'paragraph' &&
-        node.children.length > 0 &&
-        node.children.every(isTextNode)
-      ) {
-        const combined = node.children.map(c => (c as MdText).value).join('')
-        const stripped = combined.replace(/\s+/g, '')
-        const parts = stripped.split(DIRECTIVE_MARKER)
-        return stripped.length > 0 && parts.every(part => part === '')
-      }
-      return false
-    }
-
-    const isWhitespaceNode = (node: RootContent): boolean =>
-      (node.type === 'text' && node.value.trim() === '') ||
-      (node.type === 'paragraph' &&
-        node.children.every(isTextNode) &&
-        (toString(node).trim() === '' || isMarkerParagraph(node)))
 
     let endPos = parent.children.length
     for (let i = parent.children.length - 1; i > index; i--) {
