@@ -9,7 +9,7 @@ import remarkCampfire from '@campfire/remark-campfire'
 import remarkRehype from 'remark-rehype'
 import rehypeCampfire from '@campfire/rehype-campfire'
 import rehypeReact from 'rehype-react'
-import type { Text, Content } from 'hast'
+import type { Text as HastText, Content } from 'hast'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { remarkHeadingStyles } from '@campfire/utils/remarkHeadingStyles'
 import { remarkParagraphStyles } from '@campfire/utils/remarkParagraphStyles'
@@ -29,6 +29,7 @@ import { OnExit } from '@campfire/components/Passage/OnExit'
 import { Deck } from '@campfire/components/Deck'
 import { Slide } from '@campfire/components/Deck/Slide'
 import { Appear } from '@campfire/components/Deck/Slide/Appear'
+import { Text } from '@campfire/components/Deck/Slide/Text'
 
 const DIRECTIVE_MARKER_PATTERN = '(:::[^\\n]*|:[^\\n]*|<<)'
 
@@ -135,7 +136,8 @@ export const Passage = () => {
             onExit: OnExit,
             deck: Deck,
             slide: Slide,
-            appear: Appear
+            appear: Appear,
+            text: Text
           }
         }),
     [handlers]
@@ -192,7 +194,7 @@ export const Passage = () => {
       const text = passage.children
         .map((child: Content) =>
           child.type === 'text' && typeof child.value === 'string'
-            ? (child as Text).value
+            ? (child as HastText).value
             : ''
         )
         .join('')
