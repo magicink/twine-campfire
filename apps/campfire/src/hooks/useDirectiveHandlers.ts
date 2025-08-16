@@ -1908,6 +1908,18 @@ export const useDirectiveHandlers = () => {
     let pendingNodes: RootContent[] = []
 
     /**
+     * Determines whether a node is purely whitespace or a marker paragraph.
+     *
+     * @param node - Node to examine.
+     * @returns True if the node contains no meaningful content.
+     */
+    const isWhitespaceNode = (node: RootContent): boolean =>
+      (node.type === 'text' && node.value.trim() === '') ||
+      (node.type === 'paragraph' &&
+        node.children.every(isTextNode) &&
+        (toString(node).trim() === '' || isMarkerParagraph(node)))
+
+    /**
      * Finalizes the currently buffered slide content and adds it to the deck.
      * Removes any trailing directive markers before running the remark
      * pipeline so stray markers do not render in the output.
@@ -1915,9 +1927,10 @@ export const useDirectiveHandlers = () => {
     const commitPending = () => {
       const tempParent: Parent = { type: 'root', children: pendingNodes }
       removeDirectiveMarker(tempParent, tempParent.children.length - 1)
-      pendingNodes = tempParent.children
+      pendingNodes = tempParent.children.filter(n => !isWhitespaceNode(n))
 
-      if (!pendingNodes.length && Object.keys(pendingAttrs).length === 0) return
+      if (pendingNodes.length === 0 && Object.keys(pendingAttrs).length === 0)
+        return
       const dummy: DirectiveNode = {
         type: 'containerDirective',
         name: 'slide',
