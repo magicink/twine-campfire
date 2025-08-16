@@ -14,6 +14,7 @@ import { LinkButton } from '@campfire/components/Passage/LinkButton'
 import { TriggerButton } from '@campfire/components/Passage/TriggerButton'
 import { Show } from '@campfire/components/Passage/Show'
 import { OnExit } from '@campfire/components/Passage/OnExit'
+import { Appear } from '@campfire/components/Deck/Slide/Appear'
 
 interface IfProps {
   test: string
@@ -43,7 +44,8 @@ export const If = ({ test, content, fallback }: IfProps) => {
           trigger: TriggerButton,
           if: If,
           show: Show,
-          onExit: OnExit
+          onExit: OnExit,
+          appear: Appear
         }
       })
     proc.parser = (_doc: unknown, file: Root) => ({

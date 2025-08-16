@@ -16,6 +16,7 @@ import { Show } from '@campfire/components/Passage/Show'
 import { OnExit } from '@campfire/components/Passage/OnExit'
 import { Deck } from '@campfire/components/Deck'
 import { Slide } from './'
+import { Appear } from '@campfire/components/Deck/Slide/Appear'
 
 /**
  * Converts Markdown containing Campfire directives into Preact elements.
@@ -47,7 +48,8 @@ export const renderDirectiveMarkdown = (
         show: Show,
         onExit: OnExit,
         deck: Deck,
-        slide: Slide
+        slide: Slide,
+        appear: Appear
       }
     })
 
