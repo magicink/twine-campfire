@@ -4,7 +4,6 @@ import { Fragment } from 'preact/jsx-runtime'
 import type { ComponentChild } from 'preact'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { renderDirectiveMarkdown } from '@campfire/components/Deck/Slide/renderDirectiveMarkdown'
-import { Text } from '@campfire/components/Deck/Slide/Text'
 
 let output: ComponentChild | null = null
 
@@ -26,34 +25,37 @@ beforeEach(() => {
 })
 
 describe('text directive', () => {
-  it('renders a Text component with attributes', () => {
+  it('renders a positioned HTML element with styles', () => {
     const md =
       ':::text{x=10 y=20 w=100 h=50 z=5 rotate=45 scale=1.5 anchor=center as="h2" align=center size=24 weight=700 lineHeight=1.2 color="red" class="underline" data-test="ok"}\nHello\n:::'
     render(<MarkdownRunner markdown={md} />)
-    const getText = (node: any): any => {
-      if (Array.isArray(node)) return getText(node[0])
-      if (node?.type === Fragment) return getText(node.props.children)
+    const getEl = (node: any): any => {
+      if (Array.isArray(node)) return getEl(node[0])
+      if (node?.type === Fragment) return getEl(node.props.children)
       return node
     }
-    const text = getText(output)
-    expect(text.type).toBe(Text)
-    expect(text.props.x).toBe(10)
-    expect(text.props.y).toBe(20)
-    expect(text.props.w).toBe(100)
-    expect(text.props.h).toBe(50)
-    expect(text.props.z).toBe(5)
-    expect(text.props.rotate).toBe(45)
-    expect(text.props.scale).toBe(1.5)
-    expect(text.props.anchor).toBe('center')
-    expect(text.props.as).toBe('h2')
-    expect(text.props.align).toBe('center')
-    expect(text.props.size).toBe(24)
-    expect(text.props.weight).toBe(700)
-    expect(text.props.lineHeight).toBe(1.2)
-    expect(text.props.color).toBe('red')
-    expect(text.props.className).toBe('underline')
-    expect(text.props['data-test']).toBe('ok')
-    expect(text.props.children).toBe('Hello')
+    const el = getEl(output)
+    expect(el.type).toBe('h2')
+    const style = el.props.style
+    expect(style.position).toBe('absolute')
+    expect(style.left).toBe('10px')
+    expect(style.top).toBe('20px')
+    expect(style.width).toBe('100px')
+    expect(style.height).toBe('50px')
+    expect(style.zIndex).toBe('5')
+    expect(style.transform).toContain('rotate(45deg)')
+    expect(style.transform).toContain('scale(1.5)')
+    expect(style.transformOrigin).toBe('50% 50%')
+    expect(style.textAlign).toBe('center')
+    expect(style.fontSize).toBe('24px')
+    expect(style.fontWeight).toBe('700')
+    expect(style.lineHeight).toBe('1.2')
+    expect(style.color).toBe('red')
+    expect(el.props.className.split(' ')).toEqual(
+      expect.arrayContaining(['underline', 'text-base', 'font-normal'])
+    )
+    expect(el.props['data-test']).toBe('ok')
+    expect(el.props.children).toBe('Hello')
   })
 
   it('does not render stray colons when text contains directives', () => {
