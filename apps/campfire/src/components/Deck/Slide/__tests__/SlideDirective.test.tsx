@@ -21,13 +21,7 @@ const makeDirective = (md: string) =>
  * Resets deck store for each test.
  */
 const resetDeckStore = () => {
-  useDeckStore.setState({
-    currentSlide: 0,
-    currentStep: 0,
-    maxSteps: 0,
-    slidesCount: 0,
-    stepsPerSlide: {}
-  })
+  useDeckStore.getState().reset()
 }
 
 // Minimal ResizeObserver stub for the tests

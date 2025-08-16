@@ -9,13 +9,7 @@ import { StubAnimation } from '@campfire/test-utils/stub-animation'
  * Resets the deck store to a clean initial state.
  */
 const resetStore = () => {
-  useDeckStore.setState({
-    currentSlide: 0,
-    currentStep: 0,
-    maxSteps: 0,
-    slidesCount: 0,
-    stepsPerSlide: {}
-  })
+  useDeckStore.getState().reset()
 }
 
 // Minimal ResizeObserver stub for the tests
@@ -93,6 +87,24 @@ describe('Deck', () => {
       window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home' }))
     })
     expect(useDeckStore.getState().currentSlide).toBe(0)
+  })
+
+  it('resets deck state when unmounted', () => {
+    const { unmount } = render(
+      <Deck>
+        <div>One</div>
+        <div>Two</div>
+      </Deck>
+    )
+    act(() => {
+      useDeckStore.getState().next()
+    })
+    expect(useDeckStore.getState().currentSlide).toBe(1)
+    act(() => {
+      unmount()
+    })
+    expect(useDeckStore.getState().currentSlide).toBe(0)
+    expect(useDeckStore.getState().slidesCount).toBe(0)
   })
 
   it('applies slide transition type and duration', async () => {
