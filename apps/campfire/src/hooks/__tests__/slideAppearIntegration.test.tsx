@@ -9,6 +9,12 @@ import { renderDirectiveMarkdown } from '@campfire/components/Deck/Slide/renderD
 
 let output: ComponentChild | null = null
 
+/**
+ * Component used in tests to render markdown with directive handlers.
+ *
+ * @param markdown - Markdown string that may include directive containers.
+ * @returns Nothing; sets `output` with rendered content.
+ */
 const MarkdownRunner = ({ markdown }: { markdown: string }) => {
   const handlers = useDirectiveHandlers()
   output = renderDirectiveMarkdown(markdown, handlers)
@@ -22,7 +28,25 @@ beforeEach(() => {
 
 describe('deck slide appear integration', () => {
   it('keeps multiple appear directives within the same slide', () => {
-    const md = `:::deck{size=800x600}\n\n  :::slide{transition=fade}\n    :::appear{at=0}\n      :::text{x=80 y=80 as="h2"}\n      Hello\n      :::\n    :::\n\n    :::appear{at=1}\n      :::text{x=100 y=100 as="h2"}\n      World\n      :::\n    :::\n  :::\n\n:::`
+    const md = /* markdown */ `
+:::deck{size=800x600}
+
+  :::slide{transition=fade}
+    :::appear{at=0}
+      :::text{x=80 y=80 as="h2"}
+      Hello
+      :::
+    :::
+
+    :::appear{at=1}
+      :::text{x=100 y=100 as="h2"}
+      World
+      :::
+    :::
+  :::
+
+:::
+    `.trim()
     render(<MarkdownRunner markdown={md} />)
     const getDeck = (node: any): any => {
       if (Array.isArray(node)) return getDeck(node[0])
