@@ -1112,6 +1112,7 @@ export const useDirectiveHandlers = () => {
     const newIndex = replaceWithIndentation(directive, parent, index, [
       appearNode as RootContent
     ])
+    removeDirectiveMarker(parent, newIndex + 1)
     return [SKIP, newIndex]
   }
 
@@ -1714,23 +1715,26 @@ export const useDirectiveHandlers = () => {
 
     const following: RootContent[] = []
     let markerPos = index + 1
-    while (markerPos < parent.children.length) {
-      const node = parent.children[markerPos]
+    const isMarkerParagraph = (node: RootContent) => {
       if (
         node.type === 'paragraph' &&
         node.children.length > 0 &&
-        node.children.every(isTextNode) &&
-        node.children
-          .map(c => (c as MdText).value)
-          .join('')
-          .trim() === ':::'
+        node.children.every(isTextNode)
       ) {
-        break
+        const combined = node.children.map(c => (c as MdText).value).join('')
+        const stripped = combined.replace(/\s+/g, '')
+        const parts = stripped.split(DIRECTIVE_MARKER)
+        return stripped.length > 0 && parts.every(part => part === '')
       }
+      return false
+    }
+    while (markerPos < parent.children.length) {
+      const node = parent.children[markerPos]
+      if (isMarkerParagraph(node as RootContent)) break
       following.push(node as RootContent)
       markerPos++
     }
-    parent.children.splice(index + 1, markerPos - (index + 1))
+    parent.children.splice(index + 1, markerPos - index)
 
     const children = stripLabel([
       ...(container.children as RootContent[]),
@@ -1816,6 +1820,7 @@ export const useDirectiveHandlers = () => {
     const newIndex = replaceWithIndentation(directive, parent, index, [
       deckNode as RootContent
     ])
+    removeDirectiveMarker(parent, newIndex + 1)
     return [SKIP, newIndex]
   }
 
