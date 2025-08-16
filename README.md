@@ -598,6 +598,20 @@ Control the flow between passages or how they appear.
   | transition | Default transition applied between slides                                  |
   | theme      | Optional JSON object or string of CSS properties applied to the deck theme |
 
+- `text`: Position typographic content within a slide.
+
+  ```md
+  :::deck
+  :::slide
+  :::text{x=100 y=50 align=center size=32}
+  Hello
+  :::
+  :::
+  :::
+  ```
+
+  Accepts the same attributes as the `Text` component.
+
 ### Persistence
 
 Save and load progress or store data in the browser.
