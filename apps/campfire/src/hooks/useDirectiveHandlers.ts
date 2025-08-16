@@ -1894,7 +1894,7 @@ export const useDirectiveHandlers = () => {
       markerPos++
     }
     if (markerPos > index + 1) {
-      parent.children.splice(index + 1, markerPos - index - 1)
+      parent.children.splice(index + 1, markerPos - (index + 1))
     }
 
     const children = stripLabel([
