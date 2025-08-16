@@ -137,7 +137,7 @@ export const Passage = () => {
             deck: Deck,
             slide: Slide,
             appear: Appear,
-            Text
+            text: Text
           }
         }),
     [handlers]

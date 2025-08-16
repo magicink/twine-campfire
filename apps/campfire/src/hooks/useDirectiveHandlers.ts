@@ -1750,7 +1750,7 @@ export const useDirectiveHandlers = () => {
     const textNode: Parent = {
       type: 'paragraph',
       children: content,
-      data: { hName: 'Text', hProperties: props as Properties }
+      data: { hName: 'text', hProperties: props as Properties }
     }
 
     const newIndex = replaceWithIndentation(directive, parent, index, [
