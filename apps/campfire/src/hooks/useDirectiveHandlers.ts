@@ -1893,7 +1893,9 @@ export const useDirectiveHandlers = () => {
       following.push(node as RootContent)
       markerPos++
     }
-    parent.children.splice(index + 1, markerPos - index)
+    if (markerPos > index + 1) {
+      parent.children.splice(index + 1, markerPos - index - 1)
+    }
 
     const children = stripLabel([
       ...(container.children as RootContent[]),
