@@ -26,32 +26,19 @@ const render: StoryObj<typeof Deck>['render'] = () => (
       }}
     >
       <Appear at={0}>
-        <Text
-          as='h2'
-          x={80}
-          y={80}
-          size={36}
-          color='var(--color-gray-50)'
-          content='Fade Slide'
-        />
+        <Text as='h2' x={80} y={80} size={36} color='var(--color-gray-50)'>
+          Fade Slide
+        </Text>
       </Appear>
       <Appear at={1}>
-        <Text
-          x={500}
-          y={400}
-          size={24}
-          color='var(--color-gray-50)'
-          content='Second step'
-        />
+        <Text x={500} y={400} size={24} color='var(--color-gray-50)'>
+          Second step
+        </Text>
       </Appear>
       <Appear at={2}>
-        <Text
-          x={500}
-          y={500}
-          size={24}
-          color='var(--color-gray-50)'
-          content='Third step'
-        />
+        <Text x={500} y={500} size={24} color='var(--color-gray-50)'>
+          Third step
+        </Text>
       </Appear>
     </Slide>
     <Slide
@@ -61,23 +48,14 @@ const render: StoryObj<typeof Deck>['render'] = () => (
       }}
     >
       <Appear at={0}>
-        <Text
-          as='h2'
-          x={80}
-          y={80}
-          size={36}
-          color='var(--color-gray-50)'
-          content='Slide Transition'
-        />
+        <Text as='h2' x={80} y={80} size={36} color='var(--color-gray-50)'>
+          Slide Transition
+        </Text>
       </Appear>
       <Appear at={1}>
-        <Text
-          x={500}
-          y={400}
-          size={24}
-          color='var(--color-gray-50)'
-          content='Second step'
-        />
+        <Text x={500} y={400} size={24} color='var(--color-gray-50)'>
+          Second step
+        </Text>
       </Appear>
     </Slide>
     <Slide
@@ -87,23 +65,14 @@ const render: StoryObj<typeof Deck>['render'] = () => (
       }}
     >
       <Appear at={0}>
-        <Text
-          as='h2'
-          x={80}
-          y={80}
-          size={36}
-          color='var(--color-gray-50)'
-          content='Zoom Slide'
-        />
+        <Text as='h2' x={80} y={80} size={36} color='var(--color-gray-50)'>
+          Zoom Slide
+        </Text>
       </Appear>
       <Appear at={1}>
-        <Text
-          x={500}
-          y={400}
-          size={24}
-          color='var(--color-gray-50)'
-          content='Second step'
-        />
+        <Text x={500} y={400} size={24} color='var(--color-gray-50)'>
+          Second step
+        </Text>
       </Appear>
     </Slide>
   </Deck>
