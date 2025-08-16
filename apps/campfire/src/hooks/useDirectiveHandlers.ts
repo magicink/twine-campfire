@@ -16,7 +16,12 @@ import remarkCampfire, {
 } from '@campfire/remark-campfire'
 import type { Parent, Root, RootContent, Text as MdText } from 'mdast'
 import type { Node } from 'unist'
-import type { ElementContent, Properties, Text as HastText } from 'hast'
+import type {
+  Element,
+  ElementContent,
+  Properties,
+  Text as HastText
+} from 'hast'
 import type { ContainerDirective } from 'mdast-util-directive'
 import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
 import { type Checkpoint, useGameStore } from '@campfire/state/useGameStore'
@@ -1666,7 +1671,7 @@ export const useDirectiveHandlers = () => {
   type TextAttrs = ExtractedAttrs<TextSchema>
 
   /**
-   * Converts a `:::text` directive into a Text element.
+   * Converts a `:::text` directive into a DeckText element.
    *
    * @param directive - The text directive node.
    * @param parent - Parent node containing the directive.
@@ -1684,22 +1689,48 @@ export const useDirectiveHandlers = () => {
       textSchema
     )
 
-    const props: Record<string, unknown> = {}
-    if (typeof attrs.x === 'number') props.x = attrs.x
-    if (typeof attrs.y === 'number') props.y = attrs.y
-    if (typeof attrs.w === 'number') props.w = attrs.w
-    if (typeof attrs.h === 'number') props.h = attrs.h
-    if (typeof attrs.z === 'number') props.z = attrs.z
-    if (typeof attrs.rotate === 'number') props.rotate = attrs.rotate
-    if (typeof attrs.scale === 'number') props.scale = attrs.scale
-    if (attrs.anchor) props.anchor = attrs.anchor
-    if (attrs.as) props.as = attrs.as
-    if (attrs.align) props.align = attrs.align
-    if (typeof attrs.size === 'number') props.size = attrs.size
-    if (typeof attrs.weight === 'number') props.weight = attrs.weight
+    const tagName = attrs.as ? String(attrs.as) : 'p'
+
+    const style: string[] = []
+    // Positioning
+    style.push('position:absolute')
+    if (typeof attrs.x === 'number') style.push(`left:${attrs.x}px`)
+    if (typeof attrs.y === 'number') style.push(`top:${attrs.y}px`)
+    if (typeof attrs.w === 'number') style.push(`width:${attrs.w}px`)
+    if (typeof attrs.h === 'number') style.push(`height:${attrs.h}px`)
+    if (typeof attrs.z === 'number') style.push(`z-index:${attrs.z}`)
+    const transforms: string[] = []
+    if (typeof attrs.rotate === 'number')
+      transforms.push(`rotate(${attrs.rotate}deg)`)
+    if (typeof attrs.scale === 'number')
+      transforms.push(`scale(${attrs.scale})`)
+    if (transforms.length) style.push(`transform:${transforms.join(' ')}`)
+    if (attrs.anchor && attrs.anchor !== 'top-left') {
+      const originMap: Record<string, string> = {
+        'top-left': '0% 0%',
+        top: '50% 0%',
+        'top-right': '100% 0%',
+        left: '0% 50%',
+        center: '50% 50%',
+        right: '100% 50%',
+        'bottom-left': '0% 100%',
+        bottom: '50% 100%',
+        'bottom-right': '100% 100%'
+      }
+      const origin = originMap[attrs.anchor]
+      if (origin) style.push(`transform-origin:${origin}`)
+    }
+    // Typography
+    if (attrs.align) style.push(`text-align:${attrs.align}`)
+    if (typeof attrs.size === 'number') style.push(`font-size:${attrs.size}px`)
+    if (typeof attrs.weight === 'number')
+      style.push(`font-weight:${attrs.weight}`)
     if (typeof attrs.lineHeight === 'number')
-      props.lineHeight = attrs.lineHeight
-    if (attrs.color) props.color = attrs.color
+      style.push(`line-height:${attrs.lineHeight}`)
+    if (attrs.color) style.push(`color:${attrs.color}`)
+
+    const props: Record<string, unknown> = {}
+    if (style.length) props.style = style.join(';')
 
     const rawAttrs = (directive.attributes || {}) as Record<string, unknown>
     const classAttr =
@@ -1710,7 +1741,11 @@ export const useDirectiveHandlers = () => {
           : typeof rawAttrs.classes === 'string'
             ? rawAttrs.classes
             : undefined
-    if (classAttr) props.className = classAttr
+    const classes = ['text-base', 'font-normal']
+    if (classAttr) classes.unshift(classAttr)
+    props.className = classes.join(' ')
+    props['data-component'] = 'deck-text'
+    props['data-as'] = tagName
 
     applyAdditionalAttributes(rawAttrs, props, [
       'x',
@@ -1750,7 +1785,7 @@ export const useDirectiveHandlers = () => {
     const textNode: Parent = {
       type: 'paragraph',
       children: content,
-      data: { hName: 'text', hProperties: props as Properties }
+      data: { hName: tagName, hProperties: props as Properties }
     }
 
     const newIndex = replaceWithIndentation(directive, parent, index, [

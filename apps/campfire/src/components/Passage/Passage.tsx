@@ -29,7 +29,8 @@ import { OnExit } from '@campfire/components/Passage/OnExit'
 import { Deck } from '@campfire/components/Deck'
 import { Slide } from '@campfire/components/Deck/Slide'
 import { Appear } from '@campfire/components/Deck/Slide/Appear'
-import { Text } from '@campfire/components/Deck/Slide/Text'
+import { DeckText } from '@campfire/components/Deck/Slide/DeckText'
+import { rehypeDeckText } from '@campfire/utils/rehypeDeckText'
 
 const DIRECTIVE_MARKER_PATTERN = '(:::[^\\n]*|:[^\\n]*|<<)'
 
@@ -124,6 +125,7 @@ export const Passage = () => {
         .use(remarkHeadingStyles)
         .use(remarkRehype)
         .use(rehypeCampfire)
+        .use(rehypeDeckText)
         .use(rehypeReact, {
           Fragment,
           jsx,
@@ -137,7 +139,7 @@ export const Passage = () => {
             deck: Deck,
             slide: Slide,
             appear: Appear,
-            text: Text
+            'deck-text': DeckText
           }
         }),
     [handlers]
