@@ -15,8 +15,10 @@ export interface DeckSize {
 
 /**
  * Observes the container size and computes a scale factor that keeps the
- * content within the provided dimensions. Returns a ref to attach to the
- * container element and the current scale value.
+ * content within the provided dimensions. When the container is smaller than
+ * the content, the scale factor is eased using a square root to avoid
+ * aggressively shrinking text. Returns a ref to attach to the container element
+ * and the current scale value.
  *
  * @param size - The natural width and height of the content.
  * @returns An object containing the `ref` and computed `scale` value.
@@ -33,7 +35,8 @@ export const useScale = (size: DeckSize) => {
       const { clientWidth: cw, clientHeight: ch } = el
       const sx = cw / size.width
       const sy = ch / size.height
-      const s = Math.max(MIN_SCALE, Math.min(sx, sy))
+      const sRaw = Math.min(sx, sy)
+      const s = Math.max(MIN_SCALE, sRaw < 1 ? Math.sqrt(sRaw) : sRaw)
       setScale(s)
     })
 

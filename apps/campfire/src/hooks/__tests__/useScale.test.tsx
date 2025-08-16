@@ -42,7 +42,7 @@ describe('useScale', () => {
     Object.defineProperty(el, 'clientWidth', { value: 50, configurable: true })
     Object.defineProperty(el, 'clientHeight', { value: 40, configurable: true })
     act(() => trigger())
-    expect(currentScale).toBe(0.4)
+    expect(currentScale).toBeCloseTo(Math.sqrt(0.4))
 
     Object.defineProperty(el, 'clientWidth', { value: 200, configurable: true })
     Object.defineProperty(el, 'clientHeight', {
@@ -69,8 +69,8 @@ describe('useScale', () => {
     const { container } = render(<TestComponent />)
     const el = container.firstElementChild as HTMLDivElement
 
-    Object.defineProperty(el, 'clientWidth', { value: 1, configurable: true })
-    Object.defineProperty(el, 'clientHeight', { value: 1, configurable: true })
+    Object.defineProperty(el, 'clientWidth', { value: 0, configurable: true })
+    Object.defineProperty(el, 'clientHeight', { value: 0, configurable: true })
     act(() => trigger())
     expect(currentScale).toBe(MIN_SCALE)
   })
