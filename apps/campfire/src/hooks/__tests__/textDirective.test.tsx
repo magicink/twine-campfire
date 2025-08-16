@@ -8,6 +8,12 @@ import { Text } from '@campfire/components/Deck/Slide/Text'
 
 let output: ComponentChild | null = null
 
+/**
+ * Component used in tests to render markdown with directive handlers.
+ *
+ * @param markdown - Markdown string that may include directive containers.
+ * @returns Nothing; sets `output` with rendered content.
+ */
 const MarkdownRunner = ({ markdown }: { markdown: string }) => {
   const handlers = useDirectiveHandlers()
   output = renderDirectiveMarkdown(markdown, handlers)
@@ -20,9 +26,9 @@ beforeEach(() => {
 })
 
 describe('text directive', () => {
-  it('renders a Text component with props', () => {
+  it('renders a Text component with attributes', () => {
     const md =
-      ':::text{x=10 y=20 w=100 h=50 as="h2" align=center size=24 weight=700 lineHeight=1.2 color="red"}\nHello\n:::'
+      ':::text{x=10 y=20 w=100 h=50 z=5 rotate=45 scale=1.5 anchor=center as="h2" align=center size=24 weight=700 lineHeight=1.2 color="red" class="underline" data-test="ok"}\nHello\n:::'
     render(<MarkdownRunner markdown={md} />)
     const getText = (node: any): any => {
       if (Array.isArray(node)) return getText(node[0])
@@ -35,12 +41,18 @@ describe('text directive', () => {
     expect(text.props.y).toBe(20)
     expect(text.props.w).toBe(100)
     expect(text.props.h).toBe(50)
+    expect(text.props.z).toBe(5)
+    expect(text.props.rotate).toBe(45)
+    expect(text.props.scale).toBe(1.5)
+    expect(text.props.anchor).toBe('center')
     expect(text.props.as).toBe('h2')
     expect(text.props.align).toBe('center')
     expect(text.props.size).toBe(24)
     expect(text.props.weight).toBe(700)
     expect(text.props.lineHeight).toBe(1.2)
     expect(text.props.color).toBe('red')
+    expect(text.props.className).toBe('underline')
+    expect(text.props['data-test']).toBe('ok')
     expect(text.props.children).toBe('Hello')
   })
 
