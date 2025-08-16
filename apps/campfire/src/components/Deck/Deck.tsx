@@ -198,7 +198,7 @@ export const Deck = ({
   return (
     <div
       ref={hostRef}
-      className={`relative w-full h-full overflow-hidden bg-gray-100 dark:bg-gray-900 ${className ?? ''}`}
+      className={`relative w-full h-full overflow-hidden ${className ?? ''}`}
       style={themeStyle}
       data-testid='deck'
     >
