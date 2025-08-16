@@ -26,17 +26,17 @@ const render: StoryObj<typeof Deck>['render'] = () => (
       }}
     >
       <Appear at={0}>
-        <DeckText as='h2' x={80} y={80} size={36} color='var(--color-gray-50)'>
+        <DeckText as='h2' x={80} y={80} size={36}>
           Fade Slide
         </DeckText>
       </Appear>
       <Appear at={1}>
-        <DeckText x={500} y={400} size={24} color='var(--color-gray-50)'>
+        <DeckText x={500} y={400} size={24}>
           Second step
         </DeckText>
       </Appear>
       <Appear at={2}>
-        <DeckText x={500} y={500} size={24} color='var(--color-gray-50)'>
+        <DeckText x={500} y={500} size={24}>
           Third step
         </DeckText>
       </Appear>
@@ -48,12 +48,12 @@ const render: StoryObj<typeof Deck>['render'] = () => (
       }}
     >
       <Appear at={0}>
-        <DeckText as='h2' x={80} y={80} size={36} color='var(--color-gray-50)'>
+        <DeckText as='h2' x={80} y={80} size={36}>
           Slide Transition
         </DeckText>
       </Appear>
       <Appear at={1}>
-        <DeckText x={500} y={400} size={24} color='var(--color-gray-50)'>
+        <DeckText x={500} y={400} size={24}>
           Second step
         </DeckText>
       </Appear>
@@ -65,12 +65,12 @@ const render: StoryObj<typeof Deck>['render'] = () => (
       }}
     >
       <Appear at={0}>
-        <DeckText as='h2' x={80} y={80} size={36} color='var(--color-gray-50)'>
+        <DeckText as='h2' x={80} y={80} size={36}>
           Zoom Slide
         </DeckText>
       </Appear>
       <Appear at={1}>
-        <DeckText x={500} y={400} size={24} color='var(--color-gray-50)'>
+        <DeckText x={500} y={400} size={24}>
           Second step
         </DeckText>
       </Appear>

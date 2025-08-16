@@ -19,18 +19,41 @@ const render: StoryObj<typeof Appear>['render'] = () => (
   <Deck className='w-[800px] h-[600px]'>
     <Slide>
       <Appear at={0}>
-        <DeckText as='h2' x={80} y={80} size={36} color='var(--color-gray-50)'>
+        <DeckText
+          as='h2'
+          x={180}
+          y={180}
+          size={36}
+          className={
+            'text-[var(--color-gray-50) dark:text-[var(--color-gray-500)]'
+          }
+        >
           First
         </DeckText>
       </Appear>
       <Appear at={1}>
-        <DeckText x={500} y={400} size={24} color='var(--color-gray-50)'>
+        <DeckText
+          x={280}
+          y={280}
+          size={24}
+          className={
+            'text-[var(--color-gray-50) dark:text-[var(--color-gray-500)]'
+          }
+        >
           Second
         </DeckText>
       </Appear>
     </Slide>
     <Slide>
-      <DeckText as='h2' x={80} y={80} size={36} color='var(--color-gray-50)'>
+      <DeckText
+        as='h2'
+        x={280}
+        y={280}
+        size={36}
+        className={
+          'text-[var(--color-gray-50) dark:text-[var(--color-gray-500)]'
+        }
+      >
         Next Slide
       </DeckText>
     </Slide>

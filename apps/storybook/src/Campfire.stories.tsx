@@ -37,12 +37,6 @@ You clicked the button!
 `}
         </tw-passagedata>
       </tw-storydata>
-      <tw-story data-mounted='yes'>
-        <tw-sidebar></tw-sidebar>
-        <tw-link name='Go' type='internal' data-target='2'></tw-link>
-        <tw-hook name='content'></tw-hook>
-        <tw-enchantment></tw-enchantment>
-      </tw-story>
       <Campfire />
     </>
   )
@@ -60,27 +54,22 @@ export const Deck: StoryObj = {
         <tw-passagedata pid='1' name='Start'>
           {`
 :::deck{size=800x600}
-
   :::slide{transition=fade}
-    :::appear{at=0 x=80 y=80}
-    Hello
+    :::appear{at=0}
+      :::text{x=80 y=80 as="h2"}
+      Hello
+      :::
     :::
-
-    :::appear{at=1 x=100 y=100}
-    World
+    :::appear{at=1}
+      :::text{x=100 y=100 as="h2"}
+      World
+      :::
     :::
   :::
-
 :::
 `}
         </tw-passagedata>
       </tw-storydata>
-      <tw-story data-mounted='yes'>
-        <tw-sidebar></tw-sidebar>
-        <tw-link name='Go' type='internal' data-target='2'></tw-link>
-        <tw-hook name='content'></tw-hook>
-        <tw-enchantment></tw-enchantment>
-      </tw-story>
       <Campfire />
     </>
   )
