@@ -1756,7 +1756,14 @@ export const useDirectiveHandlers = () => {
     const newIndex = replaceWithIndentation(directive, parent, index, [
       textNode as RootContent
     ])
-    removeDirectiveMarker(parent, newIndex + 1)
+    const markerIndex = newIndex + 1
+    if (
+      parent.children[markerIndex]?.type === 'text' &&
+      /^\s*$/.test((parent.children[markerIndex] as MdText).value)
+    ) {
+      parent.children.splice(markerIndex, 1)
+    }
+    removeDirectiveMarker(parent, markerIndex)
     return [SKIP, newIndex]
   }
 
