@@ -72,4 +72,18 @@ describe('deck directive', () => {
     expect(slides.length).toBe(1)
     expect(slides[0].type).toBe(Slide)
   })
+
+  it('does not render stray colons when slide contains directives', () => {
+    const md = `:::deck\n:::slide\n:::if{true}\nHi\n:::\n:::\n:::\n`
+    render(<MarkdownRunner markdown={md} />)
+    const getText = (node: any): string => {
+      if (!node) return ''
+      if (typeof node === 'string') return node
+      if (Array.isArray(node)) return node.map(getText).join('')
+      if (node.props?.children) return getText(node.props.children)
+      return ''
+    }
+    const text = getText(output)
+    expect(text).not.toContain(':::')
+  })
 })
