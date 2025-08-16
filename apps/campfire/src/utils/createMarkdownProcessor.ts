@@ -8,6 +8,7 @@ import rehypeCampfire from '@campfire/rehype-campfire'
 import rehypeDeckText from '@campfire/utils/rehypeDeckText'
 import rehypeReact from 'rehype-react'
 import { Fragment, jsx, jsxs } from 'preact/jsx-runtime'
+import type { ComponentType } from 'preact'
 import type { DirectiveHandler } from '@campfire/remark-campfire'
 import type { PluggableList } from 'unified'
 
@@ -22,7 +23,7 @@ import type { PluggableList } from 'unified'
  */
 export const createMarkdownProcessor = (
   handlers: Record<string, DirectiveHandler>,
-  components: Record<string, unknown>,
+  components: Record<string, ComponentType<any>>,
   remarkPlugins: PluggableList = []
 ) =>
   unified()

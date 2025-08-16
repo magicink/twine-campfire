@@ -1614,6 +1614,9 @@ export const useDirectiveHandlers = () => {
    * @param schema - Attribute extraction schema.
    * @param mapProps - Maps parsed and raw attributes to element props.
    * @param transform - Optional transformer applied to processed children.
+   * @param beforeRemove - Optional callback executed before removing the
+   * directive's closing marker; useful for cleaning up sibling nodes based on
+   * the marker position.
    * @returns Directive handler for the container.
    */
   const createContainerHandler =
@@ -1925,7 +1928,7 @@ export const useDirectiveHandlers = () => {
         !isWhitespaceNode(node as RootContent)
     )
 
-    const children = preprocessBlock(
+    const children: RootContent[] = preprocessBlock(
       stripLabel([...(container.children as RootContent[]), ...following])
     )
     let pendingAttrs: Record<string, unknown> = {}
@@ -2004,7 +2007,7 @@ export const useDirectiveHandlers = () => {
           slideSchema
         )
         pendingAttrs = parsed
-      } else if (!isWhitespaceNode(child as RootContent)) {
+      } else if (!isWhitespaceNode(child)) {
         pendingNodes.push(child)
       }
     })
