@@ -572,6 +572,32 @@ Control the flow between passages or how they appear.
   | ----- | ----------------------------------- |
   | text  | Title text displayed in the browser |
 
+- `deck`: Present content as a series of slides.
+
+  ```md
+  :::deck{size=16x9 transition=slide}
+  :::slide{transition=fade background="bg-indigo-50"}
+
+  # One
+
+  :::
+  :slide{}
+
+  ## Two
+
+  :::
+  :::
+  ```
+
+  Each `:slide` or `:::slide` starts a new slide. Plain Markdown inside the deck
+  becomes its own slide if not preceded by a slide directive.
+
+  | Input      | Description                                                                |
+  | ---------- | -------------------------------------------------------------------------- |
+  | size       | Slide size as `WIDTHxHEIGHT` in pixels or aspect ratio like `16x9`         |
+  | transition | Default transition applied between slides                                  |
+  | theme      | Optional JSON object or string of CSS properties applied to the deck theme |
+
 ### Persistence
 
 Save and load progress or store data in the browser.
