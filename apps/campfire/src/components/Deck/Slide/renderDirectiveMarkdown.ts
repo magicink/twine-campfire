@@ -1,12 +1,3 @@
-import { unified } from 'unified'
-import remarkParse from 'remark-parse'
-import remarkGfm from 'remark-gfm'
-import remarkDirective from 'remark-directive'
-import remarkCampfire from '@campfire/remark-campfire'
-import remarkRehype from 'remark-rehype'
-import rehypeCampfire from '@campfire/rehype-campfire'
-import rehypeReact from 'rehype-react'
-import { Fragment, jsx, jsxs } from 'preact/jsx-runtime'
 import type { ComponentChild } from 'preact'
 import type { DirectiveHandler } from '@campfire/remark-campfire'
 import { LinkButton } from '@campfire/components/Passage/LinkButton'
@@ -15,10 +6,10 @@ import { If } from '@campfire/components/Passage/If'
 import { Show } from '@campfire/components/Passage/Show'
 import { OnExit } from '@campfire/components/Passage/OnExit'
 import { Deck } from '@campfire/components/Deck'
-import { Slide } from './'
-import { Appear } from '@campfire/components/Deck/Slide/Appear'
-import { DeckText } from '@campfire/components/Deck/Slide/DeckText'
-import { rehypeDeckText } from '@campfire/utils/rehypeDeckText'
+import { Slide } from './Slide'
+import { Appear } from './Appear'
+import { DeckText } from './DeckText'
+import { createMarkdownProcessor } from '@campfire/utils/createMarkdownProcessor'
 
 /**
  * Converts Markdown containing Campfire directives into Preact elements.
@@ -32,31 +23,17 @@ export const renderDirectiveMarkdown = (
   markdown: string,
   handlers: Record<string, DirectiveHandler>
 ): ComponentChild => {
-  const processor = unified()
-    .use(remarkParse)
-    .use(remarkGfm)
-    .use(remarkDirective)
-    .use(remarkCampfire, { handlers })
-    .use(remarkRehype)
-    .use(rehypeCampfire)
-    .use(rehypeDeckText)
-    .use(rehypeReact, {
-      Fragment,
-      jsx,
-      jsxs,
-      components: {
-        button: LinkButton,
-        trigger: TriggerButton,
-        if: If,
-        show: Show,
-        onExit: OnExit,
-        deck: Deck,
-        slide: Slide,
-        appear: Appear,
-        'deck-text': DeckText
-      }
-    })
-
+  const processor = createMarkdownProcessor(handlers, {
+    button: LinkButton,
+    trigger: TriggerButton,
+    if: If,
+    show: Show,
+    onExit: OnExit,
+    deck: Deck,
+    slide: Slide,
+    appear: Appear,
+    'deck-text': DeckText
+  })
   const file = processor.processSync(markdown)
   return file.result as ComponentChild
 }

@@ -3,8 +3,8 @@ import { render } from '@testing-library/preact'
 import { Fragment } from 'preact/jsx-runtime'
 import type { ComponentChild } from 'preact'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
-import { renderDirectiveMarkdown } from '@campfire/components/Deck/Slide/renderDirectiveMarkdown'
-import { Appear } from '@campfire/components/Deck/Slide/Appear'
+import { renderDirectiveMarkdown } from '@campfire/components/Deck/Slide'
+import { Appear } from '@campfire/components/Deck/Slide'
 
 let output: ComponentChild | null = null
 
