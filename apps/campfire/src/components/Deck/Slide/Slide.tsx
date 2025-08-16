@@ -85,8 +85,7 @@ export const Slide = ({
     }
   }, [])
 
-  const bgClass =
-    typeof background === 'string' ? background : 'bg-gray-100 dark:bg-gray-900'
+  const bgClass = typeof background === 'string' ? background : ''
   const bgStyle: JSX.CSSProperties =
     typeof background === 'object'
       ? {
