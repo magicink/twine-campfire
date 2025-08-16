@@ -4,6 +4,7 @@ import { Fragment } from 'preact/jsx-runtime'
 import type { ComponentChild } from 'preact'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { renderDirectiveMarkdown } from '@campfire/components/Deck/Slide/renderDirectiveMarkdown'
+import { Appear } from '@campfire/components/Deck/Slide/Appear'
 
 let output: ComponentChild | null = null
 
@@ -25,7 +26,7 @@ beforeEach(() => {
 })
 
 describe('appear directive', () => {
-  it('renders an appear element with props', () => {
+  it('renders an Appear component with props', () => {
     const md =
       ':::appear{at=1 exitAt=3 enter="slide" exit="fade" interruptBehavior="cancel" data-test="ok"}\nHello\n:::'
     render(<MarkdownRunner markdown={md} />)
@@ -35,7 +36,7 @@ describe('appear directive', () => {
       return node
     }
     const appear = getAppear(output)
-    expect(appear.type).toBe('appear')
+    expect(appear.type).toBe(Appear)
     expect(appear.props.at).toBe(1)
     expect(appear.props.exitAt).toBe(3)
     expect(appear.props.enter).toBe('slide')
