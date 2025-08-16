@@ -9,3 +9,8 @@
 - Use Conventional Commits for all commit messages.
 - If you update the `template.ejs` file, also update the Storybook preview template to keep them in sync.
 - If you update React components, add or update corresponding Storybook stories to reflect the changes.
+- When processing container directives:
+  - Always group nested container directives within their parent until the closing `:::` marker.
+  - Filter out whitespace-only nodes and directive markers before committing content to a slide.
+  - Use helpers like `stripLabel`, `removeDirectiveMarker`, and `runBlock` to handle labels and markers.
+  - Add regression tests for new container directives to prevent splitting issues.
