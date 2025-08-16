@@ -17,7 +17,8 @@ import { OnExit } from '@campfire/components/Passage/OnExit'
 import { Deck } from '@campfire/components/Deck'
 import { Slide } from './'
 import { Appear } from '@campfire/components/Deck/Slide/Appear'
-import { Text } from '@campfire/components/Deck/Slide/Text'
+import { DeckText } from '@campfire/components/Deck/Slide/DeckText'
+import { rehypeDeckText } from '@campfire/utils/rehypeDeckText'
 
 /**
  * Converts Markdown containing Campfire directives into Preact elements.
@@ -38,6 +39,7 @@ export const renderDirectiveMarkdown = (
     .use(remarkCampfire, { handlers })
     .use(remarkRehype)
     .use(rehypeCampfire)
+    .use(rehypeDeckText)
     .use(rehypeReact, {
       Fragment,
       jsx,
@@ -51,7 +53,7 @@ export const renderDirectiveMarkdown = (
         deck: Deck,
         slide: Slide,
         appear: Appear,
-        text: Text
+        'deck-text': DeckText
       }
     })
 
