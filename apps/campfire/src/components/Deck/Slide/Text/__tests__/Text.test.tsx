@@ -4,13 +4,17 @@ import { Text } from '@campfire/components/Deck/Slide/Text'
 
 describe('Text', () => {
   it('renders the specified HTML tag', () => {
-    render(<Text as='h2' content='Hello' />)
+    render(<Text as='h2'>Hello</Text>)
     const el = screen.getByText('Hello') as HTMLElement
     expect(el.tagName).toBe('H2')
   })
 
   it('forwards positioning props to Layer', () => {
-    render(<Text x={10} y={20} w={100} h={50} content='Positioned' />)
+    render(
+      <Text x={10} y={20} w={100} h={50}>
+        Positioned
+      </Text>
+    )
     const wrapper = screen.getByText('Positioned').parentElement as HTMLElement
     expect(wrapper.style.left).toBe('10px')
     expect(wrapper.style.top).toBe('20px')
@@ -20,14 +24,9 @@ describe('Text', () => {
 
   it('applies custom typography styles', () => {
     render(
-      <Text
-        size={24}
-        weight={700}
-        align='center'
-        color='red'
-        lineHeight={1.5}
-        content='Styled'
-      />
+      <Text size={24} weight={700} align='center' color='red' lineHeight={1.5}>
+        Styled
+      </Text>
     )
     const el = screen.getByText('Styled') as HTMLElement
     expect(el.style.fontSize).toBe('24px')
@@ -35,11 +34,5 @@ describe('Text', () => {
     expect(el.style.textAlign).toBe('center')
     expect(el.style.color).toBe('red')
     expect(el.style.lineHeight).toBe('1.5')
-  })
-
-  it('prefers children over content', () => {
-    render(<Text content='Fallback'>Child</Text>)
-    expect(screen.getByText('Child')).toBeTruthy()
-    expect(screen.queryByText('Fallback')).toBeNull()
   })
 })
