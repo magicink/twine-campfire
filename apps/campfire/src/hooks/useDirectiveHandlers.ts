@@ -1112,6 +1112,8 @@ export const useDirectiveHandlers = () => {
     const newIndex = replaceWithIndentation(directive, parent, index, [
       appearNode as RootContent
     ])
+    const markerIndex = newIndex + 1
+    removeDirectiveMarker(parent, markerIndex)
     return [SKIP, newIndex]
   }
 
@@ -1816,6 +1818,8 @@ export const useDirectiveHandlers = () => {
     const newIndex = replaceWithIndentation(directive, parent, index, [
       deckNode as RootContent
     ])
+    const markerIndex = newIndex + 1
+    removeDirectiveMarker(parent, markerIndex)
     return [SKIP, newIndex]
   }
 
