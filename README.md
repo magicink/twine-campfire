@@ -572,6 +572,31 @@ Control the flow between passages or how they appear.
   | ----- | ----------------------------------- |
   | text  | Title text displayed in the browser |
 
+- `deck`: Present passage content as a slide deck.
+
+  ```md
+  :::deck{size=16x9 transition=slide}
+  :::slide{background="bg-indigo-50"}
+
+  # Intro
+
+  :::
+  ::slide{}
+
+  ## Next
+
+  :::
+  ```
+
+  Separate slides with `:::slide` containers or `::slide` markers. Content
+  outside a slide block is wrapped in a default slide.
+
+  | Input      | Description                                                        |
+  | ---------- | ------------------------------------------------------------------ |
+  | size       | `WIDTHxHEIGHT` or aspect ratio like `16x9` (defaults to 1920x1080) |
+  | transition | Default animation between slides                                   |
+  | theme      | Optional JSON or token string of CSS variables                     |
+
 ### Persistence
 
 Save and load progress or store data in the browser.
