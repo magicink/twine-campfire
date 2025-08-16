@@ -43,4 +43,18 @@ describe('appear directive', () => {
     expect(appear.props.interruptBehavior).toBe('cancel')
     expect(appear.props['data-test']).toBe('ok')
   })
+
+  it('does not render stray colons when appear contains directives', () => {
+    const md = `:::appear\n:::if{true}\nHi\n:::\n:::\n`
+    render(<MarkdownRunner markdown={md} />)
+    const getText = (node: any): string => {
+      if (!node) return ''
+      if (typeof node === 'string') return node
+      if (Array.isArray(node)) return node.map(getText).join('')
+      if (node.props?.children) return getText(node.props.children)
+      return ''
+    }
+    const text = getText(output)
+    expect(text).not.toContain(':::')
+  })
 })
