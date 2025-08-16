@@ -157,7 +157,11 @@ export const Appear = ({
 
   if (!present) return null
   return (
-    <div ref={ref} style={{ display: visible ? '' : 'none' }}>
+    <div
+      ref={ref}
+      style={{ display: visible ? '' : 'none' }}
+      data-testid='appear'
+    >
       {children}
     </div>
   )
