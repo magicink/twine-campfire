@@ -1643,6 +1643,123 @@ export const useDirectiveHandlers = () => {
   type SlideSchema = typeof slideSchema
   type SlideAttrs = ExtractedAttrs<SlideSchema>
 
+  /** Schema describing supported text directive attributes. */
+  const textSchema = {
+    x: { type: 'number' },
+    y: { type: 'number' },
+    w: { type: 'number' },
+    h: { type: 'number' },
+    z: { type: 'number' },
+    rotate: { type: 'number' },
+    scale: { type: 'number' },
+    anchor: { type: 'string' },
+    as: { type: 'string' },
+    content: { type: 'string' },
+    align: { type: 'string' },
+    size: { type: 'number' },
+    weight: { type: 'number' },
+    lineHeight: { type: 'number' },
+    color: { type: 'string' }
+  } as const
+
+  type TextSchema = typeof textSchema
+  type TextAttrs = ExtractedAttrs<TextSchema>
+
+  /**
+   * Converts a `:::text` directive into a Text element.
+   *
+   * @param directive - The text directive node.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within its parent.
+   * @returns Visitor instructions after replacement.
+   */
+  const handleText: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    const container = directive as ContainerDirective
+
+    const { attrs } = extractAttributes<TextSchema>(
+      directive,
+      parent,
+      index,
+      textSchema
+    )
+
+    const props: Record<string, unknown> = {}
+    if (typeof attrs.x === 'number') props.x = attrs.x
+    if (typeof attrs.y === 'number') props.y = attrs.y
+    if (typeof attrs.w === 'number') props.w = attrs.w
+    if (typeof attrs.h === 'number') props.h = attrs.h
+    if (typeof attrs.z === 'number') props.z = attrs.z
+    if (typeof attrs.rotate === 'number') props.rotate = attrs.rotate
+    if (typeof attrs.scale === 'number') props.scale = attrs.scale
+    if (attrs.anchor) props.anchor = attrs.anchor
+    if (attrs.as) props.as = attrs.as
+    if (attrs.align) props.align = attrs.align
+    if (typeof attrs.size === 'number') props.size = attrs.size
+    if (typeof attrs.weight === 'number') props.weight = attrs.weight
+    if (typeof attrs.lineHeight === 'number')
+      props.lineHeight = attrs.lineHeight
+    if (attrs.color) props.color = attrs.color
+
+    const rawAttrs = (directive.attributes || {}) as Record<string, unknown>
+    const classAttr =
+      typeof rawAttrs.class === 'string'
+        ? rawAttrs.class
+        : typeof rawAttrs.className === 'string'
+          ? rawAttrs.className
+          : typeof rawAttrs.classes === 'string'
+            ? rawAttrs.classes
+            : undefined
+    if (classAttr) props.className = classAttr
+
+    applyAdditionalAttributes(rawAttrs, props, [
+      'x',
+      'y',
+      'w',
+      'h',
+      'z',
+      'rotate',
+      'scale',
+      'anchor',
+      'as',
+      'content',
+      'align',
+      'size',
+      'weight',
+      'lineHeight',
+      'color',
+      'class',
+      'className',
+      'classes'
+    ])
+
+    let content: RootContent[]
+    if (attrs.content) {
+      content = [{ type: 'text', value: attrs.content } as RootContent]
+    } else {
+      const processed = runBlock(
+        stripLabel(container.children as RootContent[])
+      )
+      if (processed.length === 1 && processed[0].type === 'paragraph') {
+        content = (processed[0] as Parent).children as RootContent[]
+      } else {
+        content = processed
+      }
+    }
+
+    const textNode: Parent = {
+      type: 'paragraph',
+      children: content,
+      data: { hName: 'text', hProperties: props as Properties }
+    }
+
+    const newIndex = replaceWithIndentation(directive, parent, index, [
+      textNode as RootContent
+    ])
+    removeDirectiveMarker(parent, newIndex + 1)
+    return [SKIP, newIndex]
+  }
+
   /**
    * Builds a props object for the Slide component from extracted attributes.
    *
@@ -1954,6 +2071,7 @@ export const useDirectiveHandlers = () => {
       trigger: handleTrigger,
       onExit: handleOnExit,
       appear: handleAppear,
+      text: handleText,
       deck: handleDeck,
       lang: handleLang,
       include: handleInclude,
