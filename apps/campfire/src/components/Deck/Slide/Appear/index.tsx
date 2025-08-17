@@ -33,8 +33,6 @@ export const Appear = ({
 }: AppearProps): JSX.Element | null => {
   const currentStep = useDeckStore(state => state.currentStep)
   const currentSlide = useDeckStore(state => state.currentSlide)
-  const maxSteps = useDeckStore(state => state.maxSteps)
-  const setMaxSteps = useDeckStore(state => state.setMaxSteps)
   const [present, setPresent] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const animationRef = useRef<Animation | null>(null)
@@ -52,13 +50,6 @@ export const Appear = ({
     prevStepRef.current = currentStep
     prevSlideRef.current = currentSlide
   }, [currentStep, currentSlide])
-
-  useEffect(() => {
-    const candidate = Math.max(at, exitAt ?? at)
-    if (candidate > maxSteps) {
-      setMaxSteps(candidate)
-    }
-  }, [at, exitAt, maxSteps, setMaxSteps])
 
   useLayoutEffect(() => {
     const el = ref.current

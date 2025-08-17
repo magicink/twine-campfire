@@ -1,7 +1,13 @@
-import { type ComponentChildren, type JSX } from 'preact'
-import { useEffect, useLayoutEffect, useRef } from 'preact/hooks'
+import {
+  toChildArray,
+  type ComponentChildren,
+  type JSX,
+  type VNode
+} from 'preact'
+import { useEffect, useLayoutEffect, useMemo, useRef } from 'preact/hooks'
 import { useDeckStore } from '@campfire/state/useDeckStore'
 import { useSerializedDirectiveRunner } from '@campfire/hooks/useSerializedDirectiveRunner'
+import { Appear } from './Appear'
 
 /** Transition type used by slides. */
 export type TransitionType = 'none' | 'fade' | 'slide' | 'zoom'
@@ -48,6 +54,33 @@ export interface SlideProps {
 }
 
 /**
+ * Computes the highest step index from any {@link Appear} children.
+ *
+ * @param children - Slide children to inspect.
+ * @returns The maximum step index discovered.
+ */
+const getAppearMax = (children: ComponentChildren): number => {
+  let max = 0
+  const walk = (nodes: ComponentChildren): void => {
+    toChildArray(nodes).forEach(node => {
+      if (typeof node === 'object' && node !== null && 'type' in node) {
+        const child = node as VNode<any>
+        if (child.type === Appear) {
+          const at = child.props.at ?? 0
+          const exitAt = child.props.exitAt ?? at
+          max = Math.max(max, Math.max(at, exitAt))
+        }
+        if (child.props?.children) {
+          walk(child.props.children)
+        }
+      }
+    })
+  }
+  walk(children)
+  return max
+}
+
+/**
  * Renders a presentation slide with optional background and transition metadata.
  *
  * @param props - Configuration options for the slide component.
@@ -64,6 +97,10 @@ export const Slide = ({
 }: SlideProps): JSX.Element => {
   const maxSteps = useDeckStore(state => state.maxSteps)
   const setMaxSteps = useDeckStore(state => state.setMaxSteps)
+  const computedSteps = useMemo(
+    () => Math.max(steps ?? 0, getAppearMax(children)),
+    [steps, children]
+  )
   const runEnter = useSerializedDirectiveRunner(onEnter ?? '[]')
   const runExit = useSerializedDirectiveRunner(onExit ?? '[]')
   const runExitRef = useRef(runExit)
@@ -73,10 +110,10 @@ export const Slide = ({
   const indexRef = useRef(currentSlide)
 
   useEffect(() => {
-    if ((steps ?? 0) !== maxSteps) {
-      setMaxSteps(steps ?? 0)
+    if (computedSteps !== maxSteps) {
+      setMaxSteps(computedSteps)
     }
-  }, [steps, maxSteps, setMaxSteps])
+  }, [computedSteps, maxSteps, setMaxSteps])
 
   useEffect(() => {
     runEnter()

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { render, screen, fireEvent, act } from '@testing-library/preact'
 import { Deck } from '@campfire/components/Deck'
-import { Slide } from '@campfire/components/Deck/Slide'
+import { Slide, Appear } from '@campfire/components/Deck/Slide'
 import { useDeckStore } from '@campfire/state/useDeckStore'
 import { StubAnimation } from '@campfire/test-utils/stub-animation'
 
@@ -232,5 +232,33 @@ describe('Deck', () => {
     const liveRegions = document.querySelectorAll('[aria-live="polite"]')
     expect(liveRegions.length).toBe(2)
     expect(liveRegions[1].textContent?.trim()).toBe('Step 1 of 2')
+  })
+
+  it('sets max steps once for multiple Appear elements', async () => {
+    const original = useDeckStore.getState().setMaxSteps
+    const calls: number[] = []
+    useDeckStore.setState({
+      setMaxSteps: (n: number) => {
+        calls.push(n)
+        original(n)
+      }
+    })
+
+    render(
+      <Deck>
+        <Slide>
+          <Appear at={0}>One</Appear>
+          <Appear at={1}>Two</Appear>
+          <Appear at={2}>Three</Appear>
+        </Slide>
+      </Deck>
+    )
+
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+
+    expect(calls).toEqual([2])
+    useDeckStore.setState({ setMaxSteps: original })
   })
 })
