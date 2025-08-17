@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.69.0](https://github.com/magicink/twine-campfire/compare/v1.68.0...v1.69.0) (2025-08-17)
+
+
+### Features
+
+* **deck:** introduce DeckText component and enhance directive handling ([c127d87](https://github.com/magicink/twine-campfire/commit/c127d878418bcb67d5c88f0181430d97a9f9a39a))
+* **deck:** introduce DeckText component and enhance directive handling ([f582be3](https://github.com/magicink/twine-campfire/commit/f582be3e1ab2d064559a97c3ced84a00d24931f4))
+
 ## [1.68.0](https://github.com/magicink/twine-campfire/compare/v1.67.1...v1.68.0) (2025-08-15)
 
 
