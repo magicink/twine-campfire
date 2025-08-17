@@ -41,10 +41,6 @@ export interface SlideProps {
    * `data-transition` attribute.
    */
   transition?: SlideTransition
-  /** Color classes or image background config. */
-  background?:
-    | string
-    | { image: string; fit?: 'cover' | 'contain' | 'fill'; position?: string }
   className?: string
   /** Serialized directive block to run when the slide becomes active. */
   onEnter?: string
@@ -81,7 +77,7 @@ const getAppearMax = (children: ComponentChildren): number => {
 }
 
 /**
- * Renders a presentation slide with optional background and transition metadata.
+ * Renders a presentation slide with optional transition metadata.
  *
  * @param props - Configuration options for the slide component.
  * @returns A slide element.
@@ -89,7 +85,6 @@ const getAppearMax = (children: ComponentChildren): number => {
 export const Slide = ({
   steps,
   transition,
-  background,
   className,
   onEnter,
   onExit,
@@ -137,23 +132,9 @@ export const Slide = ({
     }
   }, [setMaxSteps, currentSlide])
 
-  const bgClass = background && typeof background === 'string' ? background : ''
-  const bgStyle: JSX.CSSProperties =
-    typeof background === 'object'
-      ? {
-          backgroundImage: `url(${background.image})`,
-          backgroundSize: background.fit ?? 'cover',
-          backgroundPosition: background.position ?? 'center',
-          backgroundRepeat: 'no-repeat'
-        }
-      : {}
-
   return (
     <div
-      className={`relative w-full h-full overflow-hidden ${bgClass} ${
-        className ?? ''
-      }`}
-      style={bgStyle}
+      className={`relative w-full h-full overflow-hidden ${className ?? ''}`}
       data-transition={transition ? JSON.stringify(transition) : undefined}
       data-testid='slide'
     >

@@ -1680,7 +1680,6 @@ export const useDirectiveHandlers = () => {
   /** Schema describing supported slide directive attributes. */
   const slideSchema = {
     transition: { type: 'string' },
-    background: { type: 'string' },
     steps: { type: 'number' },
     onEnter: { type: 'string' },
     onExit: { type: 'string' }
@@ -1880,13 +1879,11 @@ export const useDirectiveHandlers = () => {
           ? { type: attrs.transition }
           : attrs.transition
     }
-    if (attrs.background) props.background = attrs.background
     if (typeof attrs.steps === 'number') props.steps = attrs.steps
     if (attrs.onEnter) props.onEnter = attrs.onEnter
     if (attrs.onExit) props.onExit = attrs.onExit
     applyAdditionalAttributes(attrs as Record<string, unknown>, props, [
       'transition',
-      'background',
       'steps',
       'onEnter',
       'onExit'

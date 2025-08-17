@@ -46,7 +46,7 @@ const getText = (node: any): string => {
 describe('deck directive', () => {
   it('renders a deck with slide children', () => {
     const md = `:::deck{size=16x9 transition=slide}
-:::slide{transition=fade background="bg-indigo-50"}
+:::slide{transition=fade}
 # One
 :::
 ::slide{}

@@ -576,7 +576,7 @@ Control the flow between passages or how they appear.
 
   ```md
   :::deck{size=16x9 transition=slide}
-  :::slide{transition=fade background="bg-indigo-50"}
+  :::slide{transition=fade}
 
   # One
 

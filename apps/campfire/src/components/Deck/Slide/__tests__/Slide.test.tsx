@@ -29,7 +29,7 @@ beforeEach(() => {
 })
 
 describe('Slide', () => {
-  it('does not apply a default background when none provided', () => {
+  it('does not apply default background classes', () => {
     render(
       <Deck>
         <Slide>Slide 1</Slide>
