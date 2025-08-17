@@ -62,7 +62,7 @@ describe('Slide directive hooks', () => {
         </Slide>
       </Deck>
     )
-    const button = getByRole('button')
+    const button = getByRole('button', { name: 'Click' })
     fireEvent.click(button)
     const data = useGameStore.getState().gameData as Record<string, unknown>
     expect(data.clicked).toBe(true)

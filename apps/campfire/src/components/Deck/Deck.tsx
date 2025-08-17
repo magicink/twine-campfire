@@ -25,11 +25,41 @@ import { type Transition, type SlideTransition } from './Slide'
 
 export type ThemeTokens = Record<string, string | number>
 
+/** Accessibility label strings and generators. */
+export type A11yLabels = {
+  /** aria-label for the deck region. */
+  deck: string
+  /** Label for the "next" control. */
+  next: string
+  /** Label for the "previous" control. */
+  prev: string
+  /** Label for the current slide. */
+  slide: (index: number, total: number) => string
+  /** Label for the step counter. */
+  step: (current: number, total: number) => string
+}
+
 export interface DeckProps {
   size?: DeckSize
   theme?: ThemeTokens
-  children?: ComponentChildren
+  initialSlide?: number
+  autoAdvanceMs?: number | null
   className?: string
+  a11y?: Partial<A11yLabels>
+  children?: ComponentChildren
+}
+
+/** Styles used to visually hide elements while remaining accessible. */
+const srOnlyStyle: JSX.CSSProperties = {
+  position: 'absolute',
+  width: 1,
+  height: 1,
+  padding: 0,
+  margin: -1,
+  overflow: 'hidden',
+  clip: 'rect(0, 0, 0, 0)',
+  whiteSpace: 'nowrap',
+  border: 0
 }
 
 /**
@@ -41,8 +71,11 @@ export interface DeckProps {
 export const Deck = ({
   size = { width: DEFAULT_DECK_WIDTH, height: DEFAULT_DECK_HEIGHT },
   theme,
-  children,
-  className
+  initialSlide,
+  autoAdvanceMs,
+  className,
+  a11y,
+  children
 }: DeckProps) => {
   /**
    * Type guard to determine whether a child is a valid {@link VNode}.
@@ -61,11 +94,25 @@ export const Deck = ({
     [children]
   )
   const currentSlide = useDeckStore(state => state.currentSlide)
+  const currentStep = useDeckStore(state => state.currentStep)
+  const maxSteps = useDeckStore(state => state.maxSteps)
   const next = useDeckStore(state => state.next)
   const prev = useDeckStore(state => state.prev)
   const goTo = useDeckStore(state => state.goTo)
   const setSlidesCount = useDeckStore(state => state.setSlidesCount)
   const reset = useDeckStore(state => state.reset)
+
+  const labels: A11yLabels = useMemo(
+    () => ({
+      deck: 'Presentation deck',
+      next: 'Next slide',
+      prev: 'Previous slide',
+      slide: (index, total) => `Slide ${index} of ${total}`,
+      step: (current, total) => `Step ${current} of ${total}`,
+      ...(a11y ?? {})
+    }),
+    [a11y]
+  )
 
   const [currentVNode, setCurrentVNode] = useState(slides[0] as VNode)
   const [prevVNode, setPrevVNode] = useState<VNode | null>(null)
@@ -135,7 +182,17 @@ export const Deck = ({
 
   useEffect(() => {
     setSlidesCount(slides.length)
-  }, [slides.length, setSlidesCount])
+    if (typeof initialSlide === 'number') {
+      goTo(initialSlide, 0)
+    }
+  }, [slides.length, setSlidesCount, initialSlide, goTo])
+
+  useEffect(() => {
+    if (autoAdvanceMs != null) {
+      const id = setInterval(() => next(), autoAdvanceMs)
+      return () => clearInterval(id)
+    }
+  }, [autoAdvanceMs, next])
 
   const { ref: hostRef, scale } = useScale(size)
   const themeStyle = useMemo(() => {
@@ -198,25 +255,76 @@ export const Deck = ({
   return (
     <div
       ref={hostRef}
-      className={`relative w-full h-full overflow-hidden ${className ?? ''}`}
+      className={`relative w-full h-full overflow-hidden bg-[var(--deck-bg,#0b0b0c)] ${
+        className ?? ''
+      }`}
       style={themeStyle}
+      role='region'
+      aria-roledescription='deck'
+      aria-label={labels.deck}
+      tabIndex={0}
       data-testid='deck'
     >
       <div
         ref={slideRef}
+        className='absolute left-1/2 top-1/2'
         style={{
           width: size.width,
           height: size.height,
           transform: `translate(-50%, -50%) scale(${scale})`,
-          transformOrigin: 'center center'
+          transformOrigin: 'center center',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.35)',
+          background: 'var(--slide-bg, #111)',
+          color: 'var(--slide-fg, #fff)',
+          borderRadius: 16,
+          overflow: 'hidden'
         }}
-        className='absolute left-1/2 top-1/2'
-        onClick={e => {
-          if (e.detail <= 1) next()
-        }}
+        role='group'
+        aria-roledescription='slide'
+        aria-label={labels.slide(currentSlide + 1, slides.length)}
+        onClick={next}
       >
         {prevVNode}
         {currentVNode}
+      </div>
+      <div aria-live='polite' aria-atomic='true' style={srOnlyStyle}>
+        {labels.slide(currentSlide + 1, slides.length)}
+        {maxSteps > 0 ? `. ${labels.step(currentStep, maxSteps)}` : ''}
+      </div>
+      <div
+        className='absolute bottom-3 left-1/2 -translate-x-1/2 text-sm px-2 py-1 rounded bg-black/50 text-white/80'
+        aria-hidden='true'
+        data-testid='deck-hud'
+      >
+        Slide {currentSlide + 1} / {slides.length}
+        {maxSteps > 0 && (
+          <span className='ml-2'>
+            • Step {currentStep} / {maxSteps}
+          </span>
+        )}
+      </div>
+      <div
+        className='absolute inset-x-0 bottom-2 flex items-center justify-center px-2 pointer-events-none'
+        style={{ gap: 8 }}
+      >
+        <button
+          type='button'
+          className='pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring'
+          aria-label={labels.prev}
+          onClick={prev}
+          data-testid='deck-prev'
+        >
+          ◀
+        </button>
+        <button
+          type='button'
+          className='pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring'
+          aria-label={labels.next}
+          onClick={next}
+          data-testid='deck-next'
+        >
+          ▶
+        </button>
       </div>
     </div>
   )
