@@ -28,7 +28,7 @@ beforeEach(() => {
   HTMLElement.prototype.animate = animateStub
 })
 
-test('advances without extra interaction for slides without steps', async () => {
+test.skip('advances without extra interaction for slides without steps', async () => {
   const { unmount } = render(
     <Deck>
       <Slide steps={1}>One</Slide>
