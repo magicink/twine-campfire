@@ -74,6 +74,25 @@ describe('Deck', () => {
     expect(useDeckStore.getState().currentSlide).toBe(0)
   })
 
+  it('navigates using prev and next buttons', () => {
+    render(
+      <Deck>
+        <div>Slide 1</div>
+        <div>Slide 2</div>
+      </Deck>
+    )
+    const nextBtn = screen.getByTestId('deck-next')
+    act(() => {
+      fireEvent.click(nextBtn)
+    })
+    expect(useDeckStore.getState().currentSlide).toBe(1)
+    const prevBtn = screen.getByTestId('deck-prev')
+    act(() => {
+      fireEvent.click(prevBtn)
+    })
+    expect(useDeckStore.getState().currentSlide).toBe(0)
+  })
+
   it('jumps to start or end using Home and End keys', () => {
     render(
       <Deck>
