@@ -234,6 +234,19 @@ describe('Deck', () => {
     expect(liveRegions[1].textContent?.trim()).toBe('Step 1 of 2')
   })
 
+  it('positions HUD away from navigation buttons', () => {
+    render(
+      <Deck>
+        <Slide>Slide 1</Slide>
+      </Deck>
+    )
+    const hud = screen.getByTestId('deck-hud')
+    const nav = screen.getByTestId('deck-nav')
+    expect(hud.className).toContain('top-3')
+    expect(hud.className).toContain('right-3')
+    expect(nav.className).toContain('bottom-2')
+  })
+
   it('sets max steps once for multiple Appear elements', async () => {
     const original = useDeckStore.getState().setMaxSteps
     const calls: number[] = []

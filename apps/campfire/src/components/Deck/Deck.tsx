@@ -294,7 +294,7 @@ export const Deck = ({
         {maxSteps > 0 ? labels.step(currentStep + 1, maxSteps) : ''}
       </div>
       <div
-        className='absolute bottom-3 left-1/2 -translate-x-1/2 text-sm px-2 py-1 rounded bg-black/50 text-white/80'
+        className='absolute top-3 right-3 text-sm px-2 py-1 rounded bg-black/50 text-white/80'
         aria-hidden='true'
         data-testid='deck-hud'
       >
@@ -310,6 +310,7 @@ export const Deck = ({
       <div
         className='absolute inset-x-0 bottom-2 flex items-center justify-center px-2 pointer-events-none'
         style={{ gap: 8 }}
+        data-testid='deck-nav'
       >
         <button
           type='button'
