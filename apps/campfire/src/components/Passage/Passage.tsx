@@ -1,18 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks'
-import { Fragment, jsx, jsxs } from 'preact/jsx-runtime'
 import type { ComponentChild } from 'preact'
-import { unified } from 'unified'
-import remarkParse from 'remark-parse'
-import remarkGfm from 'remark-gfm'
-import remarkDirective from 'remark-directive'
-import remarkCampfire from '@campfire/remark-campfire'
-import remarkRehype from 'remark-rehype'
-import rehypeCampfire from '@campfire/rehype-campfire'
-import rehypeReact from 'rehype-react'
-import type { Text, Content } from 'hast'
+import type { Text as HastText, Content } from 'hast'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { remarkHeadingStyles } from '@campfire/utils/remarkHeadingStyles'
 import { remarkParagraphStyles } from '@campfire/utils/remarkParagraphStyles'
+import { createMarkdownProcessor } from '@campfire/utils/createMarkdownProcessor'
 import {
   isTitleOverridden,
   clearTitleOverride
@@ -27,7 +19,7 @@ import { If } from '@campfire/components/Passage/If'
 import { Show } from '@campfire/components/Passage/Show'
 import { OnExit } from '@campfire/components/Passage/OnExit'
 import { Deck } from '@campfire/components/Deck'
-import { Slide } from '@campfire/components/Deck/Slide'
+import { Slide, Appear, DeckText } from '@campfire/components/Deck/Slide'
 
 const DIRECTIVE_MARKER_PATTERN = '(:::[^\\n]*|:[^\\n]*|<<)'
 
@@ -113,29 +105,21 @@ export const Passage = () => {
   const handlers = useDirectiveHandlers()
   const processor = useMemo(
     () =>
-      unified()
-        .use(remarkParse)
-        .use(remarkGfm)
-        .use(remarkDirective)
-        .use(remarkCampfire, { handlers })
-        .use(remarkParagraphStyles)
-        .use(remarkHeadingStyles)
-        .use(remarkRehype)
-        .use(rehypeCampfire)
-        .use(rehypeReact, {
-          Fragment,
-          jsx,
-          jsxs,
-          components: {
-            button: LinkButton,
-            trigger: TriggerButton,
-            if: If,
-            show: Show,
-            onExit: OnExit,
-            deck: Deck,
-            slide: Slide
-          }
-        }),
+      createMarkdownProcessor(
+        handlers,
+        {
+          button: LinkButton,
+          trigger: TriggerButton,
+          if: If,
+          show: Show,
+          onExit: OnExit,
+          deck: Deck,
+          slide: Slide,
+          appear: Appear,
+          'deck-text': DeckText
+        },
+        [remarkParagraphStyles, remarkHeadingStyles]
+      ),
     [handlers]
   )
   const passage = useStoryDataStore((state: StoryDataState) =>
@@ -190,7 +174,7 @@ export const Passage = () => {
       const text = passage.children
         .map((child: Content) =>
           child.type === 'text' && typeof child.value === 'string'
-            ? (child as Text).value
+            ? (child as HastText).value
             : ''
         )
         .join('')

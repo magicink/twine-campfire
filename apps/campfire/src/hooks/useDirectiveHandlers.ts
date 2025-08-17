@@ -16,7 +16,12 @@ import remarkCampfire, {
 } from '@campfire/remark-campfire'
 import type { Parent, Root, RootContent, Text as MdText } from 'mdast'
 import type { Node } from 'unist'
-import type { ElementContent, Properties, Text as HastText } from 'hast'
+import type {
+  Element,
+  ElementContent,
+  Properties,
+  Text as HastText
+} from 'hast'
 import type { ContainerDirective } from 'mdast-util-directive'
 import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
 import { type Checkpoint, useGameStore } from '@campfire/state/useGameStore'
@@ -24,6 +29,7 @@ import { markTitleOverridden } from '@campfire/state/titleState'
 import {
   type DirectiveNode,
   type ExtractedAttrs,
+  type AttributeSchema,
   ensureKey,
   extractAttributes,
   getLabel,
@@ -714,6 +720,38 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
+   * Determines whether a paragraph consists solely of directive markers.
+   *
+   * @param node - Node to examine.
+   * @returns True if the node contains only marker tokens and whitespace.
+   */
+  const isMarkerParagraph = (node: RootContent): boolean => {
+    if (
+      node.type === 'paragraph' &&
+      node.children.length > 0 &&
+      node.children.every(isTextNode)
+    ) {
+      const combined = node.children.map(c => (c as MdText).value).join('')
+      const stripped = combined.replace(/\s+/g, '')
+      const parts = stripped.split(DIRECTIVE_MARKER)
+      return stripped.length > 0 && parts.every(part => part === '')
+    }
+    return false
+  }
+
+  /**
+   * Determines whether a node contains only whitespace or marker tokens.
+   *
+   * @param node - Node to examine.
+   * @returns True if the node has no meaningful content.
+   */
+  const isWhitespaceNode = (node: RootContent): boolean =>
+    (node.type === 'text' && node.value.trim() === '') ||
+    (node.type === 'paragraph' &&
+      node.children.every(isTextNode) &&
+      (toString(node).trim() === '' || isMarkerParagraph(node)))
+
+  /**
    * Serializes `:::if` directive blocks into `<if>` components that
    * evaluate a test expression against game data and render optional
    * fallback content when the expression is falsy.
@@ -773,8 +811,10 @@ export const useDirectiveHandlers = () => {
      * @returns Cleaned array without whitespace-only text nodes.
      */
     const processNodes = (nodes: RootContent[]): RootContent[] => {
-      const cloned = stripLabel(nodes).map(node => structuredClone(node))
-      return preprocessBlock(cloned).filter(
+      const cloned = nodes.map(node => structuredClone(node))
+      const processed = preprocessBlock(cloned)
+      const stripped = stripLabel(processed)
+      return stripped.filter(
         node => !(isTextNode(node) && node.value.trim() === '')
       )
     }
@@ -866,8 +906,8 @@ export const useDirectiveHandlers = () => {
 
     const container = directive as ContainerDirective
     const allowed = ALLOWED_BATCH_DIRECTIVES
-    const rawChildren = stripLabel(container.children as RootContent[])
-    const processedChildren = preprocessBlock(rawChildren)
+    const rawChildren = preprocessBlock(container.children as RootContent[])
+    const processedChildren = stripLabel(rawChildren)
     const [filtered, invalid, nested] = filterDirectiveChildren(
       processedChildren,
       allowed,
@@ -1043,8 +1083,12 @@ export const useDirectiveHandlers = () => {
     onExitSeenRef.current = true
     const container = directive as ContainerDirective
     const allowed = ALLOWED_ONEXIT_DIRECTIVES
-    const rawChildren = stripLabel(container.children as RootContent[])
-    const [filtered, invalid] = filterDirectiveChildren(rawChildren, allowed)
+    const rawChildren = preprocessBlock(container.children as RootContent[])
+    const processedChildren = stripLabel(rawChildren)
+    const [filtered, invalid] = filterDirectiveChildren(
+      processedChildren,
+      allowed
+    )
     if (invalid) {
       const allowedList = [...allowed].join(', ')
       const msg = `onExit only supports directives: ${allowedList}`
@@ -1062,56 +1106,6 @@ export const useDirectiveHandlers = () => {
     ])
     const markerIndex = newIndex + 1
     removeDirectiveMarker(parent, markerIndex)
-    return [SKIP, newIndex]
-  }
-
-  /**
-   * Converts `:::appear` directives into Appear elements.
-   *
-   * @param directive - The appear directive node.
-   * @param parent - Parent node containing the directive.
-   * @param index - Index of the directive within its parent.
-   * @returns Visitor instructions after replacement.
-   */
-  const handleAppear: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
-    const container = directive as ContainerDirective
-
-    const { attrs } = extractAttributes<AppearSchema>(
-      directive,
-      parent,
-      index,
-      appearSchema
-    )
-
-    const content = runBlock(stripLabel(container.children as RootContent[]))
-
-    const props: Record<string, unknown> = {}
-    if (typeof attrs.at === 'number') props.at = attrs.at
-    if (typeof attrs.exitAt === 'number') props.exitAt = attrs.exitAt
-    if (attrs.enter) props.enter = attrs.enter
-    if (attrs.exit) props.exit = attrs.exit
-    if (attrs.interruptBehavior)
-      props.interruptBehavior = attrs.interruptBehavior
-
-    applyAdditionalAttributes(
-      (directive.attributes || {}) as Record<string, unknown>,
-      props,
-      ['at', 'exitAt', 'enter', 'exit', 'interruptBehavior']
-    )
-
-    const appearNode: Parent = {
-      type: 'paragraph',
-      children: content,
-      data: {
-        hName: 'appear',
-        hProperties: props as Properties
-      }
-    }
-
-    const newIndex = replaceWithIndentation(directive, parent, index, [
-      appearNode as RootContent
-    ])
     return [SKIP, newIndex]
   }
 
@@ -1618,6 +1612,59 @@ export const useDirectiveHandlers = () => {
     }
   }
 
+  /**
+   * Creates a handler for container directives that converts directive blocks
+   * into corresponding hast nodes.
+   *
+   * @param hName - Tag name or resolver function for the output element.
+   * @param schema - Attribute extraction schema.
+   * @param mapProps - Maps parsed and raw attributes to element props.
+   * @param transform - Optional transformer applied to processed children.
+   * @param beforeRemove - Optional callback executed before removing the
+   * directive's closing marker; useful for cleaning up sibling nodes based on
+   * the marker position.
+   * @returns Directive handler for the container.
+   */
+  const createContainerHandler =
+    <S extends AttributeSchema>(
+      hName: string | ((attrs: ExtractedAttrs<S>) => string),
+      schema: S,
+      mapProps: (
+        attrs: ExtractedAttrs<S>,
+        raw: Record<string, unknown>
+      ) => Record<string, unknown>,
+      transform?: (
+        children: RootContent[],
+        attrs: ExtractedAttrs<S>
+      ) => RootContent[],
+      beforeRemove?: (parent: Parent, markerIndex: number) => void
+    ): DirectiveHandler =>
+    (directive, parent, index) => {
+      if (!parent || typeof index !== 'number') return
+      const container = directive as ContainerDirective
+      const { attrs } = extractAttributes<S>(directive, parent, index, schema)
+      const rawAttrs = (directive.attributes || {}) as Record<string, unknown>
+      const processed = runBlock(container.children as RootContent[])
+      const stripped = stripLabel(processed)
+      const children = transform ? transform(stripped, attrs) : stripped
+      const tag = typeof hName === 'function' ? hName(attrs) : hName
+      const node: Parent = {
+        type: 'paragraph',
+        children,
+        data: {
+          hName: tag,
+          hProperties: mapProps(attrs, rawAttrs) as Properties
+        }
+      }
+      const newIndex = replaceWithIndentation(directive, parent, index, [
+        node as RootContent
+      ])
+      const markerIndex = newIndex + 1
+      if (beforeRemove) beforeRemove(parent, markerIndex)
+      removeDirectiveMarker(parent, markerIndex)
+      return [SKIP, newIndex]
+    }
+
   /** Schema describing supported appear directive attributes. */
   const appearSchema = {
     at: { type: 'number' },
@@ -1641,6 +1688,183 @@ export const useDirectiveHandlers = () => {
 
   type SlideSchema = typeof slideSchema
   type SlideAttrs = ExtractedAttrs<SlideSchema>
+
+  /** Schema describing supported text directive attributes. */
+  const textSchema = {
+    x: { type: 'number' },
+    y: { type: 'number' },
+    w: { type: 'number' },
+    h: { type: 'number' },
+    z: { type: 'number' },
+    rotate: { type: 'number' },
+    scale: { type: 'number' },
+    anchor: { type: 'string' },
+    as: { type: 'string' },
+    content: { type: 'string' },
+    align: { type: 'string' },
+    size: { type: 'number' },
+    weight: { type: 'number' },
+    lineHeight: { type: 'number' },
+    color: { type: 'string' }
+  } as const
+
+  type TextSchema = typeof textSchema
+  type TextAttrs = ExtractedAttrs<TextSchema>
+
+  /**
+   * Converts `:::appear` directives into Appear elements.
+   *
+   * @param directive - The appear directive node.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within its parent.
+   * @returns Visitor instructions after replacement.
+   */
+  const handleAppear = createContainerHandler(
+    'appear',
+    appearSchema,
+    (attrs, raw) => {
+      const props: Record<string, unknown> = {}
+      if (typeof attrs.at === 'number') props.at = attrs.at
+      if (typeof attrs.exitAt === 'number') props.exitAt = attrs.exitAt
+      if (attrs.enter) props.enter = attrs.enter
+      if (attrs.exit) props.exit = attrs.exit
+      if (attrs.interruptBehavior)
+        props.interruptBehavior = attrs.interruptBehavior
+      applyAdditionalAttributes(raw, props, [
+        'at',
+        'exitAt',
+        'enter',
+        'exit',
+        'interruptBehavior'
+      ])
+      return props
+    }
+  )
+
+  /**
+   * Converts a `:::text` directive into a DeckText element.
+   *
+   * @param directive - The text directive node.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within its parent.
+   * @returns Visitor instructions after replacement.
+   */
+  const handleText = createContainerHandler(
+    attrs => (attrs.as ? String(attrs.as) : 'p'),
+    textSchema,
+    (attrs, raw) => {
+      const tagName = attrs.as ? String(attrs.as) : 'p'
+      const style: string[] = []
+      style.push('position:absolute')
+      if (typeof attrs.x === 'number') {
+        style.push(`left:${attrs.x}px`)
+      }
+      if (typeof attrs.y === 'number') {
+        style.push(`top:${attrs.y}px`)
+      }
+      if (typeof attrs.w === 'number') {
+        style.push(`width:${attrs.w}px`)
+      }
+      if (typeof attrs.h === 'number') {
+        style.push(`height:${attrs.h}px`)
+      }
+      if (typeof attrs.z === 'number') {
+        style.push(`z-index:${attrs.z}`)
+      }
+      const transforms: string[] = []
+      if (typeof attrs.rotate === 'number') {
+        transforms.push(`rotate(${attrs.rotate}deg)`)
+      }
+      if (typeof attrs.scale === 'number') {
+        transforms.push(`scale(${attrs.scale})`)
+      }
+      if (transforms.length) style.push(`transform:${transforms.join(' ')}`)
+      if (attrs.anchor && attrs.anchor !== 'top-left') {
+        const originMap: Record<string, string> = {
+          'top-left': '0% 0%',
+          top: '50% 0%',
+          'top-right': '100% 0%',
+          left: '0% 50%',
+          center: '50% 50%',
+          right: '100% 50%',
+          'bottom-left': '0% 100%',
+          bottom: '50% 100%',
+          'bottom-right': '100% 100%'
+        }
+        const origin = originMap[attrs.anchor]
+        if (origin) style.push(`transform-origin:${origin}`)
+      }
+      if (attrs.align) style.push(`text-align:${attrs.align}`)
+      if (typeof attrs.size === 'number')
+        style.push(`font-size:${attrs.size}px`)
+      if (typeof attrs.weight === 'number')
+        style.push(`font-weight:${attrs.weight}`)
+      if (typeof attrs.lineHeight === 'number')
+        style.push(`line-height:${attrs.lineHeight}`)
+      if (attrs.color) style.push(`color:${attrs.color}`)
+      const props: Record<string, unknown> = {}
+      if (typeof attrs.x === 'number') props.x = attrs.x
+      if (typeof attrs.y === 'number') props.y = attrs.y
+      if (typeof attrs.w === 'number') props.w = attrs.w
+      if (typeof attrs.h === 'number') props.h = attrs.h
+      if (typeof attrs.z === 'number') props.z = attrs.z
+      if (typeof attrs.rotate === 'number') props.rotate = attrs.rotate
+      if (typeof attrs.scale === 'number') props.scale = attrs.scale
+      if (attrs.anchor) props.anchor = attrs.anchor
+      if (style.length) props.style = style.join(';')
+      const classAttr =
+        typeof raw.class === 'string'
+          ? raw.class
+          : typeof raw.className === 'string'
+            ? raw.className
+            : typeof raw.classes === 'string'
+              ? raw.classes
+              : undefined
+      const classes = ['text-base', 'font-normal']
+      if (classAttr) classes.unshift(classAttr)
+      props.className = classes.join(' ')
+      props['data-component'] = 'deck-text'
+      props['data-as'] = tagName
+      applyAdditionalAttributes(raw, props, [
+        'x',
+        'y',
+        'w',
+        'h',
+        'z',
+        'rotate',
+        'scale',
+        'anchor',
+        'as',
+        'content',
+        'align',
+        'size',
+        'weight',
+        'lineHeight',
+        'color',
+        'class',
+        'className',
+        'classes'
+      ])
+      return props
+    },
+    (processed, attrs) => {
+      if (attrs.content) {
+        return [{ type: 'text', value: attrs.content } as RootContent]
+      }
+      if (processed.length === 1 && processed[0].type === 'paragraph') {
+        return (processed[0] as Parent).children as RootContent[]
+      }
+      return processed
+    },
+    (parent, markerIndex) => {
+      if (
+        parent.children[markerIndex]?.type === 'text' &&
+        /^\s*$/.test((parent.children[markerIndex] as MdText).value)
+      ) {
+        parent.children.splice(markerIndex, 1)
+      }
+    }
+  )
 
   /**
    * Builds a props object for the Slide component from extracted attributes.
@@ -1712,59 +1936,89 @@ export const useDirectiveHandlers = () => {
 
     const slides: Parent[] = []
 
-    const following: RootContent[] = []
-    let markerPos = index + 1
-    while (markerPos < parent.children.length) {
-      const node = parent.children[markerPos]
-      if (
-        node.type === 'paragraph' &&
-        node.children.length > 0 &&
-        node.children.every(isTextNode) &&
-        node.children
-          .map(c => (c as MdText).value)
-          .join('')
-          .trim() === ':::'
-      ) {
+    let endPos = parent.children.length
+    for (let i = parent.children.length - 1; i > index; i--) {
+      if (isMarkerParagraph(parent.children[i] as RootContent)) {
+        endPos = i
         break
       }
-      following.push(node as RootContent)
-      markerPos++
     }
-    parent.children.splice(index + 1, markerPos - (index + 1))
+    const rawFollowing = parent.children.slice(index + 1, endPos)
+    if (endPos > index + 1) {
+      parent.children.splice(index + 1, endPos - (index + 1))
+    }
+    const following = rawFollowing.filter(
+      node =>
+        !isMarkerParagraph(node as RootContent) &&
+        !isWhitespaceNode(node as RootContent)
+    )
 
-    const children = stripLabel([
-      ...(container.children as RootContent[]),
-      ...following
-    ])
+    const children: RootContent[] = stripLabel(
+      preprocessBlock([...(container.children as RootContent[]), ...following])
+    ).filter(
+      child =>
+        !isMarkerParagraph(child as RootContent) &&
+        !isWhitespaceNode(child as RootContent)
+    )
     let pendingAttrs: Record<string, unknown> = {}
     let pendingNodes: RootContent[] = []
+    let pendingLeaf = false
 
+    /**
+     * Finalizes the currently buffered slide content and adds it to the deck.
+     * Removes any trailing directive markers before running the remark
+     * pipeline so stray markers do not render in the output. When buffered
+     * content has no slide attributes and at least one slide already exists,
+     * the nodes are merged into the previous slide instead of creating a new
+     * one. This prevents stray directives, such as `:::appear`, from being
+     * lifted to the deck level and causing empty slides.
+     */
     const commitPending = () => {
-      if (!pendingNodes.length && Object.keys(pendingAttrs).length === 0) return
-      const dummy: DirectiveNode = {
-        type: 'containerDirective',
-        name: 'slide',
-        attributes: pendingAttrs as Record<string, string | null>,
-        children: []
-      }
-      const { attrs: parsed } = extractAttributes<SlideSchema>(
-        dummy,
-        undefined,
-        undefined,
-        slideSchema
+      const tempParent: Parent = { type: 'root', children: pendingNodes }
+      removeDirectiveMarker(tempParent, tempParent.children.length - 1)
+      pendingNodes = tempParent.children
+      while (pendingNodes.length && isWhitespaceNode(pendingNodes[0]))
+        pendingNodes.shift()
+      while (
+        pendingNodes.length &&
+        isWhitespaceNode(pendingNodes[pendingNodes.length - 1])
       )
-      const content = runBlock(stripLabel(pendingNodes))
-      const slideNode: Parent = {
-        type: 'paragraph',
-        children: content,
-        data: {
-          hName: 'slide',
-          hProperties: buildSlideProps(parsed) as Properties
+        pendingNodes.pop()
+
+      if (pendingNodes.length === 0 && Object.keys(pendingAttrs).length === 0)
+        return
+      const processed = runBlock(pendingNodes)
+      const content = stripLabel(processed)
+      const attrsEmpty = Object.keys(pendingAttrs).length === 0
+      if (slides.length > 0 && attrsEmpty && !pendingLeaf) {
+        const lastSlide = slides[slides.length - 1]
+        ;(lastSlide.children as RootContent[]).push(...content)
+      } else {
+        const dummy: DirectiveNode = {
+          type: 'containerDirective',
+          name: 'slide',
+          attributes: pendingAttrs as Record<string, string | null>,
+          children: []
         }
+        const { attrs: parsed } = extractAttributes<SlideSchema>(
+          dummy,
+          undefined,
+          undefined,
+          slideSchema
+        )
+        const slideNode: Parent = {
+          type: 'paragraph',
+          children: content,
+          data: {
+            hName: 'slide',
+            hProperties: buildSlideProps(parsed) as Properties
+          }
+        }
+        slides.push(slideNode)
       }
-      slides.push(slideNode)
       pendingAttrs = {}
       pendingNodes = []
+      pendingLeaf = false
     }
 
     children.forEach((child, i) => {
@@ -1780,7 +2034,8 @@ export const useDirectiveHandlers = () => {
           i,
           slideSchema
         )
-        const content = runBlock(stripLabel(slideDir.children as RootContent[]))
+        const processed = runBlock(slideDir.children as RootContent[])
+        const content = stripLabel(processed)
         const slideNode: Parent = {
           type: 'paragraph',
           children: content,
@@ -1802,6 +2057,7 @@ export const useDirectiveHandlers = () => {
           slideSchema
         )
         pendingAttrs = parsed
+        pendingLeaf = true
       } else {
         pendingNodes.push(child)
       }
@@ -1816,6 +2072,7 @@ export const useDirectiveHandlers = () => {
     const newIndex = replaceWithIndentation(directive, parent, index, [
       deckNode as RootContent
     ])
+    removeDirectiveMarker(parent, newIndex + 1)
     return [SKIP, newIndex]
   }
 
@@ -1949,6 +2206,7 @@ export const useDirectiveHandlers = () => {
       trigger: handleTrigger,
       onExit: handleOnExit,
       appear: handleAppear,
+      text: handleText,
       deck: handleDeck,
       lang: handleLang,
       include: handleInclude,

@@ -1,0 +1,76 @@
+import type { Meta, StoryObj } from '@storybook/preact'
+import { Campfire } from '@campfire/components'
+
+const meta: Meta = {
+  title: 'Campfire/Directives'
+}
+
+export default meta
+
+// A super-minimal story that renders TwineJS custom elements directly in JSX.
+// This validates our JSX and DOM typings for these tags.
+export const Trigger: StoryObj = {
+  render: () => (
+    <>
+      <tw-storydata startnode='1' options='debug'>
+        <tw-passagedata pid='1' name='Start'>
+          {`
+:set[test=true]
+
+:::trigger{label="Click me"}
+  :set[test=false]
+:::
+
+:::if{!test}
+You clicked the button!
+:::
+
+:::onExit
+  :unset[test]
+:::
+`}
+        </tw-passagedata>
+      </tw-storydata>
+      <Campfire />
+    </>
+  )
+}
+
+// Expected component composition of the Deck directives below (JSX-style):
+// <Deck size={{ width: 800, height: 600 }}>
+//   <Slide transition={{ type: 'fade' }}>
+//     <Appear at={0}>
+//       <DeckText as="h2" x={80} y={80}>Hello</DeckText>
+//     </Appear>
+//     <Appear at={1}>
+//       <DeckText as="h2" x={100} y={100}>World</DeckText>
+//     </Appear>
+//   </Slide>
+// </Deck>
+export const Deck: StoryObj = {
+  render: () => (
+    <>
+      <tw-storydata startnode='1' options='debug'>
+        <tw-passagedata pid='1' name='Start'>
+          {`
+:::deck{size=800x600}
+  :::slide{transition=fade}
+    :::appear{at=0}
+      :::text{x=80 y=80 as="h2"}
+      Hello
+      :::
+    :::
+    :::appear{at=1}
+      :::text{x=100 y=100 as="h2"}
+      World
+      :::
+    :::
+  :::
+:::
+`}
+        </tw-passagedata>
+      </tw-storydata>
+      <Campfire />
+    </>
+  )
+}

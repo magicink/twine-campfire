@@ -1,11 +1,16 @@
 import { type ComponentChildren, type JSX } from 'preact'
 import { useEffect, useRef } from 'preact/hooks'
-import { useDeckStore } from '@campfire/state/useDeckStory'
+import { useDeckStore } from '@campfire/state/useDeckStore'
 import { useSerializedDirectiveRunner } from '@campfire/hooks/useSerializedDirectiveRunner'
 
+/** Transition type used by slides. */
 export type TransitionType = 'none' | 'fade' | 'slide' | 'zoom'
+/** Direction for slide transitions. */
 export type Direction = 'left' | 'right' | 'up' | 'down'
 
+/**
+ * Describes a single transition configuration.
+ */
 export interface Transition {
   type: TransitionType
   dir?: Direction
@@ -14,10 +19,14 @@ export interface Transition {
   easing?: string
 }
 
+/**
+ * Allows specifying separate enter and exit transitions.
+ */
 export type SlideTransition =
   | Transition
   | { enter?: Transition; exit?: Transition }
 
+/** Properties accepted by the {@link Slide} component. */
 export interface SlideProps {
   /** Optional build steps on this slide (used by the Deck store when active). */
   steps?: number
@@ -85,8 +94,7 @@ export const Slide = ({
     }
   }, [])
 
-  const bgClass =
-    typeof background === 'string' ? background : 'bg-gray-100 dark:bg-gray-900'
+  const bgClass = background && typeof background === 'string' ? background : ''
   const bgStyle: JSX.CSSProperties =
     typeof background === 'object'
       ? {
@@ -99,9 +107,12 @@ export const Slide = ({
 
   return (
     <div
-      className={`relative w-full h-full overflow-hidden ${bgClass} ${className ?? ''}`}
+      className={`relative w-full h-full overflow-hidden ${bgClass} ${
+        className ?? ''
+      }`}
       style={bgStyle}
       data-transition={transition ? JSON.stringify(transition) : undefined}
+      data-testid='slide'
     >
       {children}
     </div>
@@ -109,3 +120,9 @@ export const Slide = ({
 }
 
 export default Slide
+
+export { Appear } from './Appear'
+export { DeckText } from './DeckText'
+export { Layer } from './Layer'
+export type { LayerProps } from './Layer'
+export { renderDirectiveMarkdown } from './renderDirectiveMarkdown'

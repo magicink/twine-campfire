@@ -14,6 +14,9 @@ import { LinkButton } from '@campfire/components/Passage/LinkButton'
 import { TriggerButton } from '@campfire/components/Passage/TriggerButton'
 import { Show } from '@campfire/components/Passage/Show'
 import { OnExit } from '@campfire/components/Passage/OnExit'
+import { Appear } from '@campfire/components/Deck/Slide'
+import { DeckText } from '@campfire/components/Deck/Slide'
+import { rehypeDeckText } from '@campfire/utils/rehypeDeckText'
 
 interface IfProps {
   test: string
@@ -34,6 +37,7 @@ export const If = ({ test, content, fallback }: IfProps) => {
       .use(remarkCampfire, { handlers })
       .use(remarkRehype)
       .use(rehypeCampfire)
+      .use(rehypeDeckText)
       .use(rehypeReact, {
         Fragment,
         jsx,
@@ -43,7 +47,9 @@ export const If = ({ test, content, fallback }: IfProps) => {
           trigger: TriggerButton,
           if: If,
           show: Show,
-          onExit: OnExit
+          onExit: OnExit,
+          appear: Appear,
+          'deck-text': DeckText
         }
       })
     proc.parser = (_doc: unknown, file: Root) => ({

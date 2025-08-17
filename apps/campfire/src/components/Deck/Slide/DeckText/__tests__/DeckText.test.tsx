@@ -1,17 +1,22 @@
 import { describe, it, expect } from 'bun:test'
 import { render, screen } from '@testing-library/preact'
-import { Text } from '@campfire/components/Deck/Slide/Text'
+import { DeckText } from '@campfire/components/Deck/Slide'
 
-describe('Text', () => {
+describe('DeckText', () => {
   it('renders the specified HTML tag', () => {
-    render(<Text as='h2' content='Hello' />)
-    const el = screen.getByText('Hello') as HTMLElement
+    render(<DeckText as='h2'>Hello</DeckText>)
+    const wrapper = screen.getByTestId('deck-text') as HTMLElement
+    const el = wrapper.firstElementChild as HTMLElement
     expect(el.tagName).toBe('H2')
   })
 
   it('forwards positioning props to Layer', () => {
-    render(<Text x={10} y={20} w={100} h={50} content='Positioned' />)
-    const wrapper = screen.getByText('Positioned').parentElement as HTMLElement
+    render(
+      <DeckText x={10} y={20} w={100} h={50}>
+        Positioned
+      </DeckText>
+    )
+    const wrapper = screen.getByTestId('deck-text') as HTMLElement
     expect(wrapper.style.left).toBe('10px')
     expect(wrapper.style.top).toBe('20px')
     expect(wrapper.style.width).toBe('100px')
@@ -20,14 +25,15 @@ describe('Text', () => {
 
   it('applies custom typography styles', () => {
     render(
-      <Text
+      <DeckText
         size={24}
         weight={700}
         align='center'
         color='red'
         lineHeight={1.5}
-        content='Styled'
-      />
+      >
+        Styled
+      </DeckText>
     )
     const el = screen.getByText('Styled') as HTMLElement
     expect(el.style.fontSize).toBe('24px')
@@ -35,11 +41,5 @@ describe('Text', () => {
     expect(el.style.textAlign).toBe('center')
     expect(el.style.color).toBe('red')
     expect(el.style.lineHeight).toBe('1.5')
-  })
-
-  it('prefers children over content', () => {
-    render(<Text content='Fallback'>Child</Text>)
-    expect(screen.getByText('Child')).toBeTruthy()
-    expect(screen.queryByText('Fallback')).toBeNull()
   })
 })

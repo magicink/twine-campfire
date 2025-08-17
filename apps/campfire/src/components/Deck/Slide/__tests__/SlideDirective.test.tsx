@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { render, act, fireEvent } from '@testing-library/preact'
 import { Deck, Slide, TriggerButton } from '@campfire/components'
-import { useDeckStore } from '@campfire/state/useDeckStory'
+import { useDeckStore } from '@campfire/state/useDeckStore'
 import { useGameStore } from '@campfire/state/useGameStore'
 import { resetStores } from '@campfire/test-utils/helpers'
 import { StubAnimation } from '@campfire/test-utils/stub-animation'
@@ -21,13 +21,7 @@ const makeDirective = (md: string) =>
  * Resets deck store for each test.
  */
 const resetDeckStore = () => {
-  useDeckStore.setState({
-    currentSlide: 0,
-    currentStep: 0,
-    maxSteps: 0,
-    slidesCount: 0,
-    stepsPerSlide: {}
-  })
+  useDeckStore.getState().reset()
 }
 
 // Minimal ResizeObserver stub for the tests

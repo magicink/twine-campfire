@@ -2,13 +2,7 @@ import { describe, it, expect, beforeEach } from 'bun:test'
 import { useDeckStore } from '../index'
 
 beforeEach(() => {
-  useDeckStore.setState({
-    currentSlide: 0,
-    currentStep: 0,
-    maxSteps: 0,
-    slidesCount: 0,
-    stepsPerSlide: {}
-  })
+  useDeckStore.getState().reset()
 })
 
 describe('useDeckStore', () => {

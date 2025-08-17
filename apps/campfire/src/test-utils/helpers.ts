@@ -1,6 +1,7 @@
 import type { Element } from 'hast'
 import { useGameStore } from '@campfire/state/useGameStore'
 import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
+import { useDeckStore } from '@campfire/state/useDeckStore'
 
 export const samplePassage: Element = {
   type: 'element',
@@ -10,9 +11,10 @@ export const samplePassage: Element = {
 }
 
 /**
- * Resets story and game stores along with related side effects.
+ * Resets deck, story and game stores along with related side effects.
  */
 export const resetStores = () => {
+  useDeckStore.getState().reset()
   useStoryDataStore.setState({
     storyData: {},
     passages: [],

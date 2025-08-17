@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'bun:test'
 import { render, screen } from '@testing-library/preact'
 import { Deck } from '@campfire/components/Deck'
 import { Slide, type SlideProps } from '@campfire/components/Deck/Slide'
-import { useDeckStore } from '@campfire/state/useDeckStory'
+import { useDeckStore } from '@campfire/state/useDeckStore'
 import type { VNode } from 'preact'
 import { StubAnimation } from '@campfire/test-utils/stub-animation'
 
@@ -10,13 +10,7 @@ import { StubAnimation } from '@campfire/test-utils/stub-animation'
  * Resets the deck store to a clean initial state.
  */
 const resetStore = () => {
-  useDeckStore.setState({
-    currentSlide: 0,
-    currentStep: 0,
-    maxSteps: 0,
-    slidesCount: 0,
-    stepsPerSlide: {}
-  })
+  useDeckStore.getState().reset()
 }
 
 // Minimal ResizeObserver stub for the tests
@@ -35,7 +29,7 @@ beforeEach(() => {
 })
 
 describe('Slide', () => {
-  it('uses default gray background when none provided', () => {
+  it('does not apply a default background when none provided', () => {
     render(
       <Deck>
         <Slide>Slide 1</Slide>
@@ -43,7 +37,7 @@ describe('Slide', () => {
       </Deck>
     )
     const el = screen.getByText('Slide 1') as HTMLElement
-    expect(el).toHaveClass('bg-gray-100', 'dark:bg-gray-900')
+    expect(el).not.toHaveClass('bg-gray-100', 'dark:bg-gray-900')
   })
 
   it('registers steps in the deck store when active', () => {
