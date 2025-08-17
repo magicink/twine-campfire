@@ -1,4 +1,16 @@
-import { useState, useEffect, useRef } from 'preact/hooks'
+import { useState, useEffect, useRef, useMemo } from 'preact/hooks'
+import { unified } from 'unified'
+import remarkParse from 'remark-parse'
+import remarkGfm from 'remark-gfm'
+import remarkDirective from 'remark-directive'
+import remarkCampfire from '@campfire/remark-campfire'
+import remarkRehype from 'remark-rehype'
+import rehypeCampfire from '@campfire/rehype-campfire'
+import rehypeStringify from 'rehype-stringify'
+import rehypeDeckText from '@campfire/utils/rehypeDeckText'
+import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
+import { remarkHeadingStyles } from '@campfire/utils/remarkHeadingStyles'
+import { remarkParagraphStyles } from '@campfire/utils/remarkParagraphStyles'
 import {
   useStoryDataStore,
   type StoryDataState
@@ -35,6 +47,58 @@ const getRawPassage = (passage: Element | undefined): string => {
     .join('')
 }
 
+const DIRECTIVE_MARKER_PATTERN = '(:::[^\\n]*|:[^\\n]*|<<)'
+
+/**
+ * Normalizes directive indentation so Markdown treats directive lines the same
+ * regardless of leading spaces or tabs. Strips tabs or four-or-more spaces
+ * before directive markers.
+ *
+ * @param input - Raw passage text.
+ * @returns Passage text with directive indentation normalized.
+ */
+const normalizeDirectiveIndentation = (input: string): string =>
+  input
+    .replace(new RegExp(`^\\t+(?=(${DIRECTIVE_MARKER_PATTERN}))`, 'gm'), '')
+    .replace(new RegExp(`^[ ]{4,}(?=(${DIRECTIVE_MARKER_PATTERN}))`, 'gm'), '')
+
+/**
+ * Converts legacy if directive syntax using braces into label-based
+ * directives.
+ *
+ * @param input - Raw passage text.
+ * @returns Passage text with if directives normalized.
+ */
+const normalizeIfDirectives = (input: string): string =>
+  input
+    .split('\n')
+    .map(line => {
+      const trimmed = line.trimStart()
+      if (!trimmed.startsWith(':::if{')) return line
+      const indent = line.slice(0, line.length - trimmed.length)
+      const after = trimmed.slice(':::if{'.length)
+      let depth = 1
+      let expr = ''
+      let i = 0
+      for (; i < after.length; i++) {
+        const char = after[i]
+        if (char === '{') {
+          depth++
+          expr += char
+        } else if (char === '}') {
+          depth--
+          if (depth === 0) break
+          expr += char
+        } else {
+          expr += char
+        }
+      }
+      if (depth !== 0) return line
+      const rest = after.slice(i + 1)
+      return `${indent}:::if[${expr}]${rest}`
+    })
+    .join('\n')
+
 /**
  * Renders a debug window showing game, story, translation and passage data.
  * Also displays passage information when the debug option is enabled.
@@ -48,6 +112,23 @@ export const DebugWindow = () => {
     state.getCurrentPassage()
   )
   const rawPassage = getRawPassage(currentPassage)
+  const handlers = useDirectiveHandlers()
+  const processor = useMemo(
+    () =>
+      unified()
+        .use(remarkParse)
+        .use(remarkGfm)
+        .use(remarkDirective)
+        .use(remarkCampfire, { handlers })
+        .use(remarkParagraphStyles)
+        .use(remarkHeadingStyles)
+        .use(remarkRehype)
+        .use(rehypeCampfire)
+        .use(rehypeDeckText)
+        .use(rehypeStringify),
+    [handlers]
+  )
+  const [jsxPassage, setJsxPassage] = useState('')
   const [translations, setTranslations] = useState<Record<string, unknown>>({})
   useEffect(() => {
     const update = () => {
@@ -89,9 +170,36 @@ export const DebugWindow = () => {
    *
    * @returns {void}
    */
-  const handleCopy = (): void => {
+  const handleCopyRaw = (): void => {
     void navigator.clipboard?.writeText(rawPassage)
   }
+
+  /**
+   * Copies the processed passage markup to the clipboard.
+   *
+   * @returns {void}
+   */
+  const handleCopyJsx = (): void => {
+    void navigator.clipboard?.writeText(jsxPassage)
+  }
+
+  useEffect(() => {
+    const controller = new AbortController()
+    ;(async () => {
+      if (controller.signal.aborted) return
+      if (!rawPassage) {
+        setJsxPassage('')
+        return
+      }
+      const normalized = normalizeIfDirectives(
+        normalizeDirectiveIndentation(rawPassage)
+      )
+      const file = await processor.process(normalized)
+      if (controller.signal.aborted) return
+      setJsxPassage(String(file.value))
+    })()
+    return () => controller.abort()
+  }, [rawPassage, processor])
 
   useEffect(() => {
     if (debugEnabled && visible) {
@@ -203,17 +311,33 @@ export const DebugWindow = () => {
                 </ul>
               </div>
             ) : tab === TAB_PASSAGE ? (
-              <div>
-                <button
-                  type='button'
-                  onClick={e => {
-                    e.stopPropagation()
-                    handleCopy()
-                  }}
-                >
-                  Copy
-                </button>
-                <pre className='whitespace-pre-wrap'>{rawPassage}</pre>
+              <div className='space-y-4'>
+                <div>
+                  <button
+                    type='button'
+                    data-testid='copy-raw'
+                    onClick={e => {
+                      e.stopPropagation()
+                      handleCopyRaw()
+                    }}
+                  >
+                    Copy Raw
+                  </button>
+                  <pre className='whitespace-pre-wrap'>{rawPassage}</pre>
+                </div>
+                <div>
+                  <button
+                    type='button'
+                    data-testid='copy-jsx'
+                    onClick={e => {
+                      e.stopPropagation()
+                      handleCopyJsx()
+                    }}
+                  >
+                    Copy JSX
+                  </button>
+                  <pre className='whitespace-pre-wrap'>{jsxPassage}</pre>
+                </div>
               </div>
             ) : tab === TAB_TRANSLATIONS ? (
               <pre className='whitespace-pre-wrap'>
