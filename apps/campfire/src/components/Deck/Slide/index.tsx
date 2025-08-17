@@ -1,5 +1,5 @@
 import { type ComponentChildren, type JSX } from 'preact'
-import { useEffect, useRef } from 'preact/hooks'
+import { useEffect, useLayoutEffect, useRef } from 'preact/hooks'
 import { useDeckStore } from '@campfire/state/useDeckStore'
 import { useSerializedDirectiveRunner } from '@campfire/hooks/useSerializedDirectiveRunner'
 
@@ -69,7 +69,8 @@ export const Slide = ({
   const runExitRef = useRef(runExit)
   const onExitRef = useRef(onExit)
   // Preserve the slide index at mount for cleanup checks
-  const indexRef = useRef(useDeckStore.getState().currentSlide)
+  const currentSlide = useDeckStore(state => state.currentSlide)
+  const indexRef = useRef(currentSlide)
 
   useEffect(() => {
     if ((steps ?? 0) !== maxSteps) {
@@ -88,16 +89,16 @@ export const Slide = ({
     onExitRef.current = onExit
   }, [runExit, onExit])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     return () => {
       if (onExitRef.current) {
         runExitRef.current()
       }
-      if (useDeckStore.getState().currentSlide === indexRef.current) {
+      if (currentSlide === indexRef.current) {
         setMaxSteps(0)
       }
     }
-  }, [setMaxSteps])
+  }, [setMaxSteps, currentSlide])
 
   const bgClass = background && typeof background === 'string' ? background : ''
   const bgStyle: JSX.CSSProperties =

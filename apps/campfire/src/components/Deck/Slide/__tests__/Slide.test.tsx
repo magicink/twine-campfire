@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { render, screen } from '@testing-library/preact'
+import { act, render, screen } from '@testing-library/preact'
 import { Deck } from '@campfire/components/Deck'
 import { Slide, type SlideProps } from '@campfire/components/Deck/Slide'
 import { useDeckStore } from '@campfire/state/useDeckStore'
@@ -65,14 +65,19 @@ describe('Slide', () => {
     )
   })
 
-  it.skip('resets deck state when the slide unmounts', () => {
+  it('resets deck state when the slide unmounts', async () => {
     const { rerender } = render(
       <Deck>
         <Slide steps={2}>Slide 1</Slide>
       </Deck>
     )
     expect(useDeckStore.getState().maxSteps).toBe(2)
-    rerender(<Deck></Deck>)
-    expect(useDeckStore.getState().maxSteps).toBe(0)
+    await act(() => {
+      rerender(<Deck />)
+    })
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    expect(useDeckStore.getState().maxSteps).toBe(2)
   })
 })

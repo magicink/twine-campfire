@@ -92,7 +92,7 @@ export const Deck = ({
    * @returns Transition configuration.
    */
   const getTransition = (slide: VNode, mode: 'enter' | 'exit'): Transition => {
-    const t = hasTransition(slide.props) ? slide.props.transition : undefined
+    const t = hasTransition(slide?.props) ? slide?.props?.transition : undefined
     if (!t) return defaultTransition
     if ('type' in t) return t
     return t[mode] ?? defaultTransition
