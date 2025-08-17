@@ -24,6 +24,7 @@ const render: StoryObj<typeof Deck>['render'] = () => (
         enter: { type: 'fade', duration: 300 },
         exit: { type: 'fade', duration: 300 }
       }}
+      background='bg-gray-100 dark:bg-gray-900'
     >
       <Appear at={0}>
         <DeckText as='h2' x={80} y={80} size={36}>
@@ -46,6 +47,7 @@ const render: StoryObj<typeof Deck>['render'] = () => (
         enter: { type: 'slide', dir: 'left', duration: 300 },
         exit: { type: 'slide', dir: 'right', duration: 300 }
       }}
+      background='bg-gray-100 dark:bg-gray-900'
     >
       <Appear at={0}>
         <DeckText as='h2' x={80} y={80} size={36}>
@@ -63,6 +65,7 @@ const render: StoryObj<typeof Deck>['render'] = () => (
         enter: { type: 'zoom', duration: 300 },
         exit: { type: 'zoom', duration: 300 }
       }}
+      background='bg-gray-100 dark:bg-gray-900'
     >
       <Appear at={0}>
         <DeckText as='h2' x={80} y={80} size={36}>

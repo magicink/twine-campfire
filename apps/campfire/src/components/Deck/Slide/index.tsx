@@ -94,7 +94,7 @@ export const Slide = ({
     }
   }, [])
 
-  const bgClass = typeof background === 'string' ? background : ''
+  const bgClass = background && typeof background === 'string' ? background : ''
   const bgStyle: JSX.CSSProperties =
     typeof background === 'object'
       ? {
