@@ -6,6 +6,7 @@ import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { Deck } from '@campfire/components/Deck'
 import { Slide } from '@campfire/components/Deck/Slide'
 import { Appear } from '@campfire/components/Deck/Slide'
+import { DeckText } from '@campfire/components/Deck/Slide'
 import { DEFAULT_DECK_HEIGHT, DEFAULT_DECK_WIDTH } from '@campfire/constants'
 import { renderDirectiveMarkdown } from '@campfire/components/Deck/Slide'
 
@@ -161,5 +162,66 @@ describe('deck directive', () => {
     expect(slideChildren.length).toBe(2)
     expect(slideChildren[0].type).toBe(Appear)
     expect(slideChildren[1].type).toBe(Appear)
+  })
+
+  it('matches the Storybook deck example', () => {
+    const md = `:::deck{size=800x600}
+  :::slide{transition=fade}
+    :::appear{at=0}
+      :::text{x=80 y=80 as="h2"}
+      Hello
+      :::
+    :::
+    :::appear{at=1}
+      :::text{x=100 y=100 as="h2"}
+      World
+      :::
+    :::
+  :::
+:::`
+    render(<MarkdownRunner markdown={md} />)
+    const getDeck = (node: any): any => {
+      if (Array.isArray(node)) return getDeck(node[0])
+      if (node?.type === Fragment) return getDeck(node.props.children)
+      return node
+    }
+    const deck = getDeck(output)
+    expect(deck).toMatchObject({
+      type: Deck,
+      props: { size: { width: 800, height: 600 } }
+    })
+    const slides = Array.isArray(deck.props.children)
+      ? deck.props.children
+      : [deck.props.children]
+    expect(slides).toHaveLength(1)
+    const [slide] = slides
+    expect(slide).toMatchObject({
+      type: Slide,
+      props: { transition: { type: 'fade' } }
+    })
+    const appearChildren = Array.isArray(slide.props.children)
+      ? slide.props.children
+      : [slide.props.children]
+    expect(appearChildren).toHaveLength(2)
+    expect(appearChildren[0]).toMatchObject({
+      type: Appear,
+      props: {
+        at: 0,
+        children: {
+          type: DeckText,
+          props: { as: 'h2', x: 80, y: 80, children: 'Hello' }
+        }
+      }
+    })
+    expect(appearChildren[1]).toMatchObject({
+      type: Appear,
+      props: {
+        at: 1,
+        children: {
+          type: DeckText,
+          props: { as: 'h2', x: 100, y: 100, children: 'World' }
+        }
+      }
+    })
   })
 })

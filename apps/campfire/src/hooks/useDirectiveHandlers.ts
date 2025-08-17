@@ -1751,16 +1751,28 @@ export const useDirectiveHandlers = () => {
       const tagName = attrs.as ? String(attrs.as) : 'p'
       const style: string[] = []
       style.push('position:absolute')
-      if (typeof attrs.x === 'number') style.push(`left:${attrs.x}px`)
-      if (typeof attrs.y === 'number') style.push(`top:${attrs.y}px`)
-      if (typeof attrs.w === 'number') style.push(`width:${attrs.w}px`)
-      if (typeof attrs.h === 'number') style.push(`height:${attrs.h}px`)
-      if (typeof attrs.z === 'number') style.push(`z-index:${attrs.z}`)
+      if (typeof attrs.x === 'number') {
+        style.push(`left:${attrs.x}px`)
+      }
+      if (typeof attrs.y === 'number') {
+        style.push(`top:${attrs.y}px`)
+      }
+      if (typeof attrs.w === 'number') {
+        style.push(`width:${attrs.w}px`)
+      }
+      if (typeof attrs.h === 'number') {
+        style.push(`height:${attrs.h}px`)
+      }
+      if (typeof attrs.z === 'number') {
+        style.push(`z-index:${attrs.z}`)
+      }
       const transforms: string[] = []
-      if (typeof attrs.rotate === 'number')
+      if (typeof attrs.rotate === 'number') {
         transforms.push(`rotate(${attrs.rotate}deg)`)
-      if (typeof attrs.scale === 'number')
+      }
+      if (typeof attrs.scale === 'number') {
         transforms.push(`scale(${attrs.scale})`)
+      }
       if (transforms.length) style.push(`transform:${transforms.join(' ')}`)
       if (attrs.anchor && attrs.anchor !== 'top-left') {
         const originMap: Record<string, string> = {
@@ -1786,6 +1798,14 @@ export const useDirectiveHandlers = () => {
         style.push(`line-height:${attrs.lineHeight}`)
       if (attrs.color) style.push(`color:${attrs.color}`)
       const props: Record<string, unknown> = {}
+      if (typeof attrs.x === 'number') props.x = attrs.x
+      if (typeof attrs.y === 'number') props.y = attrs.y
+      if (typeof attrs.w === 'number') props.w = attrs.w
+      if (typeof attrs.h === 'number') props.h = attrs.h
+      if (typeof attrs.z === 'number') props.z = attrs.z
+      if (typeof attrs.rotate === 'number') props.rotate = attrs.rotate
+      if (typeof attrs.scale === 'number') props.scale = attrs.scale
+      if (attrs.anchor) props.anchor = attrs.anchor
       if (style.length) props.style = style.join(';')
       const classAttr =
         typeof raw.class === 'string'
