@@ -191,4 +191,31 @@ describe('Deck', () => {
     )
     expect(enterCall).toBeTruthy()
   })
+
+  it('displays steps starting at one', async () => {
+    render(
+      <Deck>
+        <Slide steps={2}>Slide 1</Slide>
+      </Deck>
+    )
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    const hud = screen.getByTestId('deck-hud')
+    expect(hud.textContent).toContain('Step 1 / 2')
+  })
+
+  it('announces steps separately from slides', async () => {
+    render(
+      <Deck>
+        <Slide steps={2}>Slide 1</Slide>
+      </Deck>
+    )
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    const liveRegions = document.querySelectorAll('[aria-live="polite"]')
+    expect(liveRegions.length).toBe(2)
+    expect(liveRegions[1].textContent?.trim()).toBe('Step 1 of 2')
+  })
 })

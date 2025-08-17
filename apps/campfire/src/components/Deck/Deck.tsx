@@ -289,8 +289,12 @@ export const Deck = ({
       </div>
       <div aria-live='polite' aria-atomic='true' style={srOnlyStyle}>
         {labels.slide(currentSlide + 1, slides.length)}
-        {maxSteps > 0 ? `. ${labels.step(currentStep, maxSteps)}` : ''}
       </div>
+      {maxSteps > 0 && (
+        <div aria-live='polite' aria-atomic='true' style={srOnlyStyle}>
+          {labels.step(currentStep + 1, maxSteps)}
+        </div>
+      )}
       <div
         className='absolute bottom-3 left-1/2 -translate-x-1/2 text-sm px-2 py-1 rounded bg-black/50 text-white/80'
         aria-hidden='true'
@@ -299,7 +303,7 @@ export const Deck = ({
         Slide {currentSlide + 1} / {slides.length}
         {maxSteps > 0 && (
           <span className='ml-2'>
-            • Step {currentStep} / {maxSteps}
+            • Step {currentStep + 1} / {maxSteps}
           </span>
         )}
       </div>
