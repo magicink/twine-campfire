@@ -29,7 +29,7 @@ beforeEach(() => {
 })
 
 describe('Slide', () => {
-  it('uses default gray background when none provided', () => {
+  it('does not apply a default background when none provided', () => {
     render(
       <Deck>
         <Slide>Slide 1</Slide>
@@ -37,7 +37,7 @@ describe('Slide', () => {
       </Deck>
     )
     const el = screen.getByText('Slide 1') as HTMLElement
-    expect(el).toHaveClass('bg-gray-100', 'dark:bg-gray-900')
+    expect(el).not.toHaveClass('bg-gray-100', 'dark:bg-gray-900')
   })
 
   it('registers steps in the deck store when active', () => {
