@@ -182,7 +182,7 @@ export const Deck = ({
 
   useEffect(() => {
     setSlidesCount(slides.length)
-    if (initialSlide && initialSlide > 0) {
+    if (typeof initialSlide === 'number') {
       goTo(initialSlide, 0)
     }
   }, [slides.length, setSlidesCount, initialSlide, goTo])
@@ -304,7 +304,7 @@ export const Deck = ({
         )}
       </div>
       <div
-        className='absolute inset-x-0 bottom-2 flex items-center justify-between px-2 pointer-events-none'
+        className='absolute inset-x-0 bottom-2 flex items-center justify-center px-2 pointer-events-none'
         style={{ gap: 8 }}
       >
         <button
