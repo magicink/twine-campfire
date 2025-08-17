@@ -211,7 +211,9 @@ export const Deck = ({
           transformOrigin: 'center center'
         }}
         className='absolute left-1/2 top-1/2'
-        onClick={next}
+        onClick={e => {
+          if (e.detail <= 1) next()
+        }}
       >
         {prevVNode}
         {currentVNode}
