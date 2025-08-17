@@ -2,21 +2,15 @@ import { describe, it, expect, beforeEach } from 'bun:test'
 import { render, screen, act } from '@testing-library/preact'
 import { Deck } from '@campfire/components/Deck'
 import { Slide } from '@campfire/components/Deck/Slide'
-import { Appear } from '@campfire/components/Deck/Slide/Appear'
-import { useDeckStore } from '@campfire/state/useDeckStory'
+import { Appear } from '@campfire/components/Deck/Slide'
+import { useDeckStore } from '@campfire/state/useDeckStore'
 import { StubAnimation } from '@campfire/test-utils/stub-animation'
 
 /**
  * Resets the deck store to a clean initial state.
  */
 const resetStore = () => {
-  useDeckStore.setState({
-    currentSlide: 0,
-    currentStep: 0,
-    maxSteps: 0,
-    slidesCount: 0,
-    stepsPerSlide: {}
-  })
+  useDeckStore.getState().reset()
 }
 
 // Minimal ResizeObserver stub for the tests

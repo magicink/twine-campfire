@@ -135,6 +135,28 @@ describe('DebugWindow', () => {
     expect(screen.getByText('Raw [[Link]]')).toBeInTheDocument()
   })
 
+  it('shows processed passage jsx', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: 'Raw [[Link]]' }]
+    }
+    useStoryDataStore.setState({
+      storyData: { options: 'debug' },
+      passages: [passage],
+      currentPassageId: '1'
+    })
+    render(<DebugWindow />)
+    const passageTab = screen.getByRole('button', { name: 'Passage' })
+    act(() => {
+      passageTab.click()
+    })
+    await screen.findByText(
+      '<p class="font-libertinus text-base">Raw <button type="button" class="campfire-link" data-name="Link">Link</button></p>'
+    )
+  })
+
   it('copies raw passage to clipboard', () => {
     const passage: Element = {
       type: 'element',
@@ -159,10 +181,43 @@ describe('DebugWindow', () => {
     act(() => {
       passageTab.click()
     })
-    const copyButton = screen.getByRole('button', { name: 'Copy' })
+    const copyButton = screen.getByRole('button', { name: 'Copy Raw' })
     act(() => {
       copyButton.click()
     })
     expect(writeText).toHaveBeenCalledWith('Raw [[Link]]')
+  })
+
+  it('copies processed passage jsx', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: 'Raw [[Link]]' }]
+    }
+    useStoryDataStore.setState({
+      storyData: { options: 'debug' },
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    const writeText = mock(() => Promise.resolve())
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { writeText },
+      configurable: true
+    })
+
+    render(<DebugWindow />)
+    const passageTab = screen.getByRole('button', { name: 'Passage' })
+    act(() => {
+      passageTab.click()
+    })
+    const copyButton = await screen.findByRole('button', { name: 'Copy JSX' })
+    act(() => {
+      copyButton.click()
+    })
+    expect(writeText).toHaveBeenCalledWith(
+      '<p class="font-libertinus text-base">Raw <button type="button" class="campfire-link" data-name="Link">Link</button></p>'
+    )
   })
 })
