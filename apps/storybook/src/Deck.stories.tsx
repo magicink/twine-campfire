@@ -137,3 +137,20 @@ export const WithCustomLabels: StoryObj<typeof Deck> = {
     </Deck>
   )
 }
+
+/**
+ * Demonstrates the Deck HUD with separate slide and step counters stacked vertically.
+ *
+ * @returns The rendered Deck element showing the counters.
+ */
+export const WithStepHud: StoryObj<typeof Deck> = {
+  render: () => (
+    <Deck className='w-[800px] h-[600px]'>
+      <Slide steps={2}>
+        <DeckText as='h2' x={200} y={200} size={36}>
+          Step HUD
+        </DeckText>
+      </Slide>
+    </Deck>
+  )
+}

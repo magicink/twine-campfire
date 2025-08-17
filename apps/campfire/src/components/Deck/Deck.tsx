@@ -294,18 +294,19 @@ export const Deck = ({
         {maxSteps > 0 ? labels.step(currentStep + 1, maxSteps) : ''}
       </div>
       <div
-        className='absolute top-3 right-3 text-sm px-2 py-1 rounded bg-black/50 text-white/80'
+        className='absolute top-3 right-3 text-sm px-2 py-1 rounded bg-black/50 text-white/80 text-right'
         aria-hidden='true'
         data-testid='deck-hud'
       >
-        Slide {currentSlide + 1} / {slides.length}
-        <span
-          className='ml-2'
+        <div data-testid='deck-slide-hud'>
+          Slide {currentSlide + 1} / {slides.length}
+        </div>
+        <div
           style={{ opacity: maxSteps > 0 ? 1 : 0 }}
           data-testid='deck-step-hud'
         >
-          {maxSteps > 0 ? `• Step ${currentStep + 1} / ${maxSteps}` : '•'}
-        </span>
+          {maxSteps > 0 ? `Step ${currentStep + 1} / ${maxSteps}` : ''}
+        </div>
       </div>
       <div
         className='absolute inset-x-0 bottom-2 flex items-center justify-center px-2 pointer-events-none'

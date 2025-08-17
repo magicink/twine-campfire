@@ -201,9 +201,8 @@ describe('Deck', () => {
     await act(async () => {
       await new Promise(resolve => setTimeout(resolve, 0))
     })
-    const hud = screen.getByTestId('deck-hud')
-    expect(hud.textContent).toContain('Step 1 / 2')
     const stepHud = screen.getByTestId('deck-step-hud')
+    expect(stepHud.textContent).toBe('Step 1 / 2')
     expect(stepHud).toHaveStyle({ opacity: '1' })
   })
 
@@ -232,6 +231,22 @@ describe('Deck', () => {
     const liveRegions = document.querySelectorAll('[aria-live="polite"]')
     expect(liveRegions.length).toBe(2)
     expect(liveRegions[1].textContent?.trim()).toBe('Step 1 of 2')
+  })
+
+  it('renders step counter below slide counter', async () => {
+    render(
+      <Deck>
+        <Slide steps={2}>Slide 1</Slide>
+      </Deck>
+    )
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    const hud = screen.getByTestId('deck-hud')
+    const slideHud = screen.getByTestId('deck-slide-hud')
+    const stepHud = screen.getByTestId('deck-step-hud')
+    expect(hud.firstElementChild).toBe(slideHud)
+    expect(hud.lastElementChild).toBe(stepHud)
   })
 
   it('positions HUD away from navigation buttons', () => {
