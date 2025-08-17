@@ -64,4 +64,15 @@ describe('Slide', () => {
       JSON.stringify({ type: 'fade', duration: 300 })
     )
   })
+
+  it('resets deck state when the slide unmounts', () => {
+    const { rerender } = render(
+      <Deck>
+        <Slide steps={2}>Slide 1</Slide>
+      </Deck>
+    )
+    expect(useDeckStore.getState().maxSteps).toBe(2)
+    rerender(<Deck></Deck>)
+    expect(useDeckStore.getState().maxSteps).toBe(0)
+  })
 })
