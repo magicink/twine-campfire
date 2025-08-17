@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/preact'
 import { h } from 'preact'
-import { Deck, Slide, Text, Appear } from '@campfire/components'
+import { Deck, Slide, DeckText, Appear } from '@campfire/components'
 
 const meta: Meta<typeof Appear> = {
   component: Appear,
@@ -17,36 +17,45 @@ export default meta
  */
 const render: StoryObj<typeof Appear>['render'] = () => (
   <Deck className='w-[800px] h-[600px]'>
-    <Slide>
+    <Slide background='bg-gray-100 dark:bg-gray-900'>
       <Appear at={0}>
-        <Text
+        <DeckText
           as='h2'
-          x={80}
-          y={80}
+          x={180}
+          y={180}
           size={36}
-          color='var(--color-gray-50)'
-          content='First'
-        />
+          className={
+            'text-[var(--color-gray-50) dark:text-[var(--color-gray-500)]'
+          }
+        >
+          First
+        </DeckText>
       </Appear>
       <Appear at={1}>
-        <Text
-          x={500}
-          y={400}
+        <DeckText
+          x={280}
+          y={280}
           size={24}
-          color='var(--color-gray-50)'
-          content='Second'
-        />
+          className={
+            'text-[var(--color-gray-50) dark:text-[var(--color-gray-500)]'
+          }
+        >
+          Second
+        </DeckText>
       </Appear>
     </Slide>
-    <Slide>
-      <Text
+    <Slide background='bg-gray-100 dark:bg-gray-900'>
+      <DeckText
         as='h2'
-        x={80}
-        y={80}
+        x={280}
+        y={280}
         size={36}
-        color='var(--color-gray-50)'
-        content='Next Slide'
-      />
+        className={
+          'text-[var(--color-gray-50) dark:text-[var(--color-gray-500)]'
+        }
+      >
+        Next Slide
+      </DeckText>
     </Slide>
   </Deck>
 )

@@ -22,15 +22,22 @@ export interface DeckState {
   prev: () => void
   /** Jump to a specific slide and step */
   goTo: (slide: number, step?: number) => void
+  /** Reset the deck to its initial state */
+  reset: () => void
 }
 
-/** Zustand store for tracking slide and step navigation */
-export const useDeckStore = create<DeckState>((set, get) => ({
+/** Initial state for the deck store */
+const initialState = {
   currentSlide: 0,
   currentStep: 0,
   maxSteps: 0,
   slidesCount: 0,
-  stepsPerSlide: {},
+  stepsPerSlide: {} as Record<number, number>
+}
+
+/** Zustand store for tracking slide and step navigation */
+export const useDeckStore = create<DeckState>((set, get) => ({
+  ...initialState,
   /** Update the total slide count */
   setSlidesCount: n =>
     set(
@@ -103,5 +110,7 @@ export const useDeckStore = create<DeckState>((set, get) => ({
         state.currentStep = targetStep
         state.maxSteps = maxStepsForSlide
       })
-    )
+    ),
+  /** Reset the deck to its initial state */
+  reset: () => set(initialState)
 }))

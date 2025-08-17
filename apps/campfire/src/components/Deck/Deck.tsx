@@ -13,7 +13,7 @@ import {
   useRef,
   useState
 } from 'preact/hooks'
-import { useDeckStore } from '@campfire/state/useDeckStory'
+import { useDeckStore } from '@campfire/state/useDeckStore'
 import { useScale, type DeckSize } from '@campfire/hooks/useScale'
 import { DEFAULT_DECK_HEIGHT, DEFAULT_DECK_WIDTH } from '@campfire/constants'
 import {
@@ -65,6 +65,7 @@ export const Deck = ({
   const prev = useDeckStore(state => state.prev)
   const goTo = useDeckStore(state => state.goTo)
   const setSlidesCount = useDeckStore(state => state.setSlidesCount)
+  const reset = useDeckStore(state => state.reset)
 
   const [currentVNode, setCurrentVNode] = useState(slides[0] as VNode)
   const [prevVNode, setPrevVNode] = useState<VNode | null>(null)
@@ -188,11 +189,18 @@ export const Deck = ({
     return () => window.removeEventListener('keydown', onKey)
   }, [next, prev, goTo, slides.length])
 
+  useEffect(() => {
+    return () => {
+      reset()
+    }
+  }, [reset])
+
   return (
     <div
       ref={hostRef}
-      className={`relative w-full h-full overflow-hidden bg-gray-100 dark:bg-gray-900 ${className ?? ''}`}
+      className={`relative w-full h-full overflow-hidden ${className ?? ''}`}
       style={themeStyle}
+      data-testid='deck'
     >
       <div
         ref={slideRef}

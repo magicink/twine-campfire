@@ -2,20 +2,14 @@ import { describe, it, expect, beforeEach } from 'bun:test'
 import { render, screen, fireEvent, act } from '@testing-library/preact'
 import { Deck } from '@campfire/components/Deck'
 import { Slide } from '@campfire/components/Deck/Slide'
-import { useDeckStore } from '@campfire/state/useDeckStory'
+import { useDeckStore } from '@campfire/state/useDeckStore'
 import { StubAnimation } from '@campfire/test-utils/stub-animation'
 
 /**
  * Resets the deck store to a clean initial state.
  */
 const resetStore = () => {
-  useDeckStore.setState({
-    currentSlide: 0,
-    currentStep: 0,
-    maxSteps: 0,
-    slidesCount: 0,
-    stepsPerSlide: {}
-  })
+  useDeckStore.getState().reset()
 }
 
 // Minimal ResizeObserver stub for the tests
@@ -49,13 +43,16 @@ describe('Deck', () => {
     expect(screen.getByText('Slide 1')).toBeInTheDocument()
   })
 
-  it('uses gray backgrounds for light and dark modes', () => {
+  it('does not apply default backgrounds', () => {
     const { container } = render(
       <Deck>
         <div>Slide 1</div>
       </Deck>
     )
-    expect(container.firstChild).toHaveClass('bg-gray-100', 'dark:bg-gray-900')
+    expect(container.firstChild).not.toHaveClass(
+      'bg-gray-100',
+      'dark:bg-gray-900'
+    )
   })
 
   it('advances and reverses slides via click and keyboard', () => {
@@ -93,6 +90,24 @@ describe('Deck', () => {
       window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home' }))
     })
     expect(useDeckStore.getState().currentSlide).toBe(0)
+  })
+
+  it('resets deck state when unmounted', () => {
+    const { unmount } = render(
+      <Deck>
+        <div>One</div>
+        <div>Two</div>
+      </Deck>
+    )
+    act(() => {
+      useDeckStore.getState().next()
+    })
+    expect(useDeckStore.getState().currentSlide).toBe(1)
+    act(() => {
+      unmount()
+    })
+    expect(useDeckStore.getState().currentSlide).toBe(0)
+    expect(useDeckStore.getState().slidesCount).toBe(0)
   })
 
   it('applies slide transition type and duration', async () => {
