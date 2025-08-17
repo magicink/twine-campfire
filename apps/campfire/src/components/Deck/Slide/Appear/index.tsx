@@ -1,6 +1,6 @@
 import { type ComponentChildren, type JSX } from 'preact'
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks'
-import { useDeckStore } from '@campfire/state/useDeckStory'
+import { useDeckStore } from '@campfire/state/useDeckStore'
 import { type Transition } from '../'
 import {
   defaultTransition,

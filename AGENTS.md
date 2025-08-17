@@ -14,3 +14,4 @@
   - Filter out whitespace-only nodes and directive markers before committing content to a slide.
   - Use helpers like `stripLabel`, `removeDirectiveMarker`, and `runBlock` to handle labels and markers.
   - Add regression tests for new container directives to prevent splitting issues.
+  - Keep any blank lines between the opening tag and content and between content and the closing tag to avoid breaking grouping.
