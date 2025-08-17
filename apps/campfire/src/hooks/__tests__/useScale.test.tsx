@@ -74,4 +74,35 @@ describe('useScale', () => {
     act(() => trigger())
     expect(currentScale).toBe(MIN_SCALE)
   })
+
+  it('does not update scale when size remains the same', () => {
+    const trigger = setupResizeObserver()
+    let renders = 0
+
+    /** Test component that tracks render count. */
+    const TestComponent = () => {
+      const { ref, scale } = useScale({ width: 100, height: 100 })
+      renders++
+      return <div ref={ref} data-scale={scale} />
+    }
+
+    const { container } = render(<TestComponent />)
+    const el = container.firstElementChild as HTMLDivElement
+
+    Object.defineProperty(el, 'clientWidth', { value: 100, configurable: true })
+    Object.defineProperty(el, 'clientHeight', {
+      value: 100,
+      configurable: true
+    })
+    act(() => trigger())
+    expect(renders).toBe(1)
+
+    Object.defineProperty(el, 'clientWidth', { value: 80, configurable: true })
+    Object.defineProperty(el, 'clientHeight', {
+      value: 100,
+      configurable: true
+    })
+    act(() => trigger())
+    expect(renders).toBe(2)
+  })
 })
