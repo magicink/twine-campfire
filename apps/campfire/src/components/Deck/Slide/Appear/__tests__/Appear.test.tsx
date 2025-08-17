@@ -3,7 +3,7 @@ import { render, screen, act } from '@testing-library/preact'
 import { Deck } from '@campfire/components/Deck'
 import { Slide } from '@campfire/components/Deck/Slide'
 import { Appear } from '@campfire/components/Deck/Slide'
-import { useDeckStore } from '@campfire/state/useDeckStory'
+import { useDeckStore } from '@campfire/state/useDeckStore'
 import { StubAnimation } from '@campfire/test-utils/stub-animation'
 
 /**

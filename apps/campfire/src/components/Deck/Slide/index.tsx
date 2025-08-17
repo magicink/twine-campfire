@@ -1,6 +1,6 @@
 import { type ComponentChildren, type JSX } from 'preact'
 import { useEffect, useRef } from 'preact/hooks'
-import { useDeckStore } from '@campfire/state/useDeckStory'
+import { useDeckStore } from '@campfire/state/useDeckStore'
 import { useSerializedDirectiveRunner } from '@campfire/hooks/useSerializedDirectiveRunner'
 
 /** Transition type used by slides. */

@@ -811,8 +811,10 @@ export const useDirectiveHandlers = () => {
      * @returns Cleaned array without whitespace-only text nodes.
      */
     const processNodes = (nodes: RootContent[]): RootContent[] => {
-      const cloned = stripLabel(nodes).map(node => structuredClone(node))
-      return preprocessBlock(cloned).filter(
+      const cloned = nodes.map(node => structuredClone(node))
+      const processed = preprocessBlock(cloned)
+      const stripped = stripLabel(processed)
+      return stripped.filter(
         node => !(isTextNode(node) && node.value.trim() === '')
       )
     }
@@ -904,8 +906,8 @@ export const useDirectiveHandlers = () => {
 
     const container = directive as ContainerDirective
     const allowed = ALLOWED_BATCH_DIRECTIVES
-    const rawChildren = stripLabel(container.children as RootContent[])
-    const processedChildren = preprocessBlock(rawChildren)
+    const rawChildren = preprocessBlock(container.children as RootContent[])
+    const processedChildren = stripLabel(rawChildren)
     const [filtered, invalid, nested] = filterDirectiveChildren(
       processedChildren,
       allowed,
@@ -1081,8 +1083,12 @@ export const useDirectiveHandlers = () => {
     onExitSeenRef.current = true
     const container = directive as ContainerDirective
     const allowed = ALLOWED_ONEXIT_DIRECTIVES
-    const rawChildren = stripLabel(container.children as RootContent[])
-    const [filtered, invalid] = filterDirectiveChildren(rawChildren, allowed)
+    const rawChildren = preprocessBlock(container.children as RootContent[])
+    const processedChildren = stripLabel(rawChildren)
+    const [filtered, invalid] = filterDirectiveChildren(
+      processedChildren,
+      allowed
+    )
     if (invalid) {
       const allowedList = [...allowed].join(', ')
       const msg = `onExit only supports directives: ${allowedList}`
@@ -1638,10 +1644,9 @@ export const useDirectiveHandlers = () => {
       const container = directive as ContainerDirective
       const { attrs } = extractAttributes<S>(directive, parent, index, schema)
       const rawAttrs = (directive.attributes || {}) as Record<string, unknown>
-      const processed = runBlock(
-        stripLabel(container.children as RootContent[])
-      )
-      const children = transform ? transform(processed, attrs) : processed
+      const processed = runBlock(container.children as RootContent[])
+      const stripped = stripLabel(processed)
+      const children = transform ? transform(stripped, attrs) : stripped
       const tag = typeof hName === 'function' ? hName(attrs) : hName
       const node: Parent = {
         type: 'paragraph',
@@ -1751,16 +1756,28 @@ export const useDirectiveHandlers = () => {
       const tagName = attrs.as ? String(attrs.as) : 'p'
       const style: string[] = []
       style.push('position:absolute')
-      if (typeof attrs.x === 'number') style.push(`left:${attrs.x}px`)
-      if (typeof attrs.y === 'number') style.push(`top:${attrs.y}px`)
-      if (typeof attrs.w === 'number') style.push(`width:${attrs.w}px`)
-      if (typeof attrs.h === 'number') style.push(`height:${attrs.h}px`)
-      if (typeof attrs.z === 'number') style.push(`z-index:${attrs.z}`)
+      if (typeof attrs.x === 'number') {
+        style.push(`left:${attrs.x}px`)
+      }
+      if (typeof attrs.y === 'number') {
+        style.push(`top:${attrs.y}px`)
+      }
+      if (typeof attrs.w === 'number') {
+        style.push(`width:${attrs.w}px`)
+      }
+      if (typeof attrs.h === 'number') {
+        style.push(`height:${attrs.h}px`)
+      }
+      if (typeof attrs.z === 'number') {
+        style.push(`z-index:${attrs.z}`)
+      }
       const transforms: string[] = []
-      if (typeof attrs.rotate === 'number')
+      if (typeof attrs.rotate === 'number') {
         transforms.push(`rotate(${attrs.rotate}deg)`)
-      if (typeof attrs.scale === 'number')
+      }
+      if (typeof attrs.scale === 'number') {
         transforms.push(`scale(${attrs.scale})`)
+      }
       if (transforms.length) style.push(`transform:${transforms.join(' ')}`)
       if (attrs.anchor && attrs.anchor !== 'top-left') {
         const originMap: Record<string, string> = {
@@ -1786,6 +1803,14 @@ export const useDirectiveHandlers = () => {
         style.push(`line-height:${attrs.lineHeight}`)
       if (attrs.color) style.push(`color:${attrs.color}`)
       const props: Record<string, unknown> = {}
+      if (typeof attrs.x === 'number') props.x = attrs.x
+      if (typeof attrs.y === 'number') props.y = attrs.y
+      if (typeof attrs.w === 'number') props.w = attrs.w
+      if (typeof attrs.h === 'number') props.h = attrs.h
+      if (typeof attrs.z === 'number') props.z = attrs.z
+      if (typeof attrs.rotate === 'number') props.rotate = attrs.rotate
+      if (typeof attrs.scale === 'number') props.scale = attrs.scale
+      if (attrs.anchor) props.anchor = attrs.anchor
       if (style.length) props.style = style.join(';')
       const classAttr =
         typeof raw.class === 'string'
@@ -1928,48 +1953,72 @@ export const useDirectiveHandlers = () => {
         !isWhitespaceNode(node as RootContent)
     )
 
-    const children: RootContent[] = preprocessBlock(
-      stripLabel([...(container.children as RootContent[]), ...following])
+    const children: RootContent[] = stripLabel(
+      preprocessBlock([...(container.children as RootContent[]), ...following])
+    ).filter(
+      child =>
+        !isMarkerParagraph(child as RootContent) &&
+        !isWhitespaceNode(child as RootContent)
     )
     let pendingAttrs: Record<string, unknown> = {}
     let pendingNodes: RootContent[] = []
+    let pendingLeaf = false
 
     /**
      * Finalizes the currently buffered slide content and adds it to the deck.
      * Removes any trailing directive markers before running the remark
-     * pipeline so stray markers do not render in the output.
+     * pipeline so stray markers do not render in the output. When buffered
+     * content has no slide attributes and at least one slide already exists,
+     * the nodes are merged into the previous slide instead of creating a new
+     * one. This prevents stray directives, such as `:::appear`, from being
+     * lifted to the deck level and causing empty slides.
      */
     const commitPending = () => {
       const tempParent: Parent = { type: 'root', children: pendingNodes }
       removeDirectiveMarker(tempParent, tempParent.children.length - 1)
-      pendingNodes = tempParent.children.filter(n => !isWhitespaceNode(n))
+      pendingNodes = tempParent.children
+      while (pendingNodes.length && isWhitespaceNode(pendingNodes[0]))
+        pendingNodes.shift()
+      while (
+        pendingNodes.length &&
+        isWhitespaceNode(pendingNodes[pendingNodes.length - 1])
+      )
+        pendingNodes.pop()
 
       if (pendingNodes.length === 0 && Object.keys(pendingAttrs).length === 0)
         return
-      const dummy: DirectiveNode = {
-        type: 'containerDirective',
-        name: 'slide',
-        attributes: pendingAttrs as Record<string, string | null>,
-        children: []
-      }
-      const { attrs: parsed } = extractAttributes<SlideSchema>(
-        dummy,
-        undefined,
-        undefined,
-        slideSchema
-      )
-      const content = runBlock(stripLabel(pendingNodes))
-      const slideNode: Parent = {
-        type: 'paragraph',
-        children: content,
-        data: {
-          hName: 'slide',
-          hProperties: buildSlideProps(parsed) as Properties
+      const processed = runBlock(pendingNodes)
+      const content = stripLabel(processed)
+      const attrsEmpty = Object.keys(pendingAttrs).length === 0
+      if (slides.length > 0 && attrsEmpty && !pendingLeaf) {
+        const lastSlide = slides[slides.length - 1]
+        ;(lastSlide.children as RootContent[]).push(...content)
+      } else {
+        const dummy: DirectiveNode = {
+          type: 'containerDirective',
+          name: 'slide',
+          attributes: pendingAttrs as Record<string, string | null>,
+          children: []
         }
+        const { attrs: parsed } = extractAttributes<SlideSchema>(
+          dummy,
+          undefined,
+          undefined,
+          slideSchema
+        )
+        const slideNode: Parent = {
+          type: 'paragraph',
+          children: content,
+          data: {
+            hName: 'slide',
+            hProperties: buildSlideProps(parsed) as Properties
+          }
+        }
+        slides.push(slideNode)
       }
-      slides.push(slideNode)
       pendingAttrs = {}
       pendingNodes = []
+      pendingLeaf = false
     }
 
     children.forEach((child, i) => {
@@ -1985,7 +2034,8 @@ export const useDirectiveHandlers = () => {
           i,
           slideSchema
         )
-        const content = runBlock(stripLabel(slideDir.children as RootContent[]))
+        const processed = runBlock(slideDir.children as RootContent[])
+        const content = stripLabel(processed)
         const slideNode: Parent = {
           type: 'paragraph',
           children: content,
@@ -2007,7 +2057,8 @@ export const useDirectiveHandlers = () => {
           slideSchema
         )
         pendingAttrs = parsed
-      } else if (!isWhitespaceNode(child)) {
+        pendingLeaf = true
+      } else {
         pendingNodes.push(child)
       }
     })
