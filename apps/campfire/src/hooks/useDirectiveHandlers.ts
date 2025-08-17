@@ -811,8 +811,10 @@ export const useDirectiveHandlers = () => {
      * @returns Cleaned array without whitespace-only text nodes.
      */
     const processNodes = (nodes: RootContent[]): RootContent[] => {
-      const cloned = stripLabel(nodes).map(node => structuredClone(node))
-      return preprocessBlock(cloned).filter(
+      const cloned = nodes.map(node => structuredClone(node))
+      const processed = preprocessBlock(cloned)
+      const stripped = stripLabel(processed)
+      return stripped.filter(
         node => !(isTextNode(node) && node.value.trim() === '')
       )
     }
@@ -904,8 +906,8 @@ export const useDirectiveHandlers = () => {
 
     const container = directive as ContainerDirective
     const allowed = ALLOWED_BATCH_DIRECTIVES
-    const rawChildren = stripLabel(container.children as RootContent[])
-    const processedChildren = preprocessBlock(rawChildren)
+    const rawChildren = preprocessBlock(container.children as RootContent[])
+    const processedChildren = stripLabel(rawChildren)
     const [filtered, invalid, nested] = filterDirectiveChildren(
       processedChildren,
       allowed,
@@ -1081,8 +1083,12 @@ export const useDirectiveHandlers = () => {
     onExitSeenRef.current = true
     const container = directive as ContainerDirective
     const allowed = ALLOWED_ONEXIT_DIRECTIVES
-    const rawChildren = stripLabel(container.children as RootContent[])
-    const [filtered, invalid] = filterDirectiveChildren(rawChildren, allowed)
+    const rawChildren = preprocessBlock(container.children as RootContent[])
+    const processedChildren = stripLabel(rawChildren)
+    const [filtered, invalid] = filterDirectiveChildren(
+      processedChildren,
+      allowed
+    )
     if (invalid) {
       const allowedList = [...allowed].join(', ')
       const msg = `onExit only supports directives: ${allowedList}`
@@ -1638,10 +1644,9 @@ export const useDirectiveHandlers = () => {
       const container = directive as ContainerDirective
       const { attrs } = extractAttributes<S>(directive, parent, index, schema)
       const rawAttrs = (directive.attributes || {}) as Record<string, unknown>
-      const processed = runBlock(
-        stripLabel(container.children as RootContent[])
-      )
-      const children = transform ? transform(processed, attrs) : processed
+      const processed = runBlock(container.children as RootContent[])
+      const stripped = stripLabel(processed)
+      const children = transform ? transform(stripped, attrs) : stripped
       const tag = typeof hName === 'function' ? hName(attrs) : hName
       const node: Parent = {
         type: 'paragraph',
@@ -1948,8 +1953,8 @@ export const useDirectiveHandlers = () => {
         !isWhitespaceNode(node as RootContent)
     )
 
-    const children: RootContent[] = preprocessBlock(
-      stripLabel([...(container.children as RootContent[]), ...following])
+    const children: RootContent[] = stripLabel(
+      preprocessBlock([...(container.children as RootContent[]), ...following])
     )
     let pendingAttrs: Record<string, unknown> = {}
     let pendingNodes: RootContent[] = []
@@ -1962,7 +1967,14 @@ export const useDirectiveHandlers = () => {
     const commitPending = () => {
       const tempParent: Parent = { type: 'root', children: pendingNodes }
       removeDirectiveMarker(tempParent, tempParent.children.length - 1)
-      pendingNodes = tempParent.children.filter(n => !isWhitespaceNode(n))
+      pendingNodes = tempParent.children
+      while (pendingNodes.length && isWhitespaceNode(pendingNodes[0]))
+        pendingNodes.shift()
+      while (
+        pendingNodes.length &&
+        isWhitespaceNode(pendingNodes[pendingNodes.length - 1])
+      )
+        pendingNodes.pop()
 
       if (pendingNodes.length === 0 && Object.keys(pendingAttrs).length === 0)
         return
@@ -1978,7 +1990,8 @@ export const useDirectiveHandlers = () => {
         undefined,
         slideSchema
       )
-      const content = runBlock(stripLabel(pendingNodes))
+      const processed = runBlock(pendingNodes)
+      const content = stripLabel(processed)
       const slideNode: Parent = {
         type: 'paragraph',
         children: content,
@@ -2005,7 +2018,8 @@ export const useDirectiveHandlers = () => {
           i,
           slideSchema
         )
-        const content = runBlock(stripLabel(slideDir.children as RootContent[]))
+        const processed = runBlock(slideDir.children as RootContent[])
+        const content = stripLabel(processed)
         const slideNode: Parent = {
           type: 'paragraph',
           children: content,
@@ -2027,7 +2041,7 @@ export const useDirectiveHandlers = () => {
           slideSchema
         )
         pendingAttrs = parsed
-      } else if (!isWhitespaceNode(child)) {
+      } else {
         pendingNodes.push(child)
       }
     })

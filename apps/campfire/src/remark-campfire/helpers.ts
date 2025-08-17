@@ -146,7 +146,9 @@ export const getLabel = (node: ContainerDirective): string => {
 }
 
 /**
- * Removes the label paragraph from the beginning of the children array, if present.
+ * Removes the label paragraph from the beginning of the children array, if present,
+ * while preserving any whitespace that follows the label. This ensures blank lines
+ * inside container directives remain intact.
  *
  * @param children - The array of RootContent nodes.
  * @returns The children array without the label paragraph at the start.

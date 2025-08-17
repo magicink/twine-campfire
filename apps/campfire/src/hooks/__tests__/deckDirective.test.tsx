@@ -223,5 +223,7 @@ describe('deck directive', () => {
         }
       }
     })
+    const text = getText(output)
+    expect(text).toBe('HelloWorld')
   })
 })
