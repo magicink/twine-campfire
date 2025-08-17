@@ -70,8 +70,8 @@ export const Slide = ({
   const onExitRef = useRef(onExit)
 
   useEffect(() => {
-    if (typeof steps === 'number' && steps !== maxSteps) {
-      setMaxSteps(steps)
+    if ((steps ?? 0) !== maxSteps) {
+      setMaxSteps(steps ?? 0)
     }
   }, [steps, maxSteps, setMaxSteps])
 
