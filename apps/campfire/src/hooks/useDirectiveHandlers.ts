@@ -1962,11 +1962,16 @@ export const useDirectiveHandlers = () => {
     )
     let pendingAttrs: Record<string, unknown> = {}
     let pendingNodes: RootContent[] = []
+    let pendingLeaf = false
 
     /**
      * Finalizes the currently buffered slide content and adds it to the deck.
      * Removes any trailing directive markers before running the remark
-     * pipeline so stray markers do not render in the output.
+     * pipeline so stray markers do not render in the output. When buffered
+     * content has no slide attributes and at least one slide already exists,
+     * the nodes are merged into the previous slide instead of creating a new
+     * one. This prevents stray directives, such as `:::appear`, from being
+     * lifted to the deck level and causing empty slides.
      */
     const commitPending = () => {
       const tempParent: Parent = { type: 'root', children: pendingNodes }
@@ -1982,31 +1987,38 @@ export const useDirectiveHandlers = () => {
 
       if (pendingNodes.length === 0 && Object.keys(pendingAttrs).length === 0)
         return
-      const dummy: DirectiveNode = {
-        type: 'containerDirective',
-        name: 'slide',
-        attributes: pendingAttrs as Record<string, string | null>,
-        children: []
-      }
-      const { attrs: parsed } = extractAttributes<SlideSchema>(
-        dummy,
-        undefined,
-        undefined,
-        slideSchema
-      )
       const processed = runBlock(pendingNodes)
       const content = stripLabel(processed)
-      const slideNode: Parent = {
-        type: 'paragraph',
-        children: content,
-        data: {
-          hName: 'slide',
-          hProperties: buildSlideProps(parsed) as Properties
+      const attrsEmpty = Object.keys(pendingAttrs).length === 0
+      if (slides.length > 0 && attrsEmpty && !pendingLeaf) {
+        const lastSlide = slides[slides.length - 1]
+        ;(lastSlide.children as RootContent[]).push(...content)
+      } else {
+        const dummy: DirectiveNode = {
+          type: 'containerDirective',
+          name: 'slide',
+          attributes: pendingAttrs as Record<string, string | null>,
+          children: []
         }
+        const { attrs: parsed } = extractAttributes<SlideSchema>(
+          dummy,
+          undefined,
+          undefined,
+          slideSchema
+        )
+        const slideNode: Parent = {
+          type: 'paragraph',
+          children: content,
+          data: {
+            hName: 'slide',
+            hProperties: buildSlideProps(parsed) as Properties
+          }
+        }
+        slides.push(slideNode)
       }
-      slides.push(slideNode)
       pendingAttrs = {}
       pendingNodes = []
+      pendingLeaf = false
     }
 
     children.forEach((child, i) => {
@@ -2045,6 +2057,7 @@ export const useDirectiveHandlers = () => {
           slideSchema
         )
         pendingAttrs = parsed
+        pendingLeaf = true
       } else {
         pendingNodes.push(child)
       }
