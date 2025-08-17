@@ -24,10 +24,9 @@ const render: StoryObj<typeof Deck>['render'] = () => (
         enter: { type: 'fade', duration: 300 },
         exit: { type: 'fade', duration: 300 }
       }}
-      background='bg-gray-100 dark:bg-gray-900'
     >
       <Appear at={0}>
-        <DeckText as='h2' x={80} y={80} size={36}>
+        <DeckText as='h2' x={200} y={200} size={36}>
           Fade Slide
         </DeckText>
       </Appear>
@@ -47,10 +46,9 @@ const render: StoryObj<typeof Deck>['render'] = () => (
         enter: { type: 'slide', dir: 'left', duration: 300 },
         exit: { type: 'slide', dir: 'right', duration: 300 }
       }}
-      background='bg-gray-100 dark:bg-gray-900'
     >
       <Appear at={0}>
-        <DeckText as='h2' x={80} y={80} size={36}>
+        <DeckText as='h2' x={200} y={200} size={36}>
           Slide Transition
         </DeckText>
       </Appear>
@@ -65,16 +63,42 @@ const render: StoryObj<typeof Deck>['render'] = () => (
         enter: { type: 'zoom', duration: 300 },
         exit: { type: 'zoom', duration: 300 }
       }}
-      background='bg-gray-100 dark:bg-gray-900'
     >
       <Appear at={0}>
-        <DeckText as='h2' x={80} y={80} size={36}>
+        <DeckText as='h2' x={200} y={200} size={36}>
           Zoom Slide
         </DeckText>
       </Appear>
       <Appear at={1}>
         <DeckText x={500} y={400} size={24}>
           Second step
+        </DeckText>
+      </Appear>
+    </Slide>
+    <Slide
+      transition={{
+        enter: { type: 'fade', duration: 400 },
+        exit: { type: 'fade', duration: 400 }
+      }}
+    >
+      <Appear at={0}>
+        <DeckText as='h2' x={200} y={200} size={36}>
+          Flip Slide
+        </DeckText>
+      </Appear>
+      <Appear at={1}>
+        <DeckText x={260} y={260} size={28}>
+          Second step
+        </DeckText>
+      </Appear>
+      <Appear at={2}>
+        <DeckText x={320} y={320} size={24}>
+          Third step
+        </DeckText>
+      </Appear>
+      <Appear at={3}>
+        <DeckText x={440} y={440} size={20}>
+          Fourth step
         </DeckText>
       </Appear>
     </Slide>
