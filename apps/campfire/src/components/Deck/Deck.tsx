@@ -290,22 +290,22 @@ export const Deck = ({
       <div aria-live='polite' aria-atomic='true' style={srOnlyStyle}>
         {labels.slide(currentSlide + 1, slides.length)}
       </div>
-      {maxSteps > 0 && (
-        <div aria-live='polite' aria-atomic='true' style={srOnlyStyle}>
-          {labels.step(currentStep + 1, maxSteps)}
-        </div>
-      )}
+      <div aria-live='polite' aria-atomic='true' style={srOnlyStyle}>
+        {maxSteps > 0 ? labels.step(currentStep + 1, maxSteps) : ''}
+      </div>
       <div
         className='absolute bottom-3 left-1/2 -translate-x-1/2 text-sm px-2 py-1 rounded bg-black/50 text-white/80'
         aria-hidden='true'
         data-testid='deck-hud'
       >
         Slide {currentSlide + 1} / {slides.length}
-        {maxSteps > 0 && (
-          <span className='ml-2'>
-            • Step {currentStep + 1} / {maxSteps}
-          </span>
-        )}
+        <span
+          className='ml-2'
+          style={{ opacity: maxSteps > 0 ? 1 : 0 }}
+          data-testid='deck-step-hud'
+        >
+          {maxSteps > 0 ? `• Step ${currentStep + 1} / ${maxSteps}` : '•'}
+        </span>
       </div>
       <div
         className='absolute inset-x-0 bottom-2 flex items-center justify-center px-2 pointer-events-none'

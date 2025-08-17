@@ -203,6 +203,21 @@ describe('Deck', () => {
     })
     const hud = screen.getByTestId('deck-hud')
     expect(hud.textContent).toContain('Step 1 / 2')
+    const stepHud = screen.getByTestId('deck-step-hud')
+    expect(stepHud).toHaveStyle({ opacity: '1' })
+  })
+
+  it('hides step HUD when no steps are present', async () => {
+    render(
+      <Deck>
+        <Slide>Slide 1</Slide>
+      </Deck>
+    )
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    const stepHud = screen.getByTestId('deck-step-hud')
+    expect(stepHud).toHaveStyle({ opacity: '0' })
   })
 
   it('announces steps separately from slides', async () => {
