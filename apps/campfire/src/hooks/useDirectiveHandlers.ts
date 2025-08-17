@@ -1955,6 +1955,10 @@ export const useDirectiveHandlers = () => {
 
     const children: RootContent[] = stripLabel(
       preprocessBlock([...(container.children as RootContent[]), ...following])
+    ).filter(
+      child =>
+        !isMarkerParagraph(child as RootContent) &&
+        !isWhitespaceNode(child as RootContent)
     )
     let pendingAttrs: Record<string, unknown> = {}
     let pendingNodes: RootContent[] = []
