@@ -10,6 +10,7 @@ import { Slide } from '.'
 import { Appear } from './Appear'
 import { SlideText } from './SlideText'
 import { SlideImage } from './SlideImage'
+import { SlideShape } from './SlideShape'
 import { createMarkdownProcessor } from '@campfire/utils/createMarkdownProcessor'
 
 /**
@@ -34,7 +35,8 @@ export const renderDirectiveMarkdown = (
     slide: Slide,
     appear: Appear,
     deckText: SlideText,
-    slideImage: SlideImage
+    slideImage: SlideImage,
+    slideShape: SlideShape
   })
   const file = processor.processSync(markdown)
   return file.result as ComponentChild
