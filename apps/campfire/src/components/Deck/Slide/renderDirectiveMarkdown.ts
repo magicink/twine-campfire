@@ -32,7 +32,7 @@ export const renderDirectiveMarkdown = (
     deck: Deck,
     slide: Slide,
     appear: Appear,
-    'deck-text': DeckText
+    deckText: DeckText
   })
   const file = processor.processSync(markdown)
   return file.result as ComponentChild

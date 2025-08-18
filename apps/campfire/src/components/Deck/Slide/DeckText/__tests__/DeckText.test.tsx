@@ -5,7 +5,7 @@ import { DeckText } from '@campfire/components/Deck/Slide'
 describe('DeckText', () => {
   it('renders the specified HTML tag', () => {
     render(<DeckText as='h2'>Hello</DeckText>)
-    const wrapper = screen.getByTestId('deck-text') as HTMLElement
+    const wrapper = screen.getByTestId('deckText') as HTMLElement
     const el = wrapper.firstElementChild as HTMLElement
     expect(el.tagName).toBe('H2')
   })
@@ -16,7 +16,7 @@ describe('DeckText', () => {
         Positioned
       </DeckText>
     )
-    const wrapper = screen.getByTestId('deck-text') as HTMLElement
+    const wrapper = screen.getByTestId('deckText') as HTMLElement
     expect(wrapper.style.left).toBe('10px')
     expect(wrapper.style.top).toBe('20px')
     expect(wrapper.style.width).toBe('100px')

@@ -49,7 +49,7 @@ export const If = ({ test, content, fallback }: IfProps) => {
           show: Show,
           onExit: OnExit,
           appear: Appear,
-          'deck-text': DeckText
+          deckText: DeckText
         }
       })
     proc.parser = (_doc: unknown, file: Root) => ({

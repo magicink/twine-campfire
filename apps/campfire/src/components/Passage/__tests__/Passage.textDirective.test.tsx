@@ -39,7 +39,7 @@ describe('Passage text directive', () => {
     }
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
     render(<Passage />)
-    const el = await screen.findByTestId('deck-text')
+    const el = await screen.findByTestId('deckText')
     expect(el).toBeTruthy()
     expect(document.body.innerHTML).not.toContain('<DeckText')
     expect(document.body.textContent).not.toContain(':::')
@@ -61,7 +61,7 @@ describe('Passage text directive', () => {
     }
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
     render(<Passage />)
-    const el = await screen.findByTestId('deck-text')
+    const el = await screen.findByTestId('deckText')
     const text = el.textContent?.replace(/\s+/g, ' ').trim()
     expect(text).toBe('HP: 5')
   })

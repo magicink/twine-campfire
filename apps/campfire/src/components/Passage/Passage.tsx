@@ -116,7 +116,7 @@ export const Passage = () => {
           deck: Deck,
           slide: Slide,
           appear: Appear,
-          'deck-text': DeckText
+          deckText: DeckText
         },
         [remarkParagraphStyles, remarkHeadingStyles]
       ),

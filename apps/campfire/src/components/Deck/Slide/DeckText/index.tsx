@@ -67,7 +67,7 @@ export const DeckText = ({
   const classes = ['text-base', 'font-normal']
   if (className) classes.unshift(className)
   return (
-    <Layer data-testid='deck-text' {...layerProps}>
+    <Layer data-testid='deckText' {...layerProps}>
       <Tag style={style} className={classes.join(' ')}>
         {children}
       </Tag>

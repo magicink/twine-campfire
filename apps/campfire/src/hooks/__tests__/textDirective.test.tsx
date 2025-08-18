@@ -30,9 +30,7 @@ describe('text directive', () => {
     const md =
       ':::text{x=10 y=20 w=100 h=50 z=5 rotate=45 scale=1.5 anchor=center as="h2" align=center size=24 weight=700 lineHeight=1.2 color="red" class="underline" data-test="ok"}\nHello\n:::'
     render(<MarkdownRunner markdown={md} />)
-    const el = document.querySelector(
-      '[data-testid="deck-text"]'
-    ) as HTMLElement
+    const el = document.querySelector('[data-testid="deckText"]') as HTMLElement
     expect(el).toBeTruthy()
     const inner = el.firstElementChild as HTMLElement
     expect(inner.tagName).toBe('H2')
