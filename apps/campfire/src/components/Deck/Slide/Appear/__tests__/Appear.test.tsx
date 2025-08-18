@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'bun:test'
+import { describe, it, expect, beforeEach, spyOn } from 'bun:test'
 import { render, screen, act } from '@testing-library/preact'
 import { Deck } from '@campfire/components/Deck'
 import { Slide } from '@campfire/components/Deck/Slide'
@@ -120,5 +120,36 @@ describe('Appear', () => {
 
     expect(screen.queryByText('First')).toBeNull()
     expect(screen.queryByText('Second')).toBeNull()
+  })
+
+  it("uses the slide's transition for all Appear children", async () => {
+    const transition = await import('@campfire/components/transition')
+    const spy = spyOn(transition, 'runAnimation').mockImplementation(
+      () => new StubAnimation() as unknown as Animation
+    )
+
+    render(
+      <Deck>
+        <Slide transition={{ type: 'slide' }}>
+          <Appear at={1}>A</Appear>
+          <Appear at={2}>B</Appear>
+        </Slide>
+      </Deck>
+    )
+
+    await act(() => useDeckStore.getState().next())
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    expect(spy.mock.calls.at(-1)?.[1]).toMatchObject({ type: 'slide' })
+
+    spy.mockClear()
+    await act(() => useDeckStore.getState().next())
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    expect(spy.mock.calls.at(-1)?.[1]).toMatchObject({ type: 'slide' })
+
+    spy.mockRestore()
   })
 })

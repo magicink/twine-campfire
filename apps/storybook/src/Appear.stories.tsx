@@ -17,7 +17,10 @@ export default meta
  */
 const render: StoryObj<typeof Appear>['render'] = () => (
   <Deck className='w-[800px] h-[600px]'>
-    <Slide className='bg-gray-100 dark:bg-gray-900'>
+    <Slide
+      transition={{ type: 'slide' }}
+      className='bg-gray-100 dark:bg-gray-900'
+    >
       <Appear at={0}>
         <DeckText
           as='h2'

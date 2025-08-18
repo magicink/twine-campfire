@@ -1,7 +1,14 @@
 import { type ComponentChildren, type JSX } from 'preact'
-import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks'
+import {
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState
+} from 'preact/hooks'
 import { useDeckStore } from '@campfire/state/useDeckStore'
 import { type Transition } from '../'
+import { SlideTransitionContext } from '../context'
 import {
   defaultTransition,
   prefersReducedMotion,
@@ -33,6 +40,7 @@ export const Appear = ({
 }: AppearProps): JSX.Element | null => {
   const currentStep = useDeckStore(state => state.currentStep)
   const currentSlide = useDeckStore(state => state.currentSlide)
+  const slideTransition = useContext(SlideTransitionContext)
   const [present, setPresent] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const animationRef = useRef<Animation | null>(null)
@@ -53,6 +61,9 @@ export const Appear = ({
 
   useLayoutEffect(() => {
     const el = ref.current
+    const enterT = enter ?? slideTransition.enter ?? defaultTransition
+    const exitT =
+      exit ?? slideTransition.exit ?? slideTransition.enter ?? defaultTransition
 
     /**
      * Stops and clears the current animation based on the interrupt policy.
@@ -73,7 +84,7 @@ export const Appear = ({
     if (slideChanged) {
       if (present) {
         if (!reduceMotion && el) {
-          const anim = runAnimation(el, exit ?? defaultTransition, 'out')
+          const anim = runAnimation(el, exitT, 'out')
           animationRef.current = anim
           anim.finished.then(() => {
             if (animationRef.current === anim) {
@@ -111,15 +122,11 @@ export const Appear = ({
         return clearAnimation
       }
       if (el) {
-        animationRef.current = runAnimation(
-          el,
-          enter ?? defaultTransition,
-          'in'
-        )
+        animationRef.current = runAnimation(el, enterT, 'in')
       }
     } else if (present) {
       if (el) {
-        const anim = runAnimation(el, exit ?? defaultTransition, 'out')
+        const anim = runAnimation(el, exitT, 'out')
         animationRef.current = anim
         anim.finished.then(() => {
           if (animationRef.current === anim) {
@@ -140,6 +147,7 @@ export const Appear = ({
     present,
     enter,
     exit,
+    slideTransition,
     interruptBehavior,
     slideChanged,
     stepJumped,
