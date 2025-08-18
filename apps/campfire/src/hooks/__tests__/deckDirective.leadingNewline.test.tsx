@@ -19,8 +19,8 @@ describe('deck directive', () => {
   })
 
   it('handles leading newline before deck', () => {
-    const md = `\n:::deck{size=800x600}
-  :::slide{transition=fade}
+    const md = `\n:::deck{size='800x600'}
+  :::slide{transition='fade'}
     :::appear{at=0}
       :::text{x=80 y=80 as="h2"}
       Hello

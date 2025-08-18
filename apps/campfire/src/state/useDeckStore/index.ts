@@ -16,6 +16,8 @@ export interface DeckState {
   setSlidesCount: (n: number) => void
   /** Update the maximum steps for the current slide */
   setMaxSteps: (n: number) => void
+  /** Register the max steps for a specific slide */
+  setStepsForSlide: (slide: number, steps: number) => void
   /** Advance to the next step or slide */
   next: () => void
   /** Go back to the previous step or slide */
@@ -51,6 +53,19 @@ export const useDeckStore = create<DeckState>((set, get) => ({
       produce((state: DeckState) => {
         state.maxSteps = n
         state.stepsPerSlide[state.currentSlide] = n
+      })
+    ),
+  /** Register the max steps for a slide index */
+  setStepsForSlide: (slide, steps) =>
+    set(
+      produce((state: DeckState) => {
+        state.stepsPerSlide[slide] = steps
+        if (state.currentSlide === slide) {
+          state.maxSteps = steps
+          if (state.currentStep > steps) {
+            state.currentStep = steps
+          }
+        }
       })
     ),
   /** Advance to the next step or slide */

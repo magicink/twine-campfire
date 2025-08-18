@@ -26,6 +26,8 @@ export interface DeckSize {
 export const useScale = (size: DeckSize) => {
   const ref = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(1)
+  /** Stores the most recent scale to avoid redundant state updates. */
+  const scaleRef = useRef(1)
 
   useLayoutEffect(() => {
     if (!ref.current) return
@@ -37,7 +39,10 @@ export const useScale = (size: DeckSize) => {
       const sy = ch / size.height
       const sRaw = Math.min(sx, sy)
       const s = Math.max(MIN_SCALE, sRaw < 1 ? Math.sqrt(sRaw) : sRaw)
-      setScale(s)
+      if (s !== scaleRef.current) {
+        scaleRef.current = s
+        setScale(s)
+      }
     })
 
     ro.observe(el)

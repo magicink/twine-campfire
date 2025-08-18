@@ -53,8 +53,8 @@ export const Deck: StoryObj = {
       <tw-storydata startnode='1' options='debug'>
         <tw-passagedata pid='1' name='Start'>
           {`
-:::deck{size=800x600}
-  :::slide{transition=fade}
+:::deck{size='800x600'}
+  :::slide{transition='fade'}
     :::appear{at=0}
       :::text{x=80 y=80 as="h2"}
       Hello

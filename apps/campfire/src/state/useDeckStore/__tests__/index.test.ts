@@ -62,4 +62,14 @@ describe('useDeckStore', () => {
     expect(useDeckStore.getState().currentStep).toBe(0)
     expect(useDeckStore.getState().maxSteps).toBe(2)
   })
+
+  it('registers steps for a specific slide', () => {
+    const api = useDeckStore.getState()
+    api.setSlidesCount(2)
+    api.setStepsForSlide(1, 3)
+    expect(useDeckStore.getState().stepsPerSlide[1]).toBe(3)
+    expect(useDeckStore.getState().maxSteps).toBe(0)
+    api.setStepsForSlide(0, 2)
+    expect(useDeckStore.getState().maxSteps).toBe(2)
+  })
 })

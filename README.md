@@ -575,8 +575,8 @@ Control the flow between passages or how they appear.
 - `deck`: Present content as a series of slides.
 
   ```md
-  :::deck{size=16x9 transition=slide}
-  :::slide{transition=fade background="bg-indigo-50"}
+  :::deck{size='16x9' transition='slide'}
+  :::slide{transition='fade'}
 
   # One
 
