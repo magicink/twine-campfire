@@ -17,7 +17,7 @@ export default meta
  */
 const render: StoryObj<typeof Appear>['render'] = () => (
   <Deck className='w-[800px] h-[600px]'>
-    <Slide background='bg-gray-100 dark:bg-gray-900'>
+    <Slide className='bg-gray-100 dark:bg-gray-900'>
       <Appear at={0}>
         <DeckText
           as='h2'
@@ -44,7 +44,7 @@ const render: StoryObj<typeof Appear>['render'] = () => (
         </DeckText>
       </Appear>
     </Slide>
-    <Slide background='bg-gray-100 dark:bg-gray-900'>
+    <Slide className='bg-gray-100 dark:bg-gray-900'>
       <DeckText
         as='h2'
         x={280}

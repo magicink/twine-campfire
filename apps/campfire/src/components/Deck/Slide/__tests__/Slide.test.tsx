@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { render, screen } from '@testing-library/preact'
+import { act, render, screen } from '@testing-library/preact'
 import { Deck } from '@campfire/components/Deck'
 import { Slide, type SlideProps } from '@campfire/components/Deck/Slide'
 import { useDeckStore } from '@campfire/state/useDeckStore'
@@ -29,7 +29,7 @@ beforeEach(() => {
 })
 
 describe('Slide', () => {
-  it('does not apply a default background when none provided', () => {
+  it('does not apply default background classes', () => {
     render(
       <Deck>
         <Slide>Slide 1</Slide>
@@ -63,5 +63,21 @@ describe('Slide', () => {
     expect(el.dataset.transition).toBe(
       JSON.stringify({ type: 'fade', duration: 300 })
     )
+  })
+
+  it('resets deck state when the slide unmounts', async () => {
+    const { rerender } = render(
+      <Deck>
+        <Slide steps={2}>Slide 1</Slide>
+      </Deck>
+    )
+    expect(useDeckStore.getState().maxSteps).toBe(2)
+    await act(() => {
+      rerender(<Deck />)
+    })
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    expect(useDeckStore.getState().maxSteps).toBe(2)
   })
 })

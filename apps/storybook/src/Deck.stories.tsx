@@ -106,3 +106,50 @@ const render: StoryObj<typeof Deck>['render'] = () => (
 )
 
 export const WithTransitions: StoryObj<typeof Deck> = { render }
+
+/**
+ * Demonstrates overriding default accessibility labels for the Deck component.
+ *
+ * @returns The rendered Deck element with custom a11y labels.
+ */
+export const WithCustomLabels: StoryObj<typeof Deck> = {
+  render: () => (
+    <Deck
+      className='w-[800px] h-[600px]'
+      a11y={{
+        deck: 'Slide deck',
+        next: 'Advance',
+        prev: 'Go back',
+        slide: (i, t) => `Page ${i} of ${t}`
+      }}
+    >
+      <Slide>
+        <DeckText as='h2' x={200} y={200} size={36}>
+          First Slide
+        </DeckText>
+      </Slide>
+      <Slide>
+        <DeckText as='h2' x={200} y={200} size={36}>
+          Second Slide
+        </DeckText>
+      </Slide>
+    </Deck>
+  )
+}
+
+/**
+ * Demonstrates enabling the slide counter HUD.
+ *
+ * @returns The rendered Deck element showing the slide counter.
+ */
+export const WithSlideCounter: StoryObj<typeof Deck> = {
+  render: () => (
+    <Deck className='w-[800px] h-[600px]' showSlideCount>
+      <Slide>
+        <DeckText as='h2' x={200} y={200} size={36}>
+          Slide Counter
+        </DeckText>
+      </Slide>
+    </Deck>
+  )
+}

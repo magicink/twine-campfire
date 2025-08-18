@@ -45,8 +45,8 @@ const getText = (node: any): string => {
 
 describe('deck directive', () => {
   it('renders a deck with slide children', () => {
-    const md = `:::deck{size=16x9 transition=slide}
-:::slide{transition=fade background="bg-indigo-50"}
+    const md = `:::deck{size='16x9' transition='slide'}
+:::slide{transition='fade'}
 # One
 :::
 ::slide{}
@@ -69,6 +69,23 @@ describe('deck directive', () => {
     expect(slides.length).toBe(2)
     expect(slides[0].type).toBe(Slide)
     expect(slides[1].type).toBe(Slide)
+  })
+
+  it('requires slide transition values to be quoted or state keys', () => {
+    const md = `:::deck\n:::slide{transition=fade}\nHi\n:::\n:::`
+    render(<MarkdownRunner markdown={md} />)
+    const getDeck = (node: any): any => {
+      if (Array.isArray(node)) return getDeck(node[0])
+      if (node?.type === Fragment) return getDeck(node.props.children)
+      return node
+    }
+    const deck = getDeck(output)
+    const slides = Array.isArray(deck.props.children)
+      ? deck.props.children
+      : [deck.props.children]
+    expect(slides).toHaveLength(1)
+    const [slide] = slides
+    expect(slide.props.transition).toBeUndefined()
   })
 
   it('wraps non-slide content in a default slide', () => {
@@ -97,8 +114,8 @@ describe('deck directive', () => {
   })
 
   it('keeps nested appear directives within a slide', () => {
-    const md = `:::deck{size=800x600}
-  :::slide{transition=fade}
+    const md = `:::deck{size='800x600'}
+  :::slide{transition='fade'}
     :::appear{at=0}
       :::text{x=80 y=80 as="h2"}
       Hello
@@ -134,8 +151,8 @@ describe('deck directive', () => {
   })
 
   it('does not create extra slides from whitespace', () => {
-    const md = `:::deck{size=800x600}
-  :::slide{transition=fade}
+    const md = `:::deck{size='800x600'}
+  :::slide{transition='fade'}
     :::appear{at=0}
       :::text{x=80 y=80 as="h2"}Hello:::
     :::
@@ -165,8 +182,8 @@ describe('deck directive', () => {
   })
 
   it('merges stray appear directives into the previous slide', () => {
-    const md = `:::deck{size=800x600}
-  :::slide{transition=fade}
+    const md = `:::deck{size='800x600'}
+  :::slide{transition='fade'}
     :::appear{at=0}
       :::text{x=80 y=80 as="h2"}Hello:::
     :::
@@ -196,8 +213,8 @@ describe('deck directive', () => {
   })
 
   it('matches the Storybook deck example', () => {
-    const md = `:::deck{size=800x600}
-  :::slide{transition=fade}
+    const md = `:::deck{size='800x600'}
+  :::slide{transition='fade'}
     :::appear{at=0}
       :::text{x=80 y=80 as="h2"}
       Hello
