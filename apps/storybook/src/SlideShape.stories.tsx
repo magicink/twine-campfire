@@ -19,6 +19,7 @@ export const Basic: StoryObj<typeof SlideShape> = {
     <Deck className='w-[800px] h-[600px]'>
       <Slide>
         <SlideShape
+          className={'animate-bounce'}
           type='polygon'
           x={500}
           y={250}
@@ -39,6 +40,7 @@ export const Basic: StoryObj<typeof SlideShape> = {
           stroke='#365314'
         />
         <SlideShape
+          className={'animate-pulse'}
           type='polygon'
           x={330}
           y={230}
