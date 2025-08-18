@@ -15,7 +15,7 @@ import { TriggerButton } from '@campfire/components/Passage/TriggerButton'
 import { Show } from '@campfire/components/Passage/Show'
 import { OnExit } from '@campfire/components/Passage/OnExit'
 import { Appear } from '@campfire/components/Deck/Slide'
-import { DeckText } from '@campfire/components/Deck/Slide'
+import { SlideText } from '@campfire/components/Deck/Slide'
 import { rehypeDeckText } from '@campfire/utils/rehypeDeckText'
 
 interface IfProps {
@@ -49,7 +49,7 @@ export const If = ({ test, content, fallback }: IfProps) => {
           show: Show,
           onExit: OnExit,
           appear: Appear,
-          'deck-text': DeckText
+          deckText: SlideText
         }
       })
     proc.parser = (_doc: unknown, file: Root) => ({

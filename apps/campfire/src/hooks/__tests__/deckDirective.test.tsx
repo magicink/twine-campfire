@@ -6,7 +6,7 @@ import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { Deck } from '@campfire/components/Deck'
 import { Slide } from '@campfire/components/Deck/Slide'
 import { Appear } from '@campfire/components/Deck/Slide'
-import { DeckText } from '@campfire/components/Deck/Slide'
+import { SlideText } from '@campfire/components/Deck/Slide'
 import { DEFAULT_DECK_HEIGHT, DEFAULT_DECK_WIDTH } from '@campfire/constants'
 import { renderDirectiveMarkdown } from '@campfire/components/Deck/Slide'
 
@@ -256,7 +256,7 @@ describe('deck directive', () => {
       props: {
         at: 0,
         children: {
-          type: DeckText,
+          type: SlideText,
           props: { as: 'h2', x: 80, y: 80, children: 'Hello' }
         }
       }
@@ -266,7 +266,7 @@ describe('deck directive', () => {
       props: {
         at: 1,
         children: {
-          type: DeckText,
+          type: SlideText,
           props: { as: 'h2', x: 100, y: 100, children: 'World' }
         }
       }

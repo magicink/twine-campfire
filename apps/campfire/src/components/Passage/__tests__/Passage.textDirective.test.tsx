@@ -24,7 +24,7 @@ describe('Passage text directive', () => {
     }
   })
 
-  it('renders DeckText components without stray markers', async () => {
+  it('renders SlideText components without stray markers', async () => {
     const passage: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
@@ -39,9 +39,9 @@ describe('Passage text directive', () => {
     }
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
     render(<Passage />)
-    const el = await screen.findByTestId('deck-text')
+    const el = await screen.findByTestId('slideText')
     expect(el).toBeTruthy()
-    expect(document.body.innerHTML).not.toContain('<DeckText')
+    expect(document.body.innerHTML).not.toContain('<SlideText')
     expect(document.body.textContent).not.toContain(':::')
   })
 
@@ -61,7 +61,7 @@ describe('Passage text directive', () => {
     }
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
     render(<Passage />)
-    const el = await screen.findByTestId('deck-text')
+    const el = await screen.findByTestId('slideText')
     const text = el.textContent?.replace(/\s+/g, ' ').trim()
     expect(text).toBe('HP: 5')
   })

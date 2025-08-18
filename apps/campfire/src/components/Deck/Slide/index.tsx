@@ -155,7 +155,7 @@ export const Slide = ({
 export default Slide
 
 export { Appear } from './Appear'
-export { DeckText } from './DeckText'
+export { SlideText } from './SlideText'
 export { Layer } from './Layer'
 export type { LayerProps } from './Layer'
 export { renderDirectiveMarkdown } from './renderDirectiveMarkdown'

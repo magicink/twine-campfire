@@ -1741,7 +1741,7 @@ export const useDirectiveHandlers = () => {
   )
 
   /**
-   * Converts a `:::text` directive into a DeckText element.
+   * Converts a `:::text` directive into a SlideText element.
    *
    * @param directive - The text directive node.
    * @param parent - Parent node containing the directive.
@@ -1822,7 +1822,7 @@ export const useDirectiveHandlers = () => {
       const classes = ['text-base', 'font-normal']
       if (classAttr) classes.unshift(classAttr)
       props.className = classes.join(' ')
-      props['data-component'] = 'deck-text'
+      props['data-component'] = 'deckText'
       props['data-as'] = tagName
       applyAdditionalAttributes(raw, props, [
         'x',
