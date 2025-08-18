@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.70.0](https://github.com/magicink/twine-campfire/compare/v1.69.0...v1.70.0) (2025-08-18)
+
+
+### Features
+
+* add accessibility controls to deck ([#403](https://github.com/magicink/twine-campfire/issues/403)) ([aa36883](https://github.com/magicink/twine-campfire/commit/aa36883bc371d4eddc594721139ed9488ccb0b9d))
+
+
+### Bug Fixes
+
+* **deck:** improve transition handling and reset maxSteps on slide unmount ([f8c1672](https://github.com/magicink/twine-campfire/commit/f8c167244731f15e7df1dd3cf74130a33ee84368))
+* **deck:** prevent double click skipping appears ([#401](https://github.com/magicink/twine-campfire/issues/401)) ([decb3d8](https://github.com/magicink/twine-campfire/commit/decb3d8c202af60948a4280c238748d1bc08d422))
+* **deck:** prevent step indicator flicker ([#404](https://github.com/magicink/twine-campfire/issues/404)) ([e7fd9b8](https://github.com/magicink/twine-campfire/commit/e7fd9b804b2c902672918d69c8d75b8c361993b4))
+* reset deck state when slide unmounts ([#402](https://github.com/magicink/twine-campfire/issues/402)) ([0406e94](https://github.com/magicink/twine-campfire/commit/0406e9445d194509597f65985bc012f2caf2c605))
+* reset maxSteps for slides without steps ([#400](https://github.com/magicink/twine-campfire/issues/400)) ([3bd77d7](https://github.com/magicink/twine-campfire/commit/3bd77d738c80640a5ef21af8411a34fe98b46756))
+* **workflow:** update branch pattern for release triggers in CI ([8aa38bf](https://github.com/magicink/twine-campfire/commit/8aa38bf14765c828a74de3e55c0e6f567f86009a))
+
 ## [1.69.0](https://github.com/magicink/twine-campfire/compare/v1.68.0...v1.69.0) (2025-08-17)
 
 
