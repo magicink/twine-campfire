@@ -14,5 +14,6 @@ export {
   renderDirectiveMarkdown,
   Appear,
   Layer,
-  DeckText
+  SlideText,
+  SlideImage
 } from '@campfire/components/Deck/Slide'

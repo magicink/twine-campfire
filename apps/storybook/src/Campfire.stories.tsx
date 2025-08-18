@@ -40,10 +40,10 @@ You clicked the button!
 // <Deck size={{ width: 800, height: 600 }}>
 //   <Slide transition={{ type: 'fade' }}>
 //     <Appear at={0}>
-//       <DeckText as="h2" x={80} y={80}>Hello</DeckText>
+//       <SlideText as="h2" x={80} y={80}>Hello</SlideText>
 //     </Appear>
 //     <Appear at={1}>
-//       <DeckText as="h2" x={100} y={100}>World</DeckText>
+//       <SlideText as="h2" x={100} y={100}>World</SlideText>
 //     </Appear>
 //   </Slide>
 // </Deck>

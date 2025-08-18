@@ -8,6 +8,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef } from 'preact/hooks'
 import { useDeckStore } from '@campfire/state/useDeckStore'
 import { useSerializedDirectiveRunner } from '@campfire/hooks/useSerializedDirectiveRunner'
 import { Appear } from './Appear'
+import { SlideTransitionContext } from './context'
 
 /** Transition type used by slides. */
 export type TransitionType = 'none' | 'fade' | 'slide' | 'zoom'
@@ -105,6 +106,14 @@ export const Slide = ({
   const runExitRef = useRef(runExit)
   const onExitRef = useRef(onExit)
 
+  const contextValue = useMemo(() => {
+    if (!transition) return {}
+    if ('type' in transition) {
+      return { enter: transition, exit: transition }
+    }
+    return { enter: transition.enter, exit: transition.exit }
+  }, [transition])
+
   useEffect(() => {
     if (computedSteps !== maxSteps) {
       setMaxSteps(computedSteps)
@@ -131,20 +140,23 @@ export const Slide = ({
   }, [])
 
   return (
-    <div
-      className={`relative w-full h-full overflow-hidden ${className ?? ''}`}
-      data-transition={transition ? JSON.stringify(transition) : undefined}
-      data-testid='slide'
-    >
-      {children}
-    </div>
+    <SlideTransitionContext.Provider value={contextValue}>
+      <div
+        className={`relative w-full h-full overflow-hidden ${className ?? ''}`}
+        data-transition={transition ? JSON.stringify(transition) : undefined}
+        data-testid='slide'
+      >
+        {children}
+      </div>
+    </SlideTransitionContext.Provider>
   )
 }
 
 export default Slide
 
 export { Appear } from './Appear'
-export { DeckText } from './DeckText'
+export { SlideText } from './SlideText'
+export { SlideImage } from './SlideImage'
 export { Layer } from './Layer'
 export type { LayerProps } from './Layer'
 export { renderDirectiveMarkdown } from './renderDirectiveMarkdown'

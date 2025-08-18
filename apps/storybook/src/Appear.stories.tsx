@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/preact'
 import { h } from 'preact'
-import { Deck, Slide, DeckText, Appear } from '@campfire/components'
+import { Deck, Slide, SlideText, Appear } from '@campfire/components'
 
 const meta: Meta<typeof Appear> = {
   component: Appear,
@@ -17,9 +17,12 @@ export default meta
  */
 const render: StoryObj<typeof Appear>['render'] = () => (
   <Deck className='w-[800px] h-[600px]'>
-    <Slide className='bg-gray-100 dark:bg-gray-900'>
+    <Slide
+      transition={{ type: 'slide' }}
+      className='bg-gray-100 dark:bg-gray-900'
+    >
       <Appear at={0}>
-        <DeckText
+        <SlideText
           as='h2'
           x={180}
           y={180}
@@ -29,10 +32,10 @@ const render: StoryObj<typeof Appear>['render'] = () => (
           }
         >
           First
-        </DeckText>
+        </SlideText>
       </Appear>
       <Appear at={1}>
-        <DeckText
+        <SlideText
           x={280}
           y={280}
           size={24}
@@ -41,11 +44,11 @@ const render: StoryObj<typeof Appear>['render'] = () => (
           }
         >
           Second
-        </DeckText>
+        </SlideText>
       </Appear>
     </Slide>
     <Slide className='bg-gray-100 dark:bg-gray-900'>
-      <DeckText
+      <SlideText
         as='h2'
         x={280}
         y={280}
@@ -55,7 +58,7 @@ const render: StoryObj<typeof Appear>['render'] = () => (
         }
       >
         Next Slide
-      </DeckText>
+      </SlideText>
     </Slide>
   </Deck>
 )

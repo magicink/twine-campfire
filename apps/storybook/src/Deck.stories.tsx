@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/preact'
 import { h } from 'preact'
-import { Deck, Slide, DeckText, Appear } from '@campfire/components'
+import { Deck, Slide, SlideText, Appear } from '@campfire/components'
 
 const meta: Meta<typeof Deck> = {
   component: Deck,
@@ -26,19 +26,19 @@ const render: StoryObj<typeof Deck>['render'] = () => (
       }}
     >
       <Appear at={0}>
-        <DeckText as='h2' x={200} y={200} size={36}>
+        <SlideText as='h2' x={200} y={200} size={36}>
           Fade Slide
-        </DeckText>
+        </SlideText>
       </Appear>
       <Appear at={1}>
-        <DeckText x={500} y={400} size={24}>
+        <SlideText x={500} y={400} size={24}>
           Second step
-        </DeckText>
+        </SlideText>
       </Appear>
       <Appear at={2}>
-        <DeckText x={500} y={500} size={24}>
+        <SlideText x={500} y={500} size={24}>
           Third step
-        </DeckText>
+        </SlideText>
       </Appear>
     </Slide>
     <Slide
@@ -48,14 +48,14 @@ const render: StoryObj<typeof Deck>['render'] = () => (
       }}
     >
       <Appear at={0}>
-        <DeckText as='h2' x={200} y={200} size={36}>
+        <SlideText as='h2' x={200} y={200} size={36}>
           Slide Transition
-        </DeckText>
+        </SlideText>
       </Appear>
       <Appear at={1}>
-        <DeckText x={500} y={400} size={24}>
+        <SlideText x={500} y={400} size={24}>
           Second step
-        </DeckText>
+        </SlideText>
       </Appear>
     </Slide>
     <Slide
@@ -65,14 +65,14 @@ const render: StoryObj<typeof Deck>['render'] = () => (
       }}
     >
       <Appear at={0}>
-        <DeckText as='h2' x={200} y={200} size={36}>
+        <SlideText as='h2' x={200} y={200} size={36}>
           Zoom Slide
-        </DeckText>
+        </SlideText>
       </Appear>
       <Appear at={1}>
-        <DeckText x={500} y={400} size={24}>
+        <SlideText x={500} y={400} size={24}>
           Second step
-        </DeckText>
+        </SlideText>
       </Appear>
     </Slide>
     <Slide
@@ -82,24 +82,24 @@ const render: StoryObj<typeof Deck>['render'] = () => (
       }}
     >
       <Appear at={0}>
-        <DeckText as='h2' x={200} y={200} size={36}>
+        <SlideText as='h2' x={200} y={200} size={36}>
           Flip Slide
-        </DeckText>
+        </SlideText>
       </Appear>
       <Appear at={1}>
-        <DeckText x={260} y={260} size={28}>
+        <SlideText x={260} y={260} size={28}>
           Second step
-        </DeckText>
+        </SlideText>
       </Appear>
       <Appear at={2}>
-        <DeckText x={320} y={320} size={24}>
+        <SlideText x={320} y={320} size={24}>
           Third step
-        </DeckText>
+        </SlideText>
       </Appear>
       <Appear at={3}>
-        <DeckText x={440} y={440} size={20}>
+        <SlideText x={440} y={440} size={20}>
           Fourth step
-        </DeckText>
+        </SlideText>
       </Appear>
     </Slide>
   </Deck>
@@ -124,14 +124,14 @@ export const WithCustomLabels: StoryObj<typeof Deck> = {
       }}
     >
       <Slide>
-        <DeckText as='h2' x={200} y={200} size={36}>
+        <SlideText as='h2' x={200} y={200} size={36}>
           First Slide
-        </DeckText>
+        </SlideText>
       </Slide>
       <Slide>
-        <DeckText as='h2' x={200} y={200} size={36}>
+        <SlideText as='h2' x={200} y={200} size={36}>
           Second Slide
-        </DeckText>
+        </SlideText>
       </Slide>
     </Deck>
   )
@@ -146,9 +146,9 @@ export const WithSlideCounter: StoryObj<typeof Deck> = {
   render: () => (
     <Deck className='w-[800px] h-[600px]' showSlideCount>
       <Slide>
-        <DeckText as='h2' x={200} y={200} size={36}>
+        <SlideText as='h2' x={200} y={200} size={36}>
           Slide Counter
-        </DeckText>
+        </SlideText>
       </Slide>
     </Deck>
   )

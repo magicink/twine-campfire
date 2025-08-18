@@ -8,7 +8,8 @@ import { OnExit } from '@campfire/components/Passage/OnExit'
 import { Deck } from '@campfire/components/Deck'
 import { Slide } from '.'
 import { Appear } from './Appear'
-import { DeckText } from './DeckText'
+import { SlideText } from './SlideText'
+import { SlideImage } from './SlideImage'
 import { createMarkdownProcessor } from '@campfire/utils/createMarkdownProcessor'
 
 /**
@@ -32,7 +33,8 @@ export const renderDirectiveMarkdown = (
     deck: Deck,
     slide: Slide,
     appear: Appear,
-    'deck-text': DeckText
+    deckText: SlideText,
+    slideImage: SlideImage
   })
   const file = processor.processSync(markdown)
   return file.result as ComponentChild
