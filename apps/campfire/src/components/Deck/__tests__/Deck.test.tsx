@@ -289,4 +289,28 @@ describe('Deck', () => {
     expect(calls).toEqual([2])
     useDeckStore.setState({ setMaxSteps: original })
   })
+
+  it('preloads steps to prevent HUD flicker between slides', () => {
+    render(
+      <Deck>
+        <Slide>
+          <Appear at={0}>One</Appear>
+          <Appear at={1}>Two</Appear>
+          <Appear at={2}>Three</Appear>
+        </Slide>
+        <Slide>
+          <Appear>Only</Appear>
+        </Slide>
+      </Deck>
+    )
+
+    act(() => {
+      const api = useDeckStore.getState()
+      api.next()
+      api.next()
+      api.next()
+    })
+
+    expect(useDeckStore.getState().maxSteps).toBe(1)
+  })
 })

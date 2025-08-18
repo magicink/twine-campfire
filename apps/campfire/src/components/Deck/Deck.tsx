@@ -21,7 +21,7 @@ import {
   prefersReducedMotion,
   runAnimation
 } from '@campfire/components/transition'
-import { type Transition, type SlideTransition } from './Slide'
+import { type Transition, type SlideTransition, Appear } from './Slide'
 
 export type ThemeTokens = Record<string, string | number>
 
@@ -63,6 +63,34 @@ const srOnlyStyle: JSX.CSSProperties = {
 }
 
 /**
+ * Recursively determines the highest step index contributed by Appear
+ * components within a tree.
+ *
+ * @param children - Slide children to inspect.
+ * @returns The maximum step index discovered.
+ */
+const getAppearMax = (children: ComponentChildren): number => {
+  let max = 0
+  const walk = (nodes: ComponentChildren): void => {
+    toChildArray(nodes).forEach(node => {
+      if (typeof node === 'object' && node !== null && 'type' in node) {
+        const child = node as VNode<any>
+        if (child.type === Appear) {
+          const at = child.props.at ?? 0
+          const exitAt = child.props.exitAt ?? at
+          max = Math.max(max, at, exitAt)
+        }
+        if (child.props?.children) {
+          walk(child.props.children)
+        }
+      }
+    })
+  }
+  walk(children)
+  return max
+}
+
+/**
  * Renders a presentation deck that enables slide navigation and scaling.
  *
  * @param props - Configuration options for the deck component.
@@ -86,13 +114,24 @@ export const Deck = ({
   const isVNode = (node: ComponentChild): node is VNode =>
     typeof node === 'object' && node !== null && 'type' in node
 
-  const slides = useMemo(
-    () =>
-      toChildArray(children).map((slide, index) =>
-        isVNode(slide) ? cloneElement(slide, { key: index }) : slide
-      ),
-    [children]
-  )
+  const { slides, slideSteps } = useMemo(() => {
+    const nodes = toChildArray(children)
+    const cloned: VNode[] = []
+    const steps: number[] = []
+    nodes.forEach((slide, index) => {
+      if (isVNode(slide)) {
+        const vnode = cloneElement(slide, { key: index }) as VNode<any>
+        cloned.push(vnode)
+        const explicit = vnode.props.steps ?? 0
+        const appearMax = getAppearMax(vnode.props.children)
+        steps.push(Math.max(explicit, appearMax))
+      } else {
+        cloned.push(slide as unknown as VNode<any>)
+        steps.push(0)
+      }
+    })
+    return { slides: cloned, slideSteps: steps }
+  }, [children])
   const currentSlide = useDeckStore(state => state.currentSlide)
   const currentStep = useDeckStore(state => state.currentStep)
   const maxSteps = useDeckStore(state => state.maxSteps)
@@ -100,6 +139,7 @@ export const Deck = ({
   const prev = useDeckStore(state => state.prev)
   const goTo = useDeckStore(state => state.goTo)
   const setSlidesCount = useDeckStore(state => state.setSlidesCount)
+  const setStepsForSlide = useDeckStore(state => state.setStepsForSlide)
   const reset = useDeckStore(state => state.reset)
 
   const labels: A11yLabels = useMemo(
@@ -119,6 +159,10 @@ export const Deck = ({
   const slideRef = useRef<HTMLDivElement>(null)
   const reduceMotion = prefersReducedMotion()
   const firstRenderRef = useRef(true)
+
+  useLayoutEffect(() => {
+    slideSteps.forEach((count, index) => setStepsForSlide(index, count))
+  }, [slideSteps, setStepsForSlide])
 
   /**
    * Type guard to determine whether props include a transition configuration.

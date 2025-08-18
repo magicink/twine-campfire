@@ -104,9 +104,6 @@ export const Slide = ({
   const runExit = useSerializedDirectiveRunner(onExit ?? '[]')
   const runExitRef = useRef(runExit)
   const onExitRef = useRef(onExit)
-  // Preserve the slide index at mount for cleanup checks
-  const currentSlide = useDeckStore(state => state.currentSlide)
-  const indexRef = useRef(currentSlide)
 
   useEffect(() => {
     if (computedSteps !== maxSteps) {
@@ -130,11 +127,8 @@ export const Slide = ({
       if (onExitRef.current) {
         runExitRef.current()
       }
-      if (currentSlide === indexRef.current) {
-        setMaxSteps(0)
-      }
     }
-  }, [setMaxSteps, currentSlide])
+  }, [])
 
   return (
     <div
