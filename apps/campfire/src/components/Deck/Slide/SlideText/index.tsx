@@ -1,5 +1,6 @@
 import { type ComponentChildren, type JSX } from 'preact'
 import { Layer, type LayerProps } from '@campfire/components/Deck/Slide'
+import parseInlineStyle from '@campfire/utils/parseInlineStyle'
 
 export interface SlideTextProps extends Omit<LayerProps, 'children'> {
   /** The HTML tag to render. Defaults to 'p'. */
@@ -41,21 +42,7 @@ export const SlideText = ({
   ...layerProps
 }: SlideTextProps): JSX.Element => {
   const Tag = as
-  const baseStyle: JSX.CSSProperties =
-    typeof styleProp === 'string'
-      ? Object.fromEntries(
-          styleProp
-            .split(';')
-            .filter(Boolean)
-            .map((rule: string) => {
-              const [prop, ...rest] = rule.split(':')
-              const name = prop
-                .trim()
-                .replace(/-([a-z])/g, (_: string, c: string) => c.toUpperCase())
-              return [name, rest.join(':').trim()]
-            })
-        )
-      : { ...styleProp }
+  const baseStyle: JSX.CSSProperties = parseInlineStyle(styleProp ?? {})
   const style: JSX.CSSProperties = {
     ...baseStyle,
     fontSize: size !== undefined ? `${size}px` : baseStyle.fontSize,

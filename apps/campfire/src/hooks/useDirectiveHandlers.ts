@@ -1710,6 +1710,24 @@ export const useDirectiveHandlers = () => {
   type TextSchema = typeof textSchema
   type TextAttrs = ExtractedAttrs<TextSchema>
 
+  /** Schema describing supported image directive attributes. */
+  const imageSchema = {
+    x: { type: 'number' },
+    y: { type: 'number' },
+    w: { type: 'number' },
+    h: { type: 'number' },
+    z: { type: 'number' },
+    rotate: { type: 'number' },
+    scale: { type: 'number' },
+    anchor: { type: 'string' },
+    src: { type: 'string', required: true },
+    alt: { type: 'string' },
+    style: { type: 'string' }
+  } as const
+
+  type ImageSchema = typeof imageSchema
+  type ImageAttrs = ExtractedAttrs<ImageSchema>
+
   /**
    * Converts `:::appear` directives into Appear elements.
    *
@@ -1864,6 +1882,69 @@ export const useDirectiveHandlers = () => {
       }
     }
   )
+
+  /**
+   * Converts a `:image` directive into a SlideImage element.
+   *
+   * @param directive - The image directive node.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within its parent.
+   * @returns The index of the inserted node.
+   */
+  const handleImage: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    const { attrs } = extractAttributes<ImageSchema>(
+      directive,
+      parent,
+      index,
+      imageSchema
+    )
+    const raw = (directive.attributes || {}) as Record<string, unknown>
+    const props: Record<string, unknown> = { src: attrs.src }
+    if (typeof attrs.x === 'number') props.x = attrs.x
+    if (typeof attrs.y === 'number') props.y = attrs.y
+    if (typeof attrs.w === 'number') props.w = attrs.w
+    if (typeof attrs.h === 'number') props.h = attrs.h
+    if (typeof attrs.z === 'number') props.z = attrs.z
+    if (typeof attrs.rotate === 'number') props.rotate = attrs.rotate
+    if (typeof attrs.scale === 'number') props.scale = attrs.scale
+    if (attrs.anchor) props.anchor = attrs.anchor
+    if (attrs.alt) props.alt = attrs.alt
+    if (attrs.style) props.style = attrs.style
+    const classAttr =
+      typeof raw.class === 'string'
+        ? raw.class
+        : typeof raw.className === 'string'
+          ? raw.className
+          : typeof raw.classes === 'string'
+            ? raw.classes
+            : undefined
+    if (classAttr) props.className = classAttr
+    applyAdditionalAttributes(raw, props, [
+      'x',
+      'y',
+      'w',
+      'h',
+      'z',
+      'rotate',
+      'scale',
+      'anchor',
+      'src',
+      'alt',
+      'style',
+      'class',
+      'className',
+      'classes'
+    ])
+    const node: Parent = {
+      type: 'paragraph',
+      children: [],
+      data: { hName: 'slideImage', hProperties: props as Properties }
+    }
+    return replaceWithIndentation(directive, parent, index, [
+      node as RootContent
+    ])
+  }
 
   /**
    * Builds a props object for the Slide component from extracted attributes.
@@ -2204,6 +2285,7 @@ export const useDirectiveHandlers = () => {
       onExit: handleOnExit,
       appear: handleAppear,
       text: handleText,
+      image: handleImage,
       deck: handleDeck,
       lang: handleLang,
       include: handleInclude,
