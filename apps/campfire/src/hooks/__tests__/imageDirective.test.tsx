@@ -9,7 +9,7 @@ let output: ComponentChild | null = null
 /**
  * Component used in tests to render markdown with directive handlers.
  *
- * @param markdown - Markdown string that may include directive directives.
+ * @param markdown - Markdown string that may include image directives.
  * @returns Nothing; sets `output` with rendered content.
  */
 const MarkdownRunner = ({ markdown }: { markdown: string }) => {
