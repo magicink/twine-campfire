@@ -1728,6 +1728,33 @@ export const useDirectiveHandlers = () => {
   type ImageSchema = typeof imageSchema
   type ImageAttrs = ExtractedAttrs<ImageSchema>
 
+  /** Schema describing supported shape directive attributes. */
+  const shapeSchema = {
+    x: { type: 'number' },
+    y: { type: 'number' },
+    w: { type: 'number' },
+    h: { type: 'number' },
+    z: { type: 'number' },
+    rotate: { type: 'number' },
+    scale: { type: 'number' },
+    anchor: { type: 'string' },
+    type: { type: 'string', required: true },
+    points: { type: 'string' },
+    x1: { type: 'number' },
+    y1: { type: 'number' },
+    x2: { type: 'number' },
+    y2: { type: 'number' },
+    stroke: { type: 'string' },
+    strokeWidth: { type: 'number' },
+    fill: { type: 'string' },
+    radius: { type: 'number' },
+    shadow: { type: 'boolean' },
+    style: { type: 'string' }
+  } as const
+
+  type ShapeSchema = typeof shapeSchema
+  type ShapeAttrs = ExtractedAttrs<ShapeSchema>
+
   /**
    * Converts `:::appear` directives into Appear elements.
    *
@@ -1945,6 +1972,78 @@ export const useDirectiveHandlers = () => {
       node as RootContent
     ])
   }
+
+  /**
+   * Converts a `:::shape` directive into a SlideShape element.
+   *
+   * @param directive - The shape directive node.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within its parent.
+   * @returns Visitor instructions after replacement.
+   */
+  const handleShape = createContainerHandler(
+    'slideShape',
+    shapeSchema,
+    (attrs, raw) => {
+      const props: Record<string, unknown> = { type: attrs.type }
+      if (typeof attrs.x === 'number') props.x = attrs.x
+      if (typeof attrs.y === 'number') props.y = attrs.y
+      if (typeof attrs.w === 'number') props.w = attrs.w
+      if (typeof attrs.h === 'number') props.h = attrs.h
+      if (typeof attrs.z === 'number') props.z = attrs.z
+      if (typeof attrs.rotate === 'number') props.rotate = attrs.rotate
+      if (typeof attrs.scale === 'number') props.scale = attrs.scale
+      if (attrs.anchor) props.anchor = attrs.anchor
+      if (attrs.points) props.points = attrs.points
+      if (typeof attrs.x1 === 'number') props.x1 = attrs.x1
+      if (typeof attrs.y1 === 'number') props.y1 = attrs.y1
+      if (typeof attrs.x2 === 'number') props.x2 = attrs.x2
+      if (typeof attrs.y2 === 'number') props.y2 = attrs.y2
+      if (attrs.stroke) props.stroke = attrs.stroke
+      if (typeof attrs.strokeWidth === 'number')
+        props.strokeWidth = attrs.strokeWidth
+      if (attrs.fill) props.fill = attrs.fill
+      if (typeof attrs.radius === 'number') props.radius = attrs.radius
+      if (typeof attrs.shadow === 'boolean') props.shadow = attrs.shadow
+      if (attrs.style) props.style = attrs.style
+      const classAttr =
+        typeof raw.class === 'string'
+          ? raw.class
+          : typeof raw.className === 'string'
+            ? raw.className
+            : typeof raw.classes === 'string'
+              ? raw.classes
+              : undefined
+      if (classAttr) props.className = classAttr
+      applyAdditionalAttributes(raw, props, [
+        'x',
+        'y',
+        'w',
+        'h',
+        'z',
+        'rotate',
+        'scale',
+        'anchor',
+        'type',
+        'points',
+        'x1',
+        'y1',
+        'x2',
+        'y2',
+        'stroke',
+        'strokeWidth',
+        'fill',
+        'radius',
+        'shadow',
+        'style',
+        'class',
+        'className',
+        'classes'
+      ])
+      return props
+    },
+    () => []
+  )
 
   /**
    * Builds a props object for the Slide component from extracted attributes.
@@ -2286,6 +2385,7 @@ export const useDirectiveHandlers = () => {
       appear: handleAppear,
       text: handleText,
       image: handleImage,
+      shape: handleShape,
       deck: handleDeck,
       lang: handleLang,
       include: handleInclude,
