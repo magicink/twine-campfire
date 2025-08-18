@@ -19,10 +19,11 @@ export const Basic: StoryObj<typeof SlideImage> = {
     <Deck className='w-[800px] h-[600px]'>
       <Slide>
         <SlideImage
-          src='https://placecat.com/neo/200/200'
+          className={'rounded-full'}
+          src='https://placecats.com/neo/200/200'
           alt='Kitten'
-          x={100}
-          y={100}
+          x={200}
+          y={200}
         />
       </Slide>
     </Deck>

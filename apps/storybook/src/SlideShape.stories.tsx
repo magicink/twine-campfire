@@ -20,8 +20,8 @@ export const Basic: StoryObj<typeof SlideShape> = {
       <Slide>
         <SlideShape
           type='polygon'
-          x={50}
-          y={50}
+          x={500}
+          y={250}
           w={100}
           h={100}
           points='50,0 61,35 98,35 68,57 79,91 50,70 21,91 32,57 2,35 39,35'
@@ -32,7 +32,7 @@ export const Basic: StoryObj<typeof SlideShape> = {
         <SlideShape
           type='ellipse'
           x={620}
-          y={40}
+          y={240}
           w={100}
           h={100}
           fill='#a3e635'
@@ -60,6 +60,7 @@ export const Basic: StoryObj<typeof SlideShape> = {
           shadow
         />
         <SlideShape
+          className={'rotate-45'}
           type='line'
           x={80}
           y={480}
@@ -69,7 +70,8 @@ export const Basic: StoryObj<typeof SlideShape> = {
           y1={25}
           x2={200}
           y2={25}
-          stroke='#000'
+          stroke='#fff'
+          strokeWidth={10}
         />
       </Slide>
     </Deck>
