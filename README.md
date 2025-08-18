@@ -581,7 +581,7 @@ Control the flow between passages or how they appear.
   # One
 
   :::
-  :slide{}
+  :::slide{}
 
   ## Two
 
