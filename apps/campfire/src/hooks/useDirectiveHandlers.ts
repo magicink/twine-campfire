@@ -1741,7 +1741,7 @@ export const useDirectiveHandlers = () => {
   )
 
   /**
-   * Converts a `:::text` directive into a DeckText element.
+   * Converts a `:::text` directive into a SlideText element.
    *
    * @param directive - The text directive node.
    * @param parent - Parent node containing the directive.

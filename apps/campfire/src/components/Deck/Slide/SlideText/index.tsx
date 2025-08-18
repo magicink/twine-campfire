@@ -1,7 +1,7 @@
 import { type ComponentChildren, type JSX } from 'preact'
 import { Layer, type LayerProps } from '@campfire/components/Deck/Slide'
 
-export interface DeckTextProps extends Omit<LayerProps, 'children'> {
+export interface SlideTextProps extends Omit<LayerProps, 'children'> {
   /** The HTML tag to render. Defaults to 'p'. */
   as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'li' | 'span'
   /** Horizontal alignment. Defaults to 'left'. */
@@ -28,7 +28,7 @@ export interface DeckTextProps extends Omit<LayerProps, 'children'> {
  * @param props - Configuration options for the text element.
  * @returns The rendered text element.
  */
-export const DeckText = ({
+export const SlideText = ({
   as = 'p',
   align,
   size,
@@ -39,7 +39,7 @@ export const DeckText = ({
   style: styleProp,
   children,
   ...layerProps
-}: DeckTextProps): JSX.Element => {
+}: SlideTextProps): JSX.Element => {
   const Tag = as
   const baseStyle: JSX.CSSProperties =
     typeof styleProp === 'string'
@@ -67,7 +67,7 @@ export const DeckText = ({
   const classes = ['text-base', 'font-normal']
   if (className) classes.unshift(className)
   return (
-    <Layer data-testid='deckText' {...layerProps}>
+    <Layer data-testid='slideText' {...layerProps}>
       <Tag style={style} className={classes.join(' ')}>
         {children}
       </Tag>
