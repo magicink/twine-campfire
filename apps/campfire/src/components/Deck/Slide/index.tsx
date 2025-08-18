@@ -157,6 +157,7 @@ export default Slide
 export { Appear } from './Appear'
 export { SlideText } from './SlideText'
 export { SlideImage } from './SlideImage'
+export { SlideShape } from './SlideShape'
 export { Layer } from './Layer'
 export type { LayerProps } from './Layer'
 export { renderDirectiveMarkdown } from './renderDirectiveMarkdown'

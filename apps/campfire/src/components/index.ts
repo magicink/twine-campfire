@@ -15,5 +15,6 @@ export {
   Appear,
   Layer,
   SlideText,
-  SlideImage
+  SlideImage,
+  SlideShape
 } from '@campfire/components/Deck/Slide'
