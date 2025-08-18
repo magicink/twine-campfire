@@ -60,6 +60,8 @@ export const Deck: StoryObj = {
       Hello
       :::
     :::
+    :::shape{x=150 y=150 w=100 h=50 type='rect' stroke='blue' fill='#ddf' radius=8 shadow=true}
+    :::
     :::appear{at=1}
       :::text{x=100 y=100 as="h2"}
       World
