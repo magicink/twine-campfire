@@ -35,8 +35,6 @@ export type A11yLabels = {
   prev: string
   /** Label for the current slide. */
   slide: (index: number, total: number) => string
-  /** Label for the step counter. */
-  step: (current: number, total: number) => string
 }
 
 export interface DeckProps {
@@ -46,6 +44,8 @@ export interface DeckProps {
   autoAdvanceMs?: number | null
   className?: string
   a11y?: Partial<A11yLabels>
+  /** Whether to display the slide counter HUD. */
+  showSlideCount?: boolean
   children?: ComponentChildren
 }
 
@@ -103,6 +103,7 @@ export const Deck = ({
   autoAdvanceMs,
   className,
   a11y,
+  showSlideCount = false,
   children
 }: DeckProps) => {
   /**
@@ -133,8 +134,6 @@ export const Deck = ({
     return { slides: cloned, slideSteps: steps }
   }, [children])
   const currentSlide = useDeckStore(state => state.currentSlide)
-  const currentStep = useDeckStore(state => state.currentStep)
-  const maxSteps = useDeckStore(state => state.maxSteps)
   const next = useDeckStore(state => state.next)
   const prev = useDeckStore(state => state.prev)
   const goTo = useDeckStore(state => state.goTo)
@@ -148,7 +147,6 @@ export const Deck = ({
       next: 'Next slide',
       prev: 'Previous slide',
       slide: (index, total) => `Slide ${index} of ${total}`,
-      step: (current, total) => `Step ${current} of ${total}`,
       ...(a11y ?? {})
     }),
     [a11y]
@@ -334,24 +332,17 @@ export const Deck = ({
       <div aria-live='polite' aria-atomic='true' style={srOnlyStyle}>
         {labels.slide(currentSlide + 1, slides.length)}
       </div>
-      <div aria-live='polite' aria-atomic='true' style={srOnlyStyle}>
-        {maxSteps > 0 ? labels.step(currentStep + 1, maxSteps) : ''}
-      </div>
-      <div
-        className='absolute top-3 right-3 text-sm px-2 py-1 rounded bg-black/50 text-white/80 text-right'
-        aria-hidden='true'
-        data-testid='deck-hud'
-      >
-        <div data-testid='deck-slide-hud'>
-          Slide {currentSlide + 1} / {slides.length}
-        </div>
+      {showSlideCount && (
         <div
-          style={{ opacity: maxSteps > 0 ? 1 : 0 }}
-          data-testid='deck-step-hud'
+          className='absolute top-3 right-3 text-sm px-2 py-1 rounded bg-black/50 text-white/80 text-right'
+          aria-hidden='true'
+          data-testid='deck-hud'
         >
-          {maxSteps > 0 ? `Step ${currentStep + 1} / ${maxSteps}` : ''}
+          <div data-testid='deck-slide-hud'>
+            Slide {currentSlide + 1} / {slides.length}
+          </div>
         </div>
-      </div>
+      )}
       <div
         className='absolute inset-x-0 bottom-2 flex items-center justify-center px-2 pointer-events-none'
         style={{ gap: 8 }}

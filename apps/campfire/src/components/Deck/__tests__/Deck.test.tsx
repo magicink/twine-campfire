@@ -192,66 +192,28 @@ describe('Deck', () => {
     expect(enterCall).toBeTruthy()
   })
 
-  it('displays steps starting at one', async () => {
-    render(
-      <Deck>
-        <Slide steps={2}>Slide 1</Slide>
-      </Deck>
-    )
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0))
-    })
-    const stepHud = screen.getByTestId('deck-step-hud')
-    expect(stepHud.textContent).toBe('Step 1 / 2')
-    expect(stepHud).toHaveStyle({ opacity: '1' })
-  })
-
-  it('hides step HUD when no steps are present', async () => {
+  it('hides slide counter by default', () => {
     render(
       <Deck>
         <Slide>Slide 1</Slide>
       </Deck>
     )
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0))
-    })
-    const stepHud = screen.getByTestId('deck-step-hud')
-    expect(stepHud).toHaveStyle({ opacity: '0' })
+    expect(screen.queryByTestId('deck-slide-hud')).toBeNull()
   })
 
-  it('announces steps separately from slides', async () => {
+  it('shows slide counter when enabled', () => {
     render(
-      <Deck>
-        <Slide steps={2}>Slide 1</Slide>
+      <Deck showSlideCount>
+        <Slide>Slide 1</Slide>
       </Deck>
     )
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0))
-    })
-    const liveRegions = document.querySelectorAll('[aria-live="polite"]')
-    expect(liveRegions.length).toBe(2)
-    expect(liveRegions[1].textContent?.trim()).toBe('Step 1 of 2')
-  })
-
-  it('renders step counter below slide counter', async () => {
-    render(
-      <Deck>
-        <Slide steps={2}>Slide 1</Slide>
-      </Deck>
-    )
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0))
-    })
-    const hud = screen.getByTestId('deck-hud')
     const slideHud = screen.getByTestId('deck-slide-hud')
-    const stepHud = screen.getByTestId('deck-step-hud')
-    expect(hud.firstElementChild).toBe(slideHud)
-    expect(hud.lastElementChild).toBe(stepHud)
+    expect(slideHud.textContent).toBe('Slide 1 / 1')
   })
 
   it('positions HUD away from navigation buttons', () => {
     render(
-      <Deck>
+      <Deck showSlideCount>
         <Slide>Slide 1</Slide>
       </Deck>
     )

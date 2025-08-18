@@ -120,8 +120,7 @@ export const WithCustomLabels: StoryObj<typeof Deck> = {
         deck: 'Slide deck',
         next: 'Advance',
         prev: 'Go back',
-        slide: (i, t) => `Page ${i} of ${t}`,
-        step: (c, t) => `Point ${c} of ${t}`
+        slide: (i, t) => `Page ${i} of ${t}`
       }}
     >
       <Slide>
@@ -139,16 +138,16 @@ export const WithCustomLabels: StoryObj<typeof Deck> = {
 }
 
 /**
- * Demonstrates the Deck HUD with separate slide and step counters stacked vertically.
+ * Demonstrates enabling the slide counter HUD.
  *
- * @returns The rendered Deck element showing the counters.
+ * @returns The rendered Deck element showing the slide counter.
  */
-export const WithStepHud: StoryObj<typeof Deck> = {
+export const WithSlideCounter: StoryObj<typeof Deck> = {
   render: () => (
-    <Deck className='w-[800px] h-[600px]'>
-      <Slide steps={2}>
+    <Deck className='w-[800px] h-[600px]' showSlideCount>
+      <Slide>
         <DeckText as='h2' x={200} y={200} size={36}>
-          Step HUD
+          Slide Counter
         </DeckText>
       </Slide>
     </Deck>
