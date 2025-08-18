@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.72.0](https://github.com/magicink/twine-campfire/compare/v1.71.0...v1.72.0) (2025-08-18)
+
+
+### Features
+
+* add SlideShape component and directive ([#415](https://github.com/magicink/twine-campfire/issues/415)) ([61f4aad](https://github.com/magicink/twine-campfire/commit/61f4aad746a49f52b7fad7c58f1ba413d098fcc5))
+* add SlideShape component and directive ([#415](https://github.com/magicink/twine-campfire/issues/415)) ([732a31a](https://github.com/magicink/twine-campfire/commit/732a31aed58fccf0c7a336e23e337a985af1946b))
+
 ## [1.71.0](https://github.com/magicink/twine-campfire/compare/v1.70.0...v1.71.0) (2025-08-18)
 
 
