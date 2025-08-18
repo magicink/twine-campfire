@@ -71,6 +71,23 @@ describe('deck directive', () => {
     expect(slides[1].type).toBe(Slide)
   })
 
+  it('requires slide transition values to be quoted or state keys', () => {
+    const md = `:::deck\n:::slide{transition=fade}\nHi\n:::\n:::`
+    render(<MarkdownRunner markdown={md} />)
+    const getDeck = (node: any): any => {
+      if (Array.isArray(node)) return getDeck(node[0])
+      if (node?.type === Fragment) return getDeck(node.props.children)
+      return node
+    }
+    const deck = getDeck(output)
+    const slides = Array.isArray(deck.props.children)
+      ? deck.props.children
+      : [deck.props.children]
+    expect(slides).toHaveLength(1)
+    const [slide] = slides
+    expect(slide.props.transition).toBeUndefined()
+  })
+
   it('wraps non-slide content in a default slide', () => {
     const md = `:::deck
 # Solo

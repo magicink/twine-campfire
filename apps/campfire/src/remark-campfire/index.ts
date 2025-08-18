@@ -8,6 +8,8 @@ import type { DirectiveNode } from './helpers'
 
 /** Error message for unquoted trigger labels */
 const MSG_TRIGGER_LABEL_UNQUOTED = 'trigger label must be a quoted string'
+/** Error message for unquoted slide transitions */
+const MSG_SLIDE_TRANSITION_UNQUOTED = 'slide transition must be a quoted string'
 
 export type DirectiveHandlerResult = number | [typeof SKIP, number] | void
 
@@ -166,17 +168,57 @@ const remarkCampfire =
           ) {
             parseFallbackAttributes(directive, parent, index)
           }
-          if (
-            directive.name === 'trigger' &&
-            directive.attributes &&
-            Object.prototype.hasOwnProperty.call(directive.attributes, 'label')
-          ) {
-            ensureQuotedAttribute(
-              directive,
-              'label',
-              file,
-              MSG_TRIGGER_LABEL_UNQUOTED
-            )
+          if (directive.attributes) {
+            if (
+              directive.name === 'trigger' &&
+              Object.prototype.hasOwnProperty.call(
+                directive.attributes,
+                'label'
+              )
+            ) {
+              ensureQuotedAttribute(
+                directive,
+                'label',
+                file,
+                MSG_TRIGGER_LABEL_UNQUOTED
+              )
+            }
+            if (
+              directive.name === 'slide' &&
+              Object.prototype.hasOwnProperty.call(
+                directive.attributes,
+                'transition'
+              )
+            ) {
+              ensureQuotedAttribute(
+                directive,
+                'transition',
+                file,
+                MSG_SLIDE_TRANSITION_UNQUOTED
+              )
+            }
+            if (directive.name === 'deck') {
+              for (const child of directive.children ?? []) {
+                if (
+                  child &&
+                  (child.type === 'containerDirective' ||
+                    child.type === 'leafDirective') &&
+                  child.name === 'slide' &&
+                  child.attributes &&
+                  Object.prototype.hasOwnProperty.call(
+                    child.attributes,
+                    'transition'
+                  )
+                ) {
+                  ensureQuotedAttribute(
+                    child as DirectiveNode,
+                    'transition',
+                    file,
+                    MSG_SLIDE_TRANSITION_UNQUOTED
+                  )
+                }
+              }
+            }
           }
           const handler = options.handlers?.[directive.name]
           if (handler) {
