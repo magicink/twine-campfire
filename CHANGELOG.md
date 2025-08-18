@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.71.0](https://github.com/magicink/twine-campfire/compare/v1.70.0...v1.71.0) (2025-08-18)
+
+
+### Features
+
+* add SlideImage component ([#410](https://github.com/magicink/twine-campfire/issues/410)) ([bc36968](https://github.com/magicink/twine-campfire/commit/bc36968f8c66877d0de4711ff89836591a742a6e))
+
+
+### Bug Fixes
+
+* **slide:** apply transition to all appear children ([#407](https://github.com/magicink/twine-campfire/issues/407)) ([83faa5e](https://github.com/magicink/twine-campfire/commit/83faa5e743f91eed35bae6bb79f1a920fb1a9f20))
+
 ## [1.70.0](https://github.com/magicink/twine-campfire/compare/v1.69.0...v1.70.0) (2025-08-18)
 
 
