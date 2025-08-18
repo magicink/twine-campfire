@@ -50,10 +50,14 @@ export interface SlideProps {
 }
 
 /**
- * Computes the highest step index from any {@link Appear} children.
+ * Recursively scans the Slide's descendants to determine the highest step
+ * index contributed by any {@link Appear} component. The traversal flattens
+ * fragments via {@link toChildArray} so nested arrays and fragments are
+ * inspected. When an `Appear` is encountered, both its `at` and `exitAt`
+ * values are considered to account for entry and exit steps.
  *
- * @param children - Slide children to inspect.
- * @returns The maximum step index discovered.
+ * @param children - Potentially nested Slide children to inspect.
+ * @returns The maximum step index discovered across all Appear elements.
  */
 const getAppearMax = (children: ComponentChildren): number => {
   let max = 0
