@@ -1,5 +1,5 @@
 import { createContext } from 'preact'
-import type { Transition } from '.'
+import type { Transition } from './types'
 
 /**
  * Context providing default transitions for Appear components within a Slide.

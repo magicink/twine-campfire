@@ -14,12 +14,10 @@ import { LinkButton } from '@campfire/components/Passage/LinkButton'
 import { TriggerButton } from '@campfire/components/Passage/TriggerButton'
 import { Show } from '@campfire/components/Passage/Show'
 import { OnExit } from '@campfire/components/Passage/OnExit'
-import {
-  Appear,
-  SlideText,
-  SlideImage,
-  SlideShape
-} from '@campfire/components/Deck/Slide'
+import { Appear } from '@campfire/components/Deck/Slide/Appear'
+import { SlideText } from '@campfire/components/Deck/Slide/SlideText'
+import { SlideImage } from '@campfire/components/Deck/Slide/SlideImage'
+import { SlideShape } from '@campfire/components/Deck/Slide/SlideShape'
 import { rehypeSlideText } from '@campfire/utils/rehypeSlideText'
 
 interface IfProps {
