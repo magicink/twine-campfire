@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.73.0](https://github.com/magicink/twine-campfire/compare/v1.72.1...v1.73.0) (2025-08-19)
+
+
+### Features
+
+* enforce quoted ids for persistence directives ([#423](https://github.com/magicink/twine-campfire/issues/423)) ([9257e13](https://github.com/magicink/twine-campfire/commit/9257e131c60ee544b2cc74fb29f5f07b8d08c6af))
+* enforce quoted ids for persistence directives ([#423](https://github.com/magicink/twine-campfire/issues/423)) ([1a51972](https://github.com/magicink/twine-campfire/commit/1a51972ed88a733fc7f61dc00aeba3c2d4600e8d))
+
 ## [1.72.1](https://github.com/magicink/twine-campfire/compare/v1.72.0...v1.72.1) (2025-08-19)
 
 
