@@ -34,7 +34,7 @@ export const renderDirectiveMarkdown = (
     deck: Deck,
     slide: Slide,
     appear: Appear,
-    deckText: SlideText,
+    slideText: SlideText,
     slideImage: SlideImage,
     slideShape: SlideShape
   })

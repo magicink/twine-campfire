@@ -7,7 +7,7 @@ import remarkCampfire from '@campfire/remark-campfire'
 import remarkRehype from 'remark-rehype'
 import rehypeCampfire from '@campfire/rehype-campfire'
 import rehypeStringify from 'rehype-stringify'
-import rehypeDeckText from '@campfire/utils/rehypeDeckText'
+import rehypeSlideText from '@campfire/utils/rehypeSlideText'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { remarkHeadingStyles } from '@campfire/utils/remarkHeadingStyles'
 import { remarkParagraphStyles } from '@campfire/utils/remarkParagraphStyles'
@@ -124,7 +124,7 @@ export const DebugWindow = () => {
         .use(remarkHeadingStyles)
         .use(remarkRehype)
         .use(rehypeCampfire)
-        .use(rehypeDeckText)
+        .use(rehypeSlideText)
         .use(rehypeStringify),
     [handlers]
   )

@@ -1867,7 +1867,7 @@ export const useDirectiveHandlers = () => {
       const classes = ['text-base', 'font-normal']
       if (classAttr) classes.unshift(classAttr)
       props.className = classes.join(' ')
-      props['data-component'] = 'deckText'
+      props['data-component'] = 'slideText'
       props['data-as'] = tagName
       applyAdditionalAttributes(raw, props, [
         'x',
