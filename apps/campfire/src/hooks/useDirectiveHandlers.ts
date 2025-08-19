@@ -1774,7 +1774,6 @@ export const useDirectiveHandlers = () => {
     scale: { type: 'number' },
     anchor: { type: 'string' },
     as: { type: 'string' },
-    content: { type: 'string' },
     align: { type: 'string' },
     size: { type: 'number' },
     weight: { type: 'number' },
@@ -1880,12 +1879,13 @@ export const useDirectiveHandlers = () => {
    */
   const handleText: DirectiveHandler = (directive, parent, index) => {
     if (!parent || typeof index !== 'number') return
-    if (directive.type !== 'textDirective') {
-      const msg = 'text can only be used as a leaf directive'
+    if (directive.type !== 'containerDirective') {
+      const msg = 'text can only be used as a container directive'
       console.error(msg)
       addError(msg)
       return removeNode(parent, index)
     }
+    const container = directive as ContainerDirective
     const { attrs } = extractAttributes<TextSchema>(
       directive,
       parent,
@@ -1975,7 +1975,6 @@ export const useDirectiveHandlers = () => {
       'scale',
       'anchor',
       'as',
-      'content',
       'align',
       'size',
       'weight',
@@ -1986,10 +1985,9 @@ export const useDirectiveHandlers = () => {
       'classes',
       'from'
     ])
-    const content =
-      typeof mergedAttrs.content === 'string'
-        ? mergedAttrs.content
-        : toString(directive).trim()
+    const processed = runBlock(container.children as RootContent[])
+    const stripped = stripLabel(processed)
+    const content = toString(stripped).trim()
     const node: Parent = {
       type: 'paragraph',
       children: [{ type: 'text', value: content } as RootContent],

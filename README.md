@@ -605,10 +605,13 @@ Control the flow between passages or how they appear.
   :::deck
   :::slide
   :::appear{at=0}
-  :text[First]{x=80 y=80}
+  :::text{x=80 y=80}
+  First
+  :::
   :::
   :::appear{at=1}
-  :text[Second]{x=80 y=120}
+  :::text{x=80 y=120}
+  Second
   :::
   :::
   :::
@@ -628,7 +631,8 @@ Control the flow between passages or how they appear.
   ```md
   :::deck
   :::slide
-  :text[Hello]{x=100 y=50 align=center size=32}
+  :::text{x=100 y=50 align=center size=32}
+  Hello
   :::
   :::
   ```
@@ -667,7 +671,8 @@ Control the flow between passages or how they appear.
 
   :::deck{from="wide"}
   :::slide
-  :text[Welcome]{from="title"}
+  :::text{from="title"}
+  Welcome
   :::
   :::
   ```

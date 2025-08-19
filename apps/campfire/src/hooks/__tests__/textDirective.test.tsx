@@ -28,7 +28,7 @@ beforeEach(() => {
 describe('text directive', () => {
   it('renders a SlideText component with styles', () => {
     const md =
-      ':text[Hello]{x=10 y=20 w=100 h=50 z=5 rotate=45 scale=1.5 anchor=center as="h2" align=center size=24 weight=700 lineHeight=1.2 color="red" class="underline" data-test="ok"}'
+      ':::text{x=10 y=20 w=100 h=50 z=5 rotate=45 scale=1.5 anchor=center as="h2" align=center size=24 weight=700 lineHeight=1.2 color="red" class="underline" data-test="ok"}\nHello\n:::'
     render(<MarkdownRunner markdown={md} />)
     const el = document.querySelector(
       '[data-testid="slideText"]'
@@ -69,7 +69,7 @@ describe('text directive', () => {
 
   it('applies text presets with overrides', () => {
     const md =
-      ':preset{type="text" name="title" x=10 y=20 size=24 color="red"}\n:text[Hi]{from="title" size=32}'
+      ':preset{type="text" name="title" x=10 y=20 size=24 color="red"}\n:::text{from="title" size=32}\nHi\n:::'
     render(<MarkdownRunner markdown={md} />)
     const el = document.querySelector(
       '[data-testid="slideText"]'
