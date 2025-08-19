@@ -66,4 +66,19 @@ describe('text directive', () => {
     expect(el.getAttribute('data-test')).toBe('ok')
     expect(inner.textContent).toBe('Hello')
   })
+
+  it('applies text presets with overrides', () => {
+    const md =
+      ':preset{type="text" name="title" x=10 y=20 size=24 color="red"}\n:text[Hi]{from="title" size=32}'
+    render(<MarkdownRunner markdown={md} />)
+    const el = document.querySelector(
+      '[data-testid="slideText"]'
+    ) as HTMLElement
+    const inner = el.firstElementChild as HTMLElement
+    const style = inner.getAttribute('style') || ''
+    expect(style).toContain('left: 10px')
+    expect(style).toContain('top: 20px')
+    expect(style).toContain('font-size: 32px')
+    expect(style).toContain('color: red')
+  })
 })

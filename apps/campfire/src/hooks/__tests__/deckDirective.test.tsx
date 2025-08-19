@@ -251,4 +251,18 @@ describe('deck directive', () => {
     const text = getText(output)
     expect(text).toBe('HelloWorld')
   })
+
+  it('applies deck presets with overrides', () => {
+    const md =
+      ':preset{type="deck" name="wide" theme="dark" transition="fade"}\n:::deck{from="wide" transition="slide"}\n:::'
+    render(<MarkdownRunner markdown={md} />)
+    const getDeck = (node: any): any => {
+      if (Array.isArray(node)) return getDeck(node[0])
+      if (node?.type === Fragment) return getDeck(node.props.children)
+      return node
+    }
+    const deck = getDeck(output)
+    expect(deck.props.transition).toBe('slide')
+    expect(deck.props.theme.theme).toBe('dark')
+  })
 })
