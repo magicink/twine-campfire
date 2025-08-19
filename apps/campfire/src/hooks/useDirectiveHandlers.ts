@@ -1616,6 +1616,18 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
+   * Merges preset attributes with raw directive attributes.
+   *
+   * @param preset - Attributes defined in the preset.
+   * @param raw - Attributes provided on the directive.
+   * @returns Combined attribute map with directive attributes taking precedence.
+   */
+  const mergeAttrs = (
+    preset: Record<string, unknown> | undefined,
+    raw: Record<string, unknown>
+  ): Record<string, unknown> => ({ ...(preset || {}), ...raw })
+
+  /**
    * Stores attribute presets for reuse by other directives.
    *
    * @param directive - The preset directive node.
@@ -1637,23 +1649,22 @@ export const useDirectiveHandlers = () => {
     )
     const target = String(presetAttrs.type)
     const name = String(presetAttrs.name)
-    const rawAttrs = {
-      ...(directive.attributes || {})
-    } as Record<string, unknown>
+    const attrs = (directive.attributes || {}) as Record<string, unknown>
+    const rawAttrs = { ...attrs }
     delete rawAttrs.type
     delete rawAttrs.name
-    for (const key of Object.keys(rawAttrs)) {
-      const val = rawAttrs[key]
+    const parsedAttrs: Record<string, unknown> = { ...rawAttrs }
+    for (const key of Object.keys(parsedAttrs)) {
+      const val = parsedAttrs[key]
       if (
         typeof val === 'number' ||
         (typeof val === 'string' && NUMERIC_PATTERN.test(val))
       ) {
-        const num = parseNumericValue(val)
-        rawAttrs[key] = num
+        parsedAttrs[key] = parseNumericValue(val)
       }
     }
     if (!presetsRef.current[target]) presetsRef.current[target] = {}
-    presetsRef.current[target][name] = rawAttrs
+    presetsRef.current[target][name] = parsedAttrs
     parent.children.splice(index, 1)
     return index
   }
@@ -1730,6 +1741,14 @@ export const useDirectiveHandlers = () => {
   type AppearSchema = typeof appearSchema
   type AppearAttrs = ExtractedAttrs<AppearSchema>
 
+  const APPEAR_EXCLUDES = [
+    'at',
+    'exitAt',
+    'enter',
+    'exit',
+    'interruptBehavior'
+  ] as const
+
   /** Schema describing supported slide directive attributes. */
   const slideSchema = {
     transition: { type: 'string' },
@@ -1741,6 +1760,8 @@ export const useDirectiveHandlers = () => {
 
   type SlideSchema = typeof slideSchema
   type SlideAttrs = ExtractedAttrs<SlideSchema>
+
+  const SLIDE_EXCLUDES = ['transition', 'steps', 'onEnter', 'onExit'] as const
 
   /** Schema describing supported text directive attributes. */
   const textSchema = {
@@ -1829,21 +1850,13 @@ export const useDirectiveHandlers = () => {
         ? presetsRef.current['appear']?.[String(attrs.from)]
         : undefined
       if (preset) {
-        const atPreset = parseNumericValue(preset.at)
-        if (typeof atPreset === 'number') props.at = atPreset
-        const exitAtPreset = parseNumericValue(preset.exitAt)
-        if (typeof exitAtPreset === 'number') props.exitAt = exitAtPreset
+        if (typeof preset.at === 'number') props.at = preset.at
+        if (typeof preset.exitAt === 'number') props.exitAt = preset.exitAt
         if (preset.enter) props.enter = preset.enter
         if (preset.exit) props.exit = preset.exit
         if (preset.interruptBehavior)
           props.interruptBehavior = preset.interruptBehavior
-        applyAdditionalAttributes(preset, props, [
-          'at',
-          'exitAt',
-          'enter',
-          'exit',
-          'interruptBehavior'
-        ])
+        applyAdditionalAttributes(preset, props, APPEAR_EXCLUDES)
       }
       if (typeof attrs.at === 'number') props.at = attrs.at
       if (typeof attrs.exitAt === 'number') props.exitAt = attrs.exitAt
@@ -1851,15 +1864,8 @@ export const useDirectiveHandlers = () => {
       if (attrs.exit) props.exit = attrs.exit
       if (attrs.interruptBehavior)
         props.interruptBehavior = attrs.interruptBehavior
-      const mergedRaw = { ...(preset || {}), ...raw }
-      applyAdditionalAttributes(mergedRaw, props, [
-        'at',
-        'exitAt',
-        'enter',
-        'exit',
-        'interruptBehavior',
-        'from'
-      ])
+      const mergedRaw = mergeAttrs(preset, raw)
+      applyAdditionalAttributes(mergedRaw, props, [...APPEAR_EXCLUDES, 'from'])
       return props
     }
   )
@@ -1890,9 +1896,11 @@ export const useDirectiveHandlers = () => {
     const preset = attrs.from
       ? presetsRef.current['text']?.[String(attrs.from)]
       : undefined
-    const mergedRaw = { ...(preset || {}), ...raw }
-    const mergedAttrs = { ...(preset || {}), ...attrs } as TextAttrs &
-      Record<string, unknown>
+    const mergedRaw = mergeAttrs(preset, raw)
+    const mergedAttrs = mergeAttrs(
+      preset,
+      attrs as unknown as Record<string, unknown>
+    ) as TextAttrs & Record<string, unknown>
     const tagName = mergedAttrs.as ? String(mergedAttrs.as) : 'p'
     const style: string[] = []
     style.push('position:absolute')
@@ -2018,24 +2026,20 @@ export const useDirectiveHandlers = () => {
     const preset = attrs.from
       ? presetsRef.current['image']?.[String(attrs.from)]
       : undefined
-    const mergedRaw = { ...(preset || {}), ...raw }
-    const mergedAttrs = { ...(preset || {}), ...attrs } as ImageAttrs &
-      Record<string, unknown>
+    const mergedRaw = mergeAttrs(preset, raw)
+    const mergedAttrs = mergeAttrs(
+      preset,
+      attrs as unknown as Record<string, unknown>
+    ) as ImageAttrs & Record<string, unknown>
     const props: Record<string, unknown> = { src: mergedAttrs.src }
-    const x = parseNumericValue(mergedAttrs.x)
-    if (typeof x === 'number') props.x = x
-    const y = parseNumericValue(mergedAttrs.y)
-    if (typeof y === 'number') props.y = y
-    const w = parseNumericValue(mergedAttrs.w)
-    if (typeof w === 'number') props.w = w
-    const h = parseNumericValue(mergedAttrs.h)
-    if (typeof h === 'number') props.h = h
-    const z = parseNumericValue(mergedAttrs.z)
-    if (typeof z === 'number') props.z = z
-    const rotate = parseNumericValue(mergedAttrs.rotate)
-    if (typeof rotate === 'number') props.rotate = rotate
-    const scale = parseNumericValue(mergedAttrs.scale)
-    if (typeof scale === 'number') props.scale = scale
+    if (typeof mergedAttrs.x === 'number') props.x = mergedAttrs.x
+    if (typeof mergedAttrs.y === 'number') props.y = mergedAttrs.y
+    if (typeof mergedAttrs.w === 'number') props.w = mergedAttrs.w
+    if (typeof mergedAttrs.h === 'number') props.h = mergedAttrs.h
+    if (typeof mergedAttrs.z === 'number') props.z = mergedAttrs.z
+    if (typeof mergedAttrs.rotate === 'number')
+      props.rotate = mergedAttrs.rotate
+    if (typeof mergedAttrs.scale === 'number') props.scale = mergedAttrs.scale
     if (mergedAttrs.anchor) props.anchor = mergedAttrs.anchor
     if (mergedAttrs.alt) props.alt = mergedAttrs.alt
     if (mergedAttrs.style) props.style = mergedAttrs.style
@@ -2101,40 +2105,32 @@ export const useDirectiveHandlers = () => {
     const preset = attrs.from
       ? presetsRef.current['shape']?.[String(attrs.from)]
       : undefined
-    const mergedRaw = { ...(preset || {}), ...raw }
-    const mergedAttrs = { ...(preset || {}), ...attrs } as ShapeAttrs &
-      Record<string, unknown>
+    const mergedRaw = mergeAttrs(preset, raw)
+    const mergedAttrs = mergeAttrs(
+      preset,
+      attrs as unknown as Record<string, unknown>
+    ) as ShapeAttrs & Record<string, unknown>
     const props: Record<string, unknown> = { type: mergedAttrs.type }
-    const x = parseNumericValue(mergedAttrs.x)
-    if (typeof x === 'number') props.x = x
-    const y = parseNumericValue(mergedAttrs.y)
-    if (typeof y === 'number') props.y = y
-    const w = parseNumericValue(mergedAttrs.w)
-    if (typeof w === 'number') props.w = w
-    const h = parseNumericValue(mergedAttrs.h)
-    if (typeof h === 'number') props.h = h
-    const z = parseNumericValue(mergedAttrs.z)
-    if (typeof z === 'number') props.z = z
-    const rotate = parseNumericValue(mergedAttrs.rotate)
-    if (typeof rotate === 'number') props.rotate = rotate
-    const scale = parseNumericValue(mergedAttrs.scale)
-    if (typeof scale === 'number') props.scale = scale
+    if (typeof mergedAttrs.x === 'number') props.x = mergedAttrs.x
+    if (typeof mergedAttrs.y === 'number') props.y = mergedAttrs.y
+    if (typeof mergedAttrs.w === 'number') props.w = mergedAttrs.w
+    if (typeof mergedAttrs.h === 'number') props.h = mergedAttrs.h
+    if (typeof mergedAttrs.z === 'number') props.z = mergedAttrs.z
+    if (typeof mergedAttrs.rotate === 'number')
+      props.rotate = mergedAttrs.rotate
+    if (typeof mergedAttrs.scale === 'number') props.scale = mergedAttrs.scale
     if (mergedAttrs.anchor) props.anchor = mergedAttrs.anchor
     if (mergedAttrs.points) props.points = mergedAttrs.points
-    const x1 = parseNumericValue(mergedAttrs.x1)
-    if (typeof x1 === 'number') props.x1 = x1
-    const y1 = parseNumericValue(mergedAttrs.y1)
-    if (typeof y1 === 'number') props.y1 = y1
-    const x2 = parseNumericValue(mergedAttrs.x2)
-    if (typeof x2 === 'number') props.x2 = x2
-    const y2 = parseNumericValue(mergedAttrs.y2)
-    if (typeof y2 === 'number') props.y2 = y2
+    if (typeof mergedAttrs.x1 === 'number') props.x1 = mergedAttrs.x1
+    if (typeof mergedAttrs.y1 === 'number') props.y1 = mergedAttrs.y1
+    if (typeof mergedAttrs.x2 === 'number') props.x2 = mergedAttrs.x2
+    if (typeof mergedAttrs.y2 === 'number') props.y2 = mergedAttrs.y2
     if (mergedAttrs.stroke) props.stroke = mergedAttrs.stroke
-    const strokeWidth = parseNumericValue(mergedAttrs.strokeWidth)
-    if (typeof strokeWidth === 'number') props.strokeWidth = strokeWidth
+    if (typeof mergedAttrs.strokeWidth === 'number')
+      props.strokeWidth = mergedAttrs.strokeWidth
     if (mergedAttrs.fill) props.fill = mergedAttrs.fill
-    const radius = parseNumericValue(mergedAttrs.radius)
-    if (typeof radius === 'number') props.radius = radius
+    if (typeof mergedAttrs.radius === 'number')
+      props.radius = mergedAttrs.radius
     if (typeof mergedAttrs.shadow === 'boolean')
       props.shadow = mergedAttrs.shadow
     if (mergedAttrs.style) props.style = mergedAttrs.style
@@ -2203,12 +2199,7 @@ export const useDirectiveHandlers = () => {
         if (typeof preset.steps === 'number') props.steps = preset.steps
         if (preset.onEnter) props.onEnter = preset.onEnter
         if (preset.onExit) props.onExit = preset.onExit
-        applyAdditionalAttributes(preset, props, [
-          'transition',
-          'steps',
-          'onEnter',
-          'onExit'
-        ])
+        applyAdditionalAttributes(preset, props, SLIDE_EXCLUDES)
       }
     }
     if (attrs.transition) {
@@ -2221,14 +2212,13 @@ export const useDirectiveHandlers = () => {
     if (attrs.onEnter) props.onEnter = attrs.onEnter
     if (attrs.onExit) props.onExit = attrs.onExit
     applyAdditionalAttributes(attrs as Record<string, unknown>, props, [
-      'transition',
-      'steps',
-      'onEnter',
-      'onExit',
+      ...SLIDE_EXCLUDES,
       'from'
     ])
     return props
   }
+
+  const DECK_EXCLUDES = ['size', 'transition', 'theme'] as const
 
   /**
    * Converts a `:::deck` directive into a Deck element with Slide children.
@@ -2272,11 +2262,7 @@ export const useDirectiveHandlers = () => {
           const t = parseThemeValue(preset.theme)
           if (t) deckProps.theme = t
         }
-        applyAdditionalAttributes(preset, deckProps, [
-          'size',
-          'transition',
-          'theme'
-        ])
+        applyAdditionalAttributes(preset, deckProps, DECK_EXCLUDES)
       }
     }
     if (typeof deckAttrs.size === 'string') {
@@ -2289,9 +2275,7 @@ export const useDirectiveHandlers = () => {
     }
     const rawDeckAttrs = (directive.attributes || {}) as Record<string, unknown>
     applyAdditionalAttributes(rawDeckAttrs, deckProps, [
-      'size',
-      'transition',
-      'theme',
+      ...DECK_EXCLUDES,
       'from'
     ])
 
