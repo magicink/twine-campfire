@@ -176,3 +176,51 @@ export const WithDisabledControls: StoryObj<typeof Deck> = {
     </Deck>
   )
 }
+
+/**
+ * Demonstrates automatically advancing slides after a delay.
+ *
+ * @returns The rendered Deck element with autoplay.
+ */
+export const WithAutoplay: StoryObj<typeof Deck> = {
+  render: () => (
+    <Deck className='w-[800px] h-[600px]' autoAdvanceMs={1000}>
+      <Slide>
+        <SlideText as='h2' x={200} y={200} size={36}>
+          Auto 1
+        </SlideText>
+      </Slide>
+      <Slide>
+        <SlideText as='h2' x={200} y={200} size={36}>
+          Auto 2
+        </SlideText>
+      </Slide>
+    </Deck>
+  )
+}
+
+/**
+ * Demonstrates autoplay starting in a paused state with a play control.
+ *
+ * @returns The rendered Deck element with paused autoplay.
+ */
+export const WithAutoplayPaused: StoryObj<typeof Deck> = {
+  render: () => (
+    <Deck
+      className='w-[800px] h-[600px]'
+      autoAdvanceMs={1000}
+      autoAdvancePaused
+    >
+      <Slide>
+        <SlideText as='h2' x={200} y={200} size={36}>
+          Paused 1
+        </SlideText>
+      </Slide>
+      <Slide>
+        <SlideText as='h2' x={200} y={200} size={36}>
+          Paused 2
+        </SlideText>
+      </Slide>
+    </Deck>
+  )
+}

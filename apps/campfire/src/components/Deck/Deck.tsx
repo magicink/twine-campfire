@@ -34,6 +34,10 @@ export type A11yLabels = {
   next: string
   /** Label for the "previous" control. */
   prev: string
+  /** Label for the autoplay pause control. */
+  pause: string
+  /** Label for the autoplay play control. */
+  play: string
   /** Label for the current slide. */
   slide: (index: number, total: number) => string
 }
@@ -43,6 +47,8 @@ export interface DeckProps {
   theme?: ThemeTokens
   initialSlide?: number
   autoAdvanceMs?: number | null
+  /** Whether autoplay should start in a paused state. */
+  autoAdvancePaused?: boolean
   className?: string
   a11y?: Partial<A11yLabels>
   /** Whether to display the slide counter HUD. */
@@ -102,6 +108,7 @@ export const Deck = ({
   theme,
   initialSlide,
   autoAdvanceMs,
+  autoAdvancePaused = false,
   className,
   a11y,
   showSlideCount = false,
@@ -152,6 +159,8 @@ export const Deck = ({
       deck: 'Presentation deck',
       next: 'Next slide',
       prev: 'Previous slide',
+      pause: 'Pause autoplay',
+      play: 'Play autoplay',
       slide: (index, total) => `Slide ${index} of ${total}`,
       ...(a11y ?? {})
     }),
@@ -160,6 +169,7 @@ export const Deck = ({
 
   const [currentVNode, setCurrentVNode] = useState(slides[0] as VNode)
   const [prevVNode, setPrevVNode] = useState<VNode | null>(null)
+  const [paused, setPaused] = useState(autoAdvancePaused)
   const slideRef = useRef<HTMLDivElement>(null)
   const reduceMotion = prefersReducedMotion()
   const firstRenderRef = useRef(true)
@@ -236,11 +246,11 @@ export const Deck = ({
   }, [slides.length, setSlidesCount, initialSlide, goTo])
 
   useEffect(() => {
-    if (autoAdvanceMs != null) {
+    if (autoAdvanceMs != null && !paused) {
       const id = setInterval(() => next(), autoAdvanceMs)
       return () => clearInterval(id)
     }
-  }, [autoAdvanceMs, next])
+  }, [autoAdvanceMs, paused, next])
 
   const { ref: hostRef, scale } = useScale(size)
   const themeStyle = useMemo(() => {
@@ -364,6 +374,17 @@ export const Deck = ({
         >
           ◀
         </button>
+        {autoAdvanceMs != null && (
+          <button
+            type='button'
+            className='pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring'
+            aria-label={paused ? labels.play : labels.pause}
+            onClick={() => setPaused(p => !p)}
+            data-testid='deck-autoplay-toggle'
+          >
+            {paused ? '▶' : '❚❚'}
+          </button>
+        )}
         <button
           type='button'
           className='pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring'
