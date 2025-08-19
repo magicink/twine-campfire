@@ -2245,14 +2245,6 @@ export const useDirectiveHandlers = () => {
           }
         }
         slides.push(slideNode)
-      } else if (
-        child.type === 'leafDirective' &&
-        (child as DirectiveNode).name === 'slide'
-      ) {
-        commitPending()
-        const msg = 'slide can only be used as a container directive'
-        console.error(msg)
-        addError(msg)
       } else {
         pendingNodes.push(child)
       }
