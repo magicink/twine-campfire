@@ -1,2 +1,7 @@
+[alias]
+react = "preact/compat"
+react-dom = "preact/compat"
+"react/jsx-runtime" = "preact/jsx-runtime"
+
 [test]
 preload = ["./happydom.ts", "./testing-library.ts"]

@@ -112,8 +112,35 @@ const parseFallbackAttributes = (
   }
 }
 
-/** Pattern matching a state key reference like `foo.bar` or `foo[0]`. */
+/**
+ * Matches a state key reference consisting of an identifier followed by
+ * dot-access or numeric index segments (e.g., `user.name`, `items[0]`).
+ */
 const STATE_KEY_PATTERN = /^[a-zA-Z_$][\w$]*(?:\.[a-zA-Z_$][\w$]*|\[\d+\])+$/
+
+/** Cache of attribute name regex pairs to avoid recompilation. */
+const ATTRIBUTE_REGEX_CACHE = new Map<
+  string,
+  { quoted: RegExp; unquoted: RegExp }
+>()
+
+/**
+ * Retrieves compiled regular expressions for the given attribute name.
+ *
+ * @param name - Attribute name to create patterns for.
+ * @returns Cached regular expressions for quoted and unquoted matches.
+ */
+const getAttributeRegex = (name: string) => {
+  let cached = ATTRIBUTE_REGEX_CACHE.get(name)
+  if (!cached) {
+    cached = {
+      quoted: new RegExp(`${name}\\s*=\\s*(['"\`])((?:\\\\.|(?!\\1).)*)\\1`),
+      unquoted: new RegExp(`${name}\\s*=\\s*([^\\s}]+)`)
+    }
+    ATTRIBUTE_REGEX_CACHE.set(name, cached)
+  }
+  return cached
+}
 
 /**
  * Ensures that a directive attribute is a quoted string unless it references a
@@ -138,9 +165,9 @@ const ensureQuotedAttribute = (
       directive.position?.start.offset ?? 0,
       directive.position?.end.offset ?? 0
     )
-    const quotedMatch = raw.match(
-      new RegExp(`${name}\\s*=\\s*(['"\`])((?:\\\\.|(?!\\1).)*)\\1`)
-    )
+    const { quoted: quotedRegex, unquoted: unquotedRegex } =
+      getAttributeRegex(name)
+    const quotedMatch = raw.match(quotedRegex)
     const attrs = directive.attributes as Record<string, unknown>
     if (typeof attrs[name] !== 'string') {
       delete attrs[name]
@@ -149,7 +176,7 @@ const ensureQuotedAttribute = (
     }
     if (!quotedMatch) {
       if (allowStateKey) {
-        const unquotedMatch = raw.match(new RegExp(`${name}\\s*=\\s*([^\s}]+)`))
+        const unquotedMatch = raw.match(unquotedRegex)
         if (unquotedMatch && STATE_KEY_PATTERN.test(unquotedMatch[1])) return
       }
       delete attrs[name]
