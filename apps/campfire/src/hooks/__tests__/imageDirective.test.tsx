@@ -46,4 +46,17 @@ describe('image directive', () => {
     expect(img.className).toBe('rounded')
     expect(img.style.border).toBe('1px solid red')
   })
+
+  it('applies image presets with overrides', () => {
+    const md =
+      ':preset{type="image" name="cat" x=5 y=5 src="https://example.com/cat.png"}\n:::appear\n:image{from="cat" y=10}\n:::\n'
+    render(<MarkdownRunner markdown={md} />)
+    const el = document.querySelector(
+      '[data-testid="slideImage"]'
+    ) as HTMLElement
+    expect(el.style.left).toBe('5px')
+    expect(el.style.top).toBe('10px')
+    const img = el.querySelector('img') as HTMLImageElement
+    expect(img.getAttribute('src')).toBe('https://example.com/cat.png')
+  })
 })

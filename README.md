@@ -597,6 +597,7 @@ Control the flow between passages or how they appear.
   | size       | Slide size as `WIDTHxHEIGHT` in pixels or aspect ratio like `16x9`         |
   | transition | Default transition applied between slides                                  |
   | theme      | Optional JSON object or string of CSS properties applied to the deck theme |
+  | from       | Name of a deck preset to apply before other attributes                     |
 
 - `appear`: Reveal slide content step-by-step.
 
@@ -604,10 +605,13 @@ Control the flow between passages or how they appear.
   :::deck
   :::slide
   :::appear{at=0}
-  :text[First]{x=80 y=80}
+  :::text{x=80 y=80}
+  First
+  :::
   :::
   :::appear{at=1}
-  :text[Second]{x=80 y=120}
+  :::text{x=80 y=120}
+  Second
   :::
   :::
   :::
@@ -620,18 +624,20 @@ Control the flow between passages or how they appear.
   | enter             | Enter animation key                  |
   | exit              | Exit animation key                   |
   | interruptBehavior | How to handle interrupted animations |
+  | from              | Name of an appear preset to apply    |
 
 - `text`: Position typographic content within a slide.
 
   ```md
   :::deck
   :::slide
-  :text[Hello]{x=100 y=50 align=center size=32}
+  :::text{x=100 y=50 align=center size=32}
+  Hello
   :::
   :::
   ```
 
-  Accepts the same attributes as the `Text` component.
+  Accepts the same attributes as the `Text` component and supports a `from` attribute to apply presets.
 
 - `image`: Position an image within a slide.
 
@@ -643,7 +649,7 @@ Control the flow between passages or how they appear.
   :::
   ```
 
-  Accepts the same attributes as the `SlideImage` component.
+  Accepts the same attributes as the `SlideImage` component and supports a `from` attribute to apply presets.
 
 - `shape`: Draw basic shapes within a slide.
 
@@ -655,7 +661,23 @@ Control the flow between passages or how they appear.
   :::
   ```
 
-  Accepts the same attributes as the `SlideShape` component.
+  Accepts the same attributes as the `SlideShape` component and supports a `from` attribute to apply presets.
+
+- `preset`: Define reusable attribute sets that can be applied via the `from` attribute on `deck`, `appear`, `image`, `shape`, and `text` directives.
+
+  ```md
+  :preset{type="deck" name="wide" size="16x9"}
+  :preset{type="text" name="title" x=100 y=50 size=32 color="#333"}
+
+  :::deck{from="wide"}
+  :::slide
+  :::text{from="title"}
+  Welcome
+  :::
+  :::
+  ```
+
+  Presets allow authors to reuse common configurations across multiple directives.
 
 ### Persistence
 

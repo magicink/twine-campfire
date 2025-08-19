@@ -51,6 +51,20 @@ describe('shape directive', () => {
     expect(svg.style.filter).toContain('drop-shadow')
   })
 
+  it('applies shape presets with overrides', () => {
+    const md =
+      ':preset{type="shape" name="box" x=5 y=5 w=10 h=10 fill="red"}\n:::appear\n:shape{from="box" y=20 type="rect"}\n:::\n'
+    render(<MarkdownRunner markdown={md} />)
+    const el = document.querySelector(
+      '[data-testid="slideShape"]'
+    ) as HTMLElement
+    expect(el.style.left).toBe('5px')
+    expect(el.style.top).toBe('20px')
+    const svg = el.querySelector('svg') as SVGSVGElement
+    const rect = svg.querySelector('rect') as SVGRectElement
+    expect(rect.getAttribute('fill')).toBe('red')
+  })
+
   it('does not render stray colons after shape blocks', () => {
     const md = ':shape{type="rect"}\n:::if{true}\nHi\n:::\n'
     render(<MarkdownRunner markdown={md} />)
