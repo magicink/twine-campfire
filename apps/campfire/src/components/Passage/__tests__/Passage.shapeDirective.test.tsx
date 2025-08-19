@@ -14,9 +14,12 @@ describe('Passage shape directive', () => {
   beforeEach(async () => {
     document.body.innerHTML = ''
     resetStores()
-    ;(HTMLElement.prototype as any).animate = () => ({
-      finished: Promise.resolve(),
+    const animation: Partial<Animation> = {
+      finished: Promise.resolve<Animation>({} as Animation),
       cancel() {}
+    }
+    Object.defineProperty(HTMLElement.prototype, 'animate', {
+      value: () => animation as Animation
     })
     if (!i18next.isInitialized) {
       await i18next.use(initReactI18next).init({ lng: 'en-US', resources: {} })
