@@ -153,3 +153,26 @@ export const WithSlideCounter: StoryObj<typeof Deck> = {
     </Deck>
   )
 }
+
+/**
+ * Demonstrates that navigation controls are disabled at the start and end of
+ * the deck.
+ *
+ * @returns The rendered Deck element showcasing disabled navigation buttons.
+ */
+export const WithDisabledControls: StoryObj<typeof Deck> = {
+  render: () => (
+    <Deck className='w-[800px] h-[600px]'>
+      <Slide>
+        <SlideText as='h2' x={200} y={200} size={36}>
+          Start
+        </SlideText>
+      </Slide>
+      <Slide>
+        <SlideText as='h2' x={200} y={200} size={36}>
+          End
+        </SlideText>
+      </Slide>
+    </Deck>
+  )
+}

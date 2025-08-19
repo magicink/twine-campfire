@@ -19,7 +19,13 @@ import { If } from '@campfire/components/Passage/If'
 import { Show } from '@campfire/components/Passage/Show'
 import { OnExit } from '@campfire/components/Passage/OnExit'
 import { Deck } from '@campfire/components/Deck'
-import { Slide, Appear, SlideText } from '@campfire/components/Deck/Slide'
+import {
+  Slide,
+  Appear,
+  SlideText,
+  SlideImage,
+  SlideShape
+} from '@campfire/components/Deck/Slide'
 
 const DIRECTIVE_MARKER_PATTERN = '(:::[^\\n]*|:[^\\n]*|<<)'
 
@@ -116,7 +122,9 @@ export const Passage = () => {
           deck: Deck,
           slide: Slide,
           appear: Appear,
-          deckText: SlideText
+          slideText: SlideText,
+          slideImage: SlideImage,
+          slideShape: SlideShape
         },
         [remarkParagraphStyles, remarkHeadingStyles]
       ),

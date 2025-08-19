@@ -92,6 +92,24 @@ describe('Deck', () => {
     expect(useDeckStore.getState().currentSlide).toBe(0)
   })
 
+  it('disables navigation buttons at deck bounds', () => {
+    render(
+      <Deck>
+        <div>Slide 1</div>
+        <div>Slide 2</div>
+      </Deck>
+    )
+    const prevBtn = screen.getByTestId('deck-prev') as HTMLButtonElement
+    const nextBtn = screen.getByTestId('deck-next') as HTMLButtonElement
+    expect(prevBtn).toBeDisabled()
+    expect(nextBtn).not.toBeDisabled()
+    act(() => {
+      fireEvent.click(nextBtn)
+    })
+    expect(prevBtn).not.toBeDisabled()
+    expect(nextBtn).toBeDisabled()
+  })
+
   it('jumps to start or end using Home and End keys', () => {
     render(
       <Deck>

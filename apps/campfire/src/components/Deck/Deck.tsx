@@ -134,12 +134,17 @@ export const Deck = ({
     return { slides: cloned, slideSteps: steps }
   }, [children])
   const currentSlide = useDeckStore(state => state.currentSlide)
+  const currentStep = useDeckStore(state => state.currentStep)
+  const maxSteps = useDeckStore(state => state.maxSteps)
   const next = useDeckStore(state => state.next)
   const prev = useDeckStore(state => state.prev)
   const goTo = useDeckStore(state => state.goTo)
   const setSlidesCount = useDeckStore(state => state.setSlidesCount)
   const setStepsForSlide = useDeckStore(state => state.setStepsForSlide)
   const reset = useDeckStore(state => state.reset)
+
+  const atStart = currentSlide === 0 && currentStep === 0
+  const atEnd = currentSlide === slides.length - 1 && currentStep === maxSteps
 
   const labels: A11yLabels = useMemo(
     () => ({
@@ -354,6 +359,7 @@ export const Deck = ({
           aria-label={labels.prev}
           onClick={prev}
           data-testid='deck-prev'
+          disabled={atStart}
         >
           ◀
         </button>
@@ -363,6 +369,7 @@ export const Deck = ({
           aria-label={labels.next}
           onClick={next}
           data-testid='deck-next'
+          disabled={atEnd}
         >
           ▶
         </button>
