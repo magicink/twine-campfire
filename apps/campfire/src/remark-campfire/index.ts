@@ -10,6 +10,8 @@ import type { DirectiveNode } from './helpers'
 const MSG_TRIGGER_LABEL_UNQUOTED = 'trigger label must be a quoted string'
 /** Error message for unquoted slide transitions */
 const MSG_SLIDE_TRANSITION_UNQUOTED = 'slide transition must be a quoted string'
+/** Error message for unquoted id attributes */
+const MSG_ID_UNQUOTED = 'id must be a quoted string'
 
 export type DirectiveHandlerResult = number | [typeof SKIP, number] | void
 
@@ -110,19 +112,25 @@ const parseFallbackAttributes = (
   }
 }
 
+/** Pattern matching a state key reference like `foo.bar` or `foo[0]`. */
+const STATE_KEY_PATTERN = /^[a-zA-Z_$][\w$]*(?:\.[a-zA-Z_$][\w$]*|\[\d+\])+$/
+
 /**
- * Ensures that a directive attribute is a quoted string.
+ * Ensures that a directive attribute is a quoted string unless it references a
+ * state key.
  *
  * @param directive - Directive node being processed.
  * @param name - Attribute name to verify.
  * @param file - VFile used for error reporting.
  * @param message - Error message to emit when validation fails.
+ * @param allowStateKey - Whether unquoted state keys are permitted.
  */
 const ensureQuotedAttribute = (
   directive: DirectiveNode,
   name: string,
   file: VFile,
-  message: string
+  message: string,
+  allowStateKey = false
 ) => {
   const content = typeof file.value === 'string' ? file.value : undefined
   if (content) {
@@ -130,11 +138,20 @@ const ensureQuotedAttribute = (
       directive.position?.start.offset ?? 0,
       directive.position?.end.offset ?? 0
     )
-    const attrMatch = raw.match(
+    const quotedMatch = raw.match(
       new RegExp(`${name}\\s*=\\s*(['"\`])((?:\\\\.|(?!\\1).)*)\\1`)
     )
     const attrs = directive.attributes as Record<string, unknown>
-    if (typeof attrs[name] !== 'string' || !attrMatch) {
+    if (typeof attrs[name] !== 'string') {
+      delete attrs[name]
+      file.message(message, directive)
+      return
+    }
+    if (!quotedMatch) {
+      if (allowStateKey) {
+        const unquotedMatch = raw.match(new RegExp(`${name}\\s*=\\s*([^\s}]+)`))
+        if (unquotedMatch && STATE_KEY_PATTERN.test(unquotedMatch[1])) return
+      }
       delete attrs[name]
       file.message(message, directive)
     }
@@ -195,6 +212,21 @@ const remarkCampfire =
                 'transition',
                 file,
                 MSG_SLIDE_TRANSITION_UNQUOTED
+              )
+            }
+            if (
+              (directive.name === 'checkpoint' ||
+                directive.name === 'save' ||
+                directive.name === 'load' ||
+                directive.name === 'clearSave') &&
+              Object.prototype.hasOwnProperty.call(directive.attributes, 'id')
+            ) {
+              ensureQuotedAttribute(
+                directive,
+                'id',
+                file,
+                MSG_ID_UNQUOTED,
+                true
               )
             }
             if (directive.name === 'deck') {

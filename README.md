@@ -666,10 +666,11 @@ Save and load progress or store data in the browser.
 - `checkpoint`: Save the current game state.
 
   ```md
-  :checkpoint{id=SAVE-ID label="LABEL"}
+  :checkpoint{id="SAVE-ID" label="LABEL"}
   ```
 
-  Replace `SAVE-ID` with a key and `LABEL` with a description. Saving a new
+  Replace `SAVE-ID` with a key and `LABEL` with a description. Wrap the `id`
+  value in quotes or backticks unless referencing a state key. Saving a new
   checkpoint replaces any existing checkpoint.
 
   | Input | Description                          |
@@ -708,10 +709,11 @@ Save and load progress or store data in the browser.
 - `save`: Write the current state to local storage.
 
   ```md
-  :save{id=SLOT}
+  :save{id="SLOT"}
   ```
 
-  Replace `SLOT` with the storage id.
+  Replace `SLOT` with the storage id. Wrap the `id` value in quotes or
+  backticks unless referencing a state key.
 
   | Input | Description                   |
   | ----- | ----------------------------- |
@@ -720,10 +722,11 @@ Save and load progress or store data in the browser.
 - `load`: Load state from local storage.
 
   ```md
-  :load{id=SLOT}
+  :load{id="SLOT"}
   ```
 
-  Replace `SLOT` with the storage id.
+  Replace `SLOT` with the storage id. Wrap the `id` value in quotes or
+  backticks unless referencing a state key.
 
   | Input | Description              |
   | ----- | ------------------------ |
@@ -732,10 +735,11 @@ Save and load progress or store data in the browser.
 - `clearSave`: Remove a stored game state.
 
   ```md
-  :clearSave{id=SLOT}
+  :clearSave{id="SLOT"}
   ```
 
-  Replace `SLOT` with the storage id.
+  Replace `SLOT` with the storage id. Wrap the `id` value in quotes or
+  backticks unless referencing a state key.
 
   | Input | Description           |
   | ----- | --------------------- |
