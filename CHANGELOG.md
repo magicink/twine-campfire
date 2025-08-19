@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.72.1](https://github.com/magicink/twine-campfire/compare/v1.72.0...v1.72.1) (2025-08-19)
+
+
+### Bug Fixes
+
+* enforce container and leaf directive usage ([#420](https://github.com/magicink/twine-campfire/issues/420)) ([35bc8f5](https://github.com/magicink/twine-campfire/commit/35bc8f54935b6ec0bc07461091c218ead21e7570))
+* shape directive to render SlideShape ([#419](https://github.com/magicink/twine-campfire/issues/419)) ([39b85b3](https://github.com/magicink/twine-campfire/commit/39b85b3d8b3102fbe81639f84820f0806812da2d))
+
 ## [1.72.0](https://github.com/magicink/twine-campfire/compare/v1.71.0...v1.72.0) (2025-08-18)
 
 
