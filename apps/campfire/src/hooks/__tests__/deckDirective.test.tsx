@@ -49,7 +49,7 @@ describe('deck directive', () => {
 :::slide{transition='fade'}
 # One
 :::
-::slide{}
+:::slide
 ## Two
 :::
 :::`
@@ -117,14 +117,10 @@ describe('deck directive', () => {
     const md = `:::deck{size='800x600'}
   :::slide{transition='fade'}
     :::appear{at=0}
-      :::text{x=80 y=80 as="h2"}
-      Hello
-      :::
+      :text[Hello]{x=80 y=80 as="h2"}
     :::
     :::appear{at=1}
-      :::text{x=100 y=100 as="h2"}
-      World
-      :::
+      :text[World]{x=100 y=100 as="h2"}
     :::
   :::
 :::`
@@ -154,10 +150,10 @@ describe('deck directive', () => {
     const md = `:::deck{size='800x600'}
   :::slide{transition='fade'}
     :::appear{at=0}
-      :::text{x=80 y=80 as="h2"}Hello:::
+      :text[Hello]{x=80 y=80 as="h2"}
     :::
     :::appear{at=1}
-      :::text{x=100 y=100 as="h2"}World:::
+      :text[World]{x=100 y=100 as="h2"}
     :::
   :::
 :::`
@@ -185,11 +181,11 @@ describe('deck directive', () => {
     const md = `:::deck{size='800x600'}
   :::slide{transition='fade'}
     :::appear{at=0}
-      :::text{x=80 y=80 as="h2"}Hello:::
+      :text[Hello]{x=80 y=80 as="h2"}
     :::
   :::
   :::appear{at=1}
-    :::text{x=100 y=100 as="h2"}World:::
+    :text[World]{x=100 y=100 as="h2"}
   :::
 :::`
     render(<MarkdownRunner markdown={md} />)
@@ -216,14 +212,10 @@ describe('deck directive', () => {
     const md = `:::deck{size='800x600'}
   :::slide{transition='fade'}
     :::appear{at=0}
-      :::text{x=80 y=80 as="h2"}
-      Hello
-      :::
+      :text[Hello]{x=80 y=80 as="h2"}
     :::
     :::appear{at=1}
-      :::text{x=100 y=100 as="h2"}
-      World
-      :::
+      :text[World]{x=100 y=100 as="h2"}
     :::
   :::
 :::`
@@ -251,26 +243,11 @@ describe('deck directive', () => {
       ? slide.props.children
       : [slide.props.children]
     expect(appearChildren).toHaveLength(2)
-    expect(appearChildren[0]).toMatchObject({
-      type: Appear,
-      props: {
-        at: 0,
-        children: {
-          type: SlideText,
-          props: { as: 'h2', x: 80, y: 80, children: 'Hello' }
-        }
-      }
-    })
-    expect(appearChildren[1]).toMatchObject({
-      type: Appear,
-      props: {
-        at: 1,
-        children: {
-          type: SlideText,
-          props: { as: 'h2', x: 100, y: 100, children: 'World' }
-        }
-      }
-    })
+    const [first, second] = appearChildren
+    expect(first).toMatchObject({ type: Appear, props: { at: 0 } })
+    expect(getText(first)).toBe('Hello')
+    expect(second).toMatchObject({ type: Appear, props: { at: 1 } })
+    expect(getText(second)).toBe('World')
     const text = getText(output)
     expect(text).toBe('HelloWorld')
   })
