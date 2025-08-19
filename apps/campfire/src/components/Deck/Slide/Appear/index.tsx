@@ -7,7 +7,7 @@ import {
   useState
 } from 'preact/hooks'
 import { useDeckStore } from '@campfire/state/useDeckStore'
-import { type Transition } from '../'
+import type { Transition } from '../types'
 import { SlideTransitionContext } from '../context'
 import {
   defaultTransition,

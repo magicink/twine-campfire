@@ -7,13 +7,19 @@ import { Passage } from '@campfire/components/Passage/Passage'
 import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
 import { resetStores } from '@campfire/test-utils/helpers'
 
-describe('Passage text directive', () => {
+/**
+ * Tests rendering of the shape directive within a Passage.
+ */
+describe('Passage shape directive', () => {
   beforeEach(async () => {
     document.body.innerHTML = ''
     resetStores()
-    ;(HTMLElement.prototype as any).animate = () => ({
-      finished: Promise.resolve(),
+    const animation: Partial<Animation> = {
+      finished: Promise.resolve<Animation>({} as Animation),
       cancel() {}
+    }
+    Object.defineProperty(HTMLElement.prototype, 'animate', {
+      value: () => animation as Animation
     })
     if (!i18next.isInitialized) {
       await i18next.use(initReactI18next).init({ lng: 'en-US', resources: {} })
@@ -23,7 +29,7 @@ describe('Passage text directive', () => {
     }
   })
 
-  it('renders SlideText components without stray markers', async () => {
+  it('renders SlideShape components without stray markers', async () => {
     const passage: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
@@ -32,15 +38,20 @@ describe('Passage text directive', () => {
         {
           type: 'text',
           value:
-            ':::deck{size=800x600}\n:::slide\n:text[Hello]{x=80 y=80 as="h2"}\n:::\n:::\n'
+            ':::deck{size=800x600}\n:::slide\n:shape{x=10 y=20 w=100 h=50 type="rect" data-test="ok"}\n:::\n:::\n'
         }
       ]
     }
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
     render(<Passage />)
-    const el = await screen.findByTestId('slideText')
+    const el = await screen.findByTestId('slideShape')
     expect(el).toBeTruthy()
-    expect(document.body.innerHTML).not.toContain('<SlideText')
+    expect(el.style.left).toBe('10px')
+    expect(el.style.top).toBe('20px')
+    expect(el.style.width).toBe('100px')
+    expect(el.style.height).toBe('50px')
+    expect(el.getAttribute('data-test')).toBe('ok')
+    expect(document.body.innerHTML).not.toContain('<SlideShape')
     expect(document.body.textContent).not.toContain(':::')
   })
 })

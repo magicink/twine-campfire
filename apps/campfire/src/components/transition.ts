@@ -1,7 +1,7 @@
 import {
   type Transition,
   type Direction
-} from '@campfire/components/Deck/Slide'
+} from '@campfire/components/Deck/Slide/types'
 
 /**
  * Returns whether the user prefers reduced motion.

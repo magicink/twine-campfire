@@ -5,7 +5,7 @@ import remarkDirective from 'remark-directive'
 import remarkCampfire from '@campfire/remark-campfire'
 import remarkRehype from 'remark-rehype'
 import rehypeCampfire from '@campfire/rehype-campfire'
-import rehypeDeckText from '@campfire/utils/rehypeDeckText'
+import rehypeSlideText from '@campfire/utils/rehypeSlideText'
 import rehypeReact from 'rehype-react'
 import { Fragment, jsx, jsxs } from 'preact/jsx-runtime'
 import type { ComponentType } from 'preact'
@@ -34,5 +34,5 @@ export const createMarkdownProcessor = (
     .use(remarkPlugins)
     .use(remarkRehype)
     .use(rehypeCampfire)
-    .use(rehypeDeckText)
+    .use(rehypeSlideText)
     .use(rehypeReact, { Fragment, jsx, jsxs, components })
