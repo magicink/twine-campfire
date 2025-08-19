@@ -119,6 +119,9 @@ export const useDirectiveHandlers = () => {
   const getPassageById = useStoryDataStore(state => state.getPassageById)
   const getPassageByName = useStoryDataStore(state => state.getPassageByName)
   const handlersRef = useRef<Record<string, DirectiveHandler>>({})
+  const presetsRef = useRef<
+    Record<string, Record<string, Record<string, unknown>>>
+  >({})
   const checkpointIdRef = useRef<string | null>(null)
   const checkpointErrorRef = useRef(false)
   const onExitSeenRef = useRef(false)
@@ -1613,6 +1616,39 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
+   * Handles `:preset` directives by storing reusable attribute sets.
+   *
+   * @param directive - The preset directive node.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within its parent.
+   * @returns The index of the removed node when applicable.
+   */
+  const handlePreset: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    const { attrs: presetAttrs } = extractAttributes(
+      directive,
+      parent,
+      index,
+      {
+        type: { type: 'string', required: true },
+        name: { type: 'string', required: true }
+      },
+      { label: false }
+    )
+    const target = String(presetAttrs.type)
+    const name = String(presetAttrs.name)
+    const rawAttrs = {
+      ...(directive.attributes || {})
+    } as Record<string, unknown>
+    delete rawAttrs.type
+    delete rawAttrs.name
+    if (!presetsRef.current[target]) presetsRef.current[target] = {}
+    presetsRef.current[target][name] = rawAttrs
+    parent.children.splice(index, 1)
+    return index
+  }
+
+  /**
    * Creates a handler for container directives that converts directive blocks
    * into corresponding hast nodes.
    *
@@ -1677,7 +1713,8 @@ export const useDirectiveHandlers = () => {
     exitAt: { type: 'number' },
     enter: { type: 'string' },
     exit: { type: 'string' },
-    interruptBehavior: { type: 'string' }
+    interruptBehavior: { type: 'string' },
+    from: { type: 'string', expression: false }
   } as const
 
   type AppearSchema = typeof appearSchema
@@ -1710,7 +1747,8 @@ export const useDirectiveHandlers = () => {
     size: { type: 'number' },
     weight: { type: 'number' },
     lineHeight: { type: 'number' },
-    color: { type: 'string' }
+    color: { type: 'string' },
+    from: { type: 'string', expression: false }
   } as const
 
   type TextSchema = typeof textSchema
@@ -1728,7 +1766,8 @@ export const useDirectiveHandlers = () => {
     anchor: { type: 'string' },
     src: { type: 'string', required: true },
     alt: { type: 'string' },
-    style: { type: 'string' }
+    style: { type: 'string' },
+    from: { type: 'string', expression: false }
   } as const
 
   type ImageSchema = typeof imageSchema
@@ -1755,7 +1794,8 @@ export const useDirectiveHandlers = () => {
     fill: { type: 'string' },
     radius: { type: 'number' },
     shadow: { type: 'boolean' },
-    style: { type: 'string' }
+    style: { type: 'string' },
+    from: { type: 'string', expression: false }
   } as const
 
   type ShapeSchema = typeof shapeSchema
@@ -1773,19 +1813,42 @@ export const useDirectiveHandlers = () => {
     'appear',
     appearSchema,
     (attrs, raw) => {
+      let mergedRaw = { ...raw }
+      let mergedAttrs = { ...attrs }
+      if (attrs.from) {
+        const presetRaw = presetsRef.current['appear']?.[String(attrs.from)]
+        if (presetRaw) {
+          const dummy: DirectiveNode = {
+            type: 'containerDirective',
+            name: 'appear',
+            attributes: presetRaw as Record<string, string | null>,
+            children: []
+          }
+          const { attrs: parsed } = extractAttributes<AppearSchema>(
+            dummy,
+            undefined,
+            undefined,
+            appearSchema
+          )
+          mergedAttrs = { ...parsed, ...attrs }
+          mergedRaw = { ...presetRaw, ...raw }
+        }
+      }
       const props: Record<string, unknown> = {}
-      if (typeof attrs.at === 'number') props.at = attrs.at
-      if (typeof attrs.exitAt === 'number') props.exitAt = attrs.exitAt
-      if (attrs.enter) props.enter = attrs.enter
-      if (attrs.exit) props.exit = attrs.exit
-      if (attrs.interruptBehavior)
-        props.interruptBehavior = attrs.interruptBehavior
-      applyAdditionalAttributes(raw, props, [
+      if (typeof mergedAttrs.at === 'number') props.at = mergedAttrs.at
+      if (typeof mergedAttrs.exitAt === 'number')
+        props.exitAt = mergedAttrs.exitAt
+      if (mergedAttrs.enter) props.enter = mergedAttrs.enter
+      if (mergedAttrs.exit) props.exit = mergedAttrs.exit
+      if (mergedAttrs.interruptBehavior)
+        props.interruptBehavior = mergedAttrs.interruptBehavior
+      applyAdditionalAttributes(mergedRaw, props, [
         'at',
         'exitAt',
         'enter',
         'exit',
-        'interruptBehavior'
+        'interruptBehavior',
+        'from'
       ])
       return props
     }
@@ -1813,22 +1876,45 @@ export const useDirectiveHandlers = () => {
       index,
       textSchema
     )
-    const raw = (directive.attributes || {}) as Record<string, unknown>
-    const tagName = attrs.as ? String(attrs.as) : 'p'
+    let raw = (directive.attributes || {}) as Record<string, unknown>
+    let mergedAttrs = { ...attrs }
+    if (attrs.from) {
+      const presetRaw = presetsRef.current['text']?.[String(attrs.from)]
+      if (presetRaw) {
+        const dummy: DirectiveNode = {
+          type: 'textDirective',
+          name: 'text',
+          attributes: presetRaw as Record<string, string | null>,
+          children: []
+        }
+        const { attrs: parsed } = extractAttributes<TextSchema>(
+          dummy,
+          undefined,
+          undefined,
+          textSchema
+        )
+        mergedAttrs = { ...parsed, ...attrs }
+        raw = { ...presetRaw, ...raw }
+      }
+    }
+    const tagName = mergedAttrs.as ? String(mergedAttrs.as) : 'p'
     const style: string[] = []
     style.push('position:absolute')
-    if (typeof attrs.x === 'number') style.push(`left:${attrs.x}px`)
-    if (typeof attrs.y === 'number') style.push(`top:${attrs.y}px`)
-    if (typeof attrs.w === 'number') style.push(`width:${attrs.w}px`)
-    if (typeof attrs.h === 'number') style.push(`height:${attrs.h}px`)
-    if (typeof attrs.z === 'number') style.push(`z-index:${attrs.z}`)
+    if (typeof mergedAttrs.x === 'number') style.push(`left:${mergedAttrs.x}px`)
+    if (typeof mergedAttrs.y === 'number') style.push(`top:${mergedAttrs.y}px`)
+    if (typeof mergedAttrs.w === 'number')
+      style.push(`width:${mergedAttrs.w}px`)
+    if (typeof mergedAttrs.h === 'number')
+      style.push(`height:${mergedAttrs.h}px`)
+    if (typeof mergedAttrs.z === 'number')
+      style.push(`z-index:${mergedAttrs.z}`)
     const transforms: string[] = []
-    if (typeof attrs.rotate === 'number')
-      transforms.push(`rotate(${attrs.rotate}deg)`)
-    if (typeof attrs.scale === 'number')
-      transforms.push(`scale(${attrs.scale})`)
+    if (typeof mergedAttrs.rotate === 'number')
+      transforms.push(`rotate(${mergedAttrs.rotate}deg)`)
+    if (typeof mergedAttrs.scale === 'number')
+      transforms.push(`scale(${mergedAttrs.scale})`)
     if (transforms.length) style.push(`transform:${transforms.join(' ')}`)
-    if (attrs.anchor && attrs.anchor !== 'top-left') {
+    if (mergedAttrs.anchor && mergedAttrs.anchor !== 'top-left') {
       const originMap: Record<string, string> = {
         'top-left': '0% 0%',
         top: '50% 0%',
@@ -1840,25 +1926,27 @@ export const useDirectiveHandlers = () => {
         bottom: '50% 100%',
         'bottom-right': '100% 100%'
       }
-      const origin = originMap[attrs.anchor]
+      const origin = originMap[mergedAttrs.anchor]
       if (origin) style.push(`transform-origin:${origin}`)
     }
-    if (attrs.align) style.push(`text-align:${attrs.align}`)
-    if (typeof attrs.size === 'number') style.push(`font-size:${attrs.size}px`)
-    if (typeof attrs.weight === 'number')
-      style.push(`font-weight:${attrs.weight}`)
-    if (typeof attrs.lineHeight === 'number')
-      style.push(`line-height:${attrs.lineHeight}`)
-    if (attrs.color) style.push(`color:${attrs.color}`)
+    if (mergedAttrs.align) style.push(`text-align:${mergedAttrs.align}`)
+    if (typeof mergedAttrs.size === 'number')
+      style.push(`font-size:${mergedAttrs.size}px`)
+    if (typeof mergedAttrs.weight === 'number')
+      style.push(`font-weight:${mergedAttrs.weight}`)
+    if (typeof mergedAttrs.lineHeight === 'number')
+      style.push(`line-height:${mergedAttrs.lineHeight}`)
+    if (mergedAttrs.color) style.push(`color:${mergedAttrs.color}`)
     const props: Record<string, unknown> = {}
-    if (typeof attrs.x === 'number') props.x = attrs.x
-    if (typeof attrs.y === 'number') props.y = attrs.y
-    if (typeof attrs.w === 'number') props.w = attrs.w
-    if (typeof attrs.h === 'number') props.h = attrs.h
-    if (typeof attrs.z === 'number') props.z = attrs.z
-    if (typeof attrs.rotate === 'number') props.rotate = attrs.rotate
-    if (typeof attrs.scale === 'number') props.scale = attrs.scale
-    if (attrs.anchor) props.anchor = attrs.anchor
+    if (typeof mergedAttrs.x === 'number') props.x = mergedAttrs.x
+    if (typeof mergedAttrs.y === 'number') props.y = mergedAttrs.y
+    if (typeof mergedAttrs.w === 'number') props.w = mergedAttrs.w
+    if (typeof mergedAttrs.h === 'number') props.h = mergedAttrs.h
+    if (typeof mergedAttrs.z === 'number') props.z = mergedAttrs.z
+    if (typeof mergedAttrs.rotate === 'number')
+      props.rotate = mergedAttrs.rotate
+    if (typeof mergedAttrs.scale === 'number') props.scale = mergedAttrs.scale
+    if (mergedAttrs.anchor) props.anchor = mergedAttrs.anchor
     if (style.length) props.style = style.join(';')
     const classAttr =
       typeof raw.class === 'string'
@@ -1891,11 +1979,12 @@ export const useDirectiveHandlers = () => {
       'color',
       'class',
       'className',
-      'classes'
+      'classes',
+      'from'
     ])
     const content =
-      typeof attrs.content === 'string'
-        ? attrs.content
+      typeof mergedAttrs.content === 'string'
+        ? mergedAttrs.content
         : toString(directive).trim()
     const node: Parent = {
       type: 'paragraph',
@@ -1929,18 +2018,39 @@ export const useDirectiveHandlers = () => {
       index,
       imageSchema
     )
-    const raw = (directive.attributes || {}) as Record<string, unknown>
-    const props: Record<string, unknown> = { src: attrs.src }
-    if (typeof attrs.x === 'number') props.x = attrs.x
-    if (typeof attrs.y === 'number') props.y = attrs.y
-    if (typeof attrs.w === 'number') props.w = attrs.w
-    if (typeof attrs.h === 'number') props.h = attrs.h
-    if (typeof attrs.z === 'number') props.z = attrs.z
-    if (typeof attrs.rotate === 'number') props.rotate = attrs.rotate
-    if (typeof attrs.scale === 'number') props.scale = attrs.scale
-    if (attrs.anchor) props.anchor = attrs.anchor
-    if (attrs.alt) props.alt = attrs.alt
-    if (attrs.style) props.style = attrs.style
+    let raw = (directive.attributes || {}) as Record<string, unknown>
+    let mergedAttrs = { ...attrs }
+    if (attrs.from) {
+      const presetRaw = presetsRef.current['image']?.[String(attrs.from)]
+      if (presetRaw) {
+        const dummy: DirectiveNode = {
+          type: 'textDirective',
+          name: 'image',
+          attributes: presetRaw as Record<string, string | null>,
+          children: []
+        }
+        const { attrs: parsed } = extractAttributes<ImageSchema>(
+          dummy,
+          undefined,
+          undefined,
+          imageSchema
+        )
+        mergedAttrs = { ...parsed, ...attrs }
+        raw = { ...presetRaw, ...raw }
+      }
+    }
+    const props: Record<string, unknown> = { src: mergedAttrs.src }
+    if (typeof mergedAttrs.x === 'number') props.x = mergedAttrs.x
+    if (typeof mergedAttrs.y === 'number') props.y = mergedAttrs.y
+    if (typeof mergedAttrs.w === 'number') props.w = mergedAttrs.w
+    if (typeof mergedAttrs.h === 'number') props.h = mergedAttrs.h
+    if (typeof mergedAttrs.z === 'number') props.z = mergedAttrs.z
+    if (typeof mergedAttrs.rotate === 'number')
+      props.rotate = mergedAttrs.rotate
+    if (typeof mergedAttrs.scale === 'number') props.scale = mergedAttrs.scale
+    if (mergedAttrs.anchor) props.anchor = mergedAttrs.anchor
+    if (mergedAttrs.alt) props.alt = mergedAttrs.alt
+    if (mergedAttrs.style) props.style = mergedAttrs.style
     const classAttr =
       typeof raw.class === 'string'
         ? raw.class
@@ -1964,7 +2074,8 @@ export const useDirectiveHandlers = () => {
       'style',
       'class',
       'className',
-      'classes'
+      'classes',
+      'from'
     ])
     const node: Parent = {
       type: 'paragraph',
@@ -1998,28 +2109,51 @@ export const useDirectiveHandlers = () => {
       index,
       shapeSchema
     )
-    const raw = (directive.attributes || {}) as Record<string, unknown>
-    const props: Record<string, unknown> = { type: attrs.type }
-    if (typeof attrs.x === 'number') props.x = attrs.x
-    if (typeof attrs.y === 'number') props.y = attrs.y
-    if (typeof attrs.w === 'number') props.w = attrs.w
-    if (typeof attrs.h === 'number') props.h = attrs.h
-    if (typeof attrs.z === 'number') props.z = attrs.z
-    if (typeof attrs.rotate === 'number') props.rotate = attrs.rotate
-    if (typeof attrs.scale === 'number') props.scale = attrs.scale
-    if (attrs.anchor) props.anchor = attrs.anchor
-    if (attrs.points) props.points = attrs.points
-    if (typeof attrs.x1 === 'number') props.x1 = attrs.x1
-    if (typeof attrs.y1 === 'number') props.y1 = attrs.y1
-    if (typeof attrs.x2 === 'number') props.x2 = attrs.x2
-    if (typeof attrs.y2 === 'number') props.y2 = attrs.y2
-    if (attrs.stroke) props.stroke = attrs.stroke
-    if (typeof attrs.strokeWidth === 'number')
-      props.strokeWidth = attrs.strokeWidth
-    if (attrs.fill) props.fill = attrs.fill
-    if (typeof attrs.radius === 'number') props.radius = attrs.radius
-    if (typeof attrs.shadow === 'boolean') props.shadow = attrs.shadow
-    if (attrs.style) props.style = attrs.style
+    let raw = (directive.attributes || {}) as Record<string, unknown>
+    let mergedAttrs = { ...attrs }
+    if (attrs.from) {
+      const presetRaw = presetsRef.current['shape']?.[String(attrs.from)]
+      if (presetRaw) {
+        const dummy: DirectiveNode = {
+          type: 'textDirective',
+          name: 'shape',
+          attributes: presetRaw as Record<string, string | null>,
+          children: []
+        }
+        const { attrs: parsed } = extractAttributes<ShapeSchema>(
+          dummy,
+          undefined,
+          undefined,
+          shapeSchema
+        )
+        mergedAttrs = { ...parsed, ...attrs }
+        raw = { ...presetRaw, ...raw }
+      }
+    }
+    const props: Record<string, unknown> = { type: mergedAttrs.type }
+    if (typeof mergedAttrs.x === 'number') props.x = mergedAttrs.x
+    if (typeof mergedAttrs.y === 'number') props.y = mergedAttrs.y
+    if (typeof mergedAttrs.w === 'number') props.w = mergedAttrs.w
+    if (typeof mergedAttrs.h === 'number') props.h = mergedAttrs.h
+    if (typeof mergedAttrs.z === 'number') props.z = mergedAttrs.z
+    if (typeof mergedAttrs.rotate === 'number')
+      props.rotate = mergedAttrs.rotate
+    if (typeof mergedAttrs.scale === 'number') props.scale = mergedAttrs.scale
+    if (mergedAttrs.anchor) props.anchor = mergedAttrs.anchor
+    if (mergedAttrs.points) props.points = mergedAttrs.points
+    if (typeof mergedAttrs.x1 === 'number') props.x1 = mergedAttrs.x1
+    if (typeof mergedAttrs.y1 === 'number') props.y1 = mergedAttrs.y1
+    if (typeof mergedAttrs.x2 === 'number') props.x2 = mergedAttrs.x2
+    if (typeof mergedAttrs.y2 === 'number') props.y2 = mergedAttrs.y2
+    if (mergedAttrs.stroke) props.stroke = mergedAttrs.stroke
+    if (typeof mergedAttrs.strokeWidth === 'number')
+      props.strokeWidth = mergedAttrs.strokeWidth
+    if (mergedAttrs.fill) props.fill = mergedAttrs.fill
+    if (typeof mergedAttrs.radius === 'number')
+      props.radius = mergedAttrs.radius
+    if (typeof mergedAttrs.shadow === 'boolean')
+      props.shadow = mergedAttrs.shadow
+    if (mergedAttrs.style) props.style = mergedAttrs.style
     const classAttr =
       typeof raw.class === 'string'
         ? raw.class
@@ -2052,7 +2186,8 @@ export const useDirectiveHandlers = () => {
       'style',
       'class',
       'className',
-      'classes'
+      'classes',
+      'from'
     ])
     const node: Parent = {
       type: 'paragraph',
@@ -2115,12 +2250,33 @@ export const useDirectiveHandlers = () => {
       {
         size: { type: 'string' },
         transition: { type: 'string' },
-        theme: { type: 'string' }
+        theme: { type: 'string' },
+        from: { type: 'string', expression: false }
       },
       { label: false }
     )
 
     const deckProps: Record<string, unknown> = {}
+    if (deckAttrs.from) {
+      const presetRaw = presetsRef.current['deck']?.[String(deckAttrs.from)]
+      if (presetRaw) {
+        if (typeof presetRaw.size === 'string') {
+          deckProps.size = parseDeckSize(presetRaw.size)
+        }
+        if (typeof presetRaw.transition === 'string') {
+          deckProps.transition = presetRaw.transition
+        }
+        if (typeof presetRaw.theme !== 'undefined') {
+          const t = parseThemeValue(presetRaw.theme)
+          if (t) deckProps.theme = t
+        }
+        applyAdditionalAttributes(presetRaw, deckProps, [
+          'size',
+          'transition',
+          'theme'
+        ])
+      }
+    }
     if (typeof deckAttrs.size === 'string') {
       deckProps.size = parseDeckSize(deckAttrs.size)
     }
@@ -2133,7 +2289,8 @@ export const useDirectiveHandlers = () => {
     applyAdditionalAttributes(rawDeckAttrs, deckProps, [
       'size',
       'transition',
-      'theme'
+      'theme',
+      'from'
     ])
 
     const slides: Parent[] = []
@@ -2396,6 +2553,7 @@ export const useDirectiveHandlers = () => {
       text: handleText,
       image: handleImage,
       shape: handleShape,
+      preset: handlePreset,
       deck: handleDeck,
       lang: handleLang,
       include: handleInclude,

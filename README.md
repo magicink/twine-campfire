@@ -657,6 +657,24 @@ Control the flow between passages or how they appear.
 
   Accepts the same attributes as the `SlideShape` component.
 
+- `preset`: Define reusable attribute sets for other directives and apply them
+  with the `from` attribute.
+
+  ```md
+  :preset{type="deck" name="wide" size="16x9" theme="dark"}
+  :preset{type="text" name="title" x=100 y=50 size=32 color="#333"}
+
+  :::deck{from="wide"}
+  :::slide
+  :text[Welcome]{from="title"}
+  :::
+  :::
+  ```
+
+  The `from` attribute is supported by `deck`, `appear`, `image`, `shape` and
+  `text`. Attributes specified directly on a directive override those provided
+  by the preset.
+
 ### Persistence
 
 Save and load progress or store data in the browser.
