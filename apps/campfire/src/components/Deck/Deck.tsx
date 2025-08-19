@@ -21,7 +21,8 @@ import {
   prefersReducedMotion,
   runAnimation
 } from '@campfire/components/transition'
-import { type Transition, type SlideTransition, Appear } from './Slide'
+import { Appear } from './Slide/Appear'
+import type { Transition, SlideTransition } from './Slide/types'
 
 export type ThemeTokens = Record<string, string | number>
 

@@ -18,14 +18,12 @@ import { TriggerButton } from '@campfire/components/Passage/TriggerButton'
 import { If } from '@campfire/components/Passage/If'
 import { Show } from '@campfire/components/Passage/Show'
 import { OnExit } from '@campfire/components/Passage/OnExit'
-import { Deck } from '@campfire/components/Deck'
-import {
-  Slide,
-  Appear,
-  SlideText,
-  SlideImage,
-  SlideShape
-} from '@campfire/components/Deck/Slide'
+import { Deck } from '@campfire/components/Deck/Deck'
+import { Slide } from '@campfire/components/Deck/Slide/Slide'
+import { Appear } from '@campfire/components/Deck/Slide/Appear'
+import { SlideText } from '@campfire/components/Deck/Slide/SlideText'
+import { SlideImage } from '@campfire/components/Deck/Slide/SlideImage'
+import { SlideShape } from '@campfire/components/Deck/Slide/SlideShape'
 
 const DIRECTIVE_MARKER_PATTERN = '(:::[^\\n]*|:[^\\n]*|<<)'
 

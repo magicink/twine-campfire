@@ -1641,6 +1641,12 @@ export const useDirectiveHandlers = () => {
     ): DirectiveHandler =>
     (directive, parent, index) => {
       if (!parent || typeof index !== 'number') return
+      if (directive.type !== 'containerDirective') {
+        const msg = `${directive.name} can only be used as a container directive`
+        console.error(msg)
+        addError(msg)
+        return removeNode(parent, index)
+      }
       const container = directive as ContainerDirective
       const { attrs } = extractAttributes<S>(directive, parent, index, schema)
       const rawAttrs = (directive.attributes || {}) as Record<string, unknown>
@@ -1786,129 +1792,120 @@ export const useDirectiveHandlers = () => {
   )
 
   /**
-   * Converts a `:::text` directive into a SlideText element.
+   * Converts a `:text` directive into a SlideText element.
    *
    * @param directive - The text directive node.
    * @param parent - Parent node containing the directive.
    * @param index - Index of the directive within its parent.
-   * @returns Visitor instructions after replacement.
+   * @returns The index of the inserted node.
    */
-  const handleText = createContainerHandler(
-    attrs => (attrs.as ? String(attrs.as) : 'p'),
-    textSchema,
-    (attrs, raw) => {
-      const tagName = attrs.as ? String(attrs.as) : 'p'
-      const style: string[] = []
-      style.push('position:absolute')
-      if (typeof attrs.x === 'number') {
-        style.push(`left:${attrs.x}px`)
-      }
-      if (typeof attrs.y === 'number') {
-        style.push(`top:${attrs.y}px`)
-      }
-      if (typeof attrs.w === 'number') {
-        style.push(`width:${attrs.w}px`)
-      }
-      if (typeof attrs.h === 'number') {
-        style.push(`height:${attrs.h}px`)
-      }
-      if (typeof attrs.z === 'number') {
-        style.push(`z-index:${attrs.z}`)
-      }
-      const transforms: string[] = []
-      if (typeof attrs.rotate === 'number') {
-        transforms.push(`rotate(${attrs.rotate}deg)`)
-      }
-      if (typeof attrs.scale === 'number') {
-        transforms.push(`scale(${attrs.scale})`)
-      }
-      if (transforms.length) style.push(`transform:${transforms.join(' ')}`)
-      if (attrs.anchor && attrs.anchor !== 'top-left') {
-        const originMap: Record<string, string> = {
-          'top-left': '0% 0%',
-          top: '50% 0%',
-          'top-right': '100% 0%',
-          left: '0% 50%',
-          center: '50% 50%',
-          right: '100% 50%',
-          'bottom-left': '0% 100%',
-          bottom: '50% 100%',
-          'bottom-right': '100% 100%'
-        }
-        const origin = originMap[attrs.anchor]
-        if (origin) style.push(`transform-origin:${origin}`)
-      }
-      if (attrs.align) style.push(`text-align:${attrs.align}`)
-      if (typeof attrs.size === 'number')
-        style.push(`font-size:${attrs.size}px`)
-      if (typeof attrs.weight === 'number')
-        style.push(`font-weight:${attrs.weight}`)
-      if (typeof attrs.lineHeight === 'number')
-        style.push(`line-height:${attrs.lineHeight}`)
-      if (attrs.color) style.push(`color:${attrs.color}`)
-      const props: Record<string, unknown> = {}
-      if (typeof attrs.x === 'number') props.x = attrs.x
-      if (typeof attrs.y === 'number') props.y = attrs.y
-      if (typeof attrs.w === 'number') props.w = attrs.w
-      if (typeof attrs.h === 'number') props.h = attrs.h
-      if (typeof attrs.z === 'number') props.z = attrs.z
-      if (typeof attrs.rotate === 'number') props.rotate = attrs.rotate
-      if (typeof attrs.scale === 'number') props.scale = attrs.scale
-      if (attrs.anchor) props.anchor = attrs.anchor
-      if (style.length) props.style = style.join(';')
-      const classAttr =
-        typeof raw.class === 'string'
-          ? raw.class
-          : typeof raw.className === 'string'
-            ? raw.className
-            : typeof raw.classes === 'string'
-              ? raw.classes
-              : undefined
-      const classes = ['text-base', 'font-normal']
-      if (classAttr) classes.unshift(classAttr)
-      props.className = classes.join(' ')
-      props['data-component'] = 'slideText'
-      props['data-as'] = tagName
-      applyAdditionalAttributes(raw, props, [
-        'x',
-        'y',
-        'w',
-        'h',
-        'z',
-        'rotate',
-        'scale',
-        'anchor',
-        'as',
-        'content',
-        'align',
-        'size',
-        'weight',
-        'lineHeight',
-        'color',
-        'class',
-        'className',
-        'classes'
-      ])
-      return props
-    },
-    (processed, attrs) => {
-      if (attrs.content) {
-        return [{ type: 'text', value: attrs.content } as RootContent]
-      }
-      if (processed.length === 1 && processed[0].type === 'paragraph') {
-        return (processed[0] as Parent).children as RootContent[]
-      }
-      return processed
-    },
-    (parent, markerIndex) => {
-      if (
-        parent.children[markerIndex]?.type === 'text' &&
-        /^\s*$/.test((parent.children[markerIndex] as MdText).value)
-      ) {
-        parent.children.splice(markerIndex, 1)
-      }
+  const handleText: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    if (directive.type !== 'textDirective') {
+      const msg = 'text can only be used as a leaf directive'
+      console.error(msg)
+      addError(msg)
+      return removeNode(parent, index)
     }
-  )
+    const { attrs } = extractAttributes<TextSchema>(
+      directive,
+      parent,
+      index,
+      textSchema
+    )
+    const raw = (directive.attributes || {}) as Record<string, unknown>
+    const tagName = attrs.as ? String(attrs.as) : 'p'
+    const style: string[] = []
+    style.push('position:absolute')
+    if (typeof attrs.x === 'number') style.push(`left:${attrs.x}px`)
+    if (typeof attrs.y === 'number') style.push(`top:${attrs.y}px`)
+    if (typeof attrs.w === 'number') style.push(`width:${attrs.w}px`)
+    if (typeof attrs.h === 'number') style.push(`height:${attrs.h}px`)
+    if (typeof attrs.z === 'number') style.push(`z-index:${attrs.z}`)
+    const transforms: string[] = []
+    if (typeof attrs.rotate === 'number')
+      transforms.push(`rotate(${attrs.rotate}deg)`)
+    if (typeof attrs.scale === 'number')
+      transforms.push(`scale(${attrs.scale})`)
+    if (transforms.length) style.push(`transform:${transforms.join(' ')}`)
+    if (attrs.anchor && attrs.anchor !== 'top-left') {
+      const originMap: Record<string, string> = {
+        'top-left': '0% 0%',
+        top: '50% 0%',
+        'top-right': '100% 0%',
+        left: '0% 50%',
+        center: '50% 50%',
+        right: '100% 50%',
+        'bottom-left': '0% 100%',
+        bottom: '50% 100%',
+        'bottom-right': '100% 100%'
+      }
+      const origin = originMap[attrs.anchor]
+      if (origin) style.push(`transform-origin:${origin}`)
+    }
+    if (attrs.align) style.push(`text-align:${attrs.align}`)
+    if (typeof attrs.size === 'number') style.push(`font-size:${attrs.size}px`)
+    if (typeof attrs.weight === 'number')
+      style.push(`font-weight:${attrs.weight}`)
+    if (typeof attrs.lineHeight === 'number')
+      style.push(`line-height:${attrs.lineHeight}`)
+    if (attrs.color) style.push(`color:${attrs.color}`)
+    const props: Record<string, unknown> = {}
+    if (typeof attrs.x === 'number') props.x = attrs.x
+    if (typeof attrs.y === 'number') props.y = attrs.y
+    if (typeof attrs.w === 'number') props.w = attrs.w
+    if (typeof attrs.h === 'number') props.h = attrs.h
+    if (typeof attrs.z === 'number') props.z = attrs.z
+    if (typeof attrs.rotate === 'number') props.rotate = attrs.rotate
+    if (typeof attrs.scale === 'number') props.scale = attrs.scale
+    if (attrs.anchor) props.anchor = attrs.anchor
+    if (style.length) props.style = style.join(';')
+    const classAttr =
+      typeof raw.class === 'string'
+        ? raw.class
+        : typeof raw.className === 'string'
+          ? raw.className
+          : typeof raw.classes === 'string'
+            ? raw.classes
+            : undefined
+    const classes = ['text-base', 'font-normal']
+    if (classAttr) classes.unshift(classAttr)
+    props.className = classes.join(' ')
+    props['data-component'] = 'slideText'
+    props['data-as'] = tagName
+    applyAdditionalAttributes(raw, props, [
+      'x',
+      'y',
+      'w',
+      'h',
+      'z',
+      'rotate',
+      'scale',
+      'anchor',
+      'as',
+      'content',
+      'align',
+      'size',
+      'weight',
+      'lineHeight',
+      'color',
+      'class',
+      'className',
+      'classes'
+    ])
+    const content =
+      typeof attrs.content === 'string'
+        ? attrs.content
+        : toString(directive).trim()
+    const node: Parent = {
+      type: 'paragraph',
+      children: [{ type: 'text', value: content } as RootContent],
+      data: { hName: tagName, hProperties: props as Properties }
+    }
+    return replaceWithIndentation(directive, parent, index, [
+      node as RootContent
+    ])
+  }
 
   /**
    * Converts a `:image` directive into a SlideImage element.
@@ -1920,6 +1917,12 @@ export const useDirectiveHandlers = () => {
    */
   const handleImage: DirectiveHandler = (directive, parent, index) => {
     if (!parent || typeof index !== 'number') return
+    if (directive.type !== 'textDirective') {
+      const msg = 'image can only be used as a leaf directive'
+      console.error(msg)
+      addError(msg)
+      return removeNode(parent, index)
+    }
     const { attrs } = extractAttributes<ImageSchema>(
       directive,
       parent,
@@ -1974,76 +1977,92 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
-   * Converts a `:::shape` directive into a SlideShape element.
+   * Converts a `:shape` directive into a SlideShape element.
    *
    * @param directive - The shape directive node.
    * @param parent - Parent node containing the directive.
    * @param index - Index of the directive within its parent.
-   * @returns Visitor instructions after replacement.
+   * @returns The index of the inserted node.
    */
-  const handleShape = createContainerHandler(
-    'slideShape',
-    shapeSchema,
-    (attrs, raw) => {
-      const props: Record<string, unknown> = { type: attrs.type }
-      if (typeof attrs.x === 'number') props.x = attrs.x
-      if (typeof attrs.y === 'number') props.y = attrs.y
-      if (typeof attrs.w === 'number') props.w = attrs.w
-      if (typeof attrs.h === 'number') props.h = attrs.h
-      if (typeof attrs.z === 'number') props.z = attrs.z
-      if (typeof attrs.rotate === 'number') props.rotate = attrs.rotate
-      if (typeof attrs.scale === 'number') props.scale = attrs.scale
-      if (attrs.anchor) props.anchor = attrs.anchor
-      if (attrs.points) props.points = attrs.points
-      if (typeof attrs.x1 === 'number') props.x1 = attrs.x1
-      if (typeof attrs.y1 === 'number') props.y1 = attrs.y1
-      if (typeof attrs.x2 === 'number') props.x2 = attrs.x2
-      if (typeof attrs.y2 === 'number') props.y2 = attrs.y2
-      if (attrs.stroke) props.stroke = attrs.stroke
-      if (typeof attrs.strokeWidth === 'number')
-        props.strokeWidth = attrs.strokeWidth
-      if (attrs.fill) props.fill = attrs.fill
-      if (typeof attrs.radius === 'number') props.radius = attrs.radius
-      if (typeof attrs.shadow === 'boolean') props.shadow = attrs.shadow
-      if (attrs.style) props.style = attrs.style
-      const classAttr =
-        typeof raw.class === 'string'
-          ? raw.class
-          : typeof raw.className === 'string'
-            ? raw.className
-            : typeof raw.classes === 'string'
-              ? raw.classes
-              : undefined
-      if (classAttr) props.className = classAttr
-      applyAdditionalAttributes(raw, props, [
-        'x',
-        'y',
-        'w',
-        'h',
-        'z',
-        'rotate',
-        'scale',
-        'anchor',
-        'type',
-        'points',
-        'x1',
-        'y1',
-        'x2',
-        'y2',
-        'stroke',
-        'strokeWidth',
-        'fill',
-        'radius',
-        'shadow',
-        'style',
-        'class',
-        'className',
-        'classes'
-      ])
-      return props
-    },
-    () => []
-  )
+  const handleShape: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    if (directive.type !== 'textDirective') {
+      const msg = 'shape can only be used as a leaf directive'
+      console.error(msg)
+      addError(msg)
+      return removeNode(parent, index)
+    }
+    const { attrs } = extractAttributes<ShapeSchema>(
+      directive,
+      parent,
+      index,
+      shapeSchema
+    )
+    const raw = (directive.attributes || {}) as Record<string, unknown>
+    const props: Record<string, unknown> = { type: attrs.type }
+    if (typeof attrs.x === 'number') props.x = attrs.x
+    if (typeof attrs.y === 'number') props.y = attrs.y
+    if (typeof attrs.w === 'number') props.w = attrs.w
+    if (typeof attrs.h === 'number') props.h = attrs.h
+    if (typeof attrs.z === 'number') props.z = attrs.z
+    if (typeof attrs.rotate === 'number') props.rotate = attrs.rotate
+    if (typeof attrs.scale === 'number') props.scale = attrs.scale
+    if (attrs.anchor) props.anchor = attrs.anchor
+    if (attrs.points) props.points = attrs.points
+    if (typeof attrs.x1 === 'number') props.x1 = attrs.x1
+    if (typeof attrs.y1 === 'number') props.y1 = attrs.y1
+    if (typeof attrs.x2 === 'number') props.x2 = attrs.x2
+    if (typeof attrs.y2 === 'number') props.y2 = attrs.y2
+    if (attrs.stroke) props.stroke = attrs.stroke
+    if (typeof attrs.strokeWidth === 'number')
+      props.strokeWidth = attrs.strokeWidth
+    if (attrs.fill) props.fill = attrs.fill
+    if (typeof attrs.radius === 'number') props.radius = attrs.radius
+    if (typeof attrs.shadow === 'boolean') props.shadow = attrs.shadow
+    if (attrs.style) props.style = attrs.style
+    const classAttr =
+      typeof raw.class === 'string'
+        ? raw.class
+        : typeof raw.className === 'string'
+          ? raw.className
+          : typeof raw.classes === 'string'
+            ? raw.classes
+            : undefined
+    if (classAttr) props.className = classAttr
+    applyAdditionalAttributes(raw, props, [
+      'x',
+      'y',
+      'w',
+      'h',
+      'z',
+      'rotate',
+      'scale',
+      'anchor',
+      'type',
+      'points',
+      'x1',
+      'y1',
+      'x2',
+      'y2',
+      'stroke',
+      'strokeWidth',
+      'fill',
+      'radius',
+      'shadow',
+      'style',
+      'class',
+      'className',
+      'classes'
+    ])
+    const node: Parent = {
+      type: 'paragraph',
+      children: [],
+      data: { hName: 'slideShape', hProperties: props as Properties }
+    }
+    return replaceWithIndentation(directive, parent, index, [
+      node as RootContent
+    ])
+  }
 
   /**
    * Builds a props object for the Slide component from extracted attributes.
@@ -2081,6 +2100,12 @@ export const useDirectiveHandlers = () => {
    */
   const handleDeck: DirectiveHandler = (directive, parent, index) => {
     if (!parent || typeof index !== 'number') return
+    if (directive.type !== 'containerDirective') {
+      const msg = 'deck can only be used as a container directive'
+      console.error(msg)
+      addError(msg)
+      return removeNode(parent, index)
+    }
     const container = directive as ContainerDirective
 
     const { attrs: deckAttrs } = extractAttributes(
@@ -2139,7 +2164,6 @@ export const useDirectiveHandlers = () => {
     )
     let pendingAttrs: Record<string, unknown> = {}
     let pendingNodes: RootContent[] = []
-    let pendingLeaf = false
 
     /**
      * Finalizes the currently buffered slide content and adds it to the deck.
@@ -2167,7 +2191,7 @@ export const useDirectiveHandlers = () => {
       const processed = runBlock(pendingNodes)
       const content = stripLabel(processed)
       const attrsEmpty = Object.keys(pendingAttrs).length === 0
-      if (slides.length > 0 && attrsEmpty && !pendingLeaf) {
+      if (slides.length > 0 && attrsEmpty) {
         const lastSlide = slides[slides.length - 1]
         ;(lastSlide.children as RootContent[]).push(...content)
       } else {
@@ -2195,7 +2219,6 @@ export const useDirectiveHandlers = () => {
       }
       pendingAttrs = {}
       pendingNodes = []
-      pendingLeaf = false
     }
 
     children.forEach((child, i) => {
@@ -2222,19 +2245,6 @@ export const useDirectiveHandlers = () => {
           }
         }
         slides.push(slideNode)
-      } else if (
-        child.type === 'leafDirective' &&
-        (child as DirectiveNode).name === 'slide'
-      ) {
-        commitPending()
-        const { attrs: parsed } = extractAttributes<SlideSchema>(
-          child as DirectiveNode,
-          container,
-          i,
-          slideSchema
-        )
-        pendingAttrs = parsed
-        pendingLeaf = true
       } else {
         pendingNodes.push(child)
       }

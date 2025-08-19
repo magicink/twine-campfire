@@ -56,16 +56,11 @@ export const Deck: StoryObj = {
 :::deck{size='800x600'}
   :::slide{transition='fade'}
     :::appear{at=0}
-      :::text{x=80 y=80 as="h2"}
-      Hello
-      :::
+      :text[Hello]{x=80 y=80 as="h2"}
     :::
-    :::shape{x=150 y=150 w=100 h=50 type='rect' stroke='blue' fill='#ddf' radius=8 shadow=true}
-    :::
+    :shape{x=150 y=150 w=100 h=50 type='rect' stroke='blue' fill='#ddf' radius=8 shadow=true}
     :::appear{at=1}
-      :::text{x=100 y=100 as="h2"}
-      World
-      :::
+      :text[World]{x=100 y=100 as="h2"}
     :::
   :::
 :::

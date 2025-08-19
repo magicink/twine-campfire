@@ -581,7 +581,7 @@ Control the flow between passages or how they appear.
   # One
 
   :::
-  :::slide{}
+  :::slide
 
   ## Two
 
@@ -589,8 +589,8 @@ Control the flow between passages or how they appear.
   :::
   ```
 
-  Each `:slide` or `:::slide` starts a new slide. Plain Markdown inside the deck
-  becomes its own slide if not preceded by a slide directive.
+  Each `:::slide` starts a new slide. Plain Markdown inside the deck becomes
+  its own slide if not preceded by a slide directive.
 
   | Input      | Description                                                                |
   | ---------- | -------------------------------------------------------------------------- |
@@ -598,19 +598,64 @@ Control the flow between passages or how they appear.
   | transition | Default transition applied between slides                                  |
   | theme      | Optional JSON object or string of CSS properties applied to the deck theme |
 
-- `text`: Position typographic content within a slide.
+- `appear`: Reveal slide content step-by-step.
 
   ```md
   :::deck
   :::slide
-  :::text{x=100 y=50 align=center size=32}
-  Hello
+  :::appear{at=0}
+  :text[First]{x=80 y=80}
+  :::
+  :::appear{at=1}
+  :text[Second]{x=80 y=120}
   :::
   :::
   :::
   ```
 
+  | Input             | Description                          |
+  | ----------------- | ------------------------------------ |
+  | at                | Deck step when content appears       |
+  | exitAt            | Deck step when content hides         |
+  | enter             | Enter animation key                  |
+  | exit              | Exit animation key                   |
+  | interruptBehavior | How to handle interrupted animations |
+
+- `text`: Position typographic content within a slide.
+
+  ```md
+  :::deck
+  :::slide
+  :text[Hello]{x=100 y=50 align=center size=32}
+  :::
+  :::
+  ```
+
   Accepts the same attributes as the `Text` component.
+
+- `image`: Position an image within a slide.
+
+  ```md
+  :::deck
+  :::slide
+  :image{src='https://example.com/cat.png' x=10 y=20}
+  :::
+  :::
+  ```
+
+  Accepts the same attributes as the `SlideImage` component.
+
+- `shape`: Draw basic shapes within a slide.
+
+  ```md
+  :::deck
+  :::slide
+  :shape{type='rect' x=10 y=20 w=100 h=50}
+  :::
+  :::
+  ```
+
+  Accepts the same attributes as the `SlideShape` component.
 
 ### Persistence
 

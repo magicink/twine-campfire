@@ -28,7 +28,7 @@ beforeEach(() => {
 describe('text directive', () => {
   it('renders a SlideText component with styles', () => {
     const md =
-      ':::text{x=10 y=20 w=100 h=50 z=5 rotate=45 scale=1.5 anchor=center as="h2" align=center size=24 weight=700 lineHeight=1.2 color="red" class="underline" data-test="ok"}\nHello\n:::'
+      ':text[Hello]{x=10 y=20 w=100 h=50 z=5 rotate=45 scale=1.5 anchor=center as="h2" align=center size=24 weight=700 lineHeight=1.2 color="red" class="underline" data-test="ok"}'
     render(<MarkdownRunner markdown={md} />)
     const el = document.querySelector(
       '[data-testid="slideText"]'
@@ -65,19 +65,5 @@ describe('text directive', () => {
     )
     expect(el.getAttribute('data-test')).toBe('ok')
     expect(inner.textContent).toBe('Hello')
-  })
-
-  it('does not render stray colons when text contains directives', () => {
-    const md = ':::text\n:::if{true}\nHi\n:::\n:::\n'
-    render(<MarkdownRunner markdown={md} />)
-    const getTextContent = (node: any): string => {
-      if (!node) return ''
-      if (typeof node === 'string') return node
-      if (Array.isArray(node)) return node.map(getTextContent).join('')
-      if (node.props?.children) return getTextContent(node.props.children)
-      return ''
-    }
-    const text = getTextContent(output)
-    expect(text).not.toContain(':::')
   })
 })

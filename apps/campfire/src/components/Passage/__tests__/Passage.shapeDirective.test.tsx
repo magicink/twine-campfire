@@ -38,7 +38,7 @@ describe('Passage shape directive', () => {
         {
           type: 'text',
           value:
-            ':::deck{size=800x600}\n:::slide\n:::shape{x=10 y=20 w=100 h=50 type="rect" data-test="ok"}\n:::\n:::\n:::\n'
+            ':::deck{size=800x600}\n:::slide\n:shape{x=10 y=20 w=100 h=50 type="rect" data-test="ok"}\n:::\n:::\n'
         }
       ]
     }

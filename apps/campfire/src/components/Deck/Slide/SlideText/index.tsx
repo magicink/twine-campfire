@@ -1,5 +1,5 @@
 import { type ComponentChildren, type JSX } from 'preact'
-import { Layer, type LayerProps } from '@campfire/components/Deck/Slide'
+import { Layer, type LayerProps } from '../Layer'
 import parseInlineStyle from '@campfire/utils/parseInlineStyle'
 
 export interface SlideTextProps extends Omit<LayerProps, 'children'> {

@@ -22,14 +22,10 @@ describe('deck directive', () => {
     const md = `\n:::deck{size='800x600'}
   :::slide{transition='fade'}
     :::appear{at=0}
-      :::text{x=80 y=80 as="h2"}
-      Hello
-      :::
+      :text[Hello]{x=80 y=80 as="h2"}
     :::
     :::appear{at=1}
-      :::text{x=100 y=100 as="h2"}
-      World
-      :::
+      :text[World]{x=100 y=100 as="h2"}
     :::
   :::
 :::

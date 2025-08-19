@@ -31,7 +31,7 @@ beforeEach(() => {
 describe('shape directive', () => {
   it('renders a SlideShape component with props', () => {
     const md =
-      ':::appear\n:::shape{x=10 y=20 w=100 h=50 type="rect" stroke="red" fill="blue" radius=5 shadow=true class="rounded" data-test="ok"}\n:::\n:::\n'
+      ':::appear\n:shape{x=10 y=20 w=100 h=50 type="rect" stroke="red" fill="blue" radius=5 shadow=true class="rounded" data-test="ok"}\n:::\n'
     render(<MarkdownRunner markdown={md} />)
     const el = document.querySelector(
       '[data-testid="slideShape"]'
@@ -52,7 +52,7 @@ describe('shape directive', () => {
   })
 
   it('does not render stray colons after shape blocks', () => {
-    const md = ':::shape{type="rect"}\n:::\n:::if{true}\nHi\n:::\n'
+    const md = ':shape{type="rect"}\n:::if{true}\nHi\n:::\n'
     render(<MarkdownRunner markdown={md} />)
     const text = document.body.textContent || ''
     expect(text).not.toContain(':::')
