@@ -45,6 +45,20 @@ describe('appear directive', () => {
     expect(appear.props['data-test']).toBe('ok')
   })
 
+  it('applies appear presets with overrides', () => {
+    const md =
+      ':preset{type="appear" name="fade" at=2}\n:::appear{from="fade" exitAt=3}\nHi\n:::'
+    render(<MarkdownRunner markdown={md} />)
+    const getAppear = (node: any): any => {
+      if (Array.isArray(node)) return getAppear(node[0])
+      if (node?.type === Fragment) return getAppear(node.props.children)
+      return node
+    }
+    const appear = getAppear(output)
+    expect(appear.props.at).toBe(2)
+    expect(appear.props.exitAt).toBe(3)
+  })
+
   it('does not render stray colons when appear contains directives', () => {
     const md = `:::appear\n:::if{true}\nHi\n:::\n:::\n`
     render(<MarkdownRunner markdown={md} />)

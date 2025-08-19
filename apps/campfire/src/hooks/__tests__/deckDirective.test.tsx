@@ -117,10 +117,14 @@ describe('deck directive', () => {
     const md = `:::deck{size='800x600'}
   :::slide{transition='fade'}
     :::appear{at=0}
-      :text[Hello]{x=80 y=80 as="h2"}
+      :::text{x=80 y=80 as="h2"}
+      Hello
+      :::
     :::
     :::appear{at=1}
-      :text[World]{x=100 y=100 as="h2"}
+      :::text{x=100 y=100 as="h2"}
+      World
+      :::
     :::
   :::
 :::`
@@ -150,10 +154,14 @@ describe('deck directive', () => {
     const md = `:::deck{size='800x600'}
   :::slide{transition='fade'}
     :::appear{at=0}
-      :text[Hello]{x=80 y=80 as="h2"}
+      :::text{x=80 y=80 as="h2"}
+      Hello
+      :::
     :::
     :::appear{at=1}
-      :text[World]{x=100 y=100 as="h2"}
+      :::text{x=100 y=100 as="h2"}
+      World
+      :::
     :::
   :::
 :::`
@@ -181,11 +189,15 @@ describe('deck directive', () => {
     const md = `:::deck{size='800x600'}
   :::slide{transition='fade'}
     :::appear{at=0}
-      :text[Hello]{x=80 y=80 as="h2"}
+      :::text{x=80 y=80 as="h2"}
+      Hello
+      :::
     :::
   :::
   :::appear{at=1}
-    :text[World]{x=100 y=100 as="h2"}
+    :::text{x=100 y=100 as="h2"}
+    World
+    :::
   :::
 :::`
     render(<MarkdownRunner markdown={md} />)
@@ -212,10 +224,14 @@ describe('deck directive', () => {
     const md = `:::deck{size='800x600'}
   :::slide{transition='fade'}
     :::appear{at=0}
-      :text[Hello]{x=80 y=80 as="h2"}
+      :::text{x=80 y=80 as="h2"}
+      Hello
+      :::
     :::
     :::appear{at=1}
-      :text[World]{x=100 y=100 as="h2"}
+      :::text{x=100 y=100 as="h2"}
+      World
+      :::
     :::
   :::
 :::`
@@ -250,5 +266,19 @@ describe('deck directive', () => {
     expect(getText(second)).toBe('World')
     const text = getText(output)
     expect(text).toBe('HelloWorld')
+  })
+
+  it('applies deck presets with overrides', () => {
+    const md =
+      ':preset{type="deck" name="wide" theme="dark" transition="fade"}\n:::deck{from="wide" transition="slide"}\n:::'
+    render(<MarkdownRunner markdown={md} />)
+    const getDeck = (node: any): any => {
+      if (Array.isArray(node)) return getDeck(node[0])
+      if (node?.type === Fragment) return getDeck(node.props.children)
+      return node
+    }
+    const deck = getDeck(output)
+    expect(deck.props.transition).toBe('slide')
+    expect(deck.props.theme.theme).toBe('dark')
   })
 })

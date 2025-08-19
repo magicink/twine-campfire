@@ -32,7 +32,7 @@ describe('Passage text directive', () => {
         {
           type: 'text',
           value:
-            ':::deck{size=800x600}\n:::slide\n:text[Hello]{x=80 y=80 as="h2"}\n:::\n:::\n'
+            ':::deck{size=800x600}\n:::slide\n:::text{x=80 y=80 as="h2"}\nHello\n:::\n:::\n:::\n'
         }
       ]
     }

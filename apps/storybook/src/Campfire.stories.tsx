@@ -53,14 +53,19 @@ export const Deck: StoryObj = {
       <tw-storydata startnode='1' options='debug'>
         <tw-passagedata pid='1' name='Start'>
           {`
+:preset{type="text" name="title" x=80 y=80 as="h2"}
 :::deck{size='800x600'}
   :::slide{transition='fade'}
     :::appear{at=0}
-      :text[Hello]{x=80 y=80 as="h2"}
+      :::text{from="title"}
+      Hello
+      :::
     :::
     :shape{x=150 y=150 w=100 h=50 type='rect' stroke='blue' fill='#ddf' radius=8 shadow=true}
     :::appear{at=1}
-      :text[World]{x=100 y=100 as="h2"}
+      :::text{from="title" x=100 y=100}
+      World
+      :::
     :::
   :::
 :::
