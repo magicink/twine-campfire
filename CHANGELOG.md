@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.74.0](https://github.com/magicink/twine-campfire/compare/v1.73.0...v1.74.0) (2025-08-19)
+
+
+### Features
+
+* add preset directive and from attribute ([#427](https://github.com/magicink/twine-campfire/issues/427)) ([c211837](https://github.com/magicink/twine-campfire/commit/c211837c0975e04065038f54442299c493765c01))
+* add preset directive and from attribute ([#427](https://github.com/magicink/twine-campfire/issues/427)) ([711c005](https://github.com/magicink/twine-campfire/commit/711c0051e246b4fdb31584bd72f39e9c1773bc78))
+
 ## [1.73.0](https://github.com/magicink/twine-campfire/compare/v1.72.1...v1.73.0) (2025-08-19)
 
 
