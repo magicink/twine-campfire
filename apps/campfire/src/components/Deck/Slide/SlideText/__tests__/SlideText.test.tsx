@@ -42,4 +42,11 @@ describe('SlideText', () => {
     expect(el.style.color).toBe('red')
     expect(el.style.lineHeight).toBe('1.5')
   })
+
+  it('parses style strings via SlideLayer', () => {
+    render(<SlideText style='color: blue; font-weight: 900;'>Text</SlideText>)
+    const el = screen.getByText('Text') as HTMLElement
+    expect(el.style.color).toBe('blue')
+    expect(el.style.fontWeight).toBe('900')
+  })
 })

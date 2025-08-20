@@ -15,6 +15,7 @@ describe('SlideShape', () => {
         fill='blue'
         radius={5}
         shadow
+        style='filter: blur(2px);'
       />
     )
     const wrapper = screen.getByTestId('slideShape') as HTMLElement
@@ -23,6 +24,7 @@ describe('SlideShape', () => {
     expect(rect.getAttribute('rx')).toBe('5')
     expect(rect.getAttribute('fill')).toBe('blue')
     expect(rect.getAttribute('stroke')).toBe('red')
+    expect(svg.style.filter).toContain('blur(2px)')
     expect(svg.style.filter).toContain('drop-shadow')
     expect(wrapper.style.left).toBe('10px')
     expect(wrapper.style.top).toBe('20px')

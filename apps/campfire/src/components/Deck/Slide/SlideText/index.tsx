@@ -1,8 +1,8 @@
 import { type ComponentChildren, type JSX } from 'preact'
-import { Layer, type LayerProps } from '../Layer'
-import parseInlineStyle from '@campfire/utils/parseInlineStyle'
+import { SlideLayer, type SlideLayerProps } from '../SlideLayer'
 
-export interface SlideTextProps extends Omit<LayerProps, 'children'> {
+export interface SlideTextProps
+  extends Omit<SlideLayerProps, 'children' | 'as'> {
   /** The HTML tag to render. Defaults to 'p'. */
   as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'li' | 'span'
   /** Horizontal alignment. Defaults to 'left'. */
@@ -37,27 +37,32 @@ export const SlideText = ({
   lineHeight,
   color,
   className,
-  style: styleProp,
+  style,
   children,
   ...layerProps
 }: SlideTextProps): JSX.Element => {
-  const Tag = as
-  const baseStyle: JSX.CSSProperties = parseInlineStyle(styleProp ?? {})
-  const style: JSX.CSSProperties = {
-    ...baseStyle,
-    fontSize: size !== undefined ? `${size}px` : baseStyle.fontSize,
-    fontWeight: weight !== undefined ? String(weight) : baseStyle.fontWeight,
-    lineHeight: lineHeight ? String(lineHeight) : baseStyle.lineHeight,
-    color: color ?? baseStyle.color,
-    textAlign: align ?? baseStyle.textAlign
-  }
+  const styleTransform = (base: JSX.CSSProperties): JSX.CSSProperties => ({
+    ...base,
+    fontSize: size !== undefined ? `${size}px` : base.fontSize,
+    fontWeight: weight !== undefined ? String(weight) : base.fontWeight,
+    lineHeight: lineHeight ? String(lineHeight) : base.lineHeight,
+    color: color ?? base.color,
+    textAlign: align ?? base.textAlign
+  })
   const classes = ['text-base', 'font-normal']
   if (className) classes.unshift(className)
   return (
-    <Layer data-testid='slideText' {...layerProps}>
-      <Tag style={style} className={classes.join(' ')}>
-        {children}
-      </Tag>
-    </Layer>
+    <SlideLayer
+      as={as}
+      style={style}
+      styleTransform={styleTransform}
+      className={classes.join(' ')}
+      testId='slideText'
+      {...layerProps}
+    >
+      {children}
+    </SlideLayer>
   )
 }
+
+export default SlideText
