@@ -1,4 +1,4 @@
-# twine-campfire
+# 🏕️ twine-campfire
 
 A cozy story format for Twine.
 
@@ -592,12 +592,15 @@ Control the flow between passages or how they appear.
   Each `:::slide` starts a new slide. Plain Markdown inside the deck becomes
   its own slide if not preceded by a slide directive.
 
-  | Input      | Description                                                                |
-  | ---------- | -------------------------------------------------------------------------- |
-  | size       | Slide size as `WIDTHxHEIGHT` in pixels or aspect ratio like `16x9`         |
-  | transition | Default transition applied between slides                                  |
-  | theme      | Optional JSON object or string of CSS properties applied to the deck theme |
-  | from       | Name of a deck preset to apply before other attributes                     |
+  | Input         | Description                                                                |
+  | ------------- | -------------------------------------------------------------------------- |
+  | size          | Slide size as `WIDTHxHEIGHT` in pixels or aspect ratio like `16x9`         |
+  | transition    | Default transition applied between slides                                  |
+  | theme         | Optional JSON object or string of CSS properties applied to the deck theme |
+  | from          | Name of a deck preset to apply before other attributes                     |
+  | autoplay      | Whether to automatically advance through slides                            |
+  | autoplayDelay | Milliseconds between automatic slide advances (defaults to 3000)           |
+  | pause         | Start autoplay paused and display a play button                            |
 
 - `appear`: Reveal slide content step-by-step.
 

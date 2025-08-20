@@ -34,6 +34,10 @@ export type A11yLabels = {
   next: string
   /** Label for the "previous" control. */
   prev: string
+  /** Label for the autoplay pause control. */
+  pause: string
+  /** Label for the autoplay play control. */
+  play: string
   /** Label for the current slide. */
   slide: (index: number, total: number) => string
 }
@@ -43,6 +47,8 @@ export interface DeckProps {
   theme?: ThemeTokens
   initialSlide?: number
   autoAdvanceMs?: number | null
+  /** Whether autoplay should start in a paused state. */
+  autoAdvancePaused?: boolean
   className?: string
   a11y?: Partial<A11yLabels>
   /** Whether to display the slide counter HUD. */
@@ -102,6 +108,7 @@ export const Deck = ({
   theme,
   initialSlide,
   autoAdvanceMs,
+  autoAdvancePaused = false,
   className,
   a11y,
   showSlideCount = false,
@@ -152,6 +159,8 @@ export const Deck = ({
       deck: 'Presentation deck',
       next: 'Next slide',
       prev: 'Previous slide',
+      pause: 'Pause autoplay',
+      play: 'Play autoplay',
       slide: (index, total) => `Slide ${index} of ${total}`,
       ...(a11y ?? {})
     }),
@@ -160,6 +169,8 @@ export const Deck = ({
 
   const [currentVNode, setCurrentVNode] = useState(slides[0] as VNode)
   const [prevVNode, setPrevVNode] = useState<VNode | null>(null)
+  const [paused, setPaused] = useState(autoAdvancePaused)
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const slideRef = useRef<HTMLDivElement>(null)
   const reduceMotion = prefersReducedMotion()
   const firstRenderRef = useRef(true)
@@ -235,12 +246,82 @@ export const Deck = ({
     }
   }, [slides.length, setSlidesCount, initialSlide, goTo])
 
-  useEffect(() => {
-    if (autoAdvanceMs != null) {
-      const id = setInterval(() => next(), autoAdvanceMs)
-      return () => clearInterval(id)
+  /**
+   * Clears any pending autoplay timer.
+   */
+  const clearAutoAdvance = (): void => {
+    if (timeoutRef.current != null) {
+      clearTimeout(timeoutRef.current)
+      timeoutRef.current = null
     }
-  }, [autoAdvanceMs, next])
+  }
+
+  /**
+   * Schedules the next autoplay advance if enabled.
+   */
+  const scheduleAutoAdvance = (): void => {
+    clearAutoAdvance()
+    if (autoAdvanceMs != null && !paused) {
+      timeoutRef.current = setTimeout(() => {
+        next()
+        scheduleAutoAdvance()
+      }, autoAdvanceMs)
+    }
+  }
+
+  useEffect(() => {
+    scheduleAutoAdvance()
+    return clearAutoAdvance
+  }, [autoAdvanceMs, paused, next])
+
+  /**
+   * Toggles autoplay between paused and playing states.
+   */
+  const toggleAutoplay = (): void => {
+    setPaused(p => {
+      const nextPaused = !p
+      if (nextPaused) {
+        clearAutoAdvance()
+      } else {
+        scheduleAutoAdvance()
+      }
+      return nextPaused
+    })
+  }
+
+  /**
+   * Resets autoplay timing after manual navigation.
+   */
+  const resetAutoAdvance = (): void => {
+    scheduleAutoAdvance()
+  }
+
+  /**
+   * Advances to the next step or slide.
+   */
+  const handleNext = (): void => {
+    next()
+    resetAutoAdvance()
+  }
+
+  /**
+   * Moves backward to the previous step or slide.
+   */
+  const handlePrev = (): void => {
+    prev()
+    resetAutoAdvance()
+  }
+
+  /**
+   * Jumps to a specific slide and step.
+   *
+   * @param slide - Target slide index.
+   * @param step - Target step index.
+   */
+  const handleGoTo = (slide: number, step: number): void => {
+    goTo(slide, step)
+    resetAutoAdvance()
+  }
 
   const { ref: hostRef, scale } = useScale(size)
   const themeStyle = useMemo(() => {
@@ -268,24 +349,24 @@ export const Deck = ({
         case 'PageDown':
         case ' ': {
           e.preventDefault()
-          next()
+          handleNext()
           break
         }
         case 'ArrowLeft':
         case 'PageUp':
         case 'Backspace': {
           e.preventDefault()
-          prev()
+          handlePrev()
           break
         }
         case 'Home': {
           e.preventDefault()
-          goTo(0, 0)
+          handleGoTo(0, 0)
           break
         }
         case 'End': {
           e.preventDefault()
-          goTo(slides.length - 1, 0)
+          handleGoTo(slides.length - 1, 0)
           break
         }
       }
@@ -330,7 +411,7 @@ export const Deck = ({
         role='group'
         aria-roledescription='slide'
         aria-label={labels.slide(currentSlide + 1, slides.length)}
-        onClick={next}
+        onClick={handleNext}
       >
         {prevVNode}
         {currentVNode}
@@ -358,21 +439,32 @@ export const Deck = ({
           type='button'
           className='pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring'
           aria-label={labels.prev}
-          onClick={prev}
+          onClick={handlePrev}
           data-testid='deck-prev'
           disabled={atStart}
         >
-          ◀
+          ⏮
         </button>
+        {autoAdvanceMs != null && (
+          <button
+            type='button'
+            className='pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring'
+            aria-label={paused ? labels.play : labels.pause}
+            onClick={toggleAutoplay}
+            data-testid='deck-autoplay-toggle'
+          >
+            {paused ? '▶' : '⏸'}
+          </button>
+        )}
         <button
           type='button'
           className='pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring'
           aria-label={labels.next}
-          onClick={next}
+          onClick={handleNext}
           data-testid='deck-next'
           disabled={atEnd}
         >
-          ▶
+          ⏭
         </button>
       </div>
     </div>

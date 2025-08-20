@@ -2216,7 +2216,14 @@ export const useDirectiveHandlers = () => {
     return props
   }
 
-  const DECK_EXCLUDES = ['size', 'transition', 'theme'] as const
+  const DECK_EXCLUDES = [
+    'size',
+    'transition',
+    'theme',
+    'autoplay',
+    'autoplayDelay',
+    'pause'
+  ] as const
 
   /**
    * Converts a `:::deck` directive into a Deck element with Slide children.
@@ -2244,7 +2251,10 @@ export const useDirectiveHandlers = () => {
         size: { type: 'string' },
         transition: { type: 'string' },
         theme: { type: 'string' },
-        from: { type: 'string', expression: false }
+        from: { type: 'string', expression: false },
+        autoplay: { type: 'boolean' },
+        autoplayDelay: { type: 'number' },
+        pause: { type: 'boolean' }
       },
       { label: false }
     )
@@ -2270,6 +2280,13 @@ export const useDirectiveHandlers = () => {
     if (typeof deckAttrs.theme !== 'undefined') {
       const theme = parseThemeValue(deckAttrs.theme)
       if (theme) deckProps.theme = theme
+    }
+    if (deckAttrs.autoplay) {
+      deckProps.autoAdvanceMs =
+        typeof deckAttrs.autoplayDelay === 'number'
+          ? deckAttrs.autoplayDelay
+          : 3000
+      if (deckAttrs.pause) deckProps.autoAdvancePaused = true
     }
     const rawDeckAttrs = (directive.attributes || {}) as Record<string, unknown>
     applyAdditionalAttributes(rawDeckAttrs, deckProps, [
