@@ -92,27 +92,41 @@ export const MultiPassageDecks: StoryObj = {
           {`
 [[Next->Second]]
 
-:::deck{size='400x300'}
-  :::slide
-    :::text{x=20 y=20}
-    First deck
+  :::deck{size='400x300'}
+    :::slide
+      :::appear{at=0}
+        :::text{x=20 y=20}
+        First deck 1
+        :::
+      :::
+      :::appear{at=1}
+        :::text{x=20 y=60}
+        First deck 2
+        :::
+      :::
     :::
   :::
-:::
-`}
+  `}
         </tw-passagedata>
         <tw-passagedata pid='2' name='Second'>
           {`
-[[Back->Start]]
+  [[Back->Start]]
 
-:::deck{size='400x300'}
-  :::slide
-    :::text{x=20 y=20}
-    Second deck
+  :::deck{size='400x300'}
+    :::slide
+      :::appear{at=0}
+        :::text{x=20 y=20}
+        Second deck 1
+        :::
+      :::
+      :::appear{at=1}
+        :::text{x=20 y=60}
+        Second deck 2
+        :::
+      :::
     :::
   :::
-:::
-`}
+  `}
         </tw-passagedata>
       </tw-storydata>
       <Campfire />

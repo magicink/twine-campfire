@@ -110,6 +110,25 @@ describe('Deck', () => {
     expect(nextBtn).toBeDisabled()
   })
 
+  it('always renders the autoplay control', () => {
+    render(
+      <Deck>
+        <div>Slide 1</div>
+        <div>Slide 2</div>
+      </Deck>
+    )
+    expect(screen.getByTestId('deck-autoplay-toggle')).toBeInTheDocument()
+  })
+
+  it('can hide navigation controls', () => {
+    render(
+      <Deck hideNavigation>
+        <div>Slide 1</div>
+      </Deck>
+    )
+    expect(screen.queryByTestId('deck-nav')).toBeNull()
+  })
+
   it('jumps to start or end using Home and End keys', () => {
     render(
       <Deck>

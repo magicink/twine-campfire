@@ -232,3 +232,20 @@ export const WithAutoplayPaused: StoryObj<typeof Deck> = {
     </Deck>
   )
 }
+
+/**
+ * Demonstrates hiding navigation controls.
+ *
+ * @returns The rendered Deck element without navigation.
+ */
+export const WithHiddenNavigation: StoryObj<typeof Deck> = {
+  render: () => (
+    <Deck className='w-[800px] h-[600px]' hideNavigation>
+      <Slide>
+        <SlideText as='h2' x={200} y={200} size={36}>
+          Hidden Nav
+        </SlideText>
+      </Slide>
+    </Deck>
+  )
+}
