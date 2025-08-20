@@ -275,6 +275,16 @@ export const Deck = ({
   }, [autoAdvanceMs, paused, next])
 
   /**
+   * Pauses autoplay once the final slide is reached.
+   */
+  useEffect(() => {
+    if (atEnd && autoAdvanceMs != null && !paused) {
+      setPaused(true)
+      clearAutoAdvance()
+    }
+  }, [atEnd, autoAdvanceMs, paused])
+
+  /**
    * Toggles autoplay between paused and playing states.
    */
   const toggleAutoplay = (): void => {
@@ -437,7 +447,7 @@ export const Deck = ({
       >
         <button
           type='button'
-          className='pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring'
+          className='pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring disabled:opacity-50'
           aria-label={labels.prev}
           onClick={handlePrev}
           data-testid='deck-prev'
@@ -448,7 +458,7 @@ export const Deck = ({
         {autoAdvanceMs != null && (
           <button
             type='button'
-            className='pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring'
+            className='pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring disabled:opacity-50'
             aria-label={paused ? labels.play : labels.pause}
             onClick={toggleAutoplay}
             data-testid='deck-autoplay-toggle'
@@ -458,7 +468,7 @@ export const Deck = ({
         )}
         <button
           type='button'
-          className='pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring'
+          className='pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring disabled:opacity-50'
           aria-label={labels.next}
           onClick={handleNext}
           data-testid='deck-next'

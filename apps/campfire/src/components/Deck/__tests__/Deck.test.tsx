@@ -336,7 +336,7 @@ describe('Deck', () => {
     expect(useDeckStore.getState().maxSteps).toBe(1)
   })
 
-  it('resets autoplay timer when rewinding', async () => {
+  it('keeps autoplay paused after rewinding from the end', async () => {
     render(
       <Deck autoAdvanceMs={20}>
         <div>Slide 1</div>
@@ -353,11 +353,26 @@ describe('Deck', () => {
     })
     expect(useDeckStore.getState().currentSlide).toBe(0)
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 15))
+      await new Promise(resolve => setTimeout(resolve, 30))
     })
     expect(useDeckStore.getState().currentSlide).toBe(0)
+  })
+
+  it('stops autoplay at the end of the deck', async () => {
+    render(
+      <Deck autoAdvanceMs={20}>
+        <div>Slide 1</div>
+        <div>Slide 2</div>
+      </Deck>
+    )
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 10))
+      await new Promise(resolve => setTimeout(resolve, 25))
+    })
+    expect(useDeckStore.getState().currentSlide).toBe(1)
+    const toggle = screen.getByTestId('deck-autoplay-toggle')
+    expect(toggle).toHaveTextContent('▶')
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 25))
     })
     expect(useDeckStore.getState().currentSlide).toBe(1)
   })

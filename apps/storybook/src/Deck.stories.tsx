@@ -178,7 +178,8 @@ export const WithDisabledControls: StoryObj<typeof Deck> = {
 }
 
 /**
- * Demonstrates automatically advancing slides after a delay.
+ * Demonstrates automatically advancing slides after a delay. Autoplay pauses
+ * when the final slide is reached.
  *
  * @returns The rendered Deck element with autoplay.
  */

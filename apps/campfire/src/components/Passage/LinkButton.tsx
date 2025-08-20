@@ -7,6 +7,7 @@ import {
 interface LinkButtonProps extends JSX.HTMLAttributes<HTMLButtonElement> {
   'data-pid'?: string
   'data-name'?: string
+  disabled?: boolean
 }
 
 /**
@@ -31,7 +32,8 @@ export const LinkButton = ({
   return (
     <button
       type='button'
-      className={[className, 'font-libertinus']
+      data-testid='link-button'
+      className={['font-libertinus', 'disabled:opacity-50', className]
         .filter(c => c != null && c !== '')
         .join(' ')}
       {...rest}

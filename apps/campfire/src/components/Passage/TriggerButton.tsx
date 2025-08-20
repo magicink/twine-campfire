@@ -40,7 +40,12 @@ export const TriggerButton = ({
     <button
       type='button'
       data-testid='trigger-button'
-      className={['campfire-trigger', 'font-libertinus', ...classes].join(' ')}
+      className={[
+        'campfire-trigger',
+        'font-libertinus',
+        'disabled:opacity-50',
+        ...classes
+      ].join(' ')}
       disabled={disabled}
       style={style}
       onClick={() =>
