@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.76.0](https://github.com/magicink/twine-campfire/compare/v1.75.0...v1.76.0) (2025-08-20)
+
+
+### Features
+
+* add cached expression evaluator ([#434](https://github.com/magicink/twine-campfire/issues/434)) ([d619cc6](https://github.com/magicink/twine-campfire/commit/d619cc6d9850fb5c7c94597eb2a1f481daf9537a))
+* add runDirectiveBlock utility ([#436](https://github.com/magicink/twine-campfire/issues/436)) ([af5d700](https://github.com/magicink/twine-campfire/commit/af5d700917295ef2671fbf507e5433f02b3e1f61))
+* add slide layer wrapper ([#437](https://github.com/magicink/twine-campfire/issues/437)) ([1118022](https://github.com/magicink/twine-campfire/commit/11180222b5b5537272471c7a3a26def038d97bf9))
+* centralize directive block processing ([#439](https://github.com/magicink/twine-campfire/issues/439)) ([2f4f083](https://github.com/magicink/twine-campfire/commit/2f4f0833fee55f8e4c81c30c44b7260819fd6e05))
+* **utils:** add appendClassNames helper ([#435](https://github.com/magicink/twine-campfire/issues/435)) ([bc1cc04](https://github.com/magicink/twine-campfire/commit/bc1cc0488933a144ecaa2611d7ef7f25c13364e1))
+
 ## [1.75.0](https://github.com/magicink/twine-campfire/compare/v1.74.0...v1.75.0) (2025-08-20)
 
 
