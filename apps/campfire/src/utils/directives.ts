@@ -6,18 +6,20 @@ import remarkCampfire, {
 import type { Root, RootContent } from 'mdast'
 
 /**
- * Runs a block of directive AST nodes through the Campfire remark pipeline.
+ * Processes directive AST nodes through the Campfire remark pipeline.
  *
  * @param nodes - Nodes to process.
- * @param handlers - Directive handlers to apply.
+ * @param handlers - Optional directive handlers to apply.
+ * @returns The processed array of nodes.
  */
 export const runDirectiveBlock = (
   nodes: RootContent[],
-  handlers: Record<string, DirectiveHandler>
-): void => {
+  handlers: Record<string, DirectiveHandler> = {}
+): RootContent[] => {
   const root: Root = { type: 'root', children: nodes }
   unified()
     .use(remarkCampfireIndentation)
     .use(remarkCampfire, { handlers })
     .runSync(root)
+  return root.children as RootContent[]
 }
