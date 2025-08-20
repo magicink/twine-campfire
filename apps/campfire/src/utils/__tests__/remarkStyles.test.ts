@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'bun:test'
 import type { Root } from 'mdast'
-import { remarkHeadingStyles } from '@campfire/utils/remarkHeadingStyles'
-import { remarkParagraphStyles } from '@campfire/utils/remarkParagraphStyles'
+import {
+  remarkHeadingStyles,
+  remarkParagraphStyles
+} from '@campfire/utils/remarkStyles'
 
 describe('remarkHeadingStyles', () => {
   it('appends default classes', () => {
