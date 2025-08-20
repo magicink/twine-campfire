@@ -52,4 +52,16 @@ describe('rehypeCampfire', () => {
     expect(html).toContain('<button')
     expect(html).toContain('Click here</button>')
   })
+
+  it('unwraps LinkButtons from paragraphs', async () => {
+    const processor = unified()
+      .use(remarkParse)
+      .use(remarkRehype)
+      .use(rehypeCampfire)
+      .use(rehypeStringify)
+    const result = await processor.process('[[Start]]')
+    const html = result.toString().replace(/\s+/g, ' ')
+    expect(html.startsWith('<button')).toBe(true)
+    expect(html).not.toContain('<p>')
+  })
 })

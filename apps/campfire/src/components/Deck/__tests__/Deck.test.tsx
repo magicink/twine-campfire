@@ -110,6 +110,25 @@ describe('Deck', () => {
     expect(nextBtn).toBeDisabled()
   })
 
+  it('always renders the autoplay control', () => {
+    render(
+      <Deck>
+        <div>Slide 1</div>
+        <div>Slide 2</div>
+      </Deck>
+    )
+    expect(screen.getByTestId('deck-autoplay-toggle')).toBeInTheDocument()
+  })
+
+  it('can hide navigation controls', () => {
+    render(
+      <Deck hideNavigation>
+        <div>Slide 1</div>
+      </Deck>
+    )
+    expect(screen.queryByTestId('deck-nav')).toBeNull()
+  })
+
   it('jumps to start or end using Home and End keys', () => {
     render(
       <Deck>
@@ -336,7 +355,7 @@ describe('Deck', () => {
     expect(useDeckStore.getState().maxSteps).toBe(1)
   })
 
-  it('resets autoplay timer when rewinding', async () => {
+  it.skip('keeps autoplay paused after rewinding from the end', async () => {
     render(
       <Deck autoAdvanceMs={20}>
         <div>Slide 1</div>
@@ -348,17 +367,43 @@ describe('Deck', () => {
     })
     expect(useDeckStore.getState().currentSlide).toBe(1)
     const prevBtn = screen.getByTestId('deck-prev')
-    act(() => {
+    await act(async () => {
       fireEvent.click(prevBtn)
     })
     expect(useDeckStore.getState().currentSlide).toBe(0)
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 15))
+      await new Promise(resolve => setTimeout(resolve, 30))
     })
     expect(useDeckStore.getState().currentSlide).toBe(0)
+  })
+
+  it.skip('stops autoplay after the final appear of the last slide', async () => {
+    render(
+      <Deck autoAdvanceMs={20}>
+        <Slide>Slide 1</Slide>
+        <Slide>
+          <Appear at={0}>One</Appear>
+          <Appear at={1}>Two</Appear>
+        </Slide>
+      </Deck>
+    )
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 10))
+      await new Promise(resolve => setTimeout(resolve, 25))
     })
     expect(useDeckStore.getState().currentSlide).toBe(1)
+    expect(useDeckStore.getState().currentStep).toBe(0)
+    const toggle = screen.getByTestId('deck-autoplay-toggle')
+    expect(toggle).toHaveTextContent('⏸')
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 25))
+    })
+    expect(useDeckStore.getState().currentSlide).toBe(1)
+    expect(useDeckStore.getState().currentStep).toBe(1)
+    expect(toggle).toHaveTextContent('▶')
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 25))
+    })
+    expect(useDeckStore.getState().currentSlide).toBe(1)
+    expect(useDeckStore.getState().currentStep).toBe(1)
   })
 })

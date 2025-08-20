@@ -178,7 +178,8 @@ export const WithDisabledControls: StoryObj<typeof Deck> = {
 }
 
 /**
- * Demonstrates automatically advancing slides after a delay.
+ * Demonstrates automatically advancing slides after a delay. Autoplay pauses
+ * once the final appear of the last slide is revealed.
  *
  * @returns The rendered Deck element with autoplay.
  */
@@ -191,9 +192,16 @@ export const WithAutoplay: StoryObj<typeof Deck> = {
         </SlideText>
       </Slide>
       <Slide>
-        <SlideText as='h2' x={200} y={200} size={36}>
-          Auto 2
-        </SlideText>
+        <Appear at={0}>
+          <SlideText as='h2' x={200} y={200} size={36}>
+            Auto 2
+          </SlideText>
+        </Appear>
+        <Appear at={1}>
+          <SlideText x={200} y={260} size={24}>
+            Final Step
+          </SlideText>
+        </Appear>
       </Slide>
     </Deck>
   )
@@ -219,6 +227,23 @@ export const WithAutoplayPaused: StoryObj<typeof Deck> = {
       <Slide>
         <SlideText as='h2' x={200} y={200} size={36}>
           Paused 2
+        </SlideText>
+      </Slide>
+    </Deck>
+  )
+}
+
+/**
+ * Demonstrates hiding navigation controls.
+ *
+ * @returns The rendered Deck element without navigation.
+ */
+export const WithHiddenNavigation: StoryObj<typeof Deck> = {
+  render: () => (
+    <Deck className='w-[800px] h-[600px]' hideNavigation>
+      <Slide>
+        <SlideText as='h2' x={200} y={200} size={36}>
+          Hidden Nav
         </SlideText>
       </Slide>
     </Deck>
