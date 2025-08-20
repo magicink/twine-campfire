@@ -143,7 +143,6 @@ export const Deck = ({
   }, [children])
   const currentSlide = useDeckStore(state => state.currentSlide)
   const currentStep = useDeckStore(state => state.currentStep)
-  const maxSteps = useDeckStore(state => state.maxSteps)
   const next = useDeckStore(state => state.next)
   const prev = useDeckStore(state => state.prev)
   const goTo = useDeckStore(state => state.goTo)
@@ -152,7 +151,9 @@ export const Deck = ({
   const reset = useDeckStore(state => state.reset)
 
   const atStart = currentSlide === 0 && currentStep === 0
-  const atEnd = currentSlide === slides.length - 1 && currentStep === maxSteps
+  const finalSlideIndex = slides.length - 1
+  const finalStep = slideSteps[finalSlideIndex] ?? 0
+  const atEnd = currentSlide === finalSlideIndex && currentStep === finalStep
 
   const labels: A11yLabels = useMemo(
     () => ({

@@ -358,22 +358,33 @@ describe('Deck', () => {
     expect(useDeckStore.getState().currentSlide).toBe(0)
   })
 
-  it('stops autoplay at the end of the deck', async () => {
+  it('stops autoplay after the final appear of the last slide', async () => {
     render(
       <Deck autoAdvanceMs={20}>
-        <div>Slide 1</div>
-        <div>Slide 2</div>
+        <Slide>Slide 1</Slide>
+        <Slide>
+          <Appear at={0}>One</Appear>
+          <Appear at={1}>Two</Appear>
+        </Slide>
       </Deck>
     )
     await act(async () => {
       await new Promise(resolve => setTimeout(resolve, 25))
     })
     expect(useDeckStore.getState().currentSlide).toBe(1)
+    expect(useDeckStore.getState().currentStep).toBe(0)
     const toggle = screen.getByTestId('deck-autoplay-toggle')
+    expect(toggle).toHaveTextContent('⏸')
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 25))
+    })
+    expect(useDeckStore.getState().currentSlide).toBe(1)
+    expect(useDeckStore.getState().currentStep).toBe(1)
     expect(toggle).toHaveTextContent('▶')
     await act(async () => {
       await new Promise(resolve => setTimeout(resolve, 25))
     })
     expect(useDeckStore.getState().currentSlide).toBe(1)
+    expect(useDeckStore.getState().currentStep).toBe(1)
   })
 })
