@@ -2,449 +2,521 @@
 
 ## [1.75.0](https://github.com/magicink/twine-campfire/compare/v1.74.0...v1.75.0) (2025-08-20)
 
+
 ### Features
 
-- add autoplay controls to deck directive ([#431](https://github.com/magicink/twine-campfire/issues/431)) ([9fdd850](https://github.com/magicink/twine-campfire/commit/9fdd850f1f0e51f0f5fe431b5e20b2f2d4b6cd4f))
+* add autoplay controls to deck directive ([#431](https://github.com/magicink/twine-campfire/issues/431)) ([9fdd850](https://github.com/magicink/twine-campfire/commit/9fdd850f1f0e51f0f5fe431b5e20b2f2d4b6cd4f))
 
 ## [1.74.0](https://github.com/magicink/twine-campfire/compare/v1.73.0...v1.74.0) (2025-08-19)
 
+
 ### Features
 
-- add preset directive and from attribute ([#427](https://github.com/magicink/twine-campfire/issues/427)) ([c211837](https://github.com/magicink/twine-campfire/commit/c211837c0975e04065038f54442299c493765c01))
-- add preset directive and from attribute ([#427](https://github.com/magicink/twine-campfire/issues/427)) ([711c005](https://github.com/magicink/twine-campfire/commit/711c0051e246b4fdb31584bd72f39e9c1773bc78))
+* add preset directive and from attribute ([#427](https://github.com/magicink/twine-campfire/issues/427)) ([c211837](https://github.com/magicink/twine-campfire/commit/c211837c0975e04065038f54442299c493765c01))
+* add preset directive and from attribute ([#427](https://github.com/magicink/twine-campfire/issues/427)) ([711c005](https://github.com/magicink/twine-campfire/commit/711c0051e246b4fdb31584bd72f39e9c1773bc78))
 
 ## [1.73.0](https://github.com/magicink/twine-campfire/compare/v1.72.1...v1.73.0) (2025-08-19)
 
+
 ### Features
 
-- enforce quoted ids for persistence directives ([#423](https://github.com/magicink/twine-campfire/issues/423)) ([9257e13](https://github.com/magicink/twine-campfire/commit/9257e131c60ee544b2cc74fb29f5f07b8d08c6af))
-- enforce quoted ids for persistence directives ([#423](https://github.com/magicink/twine-campfire/issues/423)) ([1a51972](https://github.com/magicink/twine-campfire/commit/1a51972ed88a733fc7f61dc00aeba3c2d4600e8d))
+* enforce quoted ids for persistence directives ([#423](https://github.com/magicink/twine-campfire/issues/423)) ([9257e13](https://github.com/magicink/twine-campfire/commit/9257e131c60ee544b2cc74fb29f5f07b8d08c6af))
+* enforce quoted ids for persistence directives ([#423](https://github.com/magicink/twine-campfire/issues/423)) ([1a51972](https://github.com/magicink/twine-campfire/commit/1a51972ed88a733fc7f61dc00aeba3c2d4600e8d))
 
 ## [1.72.1](https://github.com/magicink/twine-campfire/compare/v1.72.0...v1.72.1) (2025-08-19)
 
+
 ### Bug Fixes
 
-- enforce container and leaf directive usage ([#420](https://github.com/magicink/twine-campfire/issues/420)) ([35bc8f5](https://github.com/magicink/twine-campfire/commit/35bc8f54935b6ec0bc07461091c218ead21e7570))
-- shape directive to render SlideShape ([#419](https://github.com/magicink/twine-campfire/issues/419)) ([39b85b3](https://github.com/magicink/twine-campfire/commit/39b85b3d8b3102fbe81639f84820f0806812da2d))
+* enforce container and leaf directive usage ([#420](https://github.com/magicink/twine-campfire/issues/420)) ([35bc8f5](https://github.com/magicink/twine-campfire/commit/35bc8f54935b6ec0bc07461091c218ead21e7570))
+* shape directive to render SlideShape ([#419](https://github.com/magicink/twine-campfire/issues/419)) ([39b85b3](https://github.com/magicink/twine-campfire/commit/39b85b3d8b3102fbe81639f84820f0806812da2d))
 
 ## [1.72.0](https://github.com/magicink/twine-campfire/compare/v1.71.0...v1.72.0) (2025-08-18)
 
+
 ### Features
 
-- add SlideShape component and directive ([#415](https://github.com/magicink/twine-campfire/issues/415)) ([61f4aad](https://github.com/magicink/twine-campfire/commit/61f4aad746a49f52b7fad7c58f1ba413d098fcc5))
-- add SlideShape component and directive ([#415](https://github.com/magicink/twine-campfire/issues/415)) ([732a31a](https://github.com/magicink/twine-campfire/commit/732a31aed58fccf0c7a336e23e337a985af1946b))
+* add SlideShape component and directive ([#415](https://github.com/magicink/twine-campfire/issues/415)) ([61f4aad](https://github.com/magicink/twine-campfire/commit/61f4aad746a49f52b7fad7c58f1ba413d098fcc5))
+* add SlideShape component and directive ([#415](https://github.com/magicink/twine-campfire/issues/415)) ([732a31a](https://github.com/magicink/twine-campfire/commit/732a31aed58fccf0c7a336e23e337a985af1946b))
 
 ## [1.71.0](https://github.com/magicink/twine-campfire/compare/v1.70.0...v1.71.0) (2025-08-18)
 
+
 ### Features
 
-- add SlideImage component ([#410](https://github.com/magicink/twine-campfire/issues/410)) ([bc36968](https://github.com/magicink/twine-campfire/commit/bc36968f8c66877d0de4711ff89836591a742a6e))
+* add SlideImage component ([#410](https://github.com/magicink/twine-campfire/issues/410)) ([bc36968](https://github.com/magicink/twine-campfire/commit/bc36968f8c66877d0de4711ff89836591a742a6e))
+
 
 ### Bug Fixes
 
-- **slide:** apply transition to all appear children ([#407](https://github.com/magicink/twine-campfire/issues/407)) ([83faa5e](https://github.com/magicink/twine-campfire/commit/83faa5e743f91eed35bae6bb79f1a920fb1a9f20))
+* **slide:** apply transition to all appear children ([#407](https://github.com/magicink/twine-campfire/issues/407)) ([83faa5e](https://github.com/magicink/twine-campfire/commit/83faa5e743f91eed35bae6bb79f1a920fb1a9f20))
 
 ## [1.70.0](https://github.com/magicink/twine-campfire/compare/v1.69.0...v1.70.0) (2025-08-18)
 
+
 ### Features
 
-- add accessibility controls to deck ([#403](https://github.com/magicink/twine-campfire/issues/403)) ([aa36883](https://github.com/magicink/twine-campfire/commit/aa36883bc371d4eddc594721139ed9488ccb0b9d))
+* add accessibility controls to deck ([#403](https://github.com/magicink/twine-campfire/issues/403)) ([aa36883](https://github.com/magicink/twine-campfire/commit/aa36883bc371d4eddc594721139ed9488ccb0b9d))
+
 
 ### Bug Fixes
 
-- **deck:** improve transition handling and reset maxSteps on slide unmount ([f8c1672](https://github.com/magicink/twine-campfire/commit/f8c167244731f15e7df1dd3cf74130a33ee84368))
-- **deck:** prevent double click skipping appears ([#401](https://github.com/magicink/twine-campfire/issues/401)) ([decb3d8](https://github.com/magicink/twine-campfire/commit/decb3d8c202af60948a4280c238748d1bc08d422))
-- **deck:** prevent step indicator flicker ([#404](https://github.com/magicink/twine-campfire/issues/404)) ([e7fd9b8](https://github.com/magicink/twine-campfire/commit/e7fd9b804b2c902672918d69c8d75b8c361993b4))
-- reset deck state when slide unmounts ([#402](https://github.com/magicink/twine-campfire/issues/402)) ([0406e94](https://github.com/magicink/twine-campfire/commit/0406e9445d194509597f65985bc012f2caf2c605))
-- reset maxSteps for slides without steps ([#400](https://github.com/magicink/twine-campfire/issues/400)) ([3bd77d7](https://github.com/magicink/twine-campfire/commit/3bd77d738c80640a5ef21af8411a34fe98b46756))
-- **workflow:** update branch pattern for release triggers in CI ([8aa38bf](https://github.com/magicink/twine-campfire/commit/8aa38bf14765c828a74de3e55c0e6f567f86009a))
+* **deck:** improve transition handling and reset maxSteps on slide unmount ([f8c1672](https://github.com/magicink/twine-campfire/commit/f8c167244731f15e7df1dd3cf74130a33ee84368))
+* **deck:** prevent double click skipping appears ([#401](https://github.com/magicink/twine-campfire/issues/401)) ([decb3d8](https://github.com/magicink/twine-campfire/commit/decb3d8c202af60948a4280c238748d1bc08d422))
+* **deck:** prevent step indicator flicker ([#404](https://github.com/magicink/twine-campfire/issues/404)) ([e7fd9b8](https://github.com/magicink/twine-campfire/commit/e7fd9b804b2c902672918d69c8d75b8c361993b4))
+* reset deck state when slide unmounts ([#402](https://github.com/magicink/twine-campfire/issues/402)) ([0406e94](https://github.com/magicink/twine-campfire/commit/0406e9445d194509597f65985bc012f2caf2c605))
+* reset maxSteps for slides without steps ([#400](https://github.com/magicink/twine-campfire/issues/400)) ([3bd77d7](https://github.com/magicink/twine-campfire/commit/3bd77d738c80640a5ef21af8411a34fe98b46756))
+* **workflow:** update branch pattern for release triggers in CI ([8aa38bf](https://github.com/magicink/twine-campfire/commit/8aa38bf14765c828a74de3e55c0e6f567f86009a))
 
 ## [1.69.0](https://github.com/magicink/twine-campfire/compare/v1.68.0...v1.69.0) (2025-08-17)
 
+
 ### Features
 
-- **deck:** introduce DeckText component and enhance directive handling ([c127d87](https://github.com/magicink/twine-campfire/commit/c127d878418bcb67d5c88f0181430d97a9f9a39a))
-- **deck:** introduce DeckText component and enhance directive handling ([f582be3](https://github.com/magicink/twine-campfire/commit/f582be3e1ab2d064559a97c3ced84a00d24931f4))
+* **deck:** introduce DeckText component and enhance directive handling ([c127d87](https://github.com/magicink/twine-campfire/commit/c127d878418bcb67d5c88f0181430d97a9f9a39a))
+* **deck:** introduce DeckText component and enhance directive handling ([f582be3](https://github.com/magicink/twine-campfire/commit/f582be3e1ab2d064559a97c3ced84a00d24931f4))
 
 ## [1.68.0](https://github.com/magicink/twine-campfire/compare/v1.67.1...v1.68.0) (2025-08-15)
 
+
 ### Features
 
-- add deck container directive ([#360](https://github.com/magicink/twine-campfire/issues/360)) ([9e593d3](https://github.com/magicink/twine-campfire/commit/9e593d3b9137586c5420507799fee350993f5d99))
-- **campfire:** add appear directive ([#366](https://github.com/magicink/twine-campfire/issues/366)) ([8a102e7](https://github.com/magicink/twine-campfire/commit/8a102e7f0ad48ad9f38eb632918e7e9291a958b5))
+* add deck container directive ([#360](https://github.com/magicink/twine-campfire/issues/360)) ([9e593d3](https://github.com/magicink/twine-campfire/commit/9e593d3b9137586c5420507799fee350993f5d99))
+* **campfire:** add appear directive ([#366](https://github.com/magicink/twine-campfire/issues/366)) ([8a102e7](https://github.com/magicink/twine-campfire/commit/8a102e7f0ad48ad9f38eb632918e7e9291a958b5))
+
 
 ### Bug Fixes
 
-- **campfire:** avoid entering unseen items on slide change ([#358](https://github.com/magicink/twine-campfire/issues/358)) ([429af97](https://github.com/magicink/twine-campfire/commit/429af9737c0d04ffc7d7844dd29188a36da38c6e))
-- **tsconfig:** add twine-jsx type definitions to compiler options ([#359](https://github.com/magicink/twine-campfire/issues/359)) ([cad391c](https://github.com/magicink/twine-campfire/commit/cad391c46642c46b2405f8e4adee491cbd1a161a))
+* **campfire:** avoid entering unseen items on slide change ([#358](https://github.com/magicink/twine-campfire/issues/358)) ([429af97](https://github.com/magicink/twine-campfire/commit/429af9737c0d04ffc7d7844dd29188a36da38c6e))
+* **tsconfig:** add twine-jsx type definitions to compiler options ([#359](https://github.com/magicink/twine-campfire/issues/359)) ([cad391c](https://github.com/magicink/twine-campfire/commit/cad391c46642c46b2405f8e4adee491cbd1a161a))
 
 ## [1.67.1](https://github.com/magicink/twine-campfire/compare/v1.67.0...v1.67.1) (2025-08-15)
 
+
 ### Bug Fixes
 
-- **appear:** handle slide transitions for multiple elements ([#354](https://github.com/magicink/twine-campfire/issues/354)) ([1e94c06](https://github.com/magicink/twine-campfire/commit/1e94c060429675cd7f78b2837902155a0eedc259))
-- **deck:** ensure enter animations run ([#353](https://github.com/magicink/twine-campfire/issues/353)) ([79bf29d](https://github.com/magicink/twine-campfire/commit/79bf29daf42d3986395a218e0b8926c6826b4db6))
-- **deck:** ensure enter animations run ([#353](https://github.com/magicink/twine-campfire/issues/353)) ([962a6ec](https://github.com/magicink/twine-campfire/commit/962a6ecfd5b80055fb0797a0a8b4acf8a9f6b756))
-- run entry animations before paint ([#352](https://github.com/magicink/twine-campfire/issues/352)) ([c0c221d](https://github.com/magicink/twine-campfire/commit/c0c221d6b5dfb8cb4c6c51b0cac8a8e1a5a5bc8f))
-- run entry animations before paint ([#352](https://github.com/magicink/twine-campfire/issues/352)) ([ed7f210](https://github.com/magicink/twine-campfire/commit/ed7f2102cb005ee51b6dbb454bfcc66e3f712b82))
+* **appear:** handle slide transitions for multiple elements ([#354](https://github.com/magicink/twine-campfire/issues/354)) ([1e94c06](https://github.com/magicink/twine-campfire/commit/1e94c060429675cd7f78b2837902155a0eedc259))
+* **deck:** ensure enter animations run ([#353](https://github.com/magicink/twine-campfire/issues/353)) ([79bf29d](https://github.com/magicink/twine-campfire/commit/79bf29daf42d3986395a218e0b8926c6826b4db6))
+* **deck:** ensure enter animations run ([#353](https://github.com/magicink/twine-campfire/issues/353)) ([962a6ec](https://github.com/magicink/twine-campfire/commit/962a6ecfd5b80055fb0797a0a8b4acf8a9f6b756))
+* run entry animations before paint ([#352](https://github.com/magicink/twine-campfire/issues/352)) ([c0c221d](https://github.com/magicink/twine-campfire/commit/c0c221d6b5dfb8cb4c6c51b0cac8a8e1a5a5bc8f))
+* run entry animations before paint ([#352](https://github.com/magicink/twine-campfire/issues/352)) ([ed7f210](https://github.com/magicink/twine-campfire/commit/ed7f2102cb005ee51b6dbb454bfcc66e3f712b82))
 
 ## [1.67.0](https://github.com/magicink/twine-campfire/compare/v1.66.2...v1.67.0) (2025-08-15)
 
+
 ### Features
 
-- add Text component for positioned typography ([#336](https://github.com/magicink/twine-campfire/issues/336)) ([0171350](https://github.com/magicink/twine-campfire/commit/0171350df702e97c013d6d277266ecbc53991d8e))
+* add Text component for positioned typography ([#336](https://github.com/magicink/twine-campfire/issues/336)) ([0171350](https://github.com/magicink/twine-campfire/commit/0171350df702e97c013d6d277266ecbc53991d8e))
+
 
 ### Bug Fixes
 
-- apply slide transitions ([#347](https://github.com/magicink/twine-campfire/issues/347)) ([7954b5d](https://github.com/magicink/twine-campfire/commit/7954b5d4c659ed13cbe9c2cb3726c96124e29284))
-- optimize store bindings ([#343](https://github.com/magicink/twine-campfire/issues/343)) ([f37f394](https://github.com/magicink/twine-campfire/commit/f37f3946264ba2ce58a947283f096cce6f04f954))
-- **slide:** ensure onExit directives run on unmount ([#349](https://github.com/magicink/twine-campfire/issues/349)) ([28eea1e](https://github.com/magicink/twine-campfire/commit/28eea1e2ddf460c4205905c52feead5e4d5cbb3e))
-- **storybook:** add campfire alias ([#341](https://github.com/magicink/twine-campfire/issues/341)) ([bde2886](https://github.com/magicink/twine-campfire/commit/bde288607e0f74c8e8d9b1d4c657ca078967ff8c))
-- **storybook:** map test utils to preact ([#344](https://github.com/magicink/twine-campfire/issues/344)) ([2b5b8bc](https://github.com/magicink/twine-campfire/commit/2b5b8bc822805f2ad62adce398bf362c6a77ee4e))
-- update table styles ([#335](https://github.com/magicink/twine-campfire/issues/335)) ([f92de4a](https://github.com/magicink/twine-campfire/commit/f92de4aed3d8f984dd1307f97470aebddc9bdb12))
-- use Appear in Deck story ([#346](https://github.com/magicink/twine-campfire/issues/346)) ([397ea3d](https://github.com/magicink/twine-campfire/commit/397ea3d6df78fe2f57c51c973f1c1b189e543057))
-- **vite:** update alias configuration and enable sourcemaps ([#342](https://github.com/magicink/twine-campfire/issues/342)) ([fc47e3c](https://github.com/magicink/twine-campfire/commit/fc47e3c246a257923c490712f16483d7ffe7db77))
+* apply slide transitions ([#347](https://github.com/magicink/twine-campfire/issues/347)) ([7954b5d](https://github.com/magicink/twine-campfire/commit/7954b5d4c659ed13cbe9c2cb3726c96124e29284))
+* optimize store bindings ([#343](https://github.com/magicink/twine-campfire/issues/343)) ([f37f394](https://github.com/magicink/twine-campfire/commit/f37f3946264ba2ce58a947283f096cce6f04f954))
+* **slide:** ensure onExit directives run on unmount ([#349](https://github.com/magicink/twine-campfire/issues/349)) ([28eea1e](https://github.com/magicink/twine-campfire/commit/28eea1e2ddf460c4205905c52feead5e4d5cbb3e))
+* **storybook:** add campfire alias ([#341](https://github.com/magicink/twine-campfire/issues/341)) ([bde2886](https://github.com/magicink/twine-campfire/commit/bde288607e0f74c8e8d9b1d4c657ca078967ff8c))
+* **storybook:** map test utils to preact ([#344](https://github.com/magicink/twine-campfire/issues/344)) ([2b5b8bc](https://github.com/magicink/twine-campfire/commit/2b5b8bc822805f2ad62adce398bf362c6a77ee4e))
+* update table styles ([#335](https://github.com/magicink/twine-campfire/issues/335)) ([f92de4a](https://github.com/magicink/twine-campfire/commit/f92de4aed3d8f984dd1307f97470aebddc9bdb12))
+* use Appear in Deck story ([#346](https://github.com/magicink/twine-campfire/issues/346)) ([397ea3d](https://github.com/magicink/twine-campfire/commit/397ea3d6df78fe2f57c51c973f1c1b189e543057))
+* **vite:** update alias configuration and enable sourcemaps ([#342](https://github.com/magicink/twine-campfire/issues/342)) ([fc47e3c](https://github.com/magicink/twine-campfire/commit/fc47e3c246a257923c490712f16483d7ffe7db77))
 
 ## [1.66.2](https://github.com/magicink/twine-campfire/compare/v1.66.1...v1.66.2) (2025-08-14)
 
+
 ### Bug Fixes
 
-- reverted table style changes ([#332](https://github.com/magicink/twine-campfire/issues/332)) ([03bf2ef](https://github.com/magicink/twine-campfire/commit/03bf2ef0dd4f99168e265784a246d29ed1fa9682))
+* reverted table style changes ([#332](https://github.com/magicink/twine-campfire/issues/332)) ([03bf2ef](https://github.com/magicink/twine-campfire/commit/03bf2ef0dd4f99168e265784a246d29ed1fa9682))
 
 ## [1.66.1](https://github.com/magicink/twine-campfire/compare/v1.66.0...v1.66.1) (2025-08-14)
 
+
 ### Bug Fixes
 
-- update table styles for improved design and consistency ([#330](https://github.com/magicink/twine-campfire/issues/330)) ([bac8c67](https://github.com/magicink/twine-campfire/commit/bac8c67ac38625344dc5d6f92f1ec5d082751828))
+* update table styles for improved design and consistency ([#330](https://github.com/magicink/twine-campfire/issues/330)) ([bac8c67](https://github.com/magicink/twine-campfire/commit/bac8c67ac38625344dc5d6f92f1ec5d082751828))
 
 ## [1.66.0](https://github.com/magicink/twine-campfire/compare/v1.65.0...v1.66.0) (2025-08-14)
 
+
 ### Features
 
-- add Appear component for slide builds ([#326](https://github.com/magicink/twine-campfire/issues/326)) ([ee2966c](https://github.com/magicink/twine-campfire/commit/ee2966c4fcb6655a69dcbe74c611f10a5e0d2261))
+* add Appear component for slide builds ([#326](https://github.com/magicink/twine-campfire/issues/326)) ([ee2966c](https://github.com/magicink/twine-campfire/commit/ee2966c4fcb6655a69dcbe74c611f10a5e0d2261))
 
 ## [1.65.0](https://github.com/magicink/twine-campfire/compare/v1.64.0...v1.65.0) (2025-08-14)
 
+
 ### Features
 
-- add slide directive lifecycle hooks ([#324](https://github.com/magicink/twine-campfire/issues/324)) ([240b007](https://github.com/magicink/twine-campfire/commit/240b0079087e8335a4662c753bb75fdd3437f7a6))
+* add slide directive lifecycle hooks ([#324](https://github.com/magicink/twine-campfire/issues/324)) ([240b007](https://github.com/magicink/twine-campfire/commit/240b0079087e8335a4662c753bb75fdd3437f7a6))
 
 ## [1.64.0](https://github.com/magicink/twine-campfire/compare/v1.63.0...v1.64.0) (2025-08-14)
 
+
 ### Features
 
-- **slide:** support directive hooks on deck slides ([#322](https://github.com/magicink/twine-campfire/issues/322)) ([6088640](https://github.com/magicink/twine-campfire/commit/6088640e065a4c64cc9b1d48acb93b038172e634))
+* **slide:** support directive hooks on deck slides ([#322](https://github.com/magicink/twine-campfire/issues/322)) ([6088640](https://github.com/magicink/twine-campfire/commit/6088640e065a4c64cc9b1d48acb93b038172e634))
 
 ## [1.63.0](https://github.com/magicink/twine-campfire/compare/v1.62.0...v1.63.0) (2025-08-14)
 
+
 ### Features
 
-- add slide component ([#320](https://github.com/magicink/twine-campfire/issues/320)) ([b6a3b7c](https://github.com/magicink/twine-campfire/commit/b6a3b7c43f53f9db773ea401212c2b0354905d8d))
+* add slide component ([#320](https://github.com/magicink/twine-campfire/issues/320)) ([b6a3b7c](https://github.com/magicink/twine-campfire/commit/b6a3b7c43f53f9db773ea401212c2b0354905d8d))
 
 ## [1.62.0](https://github.com/magicink/twine-campfire/compare/v1.61.0...v1.62.0) (2025-08-14)
 
+
 ### Features
 
-- add Deck component to campfire app ([#316](https://github.com/magicink/twine-campfire/issues/316)) ([cd63ea0](https://github.com/magicink/twine-campfire/commit/cd63ea0c23cf7482c7af7aa6ee7cc7dba437183a))
+* add Deck component to campfire app ([#316](https://github.com/magicink/twine-campfire/issues/316)) ([cd63ea0](https://github.com/magicink/twine-campfire/commit/cd63ea0c23cf7482c7af7aa6ee7cc7dba437183a))
 
 ## [1.61.0](https://github.com/magicink/twine-campfire/compare/v1.60.0...v1.61.0) (2025-08-14)
 
+
 ### Features
 
-- add useScale hook ([#314](https://github.com/magicink/twine-campfire/issues/314)) ([2dd0050](https://github.com/magicink/twine-campfire/commit/2dd0050272a620ac5d6d4fe764144d4c3401847b))
+* add useScale hook ([#314](https://github.com/magicink/twine-campfire/issues/314)) ([2dd0050](https://github.com/magicink/twine-campfire/commit/2dd0050272a620ac5d6d4fe764144d4c3401847b))
 
 ## [1.60.0](https://github.com/magicink/twine-campfire/compare/v1.59.4...v1.60.0) (2025-08-14)
 
+
 ### Features
 
-- add deck store for slide navigation ([#312](https://github.com/magicink/twine-campfire/issues/312)) ([a778d7b](https://github.com/magicink/twine-campfire/commit/a778d7b058e6a5bd39c1bdaa9d7bd731a4971744))
+* add deck store for slide navigation ([#312](https://github.com/magicink/twine-campfire/issues/312)) ([a778d7b](https://github.com/magicink/twine-campfire/commit/a778d7b058e6a5bd39c1bdaa9d7bd731a4971744))
 
 ## [1.59.4](https://github.com/magicink/twine-campfire/compare/v1.59.3...v1.59.4) (2025-08-13)
 
+
 ### Bug Fixes
 
-- process nested directives in if sequences ([#308](https://github.com/magicink/twine-campfire/issues/308)) ([578cfca](https://github.com/magicink/twine-campfire/commit/578cfcad749d8326f9161593b5508b0003b19c8c))
+* process nested directives in if sequences ([#308](https://github.com/magicink/twine-campfire/issues/308)) ([578cfca](https://github.com/magicink/twine-campfire/commit/578cfcad749d8326f9161593b5508b0003b19c8c))
 
 ## [1.59.3](https://github.com/magicink/twine-campfire/compare/v1.59.2...v1.59.3) (2025-08-13)
 
+
 ### Bug Fixes
 
-- enforce exclusive random directive attributes ([#305](https://github.com/magicink/twine-campfire/issues/305)) ([3ae8aff](https://github.com/magicink/twine-campfire/commit/3ae8aff0dec22a35346514a96754e5fc65b8b212))
+* enforce exclusive random directive attributes ([#305](https://github.com/magicink/twine-campfire/issues/305)) ([3ae8aff](https://github.com/magicink/twine-campfire/commit/3ae8aff0dec22a35346514a96754e5fc65b8b212))
 
 ## [1.59.2](https://github.com/magicink/twine-campfire/compare/v1.59.1...v1.59.2) (2025-08-13)
 
+
 ### Bug Fixes
 
-- preserve nodes when preprocessing if blocks ([#303](https://github.com/magicink/twine-campfire/issues/303)) ([b570c6b](https://github.com/magicink/twine-campfire/commit/b570c6bbc2e78ca08c3a332a7faaf649b9fa0942))
+* preserve nodes when preprocessing if blocks ([#303](https://github.com/magicink/twine-campfire/issues/303)) ([b570c6b](https://github.com/magicink/twine-campfire/commit/b570c6bbc2e78ca08c3a332a7faaf649b9fa0942))
 
 ## [1.59.1](https://github.com/magicink/twine-campfire/compare/v1.59.0...v1.59.1) (2025-08-13)
 
+
 ### Bug Fixes
 
-- forward transition styles to trigger buttons ([#300](https://github.com/magicink/twine-campfire/issues/300)) ([a98680b](https://github.com/magicink/twine-campfire/commit/a98680be4a8bffe48f6c9a2672a948cdfc8c5acb))
+* forward transition styles to trigger buttons ([#300](https://github.com/magicink/twine-campfire/issues/300)) ([a98680b](https://github.com/magicink/twine-campfire/commit/a98680be4a8bffe48f6c9a2672a948cdfc8c5acb))
 
 ## [1.59.0](https://github.com/magicink/twine-campfire/compare/v1.58.0...v1.59.0) (2025-08-13)
 
+
 ### Features
 
-- add Campfire Beta demo with sequenced transitions ([456b130](https://github.com/magicink/twine-campfire/commit/456b1309930f540282c06602201010901ef4f17a))
+* add Campfire Beta demo with sequenced transitions ([456b130](https://github.com/magicink/twine-campfire/commit/456b1309930f540282c06602201010901ef4f17a))
+
 
 ### Bug Fixes
 
-- **sequence:** handle string autoplay ([#299](https://github.com/magicink/twine-campfire/issues/299)) ([2687d8f](https://github.com/magicink/twine-campfire/commit/2687d8f83f1a5bdab5ae97a85e5e2ec12267d42e))
+* **sequence:** handle string autoplay ([#299](https://github.com/magicink/twine-campfire/issues/299)) ([2687d8f](https://github.com/magicink/twine-campfire/commit/2687d8f83f1a5bdab5ae97a85e5e2ec12267d42e))
 
 ## [1.58.0](https://github.com/magicink/twine-campfire/compare/v1.57.8...v1.58.0) (2025-08-13)
 
+
 ### Features
 
-- add pastel theme palette with dark mode ([#296](https://github.com/magicink/twine-campfire/issues/296)) ([e57e8ab](https://github.com/magicink/twine-campfire/commit/e57e8ab23d98d08efea77b90528b71d63f74cc60))
+* add pastel theme palette with dark mode ([#296](https://github.com/magicink/twine-campfire/issues/296)) ([e57e8ab](https://github.com/magicink/twine-campfire/commit/e57e8ab23d98d08efea77b90528b71d63f74cc60))
 
 ## [1.57.8](https://github.com/magicink/twine-campfire/compare/v1.57.7...v1.57.8) (2025-08-13)
 
+
 ### Bug Fixes
 
-- sanitize if directive content for multiple container blocks ([#292](https://github.com/magicink/twine-campfire/issues/292)) ([1876d96](https://github.com/magicink/twine-campfire/commit/1876d96e3f3f470bcd4c2925f8c7594bd52c7ca0))
-- use Libertinus Serif font ([#295](https://github.com/magicink/twine-campfire/issues/295)) ([9882790](https://github.com/magicink/twine-campfire/commit/9882790b631345714b87c288aa14244e29193417))
+* sanitize if directive content for multiple container blocks ([#292](https://github.com/magicink/twine-campfire/issues/292)) ([1876d96](https://github.com/magicink/twine-campfire/commit/1876d96e3f3f470bcd4c2925f8c7594bd52c7ca0))
+* use Libertinus Serif font ([#295](https://github.com/magicink/twine-campfire/issues/295)) ([9882790](https://github.com/magicink/twine-campfire/commit/9882790b631345714b87c288aa14244e29193417))
 
 ## [1.57.7](https://github.com/magicink/twine-campfire/compare/v1.57.6...v1.57.7) (2025-08-13)
 
+
 ### Bug Fixes
 
-- **campfire:** apply transition styles to child ([#290](https://github.com/magicink/twine-campfire/issues/290)) ([b97420e](https://github.com/magicink/twine-campfire/commit/b97420eef5d220458020d3d44d5d0f88b7aa8f1d))
+* **campfire:** apply transition styles to child ([#290](https://github.com/magicink/twine-campfire/issues/290)) ([b97420e](https://github.com/magicink/twine-campfire/commit/b97420eef5d220458020d3d44d5d0f88b7aa8f1d))
 
 ## [1.57.6](https://github.com/magicink/twine-campfire/compare/v1.57.5...v1.57.6) (2025-08-13)
 
+
 ### Bug Fixes
 
-- **if:** handle multiple container directives ([#288](https://github.com/magicink/twine-campfire/issues/288)) ([cd35a30](https://github.com/magicink/twine-campfire/commit/cd35a305a347ebb62b9a1131a04b1e2abb8b2022))
+* **if:** handle multiple container directives ([#288](https://github.com/magicink/twine-campfire/issues/288)) ([cd35a30](https://github.com/magicink/twine-campfire/commit/cd35a305a347ebb62b9a1131a04b1e2abb8b2022))
 
 ## [1.57.5](https://github.com/magicink/twine-campfire/compare/v1.57.4...v1.57.5) (2025-08-13)
 
+
 ### Bug Fixes
 
-- **template:** set base font size and apply Cormorant font to paragraphs ([0d01a84](https://github.com/magicink/twine-campfire/commit/0d01a84f31886933082d2b9222f9048a1b2b264d))
+* **template:** set base font size and apply Cormorant font to paragraphs ([0d01a84](https://github.com/magicink/twine-campfire/commit/0d01a84f31886933082d2b9222f9048a1b2b264d))
 
 ## [1.57.4](https://github.com/magicink/twine-campfire/compare/v1.57.3...v1.57.4) (2025-08-13)
 
+
 ### Bug Fixes
 
-- **campfire:** use Cormorant font for buttons ([#285](https://github.com/magicink/twine-campfire/issues/285)) ([d5f2b87](https://github.com/magicink/twine-campfire/commit/d5f2b872b41850960f1bb04ec517ac17384fdb18))
+* **campfire:** use Cormorant font for buttons ([#285](https://github.com/magicink/twine-campfire/issues/285)) ([d5f2b87](https://github.com/magicink/twine-campfire/commit/d5f2b872b41850960f1bb04ec517ac17384fdb18))
 
 ## [1.57.3](https://github.com/magicink/twine-campfire/compare/v1.57.2...v1.57.3) (2025-08-13)
 
+
 ### Bug Fixes
 
-- **campfire:** preprocess transition children ([#282](https://github.com/magicink/twine-campfire/issues/282)) ([a5f165a](https://github.com/magicink/twine-campfire/commit/a5f165a56338904199c1ec7a0119dbabdb8f1037))
+* **campfire:** preprocess transition children ([#282](https://github.com/magicink/twine-campfire/issues/282)) ([a5f165a](https://github.com/magicink/twine-campfire/commit/a5f165a56338904199c1ec7a0119dbabdb8f1037))
 
 ## [1.57.2](https://github.com/magicink/twine-campfire/compare/v1.57.1...v1.57.2) (2025-08-13)
 
+
 ### Bug Fixes
 
-- default paragraph font and size ([#278](https://github.com/magicink/twine-campfire/issues/278)) ([8135923](https://github.com/magicink/twine-campfire/commit/81359237d6579fe4f6db42601de0f3302cb6778a))
+* default paragraph font and size ([#278](https://github.com/magicink/twine-campfire/issues/278)) ([8135923](https://github.com/magicink/twine-campfire/commit/81359237d6579fe4f6db42601de0f3302cb6778a))
 
 ## [1.57.1](https://github.com/magicink/twine-campfire/compare/v1.57.0...v1.57.1) (2025-08-13)
 
+
 ### Bug Fixes
 
-- support sequences inside if directives ([#279](https://github.com/magicink/twine-campfire/issues/279)) ([c9164bb](https://github.com/magicink/twine-campfire/commit/c9164bbb983c38e3bd0ed0c4adca7f4f2ede7811))
+* support sequences inside if directives ([#279](https://github.com/magicink/twine-campfire/issues/279)) ([c9164bb](https://github.com/magicink/twine-campfire/commit/c9164bbb983c38e3bd0ed0c4adca7f4f2ede7811))
 
 ## [1.57.0](https://github.com/magicink/twine-campfire/compare/v1.56.0...v1.57.0) (2025-08-12)
 
+
 ### Features
 
-- apply default heading typography ([#275](https://github.com/magicink/twine-campfire/issues/275)) ([a445b46](https://github.com/magicink/twine-campfire/commit/a445b460d11edd1e6f83e953d00d671cb0996d05))
+* apply default heading typography ([#275](https://github.com/magicink/twine-campfire/issues/275)) ([a445b46](https://github.com/magicink/twine-campfire/commit/a445b460d11edd1e6f83e953d00d671cb0996d05))
 
 ## [1.56.0](https://github.com/magicink/twine-campfire/compare/v1.55.1...v1.56.0) (2025-08-12)
 
+
 ### Features
 
-- remove sequence rewind support ([#272](https://github.com/magicink/twine-campfire/issues/272)) ([af18fc7](https://github.com/magicink/twine-campfire/commit/af18fc71b151389474d5b5ec0ffd3efa379a23d7))
+* remove sequence rewind support ([#272](https://github.com/magicink/twine-campfire/issues/272)) ([af18fc7](https://github.com/magicink/twine-campfire/commit/af18fc71b151389474d5b5ec0ffd3efa379a23d7))
 
 ## [1.55.1](https://github.com/magicink/twine-campfire/compare/v1.55.0...v1.55.1) (2025-08-12)
 
+
 ### Bug Fixes
 
-- **campfire:** remove step stagger attribute ([#266](https://github.com/magicink/twine-campfire/issues/266)) ([fefb095](https://github.com/magicink/twine-campfire/commit/fefb0953d1ba5cb0cfd52731986ba20635f6d136))
+* **campfire:** remove step stagger attribute ([#266](https://github.com/magicink/twine-campfire/issues/266)) ([fefb095](https://github.com/magicink/twine-campfire/commit/fefb0953d1ba5cb0cfd52731986ba20635f6d136))
 
 ## [1.55.0](https://github.com/magicink/twine-campfire/compare/v1.54.6...v1.55.0) (2025-08-12)
 
+
 ### Features
 
-- **campfire:** add transition staggering ([#264](https://github.com/magicink/twine-campfire/issues/264)) ([196efd9](https://github.com/magicink/twine-campfire/commit/196efd9f9a6f1769b5f6b16112f8766b968315e3))
+* **campfire:** add transition staggering ([#264](https://github.com/magicink/twine-campfire/issues/264)) ([196efd9](https://github.com/magicink/twine-campfire/commit/196efd9f9a6f1769b5f6b16112f8766b968315e3))
 
 ## [1.54.6](https://github.com/magicink/twine-campfire/compare/v1.54.5...v1.54.6) (2025-08-12)
 
+
 ### Bug Fixes
 
-- **campfire:** wait for step transitions before advancing sequence ([#262](https://github.com/magicink/twine-campfire/issues/262)) ([d2bd9c6](https://github.com/magicink/twine-campfire/commit/d2bd9c6f459675e8f53419f22e633c90507d0eec))
+* **campfire:** wait for step transitions before advancing sequence ([#262](https://github.com/magicink/twine-campfire/issues/262)) ([d2bd9c6](https://github.com/magicink/twine-campfire/commit/d2bd9c6f459675e8f53419f22e633c90507d0eec))
 
 ## [1.54.5](https://github.com/magicink/twine-campfire/compare/v1.54.4...v1.54.5) (2025-08-11)
 
+
 ### Bug Fixes
 
-- **campfire:** strip extra directive markers ([#260](https://github.com/magicink/twine-campfire/issues/260)) ([200eaab](https://github.com/magicink/twine-campfire/commit/200eaabd601520c806a36da10078bb4c31d8b87b))
+* **campfire:** strip extra directive markers ([#260](https://github.com/magicink/twine-campfire/issues/260)) ([200eaab](https://github.com/magicink/twine-campfire/commit/200eaabd601520c806a36da10078bb4c31d8b87b))
 
 ## [1.54.4](https://github.com/magicink/twine-campfire/compare/v1.54.3...v1.54.4) (2025-08-11)
 
+
 ### Bug Fixes
 
-- remove stray directive markers in sequence steps ([#257](https://github.com/magicink/twine-campfire/issues/257)) ([1d69308](https://github.com/magicink/twine-campfire/commit/1d69308af63d8bb5d1337c2ac857444ff4ef26e0))
+* remove stray directive markers in sequence steps ([#257](https://github.com/magicink/twine-campfire/issues/257)) ([1d69308](https://github.com/magicink/twine-campfire/commit/1d69308af63d8bb5d1337c2ac857444ff4ef26e0))
 
 ## [1.54.3](https://github.com/magicink/twine-campfire/compare/v1.54.2...v1.54.3) (2025-08-11)
 
+
 ### Bug Fixes
 
-- **campfire:** handle indented sequence steps ([#255](https://github.com/magicink/twine-campfire/issues/255)) ([6e72a39](https://github.com/magicink/twine-campfire/commit/6e72a39de1921a235212045b92c7da52186106d5))
+* **campfire:** handle indented sequence steps ([#255](https://github.com/magicink/twine-campfire/issues/255)) ([6e72a39](https://github.com/magicink/twine-campfire/commit/6e72a39de1921a235212045b92c7da52186106d5))
 
 ## [1.54.2](https://github.com/magicink/twine-campfire/compare/v1.54.1...v1.54.2) (2025-08-11)
 
+
 ### Bug Fixes
 
-- rename restore directive to loadCheckpoint ([#253](https://github.com/magicink/twine-campfire/issues/253)) ([1b99990](https://github.com/magicink/twine-campfire/commit/1b99990ff33c1ab471cac3b57a97cf0296b8d4a8))
+* rename restore directive to loadCheckpoint ([#253](https://github.com/magicink/twine-campfire/issues/253)) ([1b99990](https://github.com/magicink/twine-campfire/commit/1b99990ff33c1ab471cac3b57a97cf0296b8d4a8))
 
 ## [1.54.1](https://github.com/magicink/twine-campfire/compare/v1.54.0...v1.54.1) (2025-08-11)
 
+
 ### Bug Fixes
 
-- remove attributes from clearCheckpoint directive ([#250](https://github.com/magicink/twine-campfire/issues/250)) ([cbee185](https://github.com/magicink/twine-campfire/commit/cbee185dbeefc89671376b211f27bc7b71254ff2))
+* remove attributes from clearCheckpoint directive ([#250](https://github.com/magicink/twine-campfire/issues/250)) ([cbee185](https://github.com/magicink/twine-campfire/commit/cbee185dbeefc89671376b211f27bc7b71254ff2))
 
 ## [1.54.0](https://github.com/magicink/twine-campfire/compare/v1.53.0...v1.54.0) (2025-08-11)
 
+
 ### Features
 
-- **i18n:** support interpolation in t directive ([#248](https://github.com/magicink/twine-campfire/issues/248)) ([b98a6d2](https://github.com/magicink/twine-campfire/commit/b98a6d290e4078418185a802c0bd8a1a8e8dee37))
+* **i18n:** support interpolation in t directive ([#248](https://github.com/magicink/twine-campfire/issues/248)) ([b98a6d2](https://github.com/magicink/twine-campfire/commit/b98a6d290e4078418185a802c0bd8a1a8e8dee37))
 
 ## [1.53.0](https://github.com/magicink/twine-campfire/compare/v1.52.1...v1.53.0) (2025-08-11)
 
+
 ### Features
 
-- remove clearErrors directive ([#246](https://github.com/magicink/twine-campfire/issues/246)) ([9c63230](https://github.com/magicink/twine-campfire/commit/9c63230f6f5dcc9b971217091c4bcfd427f606f2))
+* remove clearErrors directive ([#246](https://github.com/magicink/twine-campfire/issues/246)) ([9c63230](https://github.com/magicink/twine-campfire/commit/9c63230f6f5dcc9b971217091c4bcfd427f606f2))
 
 ## [1.52.1](https://github.com/magicink/twine-campfire/compare/v1.52.0...v1.52.1) (2025-08-11)
 
+
 ### Bug Fixes
 
-- consolidate range directive handling ([#244](https://github.com/magicink/twine-campfire/issues/244)) ([8a4f439](https://github.com/magicink/twine-campfire/commit/8a4f4393502c485cd5e5058f51925a63e28d667b))
+* consolidate range directive handling ([#244](https://github.com/magicink/twine-campfire/issues/244)) ([8a4f439](https://github.com/magicink/twine-campfire/commit/8a4f4393502c485cd5e5058f51925a63e28d667b))
 
 ## [1.52.0](https://github.com/magicink/twine-campfire/compare/v1.51.2...v1.52.0) (2025-08-11)
 
+
 ### Features
 
-- **campfire:** update debug error display ([#242](https://github.com/magicink/twine-campfire/issues/242)) ([7cd4992](https://github.com/magicink/twine-campfire/commit/7cd4992f00ffbf3053b8ca8517f53b63340234ab))
+* **campfire:** update debug error display ([#242](https://github.com/magicink/twine-campfire/issues/242)) ([7cd4992](https://github.com/magicink/twine-campfire/commit/7cd4992f00ffbf3053b8ca8517f53b63340234ab))
 
 ## [1.51.2](https://github.com/magicink/twine-campfire/compare/v1.51.1...v1.51.2) (2025-08-11)
 
+
 ### Bug Fixes
 
-- **remark-campfire:** handle paragraph hName ([#239](https://github.com/magicink/twine-campfire/issues/239)) ([4d308c6](https://github.com/magicink/twine-campfire/commit/4d308c668aaa7f55a3df055b20bed867786839b2))
+* **remark-campfire:** handle paragraph hName ([#239](https://github.com/magicink/twine-campfire/issues/239)) ([4d308c6](https://github.com/magicink/twine-campfire/commit/4d308c668aaa7f55a3df055b20bed867786839b2))
 
 ## [1.51.1](https://github.com/magicink/twine-campfire/compare/v1.51.0...v1.51.1) (2025-08-11)
 
+
 ### Bug Fixes
 
-- avoid redundant range updates ([#237](https://github.com/magicink/twine-campfire/issues/237)) ([c099868](https://github.com/magicink/twine-campfire/commit/c0998689edd3b29809eb29958795f45e15b60010))
+* avoid redundant range updates ([#237](https://github.com/magicink/twine-campfire/issues/237)) ([c099868](https://github.com/magicink/twine-campfire/commit/c0998689edd3b29809eb29958795f45e15b60010))
 
 ## [1.51.0](https://github.com/magicink/twine-campfire/compare/v1.50.1...v1.51.0) (2025-08-11)
 
+
 ### Features
 
-- add range directives ([#235](https://github.com/magicink/twine-campfire/issues/235)) ([b743b07](https://github.com/magicink/twine-campfire/commit/b743b074ce106168ac8b4222619836e76b0ee86c))
+* add range directives ([#235](https://github.com/magicink/twine-campfire/issues/235)) ([b743b07](https://github.com/magicink/twine-campfire/commit/b743b074ce106168ac8b4222619836e76b0ee86c))
 
 ## [1.50.1](https://github.com/magicink/twine-campfire/compare/v1.50.0...v1.50.1) (2025-08-11)
 
+
 ### Bug Fixes
 
-- parse random attrs in batch ([#233](https://github.com/magicink/twine-campfire/issues/233)) ([d430ddc](https://github.com/magicink/twine-campfire/commit/d430ddc8044d49d1409a8f7d4ce3fb71d80f039b))
+* parse random attrs in batch ([#233](https://github.com/magicink/twine-campfire/issues/233)) ([d430ddc](https://github.com/magicink/twine-campfire/commit/d430ddc8044d49d1409a8f7d4ce3fb71d80f039b))
 
 ## [1.50.0](https://github.com/magicink/twine-campfire/compare/v1.49.6...v1.50.0) (2025-08-10)
 
+
 ### Features
 
-- **campfire:** implement sequence directive ([#231](https://github.com/magicink/twine-campfire/issues/231)) ([fdc5b1e](https://github.com/magicink/twine-campfire/commit/fdc5b1e658bc5796520b322d6ff910e6423c0c5d))
+* **campfire:** implement sequence directive ([#231](https://github.com/magicink/twine-campfire/issues/231)) ([fdc5b1e](https://github.com/magicink/twine-campfire/commit/fdc5b1e658bc5796520b322d6ff910e6423c0c5d))
 
 ## [1.49.6](https://github.com/magicink/twine-campfire/compare/v1.49.5...v1.49.6) (2025-08-10)
 
+
 ### Bug Fixes
 
-- support random directives in onExit and batch ([#229](https://github.com/magicink/twine-campfire/issues/229)) ([61f7ddb](https://github.com/magicink/twine-campfire/commit/61f7ddb297a51abd5c1a005b96324029ed272d05))
+* support random directives in onExit and batch ([#229](https://github.com/magicink/twine-campfire/issues/229)) ([61f7ddb](https://github.com/magicink/twine-campfire/commit/61f7ddb297a51abd5c1a005b96324029ed272d05))
 
 ## [1.49.5](https://github.com/magicink/twine-campfire/compare/v1.49.4...v1.49.5) (2025-08-10)
 
+
 ### Bug Fixes
 
-- **useDirectiveHandlers:** clean up imports and improve regex patterns ([7b11b0e](https://github.com/magicink/twine-campfire/commit/7b11b0e0b4695d23836db39c502645f270ce1f43))
+* **useDirectiveHandlers:** clean up imports and improve regex patterns ([7b11b0e](https://github.com/magicink/twine-campfire/commit/7b11b0e0b4695d23836db39c502645f270ce1f43))
 
 ## [1.49.4](https://github.com/magicink/twine-campfire/compare/v1.49.3...v1.49.4) (2025-08-10)
 
+
 ### Bug Fixes
 
-- **onExit:** remove stray colons after batch ([#226](https://github.com/magicink/twine-campfire/issues/226)) ([75171ee](https://github.com/magicink/twine-campfire/commit/75171ee5ec27a689632c68082374fd3016d2d734))
+* **onExit:** remove stray colons after batch ([#226](https://github.com/magicink/twine-campfire/issues/226)) ([75171ee](https://github.com/magicink/twine-campfire/commit/75171ee5ec27a689632c68082374fd3016d2d734))
 
 ## [1.49.3](https://github.com/magicink/twine-campfire/compare/v1.49.2...v1.49.3) (2025-08-10)
 
+
 ### Bug Fixes
 
-- restrict batch directive children ([#223](https://github.com/magicink/twine-campfire/issues/223)) ([193bcbe](https://github.com/magicink/twine-campfire/commit/193bcbeed2a68e62255777a3c40b0001d31f8987))
+* restrict batch directive children ([#223](https://github.com/magicink/twine-campfire/issues/223)) ([193bcbe](https://github.com/magicink/twine-campfire/commit/193bcbeed2a68e62255777a3c40b0001d31f8987))
 
 ## [1.49.2](https://github.com/magicink/twine-campfire/compare/v1.49.1...v1.49.2) (2025-08-10)
 
+
 ### Bug Fixes
 
-- support batch in onExit and prevent nested batches ([#221](https://github.com/magicink/twine-campfire/issues/221)) ([7380435](https://github.com/magicink/twine-campfire/commit/7380435e6d4d4059844c889eb48c083103a5e14e))
+* support batch in onExit and prevent nested batches ([#221](https://github.com/magicink/twine-campfire/issues/221)) ([7380435](https://github.com/magicink/twine-campfire/commit/7380435e6d4d4059844c889eb48c083103a5e14e))
 
 ## [1.49.1](https://github.com/magicink/twine-campfire/compare/v1.49.0...v1.49.1) (2025-08-10)
 
+
 ### Bug Fixes
 
-- handle string arrays in random directive ([#219](https://github.com/magicink/twine-campfire/issues/219)) ([fa84837](https://github.com/magicink/twine-campfire/commit/fa8483751bfd1973f7d51aed5f4ea8e66d5486ed))
+* handle string arrays in random directive ([#219](https://github.com/magicink/twine-campfire/issues/219)) ([fa84837](https://github.com/magicink/twine-campfire/commit/fa8483751bfd1973f7d51aed5f4ea8e66d5486ed))
 
 ## [1.49.0](https://github.com/magicink/twine-campfire/compare/v1.48.1...v1.49.0) (2025-08-10)
 
+
 ### Features
 
-- update :random directive API ([#217](https://github.com/magicink/twine-campfire/issues/217)) ([f702c97](https://github.com/magicink/twine-campfire/commit/f702c977464ff13e9722e89adea44c0774492fbf))
+* update :random directive API ([#217](https://github.com/magicink/twine-campfire/issues/217)) ([f702c97](https://github.com/magicink/twine-campfire/commit/f702c977464ff13e9722e89adea44c0774492fbf))
 
 ## [1.48.1](https://github.com/magicink/twine-campfire/compare/v1.48.0...v1.48.1) (2025-08-10)
 
+
 ### Bug Fixes
 
-- allow standalone OnComplete usage ([#215](https://github.com/magicink/twine-campfire/issues/215)) ([602c669](https://github.com/magicink/twine-campfire/commit/602c669e16ae7d5f2b73a57b1979ef7d57d31802))
+* allow standalone OnComplete usage ([#215](https://github.com/magicink/twine-campfire/issues/215)) ([602c669](https://github.com/magicink/twine-campfire/commit/602c669e16ae7d5f2b73a57b1979ef7d57d31802))
 
 ## [1.48.0](https://github.com/magicink/twine-campfire/compare/v1.47.0...v1.48.0) (2025-08-10)
 
+
 ### Features
 
-- replace react with preact ([#213](https://github.com/magicink/twine-campfire/issues/213)) ([6f9d03a](https://github.com/magicink/twine-campfire/commit/6f9d03a7485655d1d09a68ca3989806edf9a3f29))
+* replace react with preact ([#213](https://github.com/magicink/twine-campfire/issues/213)) ([6f9d03a](https://github.com/magicink/twine-campfire/commit/6f9d03a7485655d1d09a68ca3989806edf9a3f29))
 
 ## [1.47.0](https://github.com/magicink/twine-campfire/compare/v1.46.1...v1.47.0) (2025-08-10)
 
+
 ### Features
 
-- add OnComplete component for Sequence ([#210](https://github.com/magicink/twine-campfire/issues/210)) ([6e5eefd](https://github.com/magicink/twine-campfire/commit/6e5eefd74f2b4f7f74bc5bbfcb9b557806d712c6))
+* add OnComplete component for Sequence ([#210](https://github.com/magicink/twine-campfire/issues/210)) ([6e5eefd](https://github.com/magicink/twine-campfire/commit/6e5eefd74f2b4f7f74bc5bbfcb9b557806d712c6))
 
 ## [1.46.1](https://github.com/magicink/twine-campfire/compare/v1.46.0...v1.46.1) (2025-08-10)
 
+
 ### Bug Fixes
 
-- support if directives in onExit ([#206](https://github.com/magicink/twine-campfire/issues/206)) ([a963d9b](https://github.com/magicink/twine-campfire/commit/a963d9bd66c1e642ab5ff0b31034d10c4f3da212))
+* support if directives in onExit ([#206](https://github.com/magicink/twine-campfire/issues/206)) ([a963d9b](https://github.com/magicink/twine-campfire/commit/a963d9bd66c1e642ab5ff0b31034d10c4f3da212))
 
 ## [1.46.0](https://github.com/magicink/twine-campfire/compare/v1.45.0...v1.46.0) (2025-08-10)
 
+
 ### Features
 
-- add onExit directive ([#203](https://github.com/magicink/twine-campfire/issues/203)) ([8d0e705](https://github.com/magicink/twine-campfire/commit/8d0e705ec1f4c2aa4b412ba895d758f158a98f12))
+* add onExit directive ([#203](https://github.com/magicink/twine-campfire/issues/203)) ([8d0e705](https://github.com/magicink/twine-campfire/commit/8d0e705ec1f4c2aa4b412ba895d758f158a98f12))
 
 ## [1.45.0](https://github.com/magicink/twine-campfire/compare/v1.44.0...v1.45.0) (2025-08-09)
 
+
 ### Features
 
-- add Sequence and Step components ([#201](https://github.com/magicink/twine-campfire/issues/201)) ([e23ee8b](https://github.com/magicink/twine-campfire/commit/e23ee8bffd3e9c02c09a3126bdd216abe271829a))
+* add Sequence and Step components ([#201](https://github.com/magicink/twine-campfire/issues/201)) ([e23ee8b](https://github.com/magicink/twine-campfire/commit/e23ee8bffd3e9c02c09a3126bdd216abe271829a))
 
 ## [1.44.0](https://github.com/magicink/twine-campfire/compare/v1.43.1...v1.44.0) (2025-08-09)
 
+
 ### Features
 
-- add count attribute for t directive ([#199](https://github.com/magicink/twine-campfire/issues/199)) ([2d630d2](https://github.com/magicink/twine-campfire/commit/2d630d23938d47383fd5d8694995aeae2ee40dd1))
+* add count attribute for t directive ([#199](https://github.com/magicink/twine-campfire/issues/199)) ([2d630d2](https://github.com/magicink/twine-campfire/commit/2d630d23938d47383fd5d8694995aeae2ee40dd1))
 
 ## [1.44.0](https://github.com/magicink/twine-campfire/compare/v1.43.1...v1.44.0) (2025-08-09)
 
