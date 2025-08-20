@@ -1,4 +1,5 @@
 import { evalExpression } from '@campfire/utils/evalExpression'
+import { QUOTE_PATTERN } from '@campfire/utils/quote'
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
@@ -8,7 +9,6 @@ import type { Parent, Root, RootContent, Code } from 'mdast'
 import type { DirectiveNode } from '@campfire/remark-campfire/helpers'
 import { ensureKey, removeNode } from '@campfire/remark-campfire/helpers'
 
-const QUOTE_PATTERN = /^(['"`])(.*)\1$/
 /**
  * Parses a raw string into a typed value. Supports quoted strings, booleans,
  * numbers, object literals and expression evaluation against provided data.
