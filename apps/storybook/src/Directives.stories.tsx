@@ -82,3 +82,59 @@ export const Deck: StoryObj = {
     </>
   )
 }
+
+/** Story with two passages, each containing its own deck of slides. */
+export const MultiPassageDecks: StoryObj = {
+  render: () => (
+    <>
+      <tw-storydata startnode='1' options='debug'>
+        <tw-passagedata pid='1' name='Start'>
+          {`
+  :::deck{size='400x300'}
+    :::slide
+
+      [[Next->Second]]
+
+      :::appear{at=0}
+        :::text{x=20 y=20}
+        First deck 1
+        :::
+      :::
+
+      :::appear{at=1}
+        :::text{x=20 y=60}
+        First deck 2
+        :::
+      :::
+    :::
+  :::
+  `}
+        </tw-passagedata>
+        <tw-passagedata pid='2' name='Second'>
+          {`
+
+  :::deck{size='400x300'}
+    :::slide
+
+      [[Back->Start]]
+
+      :::appear{at=0}
+        :::text{x=20 y=20}
+        Second deck 1
+        :::
+      :::
+
+      :::appear{at=1}
+        :::text{x=20 y=40}
+        Second deck 2
+        :::
+      :::
+    :::
+  :::
+  `}
+        </tw-passagedata>
+      </tw-storydata>
+      <Campfire />
+    </>
+  )
+}

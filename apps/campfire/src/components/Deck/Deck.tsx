@@ -42,6 +42,9 @@ export type A11yLabels = {
   slide: (index: number, total: number) => string
 }
 
+/** Default interval for autoplay advances in milliseconds. */
+const DEFAULT_AUTO_ADVANCE_MS = 3000
+
 export interface DeckProps {
   size?: DeckSize
   theme?: ThemeTokens
@@ -53,6 +56,8 @@ export interface DeckProps {
   a11y?: Partial<A11yLabels>
   /** Whether to display the slide counter HUD. */
   showSlideCount?: boolean
+  /** Whether to hide navigation controls. */
+  hideNavigation?: boolean
   children?: ComponentChildren
 }
 
@@ -112,6 +117,7 @@ export const Deck = ({
   className,
   a11y,
   showSlideCount = false,
+  hideNavigation = false,
   children
 }: DeckProps) => {
   /**
@@ -143,7 +149,6 @@ export const Deck = ({
   }, [children])
   const currentSlide = useDeckStore(state => state.currentSlide)
   const currentStep = useDeckStore(state => state.currentStep)
-  const maxSteps = useDeckStore(state => state.maxSteps)
   const next = useDeckStore(state => state.next)
   const prev = useDeckStore(state => state.prev)
   const goTo = useDeckStore(state => state.goTo)
@@ -152,7 +157,9 @@ export const Deck = ({
   const reset = useDeckStore(state => state.reset)
 
   const atStart = currentSlide === 0 && currentStep === 0
-  const atEnd = currentSlide === slides.length - 1 && currentStep === maxSteps
+  const finalSlideIndex = slides.length - 1
+  const finalStep = slideSteps[finalSlideIndex] ?? 0
+  const atEnd = currentSlide === finalSlideIndex && currentStep === finalStep
 
   const labels: A11yLabels = useMemo(
     () => ({
@@ -169,7 +176,9 @@ export const Deck = ({
 
   const [currentVNode, setCurrentVNode] = useState(slides[0] as VNode)
   const [prevVNode, setPrevVNode] = useState<VNode | null>(null)
-  const [paused, setPaused] = useState(autoAdvancePaused)
+  const [paused, setPaused] = useState(
+    autoAdvancePaused || autoAdvanceMs == null
+  )
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const slideRef = useRef<HTMLDivElement>(null)
   const reduceMotion = prefersReducedMotion()
@@ -261,11 +270,12 @@ export const Deck = ({
    */
   const scheduleAutoAdvance = (): void => {
     clearAutoAdvance()
-    if (autoAdvanceMs != null && !paused) {
+    if (!paused) {
+      const delay = autoAdvanceMs ?? DEFAULT_AUTO_ADVANCE_MS
       timeoutRef.current = setTimeout(() => {
         next()
         scheduleAutoAdvance()
-      }, autoAdvanceMs)
+      }, delay)
     }
   }
 
@@ -273,6 +283,16 @@ export const Deck = ({
     scheduleAutoAdvance()
     return clearAutoAdvance
   }, [autoAdvanceMs, paused, next])
+
+  /**
+   * Pauses autoplay once the final slide is reached.
+   */
+  useEffect(() => {
+    if (atEnd && !paused) {
+      setPaused(true)
+      clearAutoAdvance()
+    }
+  }, [atEnd, paused])
 
   /**
    * Toggles autoplay between paused and playing states.
@@ -430,43 +450,43 @@ export const Deck = ({
           </div>
         </div>
       )}
-      <div
-        className='absolute inset-x-0 bottom-2 flex items-center justify-center px-2 pointer-events-none'
-        style={{ gap: 8 }}
-        data-testid='deck-nav'
-      >
-        <button
-          type='button'
-          className='pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring'
-          aria-label={labels.prev}
-          onClick={handlePrev}
-          data-testid='deck-prev'
-          disabled={atStart}
+      {!hideNavigation && (
+        <div
+          className='absolute inset-x-0 bottom-2 flex items-center justify-center px-2 pointer-events-none'
+          style={{ gap: 8 }}
+          data-testid='deck-nav'
         >
-          ⏮
-        </button>
-        {autoAdvanceMs != null && (
           <button
             type='button'
-            className='pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring'
+            className='pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring disabled:opacity-50'
+            aria-label={labels.prev}
+            onClick={handlePrev}
+            data-testid='deck-prev'
+            disabled={atStart}
+          >
+            ⏮
+          </button>
+          <button
+            type='button'
+            className='pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring disabled:opacity-50'
             aria-label={paused ? labels.play : labels.pause}
             onClick={toggleAutoplay}
             data-testid='deck-autoplay-toggle'
           >
             {paused ? '▶' : '⏸'}
           </button>
-        )}
-        <button
-          type='button'
-          className='pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring'
-          aria-label={labels.next}
-          onClick={handleNext}
-          data-testid='deck-next'
-          disabled={atEnd}
-        >
-          ⏭
-        </button>
-      </div>
+          <button
+            type='button'
+            className='pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring disabled:opacity-50'
+            aria-label={labels.next}
+            onClick={handleNext}
+            data-testid='deck-next'
+            disabled={atEnd}
+          >
+            ⏭
+          </button>
+        </div>
+      )}
     </div>
   )
 }
