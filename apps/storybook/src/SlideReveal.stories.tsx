@@ -1,27 +1,27 @@
 import type { Meta, StoryObj } from '@storybook/preact'
 import { h } from 'preact'
-import { Deck, Slide, SlideText, Appear } from '@campfire/components'
+import { Deck, Slide, SlideText, SlideReveal } from '@campfire/components'
 
-const meta: Meta<typeof Appear> = {
-  component: Appear,
-  title: 'Campfire/Appear'
+const meta: Meta<typeof SlideReveal> = {
+  component: SlideReveal,
+  title: 'Campfire/SlideReveal'
 }
 
 export default meta
 
 /**
- * Renders a deck demonstrating sequential Appear elements and their
+ * Renders a deck demonstrating sequential SlideReveal elements and their
  * behavior when switching slides.
  *
  * @returns The rendered deck.
  */
-const render: StoryObj<typeof Appear>['render'] = () => (
+const render: StoryObj<typeof SlideReveal>['render'] = () => (
   <Deck className='w-[800px] h-[600px]'>
     <Slide
       transition={{ type: 'slide' }}
       className='bg-gray-100 dark:bg-gray-900'
     >
-      <Appear at={0}>
+      <SlideReveal at={0}>
         <SlideText
           as='h2'
           x={180}
@@ -33,8 +33,8 @@ const render: StoryObj<typeof Appear>['render'] = () => (
         >
           First
         </SlideText>
-      </Appear>
-      <Appear at={1}>
+      </SlideReveal>
+      <SlideReveal at={1}>
         <SlideText
           x={280}
           y={280}
@@ -45,7 +45,7 @@ const render: StoryObj<typeof Appear>['render'] = () => (
         >
           Second
         </SlideText>
-      </Appear>
+      </SlideReveal>
     </Slide>
     <Slide className='bg-gray-100 dark:bg-gray-900'>
       <SlideText
@@ -63,4 +63,4 @@ const render: StoryObj<typeof Appear>['render'] = () => (
   </Deck>
 )
 
-export const Basic: StoryObj<typeof Appear> = { render }
+export const Basic: StoryObj<typeof SlideReveal> = { render }

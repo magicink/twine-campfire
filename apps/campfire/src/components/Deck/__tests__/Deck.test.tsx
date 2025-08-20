@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'bun:test'
 import { act, fireEvent, render, screen } from '@testing-library/preact'
 import { Deck } from '@campfire/components/Deck'
-import { Appear, Slide } from '@campfire/components/Deck/Slide'
+import { SlideReveal, Slide } from '@campfire/components/Deck/Slide'
 import { LinkButton } from '@campfire/components'
 import { useDeckStore } from '@campfire/state/useDeckStore'
 import { StubAnimation } from '@campfire/test-utils/stub-animation'
@@ -346,7 +346,7 @@ describe('Deck', () => {
     expect(nav.className).toContain('bottom-2')
   })
 
-  it.skip('sets max steps once for multiple Appear elements', async () => {
+  it.skip('sets max steps once for multiple SlideReveal elements', async () => {
     const original = useDeckStore.getState().setMaxSteps
     const calls: number[] = []
     useDeckStore.setState({
@@ -359,9 +359,9 @@ describe('Deck', () => {
     render(
       <Deck>
         <Slide>
-          <Appear at={0}>One</Appear>
-          <Appear at={1}>Two</Appear>
-          <Appear at={2}>Three</Appear>
+          <SlideReveal at={0}>One</SlideReveal>
+          <SlideReveal at={1}>Two</SlideReveal>
+          <SlideReveal at={2}>Three</SlideReveal>
         </Slide>
       </Deck>
     )
@@ -378,12 +378,12 @@ describe('Deck', () => {
     render(
       <Deck>
         <Slide>
-          <Appear at={0}>One</Appear>
-          <Appear at={1}>Two</Appear>
-          <Appear at={2}>Three</Appear>
+          <SlideReveal at={0}>One</SlideReveal>
+          <SlideReveal at={1}>Two</SlideReveal>
+          <SlideReveal at={2}>Three</SlideReveal>
         </Slide>
         <Slide>
-          <Appear>Only</Appear>
+          <SlideReveal>Only</SlideReveal>
         </Slide>
       </Deck>
     )
@@ -420,13 +420,13 @@ describe('Deck', () => {
     expect(useDeckStore.getState().currentSlide).toBe(0)
   })
 
-  it.skip('stops autoplay after the final appear of the last slide', async () => {
+  it.skip('stops autoplay after the final reveal of the last slide', async () => {
     render(
       <Deck autoAdvanceMs={20}>
         <Slide>Slide 1</Slide>
         <Slide>
-          <Appear at={0}>One</Appear>
-          <Appear at={1}>Two</Appear>
+          <SlideReveal at={0}>One</SlideReveal>
+          <SlideReveal at={1}>Two</SlideReveal>
         </Slide>
       </Deck>
     )

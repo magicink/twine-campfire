@@ -7,27 +7,27 @@ import {
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'preact/hooks'
 import { useDeckStore } from '@campfire/state/useDeckStore'
 import { useSerializedDirectiveRunner } from '@campfire/hooks/useSerializedDirectiveRunner'
-import { Appear } from './Appear'
+import { SlideReveal } from './SlideReveal'
 import { SlideTransitionContext } from './context'
 import type { SlideProps } from './types'
 
 /**
  * Recursively scans the Slide's descendants to determine the highest step
- * index contributed by any {@link Appear} component. The traversal flattens
+ * index contributed by any {@link SlideReveal} component. The traversal flattens
  * fragments via {@link toChildArray} so nested arrays and fragments are
- * inspected. When an `Appear` is encountered, both its `at` and `exitAt`
+ * inspected. When a `SlideReveal` is encountered, both its `at` and `exitAt`
  * values are considered to account for entry and exit steps.
  *
  * @param children - Potentially nested Slide children to inspect.
- * @returns The maximum step index discovered across all Appear elements.
+ * @returns The maximum step index discovered across all SlideReveal elements.
  */
-const getAppearMax = (children: ComponentChildren): number => {
+const getRevealMax = (children: ComponentChildren): number => {
   let max = 0
   const walk = (nodes: ComponentChildren): void => {
     toChildArray(nodes).forEach(node => {
       if (typeof node === 'object' && node !== null && 'type' in node) {
         const child = node as VNode<any>
-        if (child.type === Appear) {
+        if (child.type === SlideReveal) {
           const at = child.props.at ?? 0
           const exitAt = child.props.exitAt ?? at
           max = Math.max(max, Math.max(at, exitAt))
@@ -59,7 +59,7 @@ export const Slide = ({
   const maxSteps = useDeckStore(state => state.maxSteps)
   const setMaxSteps = useDeckStore(state => state.setMaxSteps)
   const computedSteps = useMemo(
-    () => Math.max(steps ?? 0, getAppearMax(children)),
+    () => Math.max(steps ?? 0, getRevealMax(children)),
     [steps, children]
   )
   const runEnter = useSerializedDirectiveRunner(onEnter ?? '[]')

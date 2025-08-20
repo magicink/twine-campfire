@@ -5,7 +5,7 @@ import type { ComponentChild } from 'preact'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { Deck } from '@campfire/components/Deck'
 import { Slide } from '@campfire/components/Deck/Slide'
-import { Appear } from '@campfire/components/Deck/Slide'
+import { SlideReveal } from '@campfire/components/Deck/Slide'
 import { SlideText } from '@campfire/components/Deck/Slide'
 import { DEFAULT_DECK_HEIGHT, DEFAULT_DECK_WIDTH } from '@campfire/constants'
 import { renderDirectiveMarkdown } from '@campfire/components/Deck/Slide'
@@ -113,15 +113,15 @@ describe('deck directive', () => {
     expect(text).not.toContain(':::')
   })
 
-  it('keeps nested appear directives within a slide', () => {
+  it('keeps nested reveal directives within a slide', () => {
     const md = `:::deck{size='800x600'}
   :::slide{transition='fade'}
-    :::appear{at=0}
+    :::reveal{at=0}
       :::text{x=80 y=80 as="h2"}
       Hello
       :::
     :::
-    :::appear{at=1}
+    :::reveal{at=1}
       :::text{x=100 y=100 as="h2"}
       World
       :::
@@ -144,8 +144,8 @@ describe('deck directive', () => {
       ? slide.props.children
       : [slide.props.children]
     expect(slideChildren.length).toBe(2)
-    expect(slideChildren[0].type).toBe(Appear)
-    expect(slideChildren[1].type).toBe(Appear)
+    expect(slideChildren[0].type).toBe(SlideReveal)
+    expect(slideChildren[1].type).toBe(SlideReveal)
     const text = getText(output)
     expect(text).not.toContain(':::')
   })
@@ -153,12 +153,12 @@ describe('deck directive', () => {
   it('does not create extra slides from whitespace', () => {
     const md = `:::deck{size='800x600'}
   :::slide{transition='fade'}
-    :::appear{at=0}
+    :::reveal{at=0}
       :::text{x=80 y=80 as="h2"}
       Hello
       :::
     :::
-    :::appear{at=1}
+    :::reveal{at=1}
       :::text{x=100 y=100 as="h2"}
       World
       :::
@@ -181,20 +181,20 @@ describe('deck directive', () => {
       ? slide.props.children
       : [slide.props.children]
     expect(slideChildren.length).toBe(2)
-    expect(slideChildren[0].type).toBe(Appear)
-    expect(slideChildren[1].type).toBe(Appear)
+    expect(slideChildren[0].type).toBe(SlideReveal)
+    expect(slideChildren[1].type).toBe(SlideReveal)
   })
 
-  it('merges stray appear directives into the previous slide', () => {
+  it('merges stray reveal directives into the previous slide', () => {
     const md = `:::deck{size='800x600'}
   :::slide{transition='fade'}
-    :::appear{at=0}
+    :::reveal{at=0}
       :::text{x=80 y=80 as="h2"}
       Hello
       :::
     :::
   :::
-  :::appear{at=1}
+  :::reveal{at=1}
     :::text{x=100 y=100 as="h2"}
     World
     :::
@@ -216,19 +216,19 @@ describe('deck directive', () => {
       ? slide.props.children
       : [slide.props.children]
     expect(slideChildren.length).toBe(2)
-    expect(slideChildren[0].type).toBe(Appear)
-    expect(slideChildren[1].type).toBe(Appear)
+    expect(slideChildren[0].type).toBe(SlideReveal)
+    expect(slideChildren[1].type).toBe(SlideReveal)
   })
 
   it('matches the Storybook deck example', () => {
     const md = `:::deck{size='800x600'}
   :::slide{transition='fade'}
-    :::appear{at=0}
+    :::reveal{at=0}
       :::text{x=80 y=80 as="h2"}
       Hello
       :::
     :::
-    :::appear{at=1}
+    :::reveal{at=1}
       :::text{x=100 y=100 as="h2"}
       World
       :::
@@ -255,14 +255,14 @@ describe('deck directive', () => {
       type: Slide,
       props: { transition: { type: 'fade' } }
     })
-    const appearChildren = Array.isArray(slide.props.children)
+    const revealChildren = Array.isArray(slide.props.children)
       ? slide.props.children
       : [slide.props.children]
-    expect(appearChildren).toHaveLength(2)
-    const [first, second] = appearChildren
-    expect(first).toMatchObject({ type: Appear, props: { at: 0 } })
+    expect(revealChildren).toHaveLength(2)
+    const [first, second] = revealChildren
+    expect(first).toMatchObject({ type: SlideReveal, props: { at: 0 } })
     expect(getText(first)).toBe('Hello')
-    expect(second).toMatchObject({ type: Appear, props: { at: 1 } })
+    expect(second).toMatchObject({ type: SlideReveal, props: { at: 1 } })
     expect(getText(second)).toBe('World')
     const text = getText(output)
     expect(text).toBe('HelloWorld')

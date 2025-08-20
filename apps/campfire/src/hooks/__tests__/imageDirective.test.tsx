@@ -31,7 +31,7 @@ beforeEach(() => {
 describe('image directive', () => {
   it('renders a SlideImage component with props', () => {
     const md =
-      ':::appear\n:image{src="https://example.com/cat.png" x=10 y=20 alt="Cat" class="rounded" style="border:1px solid red" data-test="ok"}\n:::\n'
+      ':::reveal\n:image{src="https://example.com/cat.png" x=10 y=20 alt="Cat" class="rounded" style="border:1px solid red" data-test="ok"}\n:::\n'
     render(<MarkdownRunner markdown={md} />)
     const el = document.querySelector(
       '[data-testid="slideImage"]'
@@ -49,7 +49,7 @@ describe('image directive', () => {
 
   it('applies image presets with overrides', () => {
     const md =
-      ':preset{type="image" name="cat" x=5 y=5 src="https://example.com/cat.png"}\n:::appear\n:image{from="cat" y=10}\n:::\n'
+      ':preset{type="image" name="cat" x=5 y=5 src="https://example.com/cat.png"}\n:::reveal\n:image{from="cat" y=10}\n:::\n'
     render(<MarkdownRunner markdown={md} />)
     const el = document.querySelector(
       '[data-testid="slideImage"]'

@@ -7,7 +7,7 @@ import { Show } from '@campfire/components/Passage/Show'
 import { OnExit } from '@campfire/components/Passage/OnExit'
 import { Deck } from '@campfire/components/Deck/Deck'
 import { Slide } from './Slide'
-import { Appear } from './Appear'
+import { SlideReveal } from './SlideReveal'
 import { SlideText } from './SlideText'
 import { SlideImage } from './SlideImage'
 import { SlideShape } from './SlideShape'
@@ -33,7 +33,7 @@ export const renderDirectiveMarkdown = (
     onExit: OnExit,
     deck: Deck,
     slide: Slide,
-    appear: Appear,
+    reveal: SlideReveal,
     slideText: SlideText,
     slideImage: SlideImage,
     slideShape: SlideShape

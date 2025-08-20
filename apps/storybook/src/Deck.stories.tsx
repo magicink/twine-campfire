@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/preact'
 import { h } from 'preact'
-import { Deck, Slide, SlideText, Appear } from '@campfire/components'
+import { Deck, Slide, SlideText, SlideReveal } from '@campfire/components'
 
 const meta: Meta<typeof Deck> = {
   component: Deck,
@@ -10,9 +10,9 @@ const meta: Meta<typeof Deck> = {
 export default meta
 
 /**
- * Renders the Deck story with three slides and transitions using the Appear
+ * Renders the Deck story with three slides and transitions using the SlideReveal
  * component to progressively reveal content. The first slide demonstrates
- * three sequential Appear elements to showcase entrance and exit animations.
+ * three sequential SlideReveal elements to showcase entrance and exit animations.
  * Text layers are positioned so they do not overlap.
  *
  * @returns The rendered Deck element.
@@ -25,21 +25,21 @@ const render: StoryObj<typeof Deck>['render'] = () => (
         exit: { type: 'fade', duration: 300 }
       }}
     >
-      <Appear at={0}>
+      <SlideReveal at={0}>
         <SlideText as='h2' x={200} y={200} size={36}>
           Fade Slide
         </SlideText>
-      </Appear>
-      <Appear at={1}>
+      </SlideReveal>
+      <SlideReveal at={1}>
         <SlideText x={500} y={400} size={24}>
           Second step
         </SlideText>
-      </Appear>
-      <Appear at={2}>
+      </SlideReveal>
+      <SlideReveal at={2}>
         <SlideText x={500} y={500} size={24}>
           Third step
         </SlideText>
-      </Appear>
+      </SlideReveal>
     </Slide>
     <Slide
       transition={{
@@ -47,16 +47,16 @@ const render: StoryObj<typeof Deck>['render'] = () => (
         exit: { type: 'slide', dir: 'right', duration: 300 }
       }}
     >
-      <Appear at={0}>
+      <SlideReveal at={0}>
         <SlideText as='h2' x={200} y={200} size={36}>
           Slide Transition
         </SlideText>
-      </Appear>
-      <Appear at={1}>
+      </SlideReveal>
+      <SlideReveal at={1}>
         <SlideText x={500} y={400} size={24}>
           Second step
         </SlideText>
-      </Appear>
+      </SlideReveal>
     </Slide>
     <Slide
       transition={{
@@ -64,16 +64,16 @@ const render: StoryObj<typeof Deck>['render'] = () => (
         exit: { type: 'zoom', duration: 300 }
       }}
     >
-      <Appear at={0}>
+      <SlideReveal at={0}>
         <SlideText as='h2' x={200} y={200} size={36}>
           Zoom Slide
         </SlideText>
-      </Appear>
-      <Appear at={1}>
+      </SlideReveal>
+      <SlideReveal at={1}>
         <SlideText x={500} y={400} size={24}>
           Second step
         </SlideText>
-      </Appear>
+      </SlideReveal>
     </Slide>
     <Slide
       transition={{
@@ -81,26 +81,26 @@ const render: StoryObj<typeof Deck>['render'] = () => (
         exit: { type: 'fade', duration: 400 }
       }}
     >
-      <Appear at={0}>
+      <SlideReveal at={0}>
         <SlideText as='h2' x={200} y={200} size={36}>
           Flip Slide
         </SlideText>
-      </Appear>
-      <Appear at={1}>
+      </SlideReveal>
+      <SlideReveal at={1}>
         <SlideText x={260} y={260} size={28}>
           Second step
         </SlideText>
-      </Appear>
-      <Appear at={2}>
+      </SlideReveal>
+      <SlideReveal at={2}>
         <SlideText x={320} y={320} size={24}>
           Third step
         </SlideText>
-      </Appear>
-      <Appear at={3}>
+      </SlideReveal>
+      <SlideReveal at={3}>
         <SlideText x={440} y={440} size={20}>
           Fourth step
         </SlideText>
-      </Appear>
+      </SlideReveal>
     </Slide>
   </Deck>
 )
@@ -179,7 +179,7 @@ export const WithDisabledControls: StoryObj<typeof Deck> = {
 
 /**
  * Demonstrates automatically advancing slides after a delay. Autoplay pauses
- * once the final appear of the last slide is revealed.
+ * once the final reveal of the last slide is shown.
  *
  * @returns The rendered Deck element with autoplay.
  */
@@ -192,16 +192,16 @@ export const WithAutoplay: StoryObj<typeof Deck> = {
         </SlideText>
       </Slide>
       <Slide>
-        <Appear at={0}>
+        <SlideReveal at={0}>
           <SlideText as='h2' x={200} y={200} size={36}>
             Auto 2
           </SlideText>
-        </Appear>
-        <Appear at={1}>
+        </SlideReveal>
+        <SlideReveal at={1}>
           <SlideText x={200} y={260} size={24}>
             Final Step
           </SlideText>
-        </Appear>
+        </SlideReveal>
       </Slide>
     </Deck>
   )
