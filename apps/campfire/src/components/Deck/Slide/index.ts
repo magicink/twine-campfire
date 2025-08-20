@@ -8,7 +8,7 @@ export type {
   SlideProps
 } from './types'
 export { Slide }
-export { Appear } from './Appear'
+export { SlideReveal } from './SlideReveal'
 export { SlideText } from './SlideText'
 export { SlideImage } from './SlideImage'
 export { SlideShape } from './SlideShape'

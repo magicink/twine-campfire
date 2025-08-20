@@ -14,7 +14,7 @@ import { LinkButton } from '@campfire/components/Passage/LinkButton'
 import { TriggerButton } from '@campfire/components/Passage/TriggerButton'
 import { Show } from '@campfire/components/Passage/Show'
 import { OnExit } from '@campfire/components/Passage/OnExit'
-import { Appear } from '@campfire/components/Deck/Slide/Appear'
+import { SlideReveal } from '@campfire/components/Deck/Slide/SlideReveal'
 import { SlideText } from '@campfire/components/Deck/Slide/SlideText'
 import { SlideImage } from '@campfire/components/Deck/Slide/SlideImage'
 import { SlideShape } from '@campfire/components/Deck/Slide/SlideShape'
@@ -50,7 +50,7 @@ export const If = ({ test, content, fallback }: IfProps) => {
           if: If,
           show: Show,
           onExit: OnExit,
-          appear: Appear,
+          reveal: SlideReveal,
           slideText: SlideText,
           slideImage: SlideImage,
           slideShape: SlideShape

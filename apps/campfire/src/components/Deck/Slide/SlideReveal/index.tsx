@@ -15,7 +15,7 @@ import {
   runAnimation
 } from '@campfire/components/transition'
 
-export interface AppearProps {
+export interface SlideRevealProps {
   at?: number
   exitAt?: number
   enter?: Transition
@@ -27,17 +27,17 @@ export interface AppearProps {
 /**
  * Gradually reveals or hides content based on the current deck step.
  *
- * @param props - Configuration options for the appear component.
+ * @param props - Configuration options for the SlideReveal component.
  * @returns The rendered element when present.
  */
-export const Appear = ({
+export const SlideReveal = ({
   at = 0,
   exitAt,
   enter,
   exit,
   interruptBehavior = 'jumpToEnd',
   children
-}: AppearProps): JSX.Element | null => {
+}: SlideRevealProps): JSX.Element | null => {
   const currentStep = useDeckStore(state => state.currentStep)
   const currentSlide = useDeckStore(state => state.currentSlide)
   const slideTransition = useContext(SlideTransitionContext)
@@ -159,11 +159,11 @@ export const Appear = ({
     <div
       ref={ref}
       style={{ display: visible ? '' : 'none' }}
-      data-testid='appear'
+      data-testid='slide-reveal'
     >
       {children}
     </div>
   )
 }
 
-export default Appear
+export default SlideReveal
