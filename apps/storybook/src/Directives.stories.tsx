@@ -95,12 +95,12 @@ export const MultiPassageDecks: StoryObj = {
   :::deck{size='400x300'}
     :::slide
       :::appear{at=0}
-        :::text{x=20 y=20}
+        :::text{x=20 y=120}
         First deck 1
         :::
       :::
       :::appear{at=1}
-        :::text{x=20 y=60}
+        :::text{x=20 y=160}
         First deck 2
         :::
       :::
@@ -115,12 +115,12 @@ export const MultiPassageDecks: StoryObj = {
   :::deck{size='400x300'}
     :::slide
       :::appear{at=0}
-        :::text{x=20 y=20}
+        :::text{x=20 y=120}
         Second deck 1
         :::
       :::
       :::appear{at=1}
-        :::text{x=20 y=60}
+        :::text{x=20 y=160}
         Second deck 2
         :::
       :::
