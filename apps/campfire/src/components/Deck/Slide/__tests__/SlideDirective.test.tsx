@@ -66,5 +66,6 @@ describe('Slide directive hooks', () => {
     fireEvent.click(button)
     const data = useGameStore.getState().gameData as Record<string, unknown>
     expect(data.clicked).toBe(true)
+    expect(useDeckStore.getState().currentSlide).toBe(0)
   })
 })
