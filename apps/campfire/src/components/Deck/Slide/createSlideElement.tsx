@@ -1,7 +1,18 @@
 import { type ComponentChildren, type ComponentType, type JSX } from 'preact'
 import { SlideLayer, type SlideLayerProps } from './SlideLayer'
 
-interface CreateSlideElementOptions<P extends Record<string, any>> {
+interface SlideElementBaseProps {
+  className?: string
+  style?: JSX.CSSProperties | string
+  children?: ComponentChildren
+}
+
+type SlideElementLayerProps = Omit<
+  SlideLayerProps,
+  'children' | 'as' | 'elementProps' | 'className' | 'style'
+>
+
+interface CreateSlideElementOptions<P extends SlideElementBaseProps> {
   /** Default tag or component to render. */
   as: keyof JSX.IntrinsicElements | ComponentType<any>
   /** Optional resolver for dynamic tag selection. */
@@ -20,8 +31,8 @@ interface CreateSlideElementOptions<P extends Record<string, any>> {
   renderChildren?: (props: P) => ComponentChildren
   /** Derives props passed to SlideLayer. */
   mapLayerProps?: (
-    props: Omit<P, 'className' | 'style' | 'children'>
-  ) => Omit<SlideLayerProps, 'children' | 'as' | 'elementProps'>
+    props: Omit<P, keyof SlideElementBaseProps>
+  ) => SlideElementLayerProps
 }
 
 /**
@@ -30,11 +41,15 @@ interface CreateSlideElementOptions<P extends Record<string, any>> {
  * @param options - Rendering configuration for the element.
  * @returns A component rendering within a SlideLayer.
  */
-export const createSlideElement = <P extends Record<string, any>>(
+export const createSlideElement = <
+  P extends SlideElementBaseProps &
+    SlideElementLayerProps &
+    Record<string, unknown>
+>(
   options: CreateSlideElementOptions<P>
 ) => {
   const Component = (props: P): JSX.Element => {
-    const { className, style, children, ...rest } = props as any
+    const { className, style, children, ...rest } = props
     const elementProps = options.mapElementProps
       ? options.mapElementProps(props)
       : undefined
@@ -48,18 +63,18 @@ export const createSlideElement = <P extends Record<string, any>>(
     const childNodes = options.renderChildren
       ? options.renderChildren(props)
       : children
-    const layerProps = options.mapLayerProps
-      ? options.mapLayerProps(rest as P)
-      : (rest as any)
+    const layerProps: SlideElementLayerProps = options.mapLayerProps
+      ? options.mapLayerProps(rest)
+      : rest
     return (
       <SlideLayer
         as={Tag}
         elementProps={elementProps}
         className={classes}
         style={style}
+        {...layerProps}
         styleTransform={styleTransform}
         testId={options.testId}
-        {...layerProps}
       >
         {childNodes}
       </SlideLayer>
