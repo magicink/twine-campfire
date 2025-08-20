@@ -1,5 +1,49 @@
 # Changelog
 
+## [1.74.0](https://github.com/magicink/twine-campfire/compare/v1.73.0...v1.74.0) (2025-08-19)
+
+
+### Features
+
+* add preset directive and from attribute ([#427](https://github.com/magicink/twine-campfire/issues/427)) ([c211837](https://github.com/magicink/twine-campfire/commit/c211837c0975e04065038f54442299c493765c01))
+* add preset directive and from attribute ([#427](https://github.com/magicink/twine-campfire/issues/427)) ([711c005](https://github.com/magicink/twine-campfire/commit/711c0051e246b4fdb31584bd72f39e9c1773bc78))
+
+## [1.73.0](https://github.com/magicink/twine-campfire/compare/v1.72.1...v1.73.0) (2025-08-19)
+
+
+### Features
+
+* enforce quoted ids for persistence directives ([#423](https://github.com/magicink/twine-campfire/issues/423)) ([9257e13](https://github.com/magicink/twine-campfire/commit/9257e131c60ee544b2cc74fb29f5f07b8d08c6af))
+* enforce quoted ids for persistence directives ([#423](https://github.com/magicink/twine-campfire/issues/423)) ([1a51972](https://github.com/magicink/twine-campfire/commit/1a51972ed88a733fc7f61dc00aeba3c2d4600e8d))
+
+## [1.72.1](https://github.com/magicink/twine-campfire/compare/v1.72.0...v1.72.1) (2025-08-19)
+
+
+### Bug Fixes
+
+* enforce container and leaf directive usage ([#420](https://github.com/magicink/twine-campfire/issues/420)) ([35bc8f5](https://github.com/magicink/twine-campfire/commit/35bc8f54935b6ec0bc07461091c218ead21e7570))
+* shape directive to render SlideShape ([#419](https://github.com/magicink/twine-campfire/issues/419)) ([39b85b3](https://github.com/magicink/twine-campfire/commit/39b85b3d8b3102fbe81639f84820f0806812da2d))
+
+## [1.72.0](https://github.com/magicink/twine-campfire/compare/v1.71.0...v1.72.0) (2025-08-18)
+
+
+### Features
+
+* add SlideShape component and directive ([#415](https://github.com/magicink/twine-campfire/issues/415)) ([61f4aad](https://github.com/magicink/twine-campfire/commit/61f4aad746a49f52b7fad7c58f1ba413d098fcc5))
+* add SlideShape component and directive ([#415](https://github.com/magicink/twine-campfire/issues/415)) ([732a31a](https://github.com/magicink/twine-campfire/commit/732a31aed58fccf0c7a336e23e337a985af1946b))
+
+## [1.71.0](https://github.com/magicink/twine-campfire/compare/v1.70.0...v1.71.0) (2025-08-18)
+
+
+### Features
+
+* add SlideImage component ([#410](https://github.com/magicink/twine-campfire/issues/410)) ([bc36968](https://github.com/magicink/twine-campfire/commit/bc36968f8c66877d0de4711ff89836591a742a6e))
+
+
+### Bug Fixes
+
+* **slide:** apply transition to all appear children ([#407](https://github.com/magicink/twine-campfire/issues/407)) ([83faa5e](https://github.com/magicink/twine-campfire/commit/83faa5e743f91eed35bae6bb79f1a920fb1a9f20))
+
 ## [1.70.0](https://github.com/magicink/twine-campfire/compare/v1.69.0...v1.70.0) (2025-08-18)
 
 
