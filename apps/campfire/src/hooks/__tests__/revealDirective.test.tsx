@@ -4,7 +4,7 @@ import { Fragment } from 'preact/jsx-runtime'
 import type { ComponentChild } from 'preact'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { renderDirectiveMarkdown } from '@campfire/components/Deck/Slide'
-import { Appear } from '@campfire/components/Deck/Slide'
+import { SlideReveal } from '@campfire/components/Deck/Slide'
 
 let output: ComponentChild | null = null
 
@@ -25,42 +25,42 @@ beforeEach(() => {
   document.body.innerHTML = ''
 })
 
-describe('appear directive', () => {
-  it('renders an Appear component with props', () => {
+describe('reveal directive', () => {
+  it('renders a SlideReveal component with props', () => {
     const md =
-      ':::appear{at=1 exitAt=3 enter="slide" exit="fade" interruptBehavior="cancel" data-test="ok"}\nHello\n:::'
+      ':::reveal{at=1 exitAt=3 enter="slide" exit="fade" interruptBehavior="cancel" data-test="ok"}\nHello\n:::'
     render(<MarkdownRunner markdown={md} />)
-    const getAppear = (node: any): any => {
-      if (Array.isArray(node)) return getAppear(node[0])
-      if (node?.type === Fragment) return getAppear(node.props.children)
+    const getReveal = (node: any): any => {
+      if (Array.isArray(node)) return getReveal(node[0])
+      if (node?.type === Fragment) return getReveal(node.props.children)
       return node
     }
-    const appear = getAppear(output)
-    expect(appear.type).toBe(Appear)
-    expect(appear.props.at).toBe(1)
-    expect(appear.props.exitAt).toBe(3)
-    expect(appear.props.enter).toBe('slide')
-    expect(appear.props.exit).toBe('fade')
-    expect(appear.props.interruptBehavior).toBe('cancel')
-    expect(appear.props['data-test']).toBe('ok')
+    const reveal = getReveal(output)
+    expect(reveal.type).toBe(SlideReveal)
+    expect(reveal.props.at).toBe(1)
+    expect(reveal.props.exitAt).toBe(3)
+    expect(reveal.props.enter).toBe('slide')
+    expect(reveal.props.exit).toBe('fade')
+    expect(reveal.props.interruptBehavior).toBe('cancel')
+    expect(reveal.props['data-test']).toBe('ok')
   })
 
-  it('applies appear presets with overrides', () => {
+  it('applies reveal presets with overrides', () => {
     const md =
-      ':preset{type="appear" name="fade" at=2}\n:::appear{from="fade" exitAt=3}\nHi\n:::'
+      ':preset{type="reveal" name="fade" at=2}\n:::reveal{from="fade" exitAt=3}\nHi\n:::'
     render(<MarkdownRunner markdown={md} />)
-    const getAppear = (node: any): any => {
-      if (Array.isArray(node)) return getAppear(node[0])
-      if (node?.type === Fragment) return getAppear(node.props.children)
+    const getReveal = (node: any): any => {
+      if (Array.isArray(node)) return getReveal(node[0])
+      if (node?.type === Fragment) return getReveal(node.props.children)
       return node
     }
-    const appear = getAppear(output)
-    expect(appear.props.at).toBe(2)
-    expect(appear.props.exitAt).toBe(3)
+    const reveal = getReveal(output)
+    expect(reveal.props.at).toBe(2)
+    expect(reveal.props.exitAt).toBe(3)
   })
 
-  it('does not render stray colons when appear contains directives', () => {
-    const md = `:::appear\n:::if{true}\nHi\n:::\n:::\n`
+  it('does not render stray colons when reveal contains directives', () => {
+    const md = `:::reveal\n:::if{true}\nHi\n:::\n:::\n`
     render(<MarkdownRunner markdown={md} />)
     const getText = (node: any): string => {
       if (!node) return ''

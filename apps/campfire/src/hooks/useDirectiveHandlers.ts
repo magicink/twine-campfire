@@ -1702,8 +1702,8 @@ export const useDirectiveHandlers = () => {
       return [SKIP, newIndex]
     }
 
-  /** Schema describing supported appear directive attributes. */
-  const appearSchema = {
+  /** Schema describing supported reveal directive attributes. */
+  const revealSchema = {
     at: { type: 'number' },
     exitAt: { type: 'number' },
     enter: { type: 'string' },
@@ -1712,10 +1712,10 @@ export const useDirectiveHandlers = () => {
     from: { type: 'string', expression: false }
   } as const
 
-  type AppearSchema = typeof appearSchema
-  type AppearAttrs = ExtractedAttrs<AppearSchema>
+  type RevealSchema = typeof revealSchema
+  type RevealAttrs = ExtractedAttrs<RevealSchema>
 
-  const APPEAR_EXCLUDES = [
+  const REVEAL_EXCLUDES = [
     'at',
     'exitAt',
     'enter',
@@ -1807,20 +1807,20 @@ export const useDirectiveHandlers = () => {
   type ShapeAttrs = ExtractedAttrs<ShapeSchema>
 
   /**
-   * Converts `:::appear` directives into Appear elements.
+   * Converts `:::reveal` directives into SlideReveal elements.
    *
-   * @param directive - The appear directive node.
+   * @param directive - The reveal directive node.
    * @param parent - Parent node containing the directive.
    * @param index - Index of the directive within its parent.
    * @returns Visitor instructions after replacement.
    */
-  const handleAppear = createContainerHandler(
-    'appear',
-    appearSchema,
+  const handleReveal = createContainerHandler(
+    'reveal',
+    revealSchema,
     (attrs, raw) => {
       const props: Record<string, unknown> = {}
       const preset = attrs.from
-        ? presetsRef.current['appear']?.[String(attrs.from)]
+        ? presetsRef.current['reveal']?.[String(attrs.from)]
         : undefined
       if (preset) {
         if (typeof preset.at === 'number') props.at = preset.at
@@ -1829,7 +1829,7 @@ export const useDirectiveHandlers = () => {
         if (preset.exit) props.exit = preset.exit
         if (preset.interruptBehavior)
           props.interruptBehavior = preset.interruptBehavior
-        applyAdditionalAttributes(preset, props, APPEAR_EXCLUDES)
+        applyAdditionalAttributes(preset, props, REVEAL_EXCLUDES)
       }
       if (typeof attrs.at === 'number') props.at = attrs.at
       if (typeof attrs.exitAt === 'number') props.exitAt = attrs.exitAt
@@ -1838,7 +1838,7 @@ export const useDirectiveHandlers = () => {
       if (attrs.interruptBehavior)
         props.interruptBehavior = attrs.interruptBehavior
       const mergedRaw = mergeAttrs(preset, raw)
-      applyAdditionalAttributes(mergedRaw, props, [...APPEAR_EXCLUDES, 'from'])
+      applyAdditionalAttributes(mergedRaw, props, [...REVEAL_EXCLUDES, 'from'])
       return props
     }
   )
@@ -2311,7 +2311,7 @@ export const useDirectiveHandlers = () => {
      * pipeline so stray markers do not render in the output. When buffered
      * content has no slide attributes and at least one slide already exists,
      * the nodes are merged into the previous slide instead of creating a new
-     * one. This prevents stray directives, such as `:::appear`, from being
+     * one. This prevents stray directives, such as `:::reveal`, from being
      * lifted to the deck level and causing empty slides.
      */
     const commitPending = () => {
@@ -2538,7 +2538,7 @@ export const useDirectiveHandlers = () => {
       batch: handleBatch,
       trigger: handleTrigger,
       onExit: handleOnExit,
-      appear: handleAppear,
+      reveal: handleReveal,
       text: handleText,
       image: handleImage,
       shape: handleShape,

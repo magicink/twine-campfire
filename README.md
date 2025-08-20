@@ -523,7 +523,7 @@ Run directives on specific passage events or group actions.
 
 ### Navigation & composition
 
-Control the flow between passages or how they appear.
+Control the flow between passages or how they reveal.
 
 - `goto`: Jump to another passage.
 
@@ -602,17 +602,17 @@ Control the flow between passages or how they appear.
   | autoplayDelay | Milliseconds between automatic slide advances (defaults to 3000)           |
   | pause         | Start autoplay paused and display a play button                            |
 
-- `appear`: Reveal slide content step-by-step.
+- `reveal`: Reveal slide content step-by-step.
 
   ```md
   :::deck
   :::slide
-  :::appear{at=0}
+  :::reveal{at=0}
   :::text{x=80 y=80}
   First
   :::
   :::
-  :::appear{at=1}
+  :::reveal{at=1}
   :::text{x=80 y=120}
   Second
   :::
@@ -622,12 +622,12 @@ Control the flow between passages or how they appear.
 
   | Input             | Description                          |
   | ----------------- | ------------------------------------ |
-  | at                | Deck step when content appears       |
+  | at                | Deck step when content reveals       |
   | exitAt            | Deck step when content hides         |
   | enter             | Enter animation key                  |
   | exit              | Exit animation key                   |
   | interruptBehavior | How to handle interrupted animations |
-  | from              | Name of an appear preset to apply    |
+  | from              | Name of a reveal preset to apply     |
 
 - `text`: Position typographic content within a slide.
 
@@ -666,7 +666,7 @@ Control the flow between passages or how they appear.
 
   Accepts the same attributes as the `SlideShape` component and supports a `from` attribute to apply presets.
 
-- `preset`: Define reusable attribute sets that can be applied via the `from` attribute on `deck`, `appear`, `image`, `shape`, and `text` directives.
+- `preset`: Define reusable attribute sets that can be applied via the `from` attribute on `deck`, `reveal`, `image`, `shape`, and `text` directives.
 
   ```md
   :preset{type="deck" name="wide" size="16x9"}

@@ -31,7 +31,7 @@ beforeEach(() => {
 describe('shape directive', () => {
   it('renders a SlideShape component with props', () => {
     const md =
-      ':::appear\n:shape{x=10 y=20 w=100 h=50 type="rect" stroke="red" fill="blue" radius=5 shadow=true class="rounded" data-test="ok"}\n:::\n'
+      ':::reveal\n:shape{x=10 y=20 w=100 h=50 type="rect" stroke="red" fill="blue" radius=5 shadow=true class="rounded" data-test="ok"}\n:::\n'
     render(<MarkdownRunner markdown={md} />)
     const el = document.querySelector(
       '[data-testid="slideShape"]'
@@ -53,7 +53,7 @@ describe('shape directive', () => {
 
   it('applies shape presets with overrides', () => {
     const md =
-      ':preset{type="shape" name="box" x=5 y=5 w=10 h=10 fill="red"}\n:::appear\n:shape{from="box" y=20 type="rect"}\n:::\n'
+      ':preset{type="shape" name="box" x=5 y=5 w=10 h=10 fill="red"}\n:::reveal\n:shape{from="box" y=20 type="rect"}\n:::\n'
     render(<MarkdownRunner markdown={md} />)
     const el = document.querySelector(
       '[data-testid="slideShape"]'

@@ -12,7 +12,7 @@ export { Deck } from '@campfire/components/Deck'
 export {
   Slide,
   renderDirectiveMarkdown,
-  Appear,
+  SlideReveal,
   Layer,
   SlideText,
   SlideImage,

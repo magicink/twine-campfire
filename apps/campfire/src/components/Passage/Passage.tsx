@@ -20,7 +20,7 @@ import { Show } from '@campfire/components/Passage/Show'
 import { OnExit } from '@campfire/components/Passage/OnExit'
 import { Deck } from '@campfire/components/Deck/Deck'
 import { Slide } from '@campfire/components/Deck/Slide/Slide'
-import { Appear } from '@campfire/components/Deck/Slide/Appear'
+import { SlideReveal } from '@campfire/components/Deck/Slide/SlideReveal'
 import { SlideText } from '@campfire/components/Deck/Slide/SlideText'
 import { SlideImage } from '@campfire/components/Deck/Slide/SlideImage'
 import { SlideShape } from '@campfire/components/Deck/Slide/SlideShape'
@@ -119,7 +119,7 @@ export const Passage = () => {
           onExit: OnExit,
           deck: Deck,
           slide: Slide,
-          appear: Appear,
+          reveal: SlideReveal,
           slideText: SlideText,
           slideImage: SlideImage,
           slideShape: SlideShape

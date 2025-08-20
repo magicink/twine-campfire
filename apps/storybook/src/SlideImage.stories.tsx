@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/preact'
 import { h } from 'preact'
-import { Appear, Deck, Slide, SlideImage } from '@campfire/components'
+import { Deck, Slide, SlideImage, SlideReveal } from '@campfire/components'
 
 const meta: Meta<typeof SlideImage> = {
   component: SlideImage,
@@ -18,7 +18,7 @@ export const Basic: StoryObj<typeof SlideImage> = {
   render: () => (
     <Deck className='w-[800px] h-[600px]'>
       <Slide>
-        <Appear
+        <SlideReveal
           at={0}
           enter={{ type: 'fade', duration: 300 }}
           exit={{ type: 'fade', duration: 300 }}
@@ -30,8 +30,8 @@ export const Basic: StoryObj<typeof SlideImage> = {
             x={200}
             y={200}
           />
-        </Appear>
-        <Appear
+        </SlideReveal>
+        <SlideReveal
           at={1}
           enter={{ type: 'zoom', dir: 'up', duration: 300 }}
           exit={{ type: 'zoom', dir: 'down', duration: 300 }}
@@ -43,7 +43,7 @@ export const Basic: StoryObj<typeof SlideImage> = {
             x={500}
             y={300}
           />
-        </Appear>
+        </SlideReveal>
       </Slide>
     </Deck>
   )
