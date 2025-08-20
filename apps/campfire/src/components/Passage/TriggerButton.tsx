@@ -48,9 +48,10 @@ export const TriggerButton = ({
       ].join(' ')}
       disabled={disabled}
       style={style}
-      onClick={() =>
+      onClick={e => {
+        e.stopPropagation()
         runDirectiveBlock(clone(JSON.parse(content)) as RootContent[], handlers)
-      }
+      }}
     >
       {children}
     </button>

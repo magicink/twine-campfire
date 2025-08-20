@@ -38,6 +38,7 @@ export const LinkButton = ({
         .join(' ')}
       {...rest}
       onClick={e => {
+        e.stopPropagation()
         onClick?.(e)
         if (e.defaultPrevented) return
         const target = pid ?? name
