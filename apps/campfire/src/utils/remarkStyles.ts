@@ -65,6 +65,6 @@ export const remarkHeadingStyles = () => (tree: Root) => {
     }
     const cls = mapping[node.depth]
     if (!cls) return
-    appendClassNames(node, [cls])
+    appendClassNames(node, cls.split(' '))
   })
 }

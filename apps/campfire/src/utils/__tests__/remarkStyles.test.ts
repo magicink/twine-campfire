@@ -22,7 +22,9 @@ describe('remarkHeadingStyles', () => {
     remarkHeadingStyles()(tree)
     expect(tree.children[0].data?.hProperties?.className).toEqual([
       'existing',
-      'font-libertinus text-3xl font-semibold'
+      'font-libertinus',
+      'text-3xl',
+      'font-semibold'
     ])
   })
 })
