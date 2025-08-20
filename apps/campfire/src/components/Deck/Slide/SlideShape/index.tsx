@@ -1,8 +1,8 @@
 import { type JSX } from 'preact'
-import { Layer, type LayerProps } from '../Layer'
-import parseInlineStyle from '@campfire/utils/parseInlineStyle'
+import { SlideLayer, type SlideLayerProps } from '../SlideLayer'
 
-export interface SlideShapeProps extends Omit<LayerProps, 'children'> {
+export interface SlideShapeProps
+  extends Omit<SlideLayerProps, 'children' | 'as' | 'elementProps'> {
   /** Shape type to render. */
   type: 'rect' | 'ellipse' | 'line' | 'polygon'
   /** SVG path points used for polygon shapes. */
@@ -50,14 +50,9 @@ export const SlideShape = ({
   radius,
   shadow,
   className,
-  style: styleProp,
+  style,
   ...layerProps
 }: SlideShapeProps): JSX.Element => {
-  const style: JSX.CSSProperties = parseInlineStyle(styleProp ?? {})
-  if (shadow) {
-    const drop = 'drop-shadow(0 1px 2px rgba(0,0,0,0.25))'
-    style.filter = style.filter ? `${style.filter} ${drop}` : drop
-  }
   const shapeProps = { stroke, strokeWidth, fill }
   let shape: JSX.Element | null = null
   switch (type) {
@@ -84,12 +79,25 @@ export const SlideShape = ({
     default:
       shape = null
   }
+  const styleTransform = (base: JSX.CSSProperties): JSX.CSSProperties => {
+    if (shadow) {
+      const drop = 'drop-shadow(0 1px 2px rgba(0,0,0,0.25))'
+      base.filter = base.filter ? `${base.filter} ${drop}` : drop
+    }
+    return base
+  }
   return (
-    <Layer data-testid='slideShape' {...layerProps}>
-      <svg width='100%' height='100%' className={className} style={style}>
-        {shape}
-      </svg>
-    </Layer>
+    <SlideLayer
+      as='svg'
+      elementProps={{ width: '100%', height: '100%' }}
+      className={className}
+      style={style}
+      styleTransform={styleTransform}
+      testId='slideShape'
+      {...layerProps}
+    >
+      {shape}
+    </SlideLayer>
   )
 }
 
