@@ -128,6 +128,51 @@ describe('Deck', () => {
     expect(useDeckStore.getState().currentSlide).toBe(0)
   })
 
+  it('auto advances slides when configured', async () => {
+    render(
+      <Deck autoAdvanceMs={10}>
+        <div>Slide 1</div>
+        <div>Slide 2</div>
+      </Deck>
+    )
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 15))
+    })
+    expect(useDeckStore.getState().currentSlide).toBe(1)
+  })
+
+  it('pauses and resumes autoplay with the toggle button', async () => {
+    render(
+      <Deck autoAdvanceMs={10} autoAdvancePaused>
+        <div>Slide 1</div>
+        <div>Slide 2</div>
+        <div>Slide 3</div>
+      </Deck>
+    )
+    const toggle = screen.getByTestId('deck-autoplay-toggle')
+    expect(toggle.textContent).toBe('▶')
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 20))
+    })
+    expect(useDeckStore.getState().currentSlide).toBe(0)
+    act(() => {
+      fireEvent.click(toggle)
+    })
+    expect(toggle.textContent).toBe('⏸')
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 15))
+    })
+    expect(useDeckStore.getState().currentSlide).toBe(1)
+    act(() => {
+      fireEvent.click(toggle)
+    })
+    expect(toggle.textContent).toBe('▶')
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 15))
+    })
+    expect(useDeckStore.getState().currentSlide).toBe(1)
+  })
+
   it('resets deck state when unmounted', () => {
     const { unmount } = render(
       <Deck>
@@ -289,5 +334,31 @@ describe('Deck', () => {
     })
 
     expect(useDeckStore.getState().maxSteps).toBe(1)
+  })
+
+  it('resets autoplay timer when rewinding', async () => {
+    render(
+      <Deck autoAdvanceMs={20}>
+        <div>Slide 1</div>
+        <div>Slide 2</div>
+      </Deck>
+    )
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 25))
+    })
+    expect(useDeckStore.getState().currentSlide).toBe(1)
+    const prevBtn = screen.getByTestId('deck-prev')
+    act(() => {
+      fireEvent.click(prevBtn)
+    })
+    expect(useDeckStore.getState().currentSlide).toBe(0)
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 15))
+    })
+    expect(useDeckStore.getState().currentSlide).toBe(0)
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 10))
+    })
+    expect(useDeckStore.getState().currentSlide).toBe(1)
   })
 })

@@ -281,4 +281,17 @@ describe('deck directive', () => {
     expect(deck.props.transition).toBe('slide')
     expect(deck.props.theme.theme).toBe('dark')
   })
+
+  it('passes autoplay options to the Deck component', () => {
+    const md = `:::deck{autoplay=true autoplayDelay=3000 pause=true}\n:::slide\nHi\n:::\n:::`
+    render(<MarkdownRunner markdown={md} />)
+    const getDeck = (node: any): any => {
+      if (Array.isArray(node)) return getDeck(node[0])
+      if (node?.type === Fragment) return getDeck(node.props.children)
+      return node
+    }
+    const deck = getDeck(output)
+    expect(deck.props.autoAdvanceMs).toBe(3000)
+    expect(deck.props.autoAdvancePaused).toBe(true)
+  })
 })
