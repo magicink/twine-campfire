@@ -34,13 +34,15 @@ import {
   ensureKey,
   extractAttributes,
   getLabel,
-  getRandomInt,
-  getRandomItem,
   isRange,
-  parseNumericValue,
   removeNode,
   stripLabel
 } from '@campfire/remark-campfire/helpers'
+import {
+  getRandomInt,
+  getRandomItem,
+  parseNumericValue
+} from '@campfire/utils/math'
 import {
   parseTypedValue,
   extractKeyValue,
