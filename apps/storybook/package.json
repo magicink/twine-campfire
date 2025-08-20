@@ -7,7 +7,9 @@
     "dev": "storybook dev -p 6006"
   },
   "dependencies": {
-    "preact": "^10.24.1"
+    "preact": "^10.24.1",
+    "react": "npm:@preact/compat",
+    "react-dom": "npm:@preact/compat"
   },
   "devDependencies": {
     "@storybook/preact": "^8.6.14",

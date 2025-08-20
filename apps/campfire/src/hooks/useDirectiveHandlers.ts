@@ -14,7 +14,8 @@ import type {
 import remarkCampfire, {
   remarkCampfireIndentation
 } from '@campfire/remark-campfire'
-import type { Parent, Root, RootContent, Text as MdText } from 'mdast'
+import type { Parent, RootContent, Text as MdText } from 'mdast'
+import { runDirectiveBlock } from '@campfire/utils/directives'
 import type { Node } from 'unist'
 import type {
   Element,
@@ -130,39 +131,6 @@ export const useDirectiveHandlers = () => {
 
   const MAX_INCLUDE_DEPTH = 10
   let includeDepth = 0
-
-  /**
-   * Processes a block of AST nodes using the remarkCampfire plugin and returns
-   * the transformed children. This ensures nested directives are fully
-   * expanded and directive markers removed.
-   *
-   * @param nodes - An array of RootContent nodes to process.
-   * @returns The processed array of nodes.
-   */
-  const runBlock = (nodes: RootContent[]): RootContent[] => {
-    const root: Root = { type: 'root', children: expandIndentedCode(nodes) }
-    unified()
-      .use(remarkCampfireIndentation)
-      .use(remarkCampfire, { handlers: handlersRef.current })
-      .runSync(root)
-    return root.children as RootContent[]
-  }
-
-  /**
-   * Preprocesses directive children to handle fallback attributes before validation.
-   * Runs the remarkCampfire plugin without handlers so only attribute parsing occurs.
-   *
-   * @param nodes - Directive child nodes to preprocess.
-   * @returns The mutated array of child nodes.
-   */
-  const preprocessBlock = (nodes: RootContent[]): RootContent[] => {
-    const root: Root = {
-      type: 'root',
-      children: expandIndentedCode(nodes)
-    }
-    unified().use(remarkCampfireIndentation).use(remarkCampfire).runSync(root)
-    return root.children as RootContent[]
-  }
 
   /**
    * Resets per-passage directive state such as checkpoints and onExit usage.
@@ -815,7 +783,7 @@ export const useDirectiveHandlers = () => {
      */
     const processNodes = (nodes: RootContent[]): RootContent[] => {
       const cloned = nodes.map(node => structuredClone(node))
-      const processed = preprocessBlock(cloned)
+      const processed = runDirectiveBlock(expandIndentedCode(cloned))
       const stripped = stripLabel(processed)
       return stripped.filter(
         node => !(isTextNode(node) && node.value.trim() === '')
@@ -909,7 +877,9 @@ export const useDirectiveHandlers = () => {
 
     const container = directive as ContainerDirective
     const allowed = ALLOWED_BATCH_DIRECTIVES
-    const rawChildren = preprocessBlock(container.children as RootContent[])
+    const rawChildren = runDirectiveBlock(
+      expandIndentedCode(container.children as RootContent[])
+    )
     const processedChildren = stripLabel(rawChildren)
     const [filtered, invalid, nested] = filterDirectiveChildren(
       processedChildren,
@@ -935,7 +905,7 @@ export const useDirectiveHandlers = () => {
     lockedKeys = scoped.getLockedKeys()
     onceKeys = scoped.getOnceKeys()
 
-    runBlock(filtered)
+    runDirectiveBlock(expandIndentedCode(filtered), handlersRef.current)
 
     const changes = scoped.getChanges()
     state = prevState
@@ -1086,7 +1056,9 @@ export const useDirectiveHandlers = () => {
     onExitSeenRef.current = true
     const container = directive as ContainerDirective
     const allowed = ALLOWED_ONEXIT_DIRECTIVES
-    const rawChildren = preprocessBlock(container.children as RootContent[])
+    const rawChildren = runDirectiveBlock(
+      expandIndentedCode(container.children as RootContent[])
+    )
     const processedChildren = stripLabel(rawChildren)
     const [filtered, invalid] = filterDirectiveChildren(
       processedChildren,
@@ -1706,7 +1678,10 @@ export const useDirectiveHandlers = () => {
       const container = directive as ContainerDirective
       const { attrs } = extractAttributes<S>(directive, parent, index, schema)
       const rawAttrs = (directive.attributes || {}) as Record<string, unknown>
-      const processed = runBlock(container.children as RootContent[])
+      const processed = runDirectiveBlock(
+        expandIndentedCode(container.children as RootContent[]),
+        handlersRef.current
+      )
       const stripped = stripLabel(processed)
       const children = transform ? transform(stripped, attrs) : stripped
       const tag = typeof hName === 'function' ? hName(attrs) : hName
@@ -1984,7 +1959,10 @@ export const useDirectiveHandlers = () => {
       'classes',
       'from'
     ])
-    const processed = runBlock(container.children as RootContent[])
+    const processed = runDirectiveBlock(
+      expandIndentedCode(container.children as RootContent[]),
+      handlersRef.current
+    )
     const stripped = stripLabel(processed)
     const content = toString(stripped).trim()
     const node: Parent = {
@@ -2313,7 +2291,12 @@ export const useDirectiveHandlers = () => {
     )
 
     const children: RootContent[] = stripLabel(
-      preprocessBlock([...(container.children as RootContent[]), ...following])
+      runDirectiveBlock(
+        expandIndentedCode([
+          ...(container.children as RootContent[]),
+          ...following
+        ])
+      )
     ).filter(
       child =>
         !isMarkerParagraph(child as RootContent) &&
@@ -2345,7 +2328,10 @@ export const useDirectiveHandlers = () => {
 
       if (pendingNodes.length === 0 && Object.keys(pendingAttrs).length === 0)
         return
-      const processed = runBlock(pendingNodes)
+      const processed = runDirectiveBlock(
+        expandIndentedCode(pendingNodes),
+        handlersRef.current
+      )
       const content = stripLabel(processed)
       const attrsEmpty = Object.keys(pendingAttrs).length === 0
       if (slides.length > 0 && attrsEmpty) {
@@ -2391,7 +2377,10 @@ export const useDirectiveHandlers = () => {
           i,
           slideSchema
         )
-        const processed = runBlock(slideDir.children as RootContent[])
+        const processed = runDirectiveBlock(
+          expandIndentedCode(slideDir.children as RootContent[]),
+          handlersRef.current
+        )
         const content = stripLabel(processed)
         const slideNode: Parent = {
           type: 'paragraph',

@@ -4,6 +4,8 @@
     "": {
       "name": "campfire",
       "dependencies": {
+        "react": "npm:@preact/compat",
+        "react-dom": "npm:@preact/compat",
         "turbo": "^2.5.5",
       },
       "devDependencies": {
@@ -68,6 +70,8 @@
       "name": "campfire-storybook",
       "dependencies": {
         "preact": "^10.24.1",
+        "react": "npm:@preact/compat",
+        "react-dom": "npm:@preact/compat",
       },
       "devDependencies": {
         "@storybook/preact": "^8.6.14",
