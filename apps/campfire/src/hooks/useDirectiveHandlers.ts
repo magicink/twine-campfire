@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from 'preact/hooks'
 import i18next from 'i18next'
 import { SKIP } from 'unist-util-visit'
-import { compile } from 'expression-eval'
+import { evalExpression } from '@campfire/utils/evalExpression'
 import { toString } from 'mdast-util-to-string'
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
@@ -1236,8 +1236,7 @@ export const useDirectiveHandlers = () => {
       if (raw == null) continue
       if (typeof raw === 'string') {
         try {
-          const fn = compile(raw) as (scope: Record<string, unknown>) => unknown
-          const value = fn(gameData)
+          const value = evalExpression(raw, gameData)
           vars[name] = value ?? raw
         } catch (error) {
           const msg = `Failed to evaluate t directive var: ${raw}`
