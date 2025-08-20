@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from 'bun:test'
 import { act, fireEvent, render, screen } from '@testing-library/preact'
 import { Deck } from '@campfire/components/Deck'
 import { Appear, Slide } from '@campfire/components/Deck/Slide'
+import { LinkButton } from '@campfire/components'
 import { useDeckStore } from '@campfire/state/useDeckStore'
 import { StubAnimation } from '@campfire/test-utils/stub-animation'
 
@@ -54,7 +55,7 @@ describe('Deck', () => {
     )
   })
 
-  it('advances and reverses slides via click and keyboard', () => {
+  it('advances and reverses slides via keyboard', () => {
     render(
       <Deck>
         <div>Slide 1</div>
@@ -65,10 +66,30 @@ describe('Deck', () => {
     act(() => {
       fireEvent.click(inner)
     })
+    expect(useDeckStore.getState().currentSlide).toBe(0)
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }))
+    })
     expect(useDeckStore.getState().currentSlide).toBe(1)
     expect(screen.getAllByText('Slide 2')[0]).toBeInTheDocument()
     act(() => {
       window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft' }))
+    })
+    expect(useDeckStore.getState().currentSlide).toBe(0)
+  })
+
+  it('does not advance slides when clicking a LinkButton', () => {
+    render(
+      <Deck>
+        <div>
+          <LinkButton>Go</LinkButton>
+        </div>
+        <div>Slide 2</div>
+      </Deck>
+    )
+    const btn = screen.getByTestId('link-button')
+    act(() => {
+      fireEvent.click(btn)
     })
     expect(useDeckStore.getState().currentSlide).toBe(0)
   })
@@ -90,6 +111,28 @@ describe('Deck', () => {
       fireEvent.click(prevBtn)
     })
     expect(useDeckStore.getState().currentSlide).toBe(0)
+  })
+
+  it('prevents navigation button clicks from bubbling', () => {
+    let clicked = false
+    render(
+      <div
+        onClick={() => {
+          clicked = true
+        }}
+      >
+        <Deck>
+          <div>Slide 1</div>
+          <div>Slide 2</div>
+        </Deck>
+      </div>
+    )
+    const nextBtn = screen.getByTestId('deck-next')
+    act(() => {
+      fireEvent.click(nextBtn)
+    })
+    expect(clicked).toBe(false)
+    expect(useDeckStore.getState().currentSlide).toBe(1)
   })
 
   it('disables navigation buttons at deck bounds', () => {

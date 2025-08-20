@@ -431,7 +431,6 @@ export const Deck = ({
         role='group'
         aria-roledescription='slide'
         aria-label={labels.slide(currentSlide + 1, slides.length)}
-        onClick={handleNext}
       >
         {prevVNode}
         {currentVNode}
@@ -460,7 +459,10 @@ export const Deck = ({
             type='button'
             className='pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring disabled:opacity-50'
             aria-label={labels.prev}
-            onClick={handlePrev}
+            onClick={e => {
+              e.stopPropagation()
+              handlePrev()
+            }}
             data-testid='deck-prev'
             disabled={atStart}
           >
@@ -470,7 +472,10 @@ export const Deck = ({
             type='button'
             className='pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring disabled:opacity-50'
             aria-label={paused ? labels.play : labels.pause}
-            onClick={toggleAutoplay}
+            onClick={e => {
+              e.stopPropagation()
+              toggleAutoplay()
+            }}
             data-testid='deck-autoplay-toggle'
           >
             {paused ? '▶' : '⏸'}
@@ -479,7 +484,10 @@ export const Deck = ({
             type='button'
             className='pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring disabled:opacity-50'
             aria-label={labels.next}
-            onClick={handleNext}
+            onClick={e => {
+              e.stopPropagation()
+              handleNext()
+            }}
             data-testid='deck-next'
             disabled={atEnd}
           >
