@@ -2,7 +2,7 @@ import { useGameStore } from '@campfire/state/useGameStore'
 import { useTranslation } from 'react-i18next'
 import i18next from 'i18next'
 import { isRange } from '@campfire/remark-campfire/helpers'
-import { getTranslationOptions } from '@campfire/utils/i18n'
+import { getTranslationOptions } from '@campfire/utils/core'
 
 interface ShowProps {
   /** Game data key to display */

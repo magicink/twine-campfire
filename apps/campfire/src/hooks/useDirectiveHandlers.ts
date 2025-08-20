@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef } from 'preact/hooks'
 import i18next from 'i18next'
 import { SKIP } from 'unist-util-visit'
-import { evalExpression } from '@campfire/utils/evalExpression'
 import { toString } from 'mdast-util-to-string'
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
@@ -51,12 +50,15 @@ import {
   runDirectiveBlock
 } from '@campfire/utils/directiveHelpers'
 import { DEFAULT_DECK_HEIGHT, DEFAULT_DECK_WIDTH } from '@campfire/constants'
-import { getTranslationOptions } from '@campfire/utils/i18n'
+import {
+  evalExpression,
+  getTranslationOptions,
+  QUOTE_PATTERN
+} from '@campfire/utils/core'
 import {
   createStateManager,
   type SetOptions
 } from '@campfire/state/stateManager'
-import { QUOTE_PATTERN } from '@campfire/utils/quote'
 
 const NUMERIC_PATTERN = /^\d+$/
 const ALLOWED_ONEXIT_DIRECTIVES = new Set([

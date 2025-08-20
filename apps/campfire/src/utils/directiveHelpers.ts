@@ -1,5 +1,4 @@
-import { evalExpression } from '@campfire/utils/evalExpression'
-import { QUOTE_PATTERN } from '@campfire/utils/quote'
+import { evalExpression, QUOTE_PATTERN } from '@campfire/utils/core'
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
