@@ -5,7 +5,7 @@ import {
   parseTypedValue,
   extractKeyValue,
   applyKeyValue
-} from '@campfire/helpers'
+} from '@campfire/utils/directiveHelpers'
 
 describe('parseTypedValue', () => {
   it('parses numbers and booleans', () => {

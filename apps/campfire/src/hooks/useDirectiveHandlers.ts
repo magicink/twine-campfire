@@ -15,7 +15,6 @@ import remarkCampfire, {
   remarkCampfireIndentation
 } from '@campfire/remark-campfire'
 import type { Parent, RootContent, Text as MdText } from 'mdast'
-import { runDirectiveBlock } from '@campfire/utils/directives'
 import type { Node } from 'unist'
 import type {
   Element,
@@ -48,8 +47,9 @@ import {
   extractKeyValue,
   replaceWithIndentation,
   expandIndentedCode,
-  applyKeyValue
-} from '@campfire/helpers'
+  applyKeyValue,
+  runDirectiveBlock
+} from '@campfire/utils/directiveHelpers'
 import { DEFAULT_DECK_HEIGHT, DEFAULT_DECK_WIDTH } from '@campfire/constants'
 import { getTranslationOptions } from '@campfire/utils/i18n'
 import {
