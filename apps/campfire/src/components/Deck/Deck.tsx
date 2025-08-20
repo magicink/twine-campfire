@@ -170,6 +170,7 @@ export const Deck = ({
   const [currentVNode, setCurrentVNode] = useState(slides[0] as VNode)
   const [prevVNode, setPrevVNode] = useState<VNode | null>(null)
   const [paused, setPaused] = useState(autoAdvancePaused)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const slideRef = useRef<HTMLDivElement>(null)
   const reduceMotion = prefersReducedMotion()
   const firstRenderRef = useRef(true)
@@ -248,9 +249,26 @@ export const Deck = ({
   useEffect(() => {
     if (autoAdvanceMs != null && !paused) {
       const id = setInterval(() => next(), autoAdvanceMs)
-      return () => clearInterval(id)
+      intervalRef.current = id
+      return () => {
+        clearInterval(id)
+        intervalRef.current = null
+      }
     }
   }, [autoAdvanceMs, paused, next])
+
+  /**
+   * Toggles autoplay between paused and playing states.
+   */
+  const toggleAutoplay = (): void => {
+    setPaused(p => {
+      if (!p && intervalRef.current != null) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+      }
+      return !p
+    })
+  }
 
   const { ref: hostRef, scale } = useScale(size)
   const themeStyle = useMemo(() => {
@@ -372,17 +390,17 @@ export const Deck = ({
           data-testid='deck-prev'
           disabled={atStart}
         >
-          ◀
+          ⏮
         </button>
         {autoAdvanceMs != null && (
           <button
             type='button'
             className='pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring'
             aria-label={paused ? labels.play : labels.pause}
-            onClick={() => setPaused(p => !p)}
+            onClick={toggleAutoplay}
             data-testid='deck-autoplay-toggle'
           >
-            {paused ? '▶' : '❚❚'}
+            {paused ? '▶' : '⏸'}
           </button>
         )}
         <button
@@ -393,7 +411,7 @@ export const Deck = ({
           data-testid='deck-next'
           disabled={atEnd}
         >
-          ▶
+          ⏭
         </button>
       </div>
     </div>

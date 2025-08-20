@@ -158,7 +158,15 @@ describe('Deck', () => {
     act(() => {
       fireEvent.click(toggle)
     })
-    expect(toggle.textContent).toBe('❚❚')
+    expect(toggle.textContent).toBe('⏸')
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 15))
+    })
+    expect(useDeckStore.getState().currentSlide).toBe(1)
+    act(() => {
+      fireEvent.click(toggle)
+    })
+    expect(toggle.textContent).toBe('▶')
     await act(async () => {
       await new Promise(resolve => setTimeout(resolve, 15))
     })
