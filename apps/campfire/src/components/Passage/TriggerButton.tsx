@@ -1,10 +1,7 @@
-import { unified } from 'unified'
-import remarkCampfire, {
-  remarkCampfireIndentation
-} from '@campfire/remark-campfire'
-import type { RootContent, Root } from 'mdast'
+import type { RootContent } from 'mdast'
 import rfdc from 'rfdc'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
+import { runDirectiveBlock } from '@campfire/utils/directives'
 import type { JSX } from 'preact'
 
 const clone = rfdc()
@@ -34,18 +31,6 @@ export const TriggerButton = ({
   style
 }: TriggerButtonProps) => {
   const handlers = useDirectiveHandlers()
-  /**
-   * Processes a block of AST nodes using the Campfire remark plugins.
-   *
-   * @param nodes - Nodes to process.
-   */
-  const runBlock = (nodes: RootContent[]) => {
-    const root: Root = { type: 'root', children: nodes }
-    unified()
-      .use(remarkCampfireIndentation)
-      .use(remarkCampfire, { handlers })
-      .runSync(root)
-  }
   const classes = Array.isArray(className)
     ? className
     : className
@@ -54,10 +39,13 @@ export const TriggerButton = ({
   return (
     <button
       type='button'
+      data-testid='trigger-button'
       className={['campfire-trigger', 'font-libertinus', ...classes].join(' ')}
       disabled={disabled}
       style={style}
-      onClick={() => runBlock(clone(JSON.parse(content)))}
+      onClick={() =>
+        runDirectiveBlock(clone(JSON.parse(content)) as RootContent[], handlers)
+      }
     >
       {children}
     </button>
