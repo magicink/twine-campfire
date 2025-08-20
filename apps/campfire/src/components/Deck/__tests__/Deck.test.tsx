@@ -335,4 +335,30 @@ describe('Deck', () => {
 
     expect(useDeckStore.getState().maxSteps).toBe(1)
   })
+
+  it('resets autoplay timer when rewinding', async () => {
+    render(
+      <Deck autoAdvanceMs={20}>
+        <div>Slide 1</div>
+        <div>Slide 2</div>
+      </Deck>
+    )
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 25))
+    })
+    expect(useDeckStore.getState().currentSlide).toBe(1)
+    const prevBtn = screen.getByTestId('deck-prev')
+    act(() => {
+      fireEvent.click(prevBtn)
+    })
+    expect(useDeckStore.getState().currentSlide).toBe(0)
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 15))
+    })
+    expect(useDeckStore.getState().currentSlide).toBe(0)
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 10))
+    })
+    expect(useDeckStore.getState().currentSlide).toBe(1)
+  })
 })

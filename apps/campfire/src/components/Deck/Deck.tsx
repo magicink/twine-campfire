@@ -170,7 +170,7 @@ export const Deck = ({
   const [currentVNode, setCurrentVNode] = useState(slides[0] as VNode)
   const [prevVNode, setPrevVNode] = useState<VNode | null>(null)
   const [paused, setPaused] = useState(autoAdvancePaused)
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const slideRef = useRef<HTMLDivElement>(null)
   const reduceMotion = prefersReducedMotion()
   const firstRenderRef = useRef(true)
@@ -246,15 +246,32 @@ export const Deck = ({
     }
   }, [slides.length, setSlidesCount, initialSlide, goTo])
 
-  useEffect(() => {
-    if (autoAdvanceMs != null && !paused) {
-      const id = setInterval(() => next(), autoAdvanceMs)
-      intervalRef.current = id
-      return () => {
-        clearInterval(id)
-        intervalRef.current = null
-      }
+  /**
+   * Clears any pending autoplay timer.
+   */
+  const clearAutoAdvance = (): void => {
+    if (timeoutRef.current != null) {
+      clearTimeout(timeoutRef.current)
+      timeoutRef.current = null
     }
+  }
+
+  /**
+   * Schedules the next autoplay advance if enabled.
+   */
+  const scheduleAutoAdvance = (): void => {
+    clearAutoAdvance()
+    if (autoAdvanceMs != null && !paused) {
+      timeoutRef.current = setTimeout(() => {
+        next()
+        scheduleAutoAdvance()
+      }, autoAdvanceMs)
+    }
+  }
+
+  useEffect(() => {
+    scheduleAutoAdvance()
+    return clearAutoAdvance
   }, [autoAdvanceMs, paused, next])
 
   /**
@@ -262,12 +279,48 @@ export const Deck = ({
    */
   const toggleAutoplay = (): void => {
     setPaused(p => {
-      if (!p && intervalRef.current != null) {
-        clearInterval(intervalRef.current)
-        intervalRef.current = null
+      const nextPaused = !p
+      if (nextPaused) {
+        clearAutoAdvance()
+      } else {
+        scheduleAutoAdvance()
       }
-      return !p
+      return nextPaused
     })
+  }
+
+  /**
+   * Resets autoplay timing after manual navigation.
+   */
+  const resetAutoAdvance = (): void => {
+    scheduleAutoAdvance()
+  }
+
+  /**
+   * Advances to the next step or slide.
+   */
+  const handleNext = (): void => {
+    next()
+    resetAutoAdvance()
+  }
+
+  /**
+   * Moves backward to the previous step or slide.
+   */
+  const handlePrev = (): void => {
+    prev()
+    resetAutoAdvance()
+  }
+
+  /**
+   * Jumps to a specific slide and step.
+   *
+   * @param slide - Target slide index.
+   * @param step - Target step index.
+   */
+  const handleGoTo = (slide: number, step: number): void => {
+    goTo(slide, step)
+    resetAutoAdvance()
   }
 
   const { ref: hostRef, scale } = useScale(size)
@@ -296,24 +349,24 @@ export const Deck = ({
         case 'PageDown':
         case ' ': {
           e.preventDefault()
-          next()
+          handleNext()
           break
         }
         case 'ArrowLeft':
         case 'PageUp':
         case 'Backspace': {
           e.preventDefault()
-          prev()
+          handlePrev()
           break
         }
         case 'Home': {
           e.preventDefault()
-          goTo(0, 0)
+          handleGoTo(0, 0)
           break
         }
         case 'End': {
           e.preventDefault()
-          goTo(slides.length - 1, 0)
+          handleGoTo(slides.length - 1, 0)
           break
         }
       }
@@ -358,7 +411,7 @@ export const Deck = ({
         role='group'
         aria-roledescription='slide'
         aria-label={labels.slide(currentSlide + 1, slides.length)}
-        onClick={next}
+        onClick={handleNext}
       >
         {prevVNode}
         {currentVNode}
@@ -386,7 +439,7 @@ export const Deck = ({
           type='button'
           className='pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring'
           aria-label={labels.prev}
-          onClick={prev}
+          onClick={handlePrev}
           data-testid='deck-prev'
           disabled={atStart}
         >
@@ -407,7 +460,7 @@ export const Deck = ({
           type='button'
           className='pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring'
           aria-label={labels.next}
-          onClick={next}
+          onClick={handleNext}
           data-testid='deck-next'
           disabled={atEnd}
         >
