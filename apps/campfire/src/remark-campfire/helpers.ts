@@ -1,5 +1,6 @@
 import { toString } from 'mdast-util-to-string'
 import { evalExpression } from '@campfire/utils/evalExpression'
+import { QUOTE_PATTERN } from '@campfire/utils/quote'
 import type { Parent, Paragraph, RootContent } from 'mdast'
 import type {
   ContainerDirective,
@@ -215,8 +216,6 @@ export const ensureKey = (
   removeNode(parent, index)
   return undefined
 }
-
-const QUOTE_PATTERN = /^(['"`])(.*)\1$/
 
 export interface AttributeSpec<T = unknown> {
   type: 'string' | 'number' | 'boolean' | 'object' | 'array'

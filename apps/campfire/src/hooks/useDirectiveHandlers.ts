@@ -53,8 +53,8 @@ import {
   createStateManager,
   type SetOptions
 } from '@campfire/state/stateManager'
+import { QUOTE_PATTERN } from '@campfire/utils/quote'
 
-const QUOTE_PATTERN = /^(['"`])(.*)\1$/
 const NUMERIC_PATTERN = /^\d+$/
 const ALLOWED_ONEXIT_DIRECTIVES = new Set([
   'set',
