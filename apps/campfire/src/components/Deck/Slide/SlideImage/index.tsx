@@ -1,5 +1,6 @@
 import { type JSX } from 'preact'
-import { SlideLayer, type SlideLayerProps } from '../SlideLayer'
+import { createSlideElement } from '../createSlideElement'
+import { type SlideLayerProps } from '../SlideLayer'
 
 export interface SlideImageProps
   extends Omit<SlideLayerProps, 'children' | 'as' | 'elementProps'> {
@@ -19,21 +20,11 @@ export interface SlideImageProps
  * @param props - Configuration options for the image element.
  * @returns The rendered image layer.
  */
-export const SlideImage = ({
-  src,
-  alt,
-  className,
-  style,
-  ...layerProps
-}: SlideImageProps): JSX.Element => (
-  <SlideLayer
-    as='img'
-    elementProps={{ src, alt }}
-    className={className}
-    style={style}
-    testId='slideImage'
-    {...layerProps}
-  />
-)
+export const SlideImage = createSlideElement<SlideImageProps>({
+  as: 'img',
+  testId: 'slideImage',
+  mapElementProps: ({ src, alt }) => ({ src, alt }),
+  mapLayerProps: ({ src, alt, ...layerProps }) => layerProps
+})
 
 export default SlideImage
