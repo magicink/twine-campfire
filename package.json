@@ -20,6 +20,8 @@
   },
   "prettier": "@brandontom/prettier",
   "dependencies": {
+    "react": "npm:@preact/compat",
+    "react-dom": "npm:@preact/compat",
     "turbo": "^2.5.5"
   },
   "devDependencies": {

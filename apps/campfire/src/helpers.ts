@@ -1,4 +1,5 @@
-import { compile } from 'expression-eval'
+import { evalExpression } from '@campfire/utils/evalExpression'
+import { QUOTE_PATTERN } from '@campfire/utils/quote'
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
@@ -7,9 +8,6 @@ import { toString } from 'mdast-util-to-string'
 import type { Parent, Root, RootContent, Code } from 'mdast'
 import type { DirectiveNode } from '@campfire/remark-campfire/helpers'
 import { ensureKey, removeNode } from '@campfire/remark-campfire/helpers'
-
-const QUOTE_PATTERN = /^(['"`])(.*)\1$/
-const expressionCache = new Map<string, Function>()
 
 /**
  * Parses a raw string into a typed value. Supports quoted strings, booleans,
@@ -46,12 +44,7 @@ export const parseTypedValue = (
   const num = Number(trimmed)
   if (!Number.isNaN(num)) return num
   try {
-    let fn = expressionCache.get(trimmed)
-    if (!fn) {
-      fn = compile(trimmed)
-      expressionCache.set(trimmed, fn)
-    }
-    return fn(data)
+    return evalExpression(trimmed, data)
   } catch {
     return (data as Record<string, unknown>)[trimmed]
   }

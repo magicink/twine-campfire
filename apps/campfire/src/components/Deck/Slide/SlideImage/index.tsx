@@ -1,8 +1,8 @@
 import { type JSX } from 'preact'
-import { Layer, type LayerProps } from '../Layer'
-import parseInlineStyle from '@campfire/utils/parseInlineStyle'
+import { SlideLayer, type SlideLayerProps } from '../SlideLayer'
 
-export interface SlideImageProps extends Omit<LayerProps, 'children'> {
+export interface SlideImageProps
+  extends Omit<SlideLayerProps, 'children' | 'as' | 'elementProps'> {
   /** Image source URL. */
   src: string
   /** Alternate text description for the image. */
@@ -23,16 +23,17 @@ export const SlideImage = ({
   src,
   alt,
   className,
-  style: styleProp,
+  style,
   ...layerProps
-}: SlideImageProps): JSX.Element => {
-  const style: JSX.CSSProperties = parseInlineStyle(styleProp ?? {})
-
-  return (
-    <Layer data-testid='slideImage' {...layerProps}>
-      <img src={src} alt={alt} className={className} style={style} />
-    </Layer>
-  )
-}
+}: SlideImageProps): JSX.Element => (
+  <SlideLayer
+    as='img'
+    elementProps={{ src, alt }}
+    className={className}
+    style={style}
+    testId='slideImage'
+    {...layerProps}
+  />
+)
 
 export default SlideImage

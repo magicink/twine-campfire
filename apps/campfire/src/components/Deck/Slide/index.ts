@@ -14,6 +14,8 @@ export { SlideImage } from './SlideImage'
 export { SlideShape } from './SlideShape'
 export { Layer } from './Layer'
 export type { LayerProps } from './Layer'
+export { SlideLayer } from './SlideLayer'
+export type { SlideLayerProps } from './SlideLayer'
 export { renderDirectiveMarkdown } from './renderDirectiveMarkdown'
 
 export default Slide
