@@ -1,5 +1,6 @@
 import { type ComponentChildren, type JSX } from 'preact'
-import { SlideLayer, type SlideLayerProps } from '../SlideLayer'
+import { createSlideElement } from '../createSlideElement'
+import { type SlideLayerProps } from '../SlideLayer'
 
 export interface SlideTextProps
   extends Omit<SlideLayerProps, 'children' | 'as'> {
@@ -29,40 +30,34 @@ export interface SlideTextProps
  * @param props - Configuration options for the text element.
  * @returns The rendered text element.
  */
-export const SlideText = ({
-  as = 'p',
-  align,
-  size,
-  weight,
-  lineHeight,
-  color,
-  className,
-  style,
-  children,
-  ...layerProps
-}: SlideTextProps): JSX.Element => {
-  const styleTransform = (base: JSX.CSSProperties): JSX.CSSProperties => ({
-    ...base,
-    fontSize: size !== undefined ? `${size}px` : base.fontSize,
-    fontWeight: weight !== undefined ? String(weight) : base.fontWeight,
-    lineHeight: lineHeight ? String(lineHeight) : base.lineHeight,
-    color: color ?? base.color,
-    textAlign: align ?? base.textAlign
-  })
-  const classes = ['text-base', 'font-normal']
-  if (className) classes.unshift(className)
-  return (
-    <SlideLayer
-      as={as}
-      style={style}
-      styleTransform={styleTransform}
-      className={classes.join(' ')}
-      testId='slideText'
-      {...layerProps}
-    >
-      {children}
-    </SlideLayer>
-  )
-}
+export const SlideText = createSlideElement<SlideTextProps>({
+  as: 'p',
+  getAs: ({ as = 'p' }) => as,
+  testId: 'slideText',
+  mapClassName: ({ className }) => {
+    const classes = ['text-base', 'font-normal']
+    if (className) classes.unshift(className)
+    return classes.join(' ')
+  },
+  mapStyleTransform:
+    ({ align, size, weight, lineHeight, color }) =>
+    (base: JSX.CSSProperties): JSX.CSSProperties => ({
+      ...base,
+      fontSize: size !== undefined ? `${size}px` : base.fontSize,
+      fontWeight: weight !== undefined ? String(weight) : base.fontWeight,
+      lineHeight: lineHeight ? String(lineHeight) : base.lineHeight,
+      color: color ?? base.color,
+      textAlign: align ?? base.textAlign
+    }),
+  mapLayerProps: ({
+    as: _as,
+    align,
+    size,
+    weight,
+    lineHeight,
+    color,
+    ...layerProps
+  }) => layerProps
+})
 
 export default SlideText
