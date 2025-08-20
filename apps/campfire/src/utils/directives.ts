@@ -6,6 +6,15 @@ import remarkCampfire, {
 import type { Root, RootContent } from 'mdast'
 
 /**
+ * Determines whether a value is a valid `RootContent` node.
+ *
+ * @param value - The value to examine.
+ * @returns True if the value is `RootContent`.
+ */
+const isRootContentNode = (value: unknown): value is RootContent =>
+  typeof value === 'object' && value !== null && 'type' in value
+
+/**
  * Processes directive AST nodes through the Campfire remark pipeline.
  *
  * @param nodes - Nodes to process.
@@ -21,5 +30,11 @@ export const runDirectiveBlock = (
     .use(remarkCampfireIndentation)
     .use(remarkCampfire, { handlers })
     .runSync(root)
-  return root.children as RootContent[]
+  const { children } = root
+  if (!(children as unknown[]).every(isRootContentNode)) {
+    throw new TypeError(
+      'Processed directive nodes contain unexpected node types'
+    )
+  }
+  return children
 }
