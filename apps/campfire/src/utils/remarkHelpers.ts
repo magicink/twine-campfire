@@ -27,5 +27,3 @@ export const appendClassNames = (
   classes.push(...classNames)
   props.className = classes
 }
-
-export default appendClassNames
