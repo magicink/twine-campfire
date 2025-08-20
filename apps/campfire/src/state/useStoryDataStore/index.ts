@@ -1,5 +1,5 @@
-import { produce } from 'immer'
 import { create } from 'zustand'
+import { setImmer } from '@campfire/state/setImmer'
 import type { Element } from 'hast'
 
 export interface StoryDataState {
@@ -14,39 +14,36 @@ export interface StoryDataState {
   getPassageByName: (name: string) => Element | undefined
 }
 
-export const useStoryDataStore = create<StoryDataState>((set, get) => ({
-  storyData: {},
-  passages: [],
-  currentPassageId: undefined,
-  setStoryData: data =>
-    set(
-      produce((state: StoryDataState) => {
+export const useStoryDataStore = create<StoryDataState>((set, get) => {
+  const immer = setImmer<StoryDataState>(set)
+  return {
+    storyData: {},
+    passages: [],
+    currentPassageId: undefined,
+    setStoryData: data =>
+      immer(state => {
         state.storyData = data
-      })
-    ),
-  setPassages: passages =>
-    set(
-      produce((state: StoryDataState) => {
+      }),
+    setPassages: passages =>
+      immer(state => {
         state.passages = passages
-      })
-    ),
-  setCurrentPassage: id =>
-    set(
-      produce((state: StoryDataState) => {
+      }),
+    setCurrentPassage: id =>
+      immer(state => {
         state.currentPassageId = id
-      })
-    ),
-  getCurrentPassage: () => {
-    const state = get()
-    const { currentPassageId } = state
-    if (!currentPassageId) return undefined
-    return (
-      state.getPassageById(currentPassageId) ||
-      state.getPassageByName(currentPassageId)
-    )
-  },
-  getPassageById: id =>
-    get().passages.find(p => String(p.properties?.pid) === String(id)),
-  getPassageByName: name =>
-    get().passages.find(p => p.properties?.name === name)
-}))
+      }),
+    getCurrentPassage: () => {
+      const state = get()
+      const { currentPassageId } = state
+      if (!currentPassageId) return undefined
+      return (
+        state.getPassageById(currentPassageId) ||
+        state.getPassageByName(currentPassageId)
+      )
+    },
+    getPassageById: id =>
+      get().passages.find(p => String(p.properties?.pid) === String(id)),
+    getPassageByName: name =>
+      get().passages.find(p => p.properties?.name === name)
+  }
+})
