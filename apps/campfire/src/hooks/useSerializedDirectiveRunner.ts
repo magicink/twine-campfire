@@ -6,7 +6,7 @@ import remarkCampfire, {
 import type { RootContent, Root } from 'mdast'
 import type { ContainerDirective } from 'mdast-util-directive'
 import rfdc from 'rfdc'
-import { compile } from 'expression-eval'
+import { evalExpression } from '@campfire/utils/evalExpression'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { useGameStore } from '@campfire/state/useGameStore'
 import { getLabel, stripLabel } from '@campfire/remark-campfire/helpers'
@@ -36,8 +36,7 @@ export const useSerializedDirectiveRunner = (content: string) => {
         const test = getLabel(container) || ''
         let condition = false
         try {
-          const fn = compile(test)
-          condition = !!fn(data)
+          condition = !!evalExpression(test, data)
         } catch {
           condition = false
         }

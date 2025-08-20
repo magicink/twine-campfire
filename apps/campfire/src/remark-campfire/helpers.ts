@@ -1,5 +1,5 @@
 import { toString } from 'mdast-util-to-string'
-import { compile } from 'expression-eval'
+import { evalExpression } from '@campfire/utils/evalExpression'
 import type { Parent, Paragraph, RootContent } from 'mdast'
 import type {
   ContainerDirective,
@@ -294,8 +294,7 @@ export const extractAttributes = <S extends AttributeSchema>(
    */
   const evalExpr = (expr: string): unknown => {
     try {
-      const fn = compile(expr) as (scope: Record<string, unknown>) => unknown
-      return fn(state)
+      return evalExpression(expr, state)
     } catch {
       return undefined
     }
