@@ -1,6 +1,6 @@
-import { produce } from 'immer'
 import { create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
+import { setImmer } from '@campfire/state/setImmer'
 
 export interface GameState<T = Record<string, unknown>> {
   /** Arbitrary game state */
@@ -72,123 +72,110 @@ export interface Checkpoint<T = Record<string, unknown>>
 }
 
 export const useGameStore = create(
-  subscribeWithSelector<InternalState<Record<string, unknown>>>((set, get) => ({
-    gameData: {},
-    _initialGameData: {},
-    lockedKeys: {},
-    onceKeys: {},
-    loading: false,
-    errors: [],
-    checkpoints: {},
-    init: data =>
-      set(() => ({
-        gameData: { ...data },
-        _initialGameData: { ...data },
-        onceKeys: {},
-        errors: [],
-        loading: false
-      })),
-    setGameData: data =>
-      set(
-        produce((state: InternalState<Record<string, unknown>>) => {
+  subscribeWithSelector<InternalState<Record<string, unknown>>>((set, get) => {
+    const immer = setImmer<InternalState<Record<string, unknown>>>(set)
+    return {
+      gameData: {},
+      _initialGameData: {},
+      lockedKeys: {},
+      onceKeys: {},
+      loading: false,
+      errors: [],
+      checkpoints: {},
+      init: data =>
+        set(() => ({
+          gameData: { ...data },
+          _initialGameData: { ...data },
+          onceKeys: {},
+          errors: [],
+          loading: false
+        })),
+      setGameData: data =>
+        immer(state => {
           for (const [k, v] of Object.entries(data)) {
             if (!state.lockedKeys[k]) {
               ;(state.gameData as Record<string, unknown>)[k] = v
             }
           }
-        })
-      ),
-    unsetGameData: key =>
-      set(
-        produce((state: InternalState<Record<string, unknown>>) => {
+        }),
+      unsetGameData: key =>
+        immer(state => {
           const k = key as string
           delete (state.gameData as Record<string, unknown>)[k]
           delete state.lockedKeys[k]
-        })
-      ),
-    lockKey: key =>
-      set(
-        produce((state: InternalState<Record<string, unknown>>) => {
+        }),
+      lockKey: key =>
+        immer(state => {
           state.lockedKeys[key as string] = true
-        })
-      ),
-    unlockKey: key =>
-      set(
-        produce((state: InternalState<Record<string, unknown>>) => {
+        }),
+      unlockKey: key =>
+        immer(state => {
           delete state.lockedKeys[key as string]
-        })
-      ),
-    markOnce: key =>
-      set(
-        produce((state: InternalState<Record<string, unknown>>) => {
+        }),
+      markOnce: key =>
+        immer(state => {
           state.onceKeys[key] = true
-        })
-      ),
-    setLoading: loading => set({ loading }),
-    addError: error =>
-      set(
-        produce((state: InternalState<Record<string, unknown>>) => {
+        }),
+      setLoading: loading => set({ loading }),
+      addError: error =>
+        immer(state => {
           state.errors.push(error)
-        })
-      ),
-    clearErrors: () => set({ errors: [] }),
-    /**
-     * Saves a checkpoint, replacing any existing checkpoint.
-     *
-     * @param id - Unique identifier for the checkpoint.
-     * @param checkpoint - The checkpoint data to store.
-     */
-    saveCheckpoint: (id, checkpoint) =>
-      set(
-        produce((state: InternalState<Record<string, unknown>>) => {
+        }),
+      clearErrors: () => set({ errors: [] }),
+      /**
+       * Saves a checkpoint, replacing any existing checkpoint.
+       *
+       * @param id - Unique identifier for the checkpoint.
+       * @param checkpoint - The checkpoint data to store.
+       */
+      saveCheckpoint: (id, checkpoint) =>
+        immer(state => {
           state.checkpoints = {
             [id]: {
               ...checkpoint,
               timestamp: Date.now()
             }
           }
-        })
-      ),
-    /**
-     * Removes a checkpoint.
-     *
-     * @param id - Identifier of the checkpoint to remove.
-     */
-    removeCheckpoint: id =>
-      set(
-        produce((state: InternalState<Record<string, unknown>>) => {
+        }),
+      /**
+       * Removes a checkpoint.
+       *
+       * @param id - Identifier of the checkpoint to remove.
+       */
+      removeCheckpoint: id =>
+        immer(state => {
           delete state.checkpoints[id]
-        })
-      ),
-    /**
-     * Loads a checkpoint.
-     *
-     * @param id - Optional identifier of the checkpoint to load.
-     * @returns The loaded checkpoint, if found.
-     */
-    loadCheckpoint: id => {
-      const cps = get().checkpoints
-      const cp = id ? cps[id] : Object.values(cps)[0]
-      if (cp) {
-        set({
-          gameData: { ...cp.gameData },
-          lockedKeys: { ...cp.lockedKeys },
-          onceKeys: { ...cp.onceKeys }
-        })
-        return cp
-      }
-      const msg = `Checkpoint not found${id ? `: ${id}` : ''}`
-      console.error(msg)
-      get().addError(msg)
-      return undefined
-    },
-    reset: () =>
-      set(state => ({
-        gameData: { ...state._initialGameData },
-        lockedKeys: {},
-        onceKeys: {},
-        errors: [],
-        loading: false
-      }))
-  }))
+        }),
+      /**
+       * Loads a checkpoint.
+       *
+       * @param id - Optional identifier of the checkpoint to load.
+       * @returns The loaded checkpoint, if found.
+       */
+      loadCheckpoint: id => {
+        const cps = get().checkpoints
+        const cp = id ? cps[id] : Object.values(cps)[0]
+        if (cp) {
+          set({
+            gameData: { ...cp.gameData },
+            lockedKeys: { ...cp.lockedKeys },
+            onceKeys: { ...cp.onceKeys }
+          })
+          return cp
+        }
+        const msg = `Checkpoint not found${id ? `: ${id}` : ''}`
+        console.error(msg)
+        get().addError(msg)
+        return undefined
+      },
+      reset: () =>
+        set(state => ({
+          gameData: { ...state._initialGameData },
+          lockedKeys: {},
+          onceKeys: {},
+          errors: [],
+          loading: false
+        }))
+    }
+  })
 )

@@ -1,5 +1,5 @@
-import { produce } from 'immer'
 import { create } from 'zustand'
+import { setImmer } from '@campfire/state/setImmer'
 
 export interface DeckState {
   /** Currently active slide index */
@@ -38,27 +38,24 @@ const initialState = {
 }
 
 /** Zustand store for tracking slide and step navigation */
-export const useDeckStore = create<DeckState>((set, get) => ({
-  ...initialState,
-  /** Update the total slide count */
-  setSlidesCount: n =>
-    set(
-      produce((state: DeckState) => {
+export const useDeckStore = create<DeckState>((set, get) => {
+  const immer = setImmer<DeckState>(set)
+  return {
+    ...initialState,
+    /** Update the total slide count */
+    setSlidesCount: n =>
+      immer(state => {
         state.slidesCount = n
-      })
-    ),
-  /** Update the maximum steps for the current slide */
-  setMaxSteps: n =>
-    set(
-      produce((state: DeckState) => {
+      }),
+    /** Update the maximum steps for the current slide */
+    setMaxSteps: n =>
+      immer(state => {
         state.maxSteps = n
         state.stepsPerSlide[state.currentSlide] = n
-      })
-    ),
-  /** Register the max steps for a slide index */
-  setStepsForSlide: (slide, steps) =>
-    set(
-      produce((state: DeckState) => {
+      }),
+    /** Register the max steps for a slide index */
+    setStepsForSlide: (slide, steps) =>
+      immer(state => {
         state.stepsPerSlide[slide] = steps
         if (state.currentSlide === slide) {
           state.maxSteps = steps
@@ -66,56 +63,51 @@ export const useDeckStore = create<DeckState>((set, get) => ({
             state.currentStep = steps
           }
         }
-      })
-    ),
-  /** Advance to the next step or slide */
-  next: () => {
-    const { currentStep, maxSteps, currentSlide, slidesCount, stepsPerSlide } =
-      get()
-    const nextSlide = currentSlide + 1
-    // Move to the next slide only if it exists
-    if (currentStep < maxSteps) {
-      set(
-        produce((state: DeckState) => {
+      }),
+    /** Advance to the next step or slide */
+    next: () => {
+      const {
+        currentStep,
+        maxSteps,
+        currentSlide,
+        slidesCount,
+        stepsPerSlide
+      } = get()
+      const nextSlide = currentSlide + 1
+      // Move to the next slide only if it exists
+      if (currentStep < maxSteps) {
+        immer(state => {
           state.currentStep += 1
         })
-      )
-    } else if (nextSlide < slidesCount) {
-      const nextMaxSteps = stepsPerSlide[nextSlide] ?? 0
-      set(
-        produce((state: DeckState) => {
+      } else if (nextSlide < slidesCount) {
+        const nextMaxSteps = stepsPerSlide[nextSlide] ?? 0
+        immer(state => {
           state.currentSlide = nextSlide
           state.currentStep = 0
           state.maxSteps = nextMaxSteps
         })
-      )
-    }
-  },
-  /** Go back to the previous step or slide */
-  prev: () => {
-    const { currentStep, currentSlide, stepsPerSlide } = get()
-    if (currentStep > 0) {
-      set(
-        produce((state: DeckState) => {
+      }
+    },
+    /** Go back to the previous step or slide */
+    prev: () => {
+      const { currentStep, currentSlide, stepsPerSlide } = get()
+      if (currentStep > 0) {
+        immer(state => {
           state.currentStep -= 1
         })
-      )
-    } else if (currentSlide > 0) {
-      const previousSlide = currentSlide - 1
-      const previousMaxSteps = stepsPerSlide[previousSlide] ?? 0
-      set(
-        produce((state: DeckState) => {
+      } else if (currentSlide > 0) {
+        const previousSlide = currentSlide - 1
+        const previousMaxSteps = stepsPerSlide[previousSlide] ?? 0
+        immer(state => {
           state.currentSlide = previousSlide
           state.maxSteps = previousMaxSteps
           state.currentStep = previousMaxSteps
         })
-      )
-    }
-  },
-  /** Jump to a specific slide and step */
-  goTo: (slide, step = 0) =>
-    set(
-      produce((state: DeckState) => {
+      }
+    },
+    /** Jump to a specific slide and step */
+    goTo: (slide, step = 0) =>
+      immer(state => {
         const { slidesCount, stepsPerSlide } = state
         const maxSlideIndex = Math.max(slidesCount - 1, 0)
         const targetSlide = Math.min(Math.max(slide, 0), maxSlideIndex)
@@ -124,8 +116,8 @@ export const useDeckStore = create<DeckState>((set, get) => ({
         state.currentSlide = targetSlide
         state.currentStep = targetStep
         state.maxSteps = maxStepsForSlide
-      })
-    ),
-  /** Reset the deck to its initial state */
-  reset: () => set(initialState)
-}))
+      }),
+    /** Reset the deck to its initial state */
+    reset: () => set(initialState)
+  }
+})
