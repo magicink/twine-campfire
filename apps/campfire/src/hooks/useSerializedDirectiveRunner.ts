@@ -1,12 +1,9 @@
 import { useCallback, useMemo } from 'preact/hooks'
-import { unified } from 'unified'
-import remarkCampfire, {
-  remarkCampfireIndentation
-} from '@campfire/remark-campfire'
-import type { RootContent, Root } from 'mdast'
+import type { RootContent } from 'mdast'
 import type { ContainerDirective } from 'mdast-util-directive'
 import rfdc from 'rfdc'
 import { evalExpression } from '@campfire/utils/evalExpression'
+import { runDirectiveBlock } from '@campfire/utils/directives'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { useGameStore } from '@campfire/state/useGameStore'
 import { getLabel, stripLabel } from '@campfire/remark-campfire/helpers'
@@ -61,11 +58,7 @@ export const useSerializedDirectiveRunner = (content: string) => {
   const runBlock = (block: RootContent[], data: Record<string, unknown>) => {
     const processed = resolveIf(block, data)
     if (processed.length === 0) return
-    const root: Root = { type: 'root', children: processed }
-    unified()
-      .use(remarkCampfireIndentation)
-      .use(remarkCampfire, { handlers })
-      .runSync(root)
+    runDirectiveBlock(processed, handlers)
   }
 
   const gameData = useGameStore(state => state.gameData)
