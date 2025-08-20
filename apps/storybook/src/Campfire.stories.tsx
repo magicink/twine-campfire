@@ -43,6 +43,9 @@ You clicked the button!
 //       <SlideText as="h2" x={80} y={80}>Hello</SlideText>
 //     </Appear>
 //     <Appear at={1}>
+//       <SlideShape type="rect" x={150} y={150} w={100} h={50} stroke="blue" fill="#ddf" radius={8} shadow className="opacity-25" />
+//     </Appear>
+//     <Appear at={2}>
 //       <SlideText as="h2" x={100} y={100}>World</SlideText>
 //     </Appear>
 //   </Slide>
@@ -53,7 +56,8 @@ export const Deck: StoryObj = {
       <tw-storydata startnode='1' options='debug'>
         <tw-passagedata pid='1' name='Start'>
           {`
-:preset{type="text" name="title" x=80 y=80 as="h2"}
+:preset{type="text" name="title" x=80 y=80 as="p" size=36}
+
 :::deck{size='800x600'}
   :::slide{transition='fade'}
     :::appear{at=0}
@@ -61,8 +65,10 @@ export const Deck: StoryObj = {
       Hello
       :::
     :::
-    :shape{x=150 y=150 w=100 h=50 type='rect' stroke='blue' fill='#ddf' radius=8 shadow=true}
     :::appear{at=1}
+      :shape{x=150 y=150 w=100 h=50 type='rect' stroke='blue' fill='#ddf' radius=8 shadow=true className='opacity-25'}
+    :::
+    :::appear{at=2}
       :::text{from="title" x=100 y=100}
       World
       :::
