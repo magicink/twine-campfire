@@ -1,7 +1,7 @@
 import type { RootContent } from 'mdast'
 import rfdc from 'rfdc'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
-import { runDirectiveBlock } from '@campfire/utils/directives'
+import { runDirectiveBlock } from '@campfire/utils/directiveHelpers'
 import type { JSX } from 'preact'
 
 const clone = rfdc()

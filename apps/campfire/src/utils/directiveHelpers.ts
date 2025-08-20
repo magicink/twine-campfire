@@ -4,6 +4,10 @@ import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
 import remarkDirective from 'remark-directive'
+import remarkCampfire, {
+  remarkCampfireIndentation,
+  type DirectiveHandler
+} from '@campfire/remark-campfire'
 import { toString } from 'mdast-util-to-string'
 import type { Parent, Root, RootContent, Code } from 'mdast'
 import type { DirectiveNode } from '@campfire/remark-campfire/helpers'
@@ -174,4 +178,38 @@ export const applyKeyValue = <T>(
   const removed = removeNode(parent, index)
   if (typeof removed === 'number') return removed
   return index
+}
+
+/**
+ * Determines whether a value is a valid `RootContent` node.
+ *
+ * @param value - The value to examine.
+ * @returns True if the value is `RootContent`.
+ */
+const isRootContentNode = (value: unknown): value is RootContent =>
+  typeof value === 'object' && value !== null && 'type' in value
+
+/**
+ * Processes directive AST nodes through the Campfire remark pipeline.
+ *
+ * @param nodes - Nodes to process.
+ * @param handlers - Optional directive handlers to apply.
+ * @returns The processed array of nodes.
+ */
+export const runDirectiveBlock = (
+  nodes: RootContent[],
+  handlers: Record<string, DirectiveHandler> = {}
+): RootContent[] => {
+  const root: Root = { type: 'root', children: nodes }
+  unified()
+    .use(remarkCampfireIndentation)
+    .use(remarkCampfire, { handlers })
+    .runSync(root)
+  const { children } = root
+  if (!(children as unknown[]).every(isRootContentNode)) {
+    throw new TypeError(
+      'Processed directive nodes contain unexpected node types'
+    )
+  }
+  return children
 }
