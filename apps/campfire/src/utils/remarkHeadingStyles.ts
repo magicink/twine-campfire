@@ -1,5 +1,6 @@
 import { visit } from 'unist-util-visit'
 import type { Root } from 'mdast'
+import { appendClassNames } from '@campfire/utils/remarkHelpers'
 
 /**
  * Applies default Tailwind font family, size, and weight classes to Markdown heading nodes.
@@ -18,15 +19,6 @@ export const remarkHeadingStyles = () => (tree: Root) => {
     }
     const cls = mapping[node.depth]
     if (!cls) return
-    if (!node.data) node.data = {}
-    if (!node.data.hProperties) node.data.hProperties = {}
-    const existing = node.data.hProperties.className
-    const classes: string[] = Array.isArray(existing)
-      ? existing.filter((c): c is string => typeof c === 'string')
-      : typeof existing === 'string'
-        ? [existing]
-        : []
-    classes.push(cls)
-    node.data.hProperties.className = classes
+    appendClassNames(node, [cls])
   })
 }

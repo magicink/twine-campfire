@@ -1,5 +1,6 @@
 import { toString } from 'mdast-util-to-string'
-import { compile } from 'expression-eval'
+import { evalExpression } from '@campfire/utils/evalExpression'
+import { QUOTE_PATTERN } from '@campfire/utils/quote'
 import type { Parent, Paragraph, RootContent } from 'mdast'
 import type {
   ContainerDirective,
@@ -216,8 +217,6 @@ export const ensureKey = (
   return undefined
 }
 
-const QUOTE_PATTERN = /^(['"`])(.*)\1$/
-
 export interface AttributeSpec<T = unknown> {
   type: 'string' | 'number' | 'boolean' | 'object' | 'array'
   required?: boolean
@@ -294,8 +293,7 @@ export const extractAttributes = <S extends AttributeSchema>(
    */
   const evalExpr = (expr: string): unknown => {
     try {
-      const fn = compile(expr) as (scope: Record<string, unknown>) => unknown
-      return fn(state)
+      return evalExpression(expr, state)
     } catch {
       return undefined
     }
