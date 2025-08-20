@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.75.0](https://github.com/magicink/twine-campfire/compare/v1.74.0...v1.75.0) (2025-08-20)
+
+
+### Features
+
+* add autoplay controls to deck directive ([#431](https://github.com/magicink/twine-campfire/issues/431)) ([9fdd850](https://github.com/magicink/twine-campfire/commit/9fdd850f1f0e51f0f5fe431b5e20b2f2d4b6cd4f))
+
 ## [1.74.0](https://github.com/magicink/twine-campfire/compare/v1.73.0...v1.74.0) (2025-08-19)
 
 
