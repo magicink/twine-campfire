@@ -13,6 +13,7 @@ import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { LinkButton } from '@campfire/components/Passage/LinkButton'
 import { TriggerButton } from '@campfire/components/Passage/TriggerButton'
 import { Show } from '@campfire/components/Passage/Show'
+import { Translate } from '@campfire/components/Passage/Translate'
 import { OnExit } from '@campfire/components/Passage/OnExit'
 import { SlideReveal } from '@campfire/components/Deck/Slide/SlideReveal'
 import { SlideText } from '@campfire/components/Deck/Slide/SlideText'
@@ -49,6 +50,7 @@ export const If = ({ test, content, fallback }: IfProps) => {
           trigger: TriggerButton,
           if: If,
           show: Show,
+          translate: Translate,
           onExit: OnExit,
           reveal: SlideReveal,
           slideText: SlideText,

@@ -19,6 +19,7 @@ import { LinkButton } from '@campfire/components/Passage/LinkButton'
 import { TriggerButton } from '@campfire/components/Passage/TriggerButton'
 import { If } from '@campfire/components/Passage/If'
 import { Show } from '@campfire/components/Passage/Show'
+import { Translate } from '@campfire/components/Passage/Translate'
 import { OnExit } from '@campfire/components/Passage/OnExit'
 import { Deck } from '@campfire/components/Deck/Deck'
 import { Slide } from '@campfire/components/Deck/Slide/Slide'
@@ -118,6 +119,7 @@ export const Passage = () => {
           trigger: TriggerButton,
           if: If,
           show: Show,
+          translate: Translate,
           onExit: OnExit,
           deck: Deck,
           slide: Slide,
