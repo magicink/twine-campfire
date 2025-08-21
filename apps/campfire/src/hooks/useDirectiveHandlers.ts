@@ -1437,10 +1437,12 @@ export const useDirectiveHandlers = () => {
       try {
         fallback = match
           ? interpolateString(inner, gameData)
-          : ((): string | undefined => {
-              const val = evalExpression(inner, gameData)
-              return val != null ? String(val) : undefined
-            })()
+          : trimmed.includes('${')
+            ? interpolateString(inner, gameData)
+            : ((): string | undefined => {
+                const val = evalExpression(inner, gameData)
+                return val != null ? String(val) : undefined
+              })()
       } catch (error) {
         const msg = `Failed to evaluate t directive fallback: ${rawFallback}`
         console.error(msg, error)
