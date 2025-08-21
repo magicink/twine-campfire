@@ -19,15 +19,18 @@ export default meta
  */
 export const Examples: StoryObj<typeof Translate> = {
   render: () => {
-    if (!i18next.isInitialized) {
-      i18next.use(initReactI18next).init({
-        lng: 'en-US',
-        resources: { 'en-US': { translation: { hello: 'Hello' } } }
-      })
-    } else {
-      i18next.changeLanguage('en-US')
-      i18next.addResource('en-US', 'translation', 'hello', 'Hello')
+    const init = async () => {
+      if (!i18next.isInitialized) {
+        await i18next.use(initReactI18next).init({
+          lng: 'en-US',
+          resources: { 'en-US': { translation: { hello: 'Hello' } } }
+        })
+      } else {
+        await i18next.changeLanguage('en-US')
+        i18next.addResource('en-US', 'translation', 'hello', 'Hello')
+      }
     }
+    void init()
     useGameStore.getState().setGameData({ greet: 'hello' })
     return (
       <div className='flex flex-col gap-2'>
