@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.78.0](https://github.com/magicink/twine-campfire/compare/v1.77.0...v1.78.0) (2025-08-21)
+
+
+### Features
+
+* add for directive ([#460](https://github.com/magicink/twine-campfire/issues/460)) ([1d7aa28](https://github.com/magicink/twine-campfire/commit/1d7aa280c8cd4cb35e4575b35253e7f1b4dafe4b))
+
 ## [1.77.0](https://github.com/magicink/twine-campfire/compare/v1.76.0...v1.77.0) (2025-08-20)
 
 
