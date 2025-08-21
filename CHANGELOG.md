@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.77.0](https://github.com/magicink/twine-campfire/compare/v1.76.0...v1.77.0) (2025-08-20)
+
+
+### Features
+
+* add createSlideElement factory for slide components ([#446](https://github.com/magicink/twine-campfire/issues/446)) ([4af5b79](https://github.com/magicink/twine-campfire/commit/4af5b7919849aab244770b2ac99c709c36472170))
+* rename Appear to SlideReveal ([#452](https://github.com/magicink/twine-campfire/issues/452)) ([52e375e](https://github.com/magicink/twine-campfire/commit/52e375e26b7a4a4b66916f3177d04f7f20b21f41))
+* **utils:** add math helpers ([#453](https://github.com/magicink/twine-campfire/issues/453)) ([a919d9b](https://github.com/magicink/twine-campfire/commit/a919d9bf36d320917c311aad023b47558b6c730a))
+
+
+### Bug Fixes
+
+* **passage:** prevent button event propagation ([#448](https://github.com/magicink/twine-campfire/issues/448)) ([9ea3012](https://github.com/magicink/twine-campfire/commit/9ea30122716f1d50f188fbd54d2090ac419fe279))
+* stop deck autoplay at end and dim disabled buttons ([#447](https://github.com/magicink/twine-campfire/issues/447)) ([7b1bf24](https://github.com/magicink/twine-campfire/commit/7b1bf24afc2a79619d38f9554c448c0200a63ccb))
+
+## [1.76.0](https://github.com/magicink/twine-campfire/compare/v1.75.0...v1.76.0) (2025-08-20)
+
+
+### Features
+
+* add cached expression evaluator ([#434](https://github.com/magicink/twine-campfire/issues/434)) ([d619cc6](https://github.com/magicink/twine-campfire/commit/d619cc6d9850fb5c7c94597eb2a1f481daf9537a))
+* add runDirectiveBlock utility ([#436](https://github.com/magicink/twine-campfire/issues/436)) ([af5d700](https://github.com/magicink/twine-campfire/commit/af5d700917295ef2671fbf507e5433f02b3e1f61))
+* add slide layer wrapper ([#437](https://github.com/magicink/twine-campfire/issues/437)) ([1118022](https://github.com/magicink/twine-campfire/commit/11180222b5b5537272471c7a3a26def038d97bf9))
+* centralize directive block processing ([#439](https://github.com/magicink/twine-campfire/issues/439)) ([2f4f083](https://github.com/magicink/twine-campfire/commit/2f4f0833fee55f8e4c81c30c44b7260819fd6e05))
+* **utils:** add appendClassNames helper ([#435](https://github.com/magicink/twine-campfire/issues/435)) ([bc1cc04](https://github.com/magicink/twine-campfire/commit/bc1cc0488933a144ecaa2611d7ef7f25c13364e1))
+
 ## [1.75.0](https://github.com/magicink/twine-campfire/compare/v1.74.0...v1.75.0) (2025-08-20)
 
 
