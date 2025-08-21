@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.79.0](https://github.com/magicink/twine-campfire/compare/v1.78.0...v1.79.0) (2025-08-21)
+
+
+### Features
+
+* support expressions in show directive ([#463](https://github.com/magicink/twine-campfire/issues/463)) ([8012fa0](https://github.com/magicink/twine-campfire/commit/8012fa0b85a576083c6493564d5cded59230a899))
+
+
+### Bug Fixes
+
+* **storybook:** await language change ([#466](https://github.com/magicink/twine-campfire/issues/466)) ([0f8c8b3](https://github.com/magicink/twine-campfire/commit/0f8c8b311cb6468a078d368ff1a0ae77cd479c17))
+
 ## [1.78.0](https://github.com/magicink/twine-campfire/compare/v1.77.0...v1.78.0) (2025-08-21)
 
 
