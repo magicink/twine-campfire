@@ -319,7 +319,7 @@ describe('Passage lifecycle directives', () => {
 
     await waitFor(() => {
       expect(useGameStore.getState().errors).toEqual([
-        'onExit only supports directives: set, setOnce, array, arrayOnce, createRange, setRange, unset, random, randomOnce, if, batch'
+        'onExit only supports directives: set, setOnce, array, arrayOnce, createRange, setRange, unset, random, randomOnce, if, for, batch'
       ])
       expect(logged).toHaveLength(1)
     })

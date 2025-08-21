@@ -72,6 +72,7 @@ const ALLOWED_ONEXIT_DIRECTIVES = new Set([
   'random',
   'randomOnce',
   'if',
+  'for',
   'batch'
 ])
 const ALLOWED_BATCH_DIRECTIVES = new Set(
@@ -813,6 +814,88 @@ export const useDirectiveHandlers = () => {
     const markerIndex = newIndex + 1
     removeDirectiveMarker(parent, markerIndex)
     return [SKIP, newIndex]
+  }
+
+  /**
+   * Repeats the directive block for each item in an iterable expression.
+   *
+   * @param directive - The `for` directive node.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within the parent.
+   * @returns Visitor instruction tuple.
+   */
+  const handleFor: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    const container = directive as ContainerDirective
+    const label = getLabel(container).trim()
+    const match = label.match(/^([A-Za-z_$][\w$]*)\s+in\s+(.+)$/)
+    if (!match) {
+      const msg = `Malformed for directive: ${label}`
+      console.error(msg)
+      addError(msg)
+      const removed = removeNode(parent, index)
+      if (typeof removed === 'number') removeDirectiveMarker(parent, removed)
+      return [SKIP, index]
+    }
+    const varKey = ensureKey(match[1], parent, index)
+    if (!varKey) return [SKIP, index]
+    const expr = match[2]
+
+    let result: unknown
+    try {
+      result = evalExpression(expr, gameData)
+    } catch {
+      result = parseTypedValue(expr, gameData)
+    }
+    if (typeof result === 'undefined') {
+      result = parseTypedValue(expr, gameData)
+    }
+
+    let items: unknown[] = []
+    if (Array.isArray(result)) {
+      items = result
+    } else if (isRange(result)) {
+      for (let v = result.min; v <= result.max; v++) {
+        items.push(v)
+      }
+    }
+
+    const baseChildren = stripLabel(container.children as RootContent[])
+    const output: RootContent[] = []
+    for (const item of items) {
+      const scoped = state.createScope()
+      const prevState = state
+      state = scoped
+      gameData = scoped.getState()
+      lockedKeys = scoped.getLockedKeys()
+      onceKeys = scoped.getOnceKeys()
+
+      setValue(varKey, item)
+
+      const cloned = baseChildren.map(node => structuredClone(node))
+      const processed = runDirectiveBlock(
+        expandIndentedCode(cloned),
+        handlersRef.current
+      )
+      output.push(...processed)
+
+      const changes = scoped.getChanges()
+      delete (changes.data as Record<string, unknown>)[varKey]
+      changes.unset = changes.unset.filter(k => k !== varKey)
+      changes.locks = changes.locks.filter(k => k !== varKey)
+      changes.once = changes.once.filter(k => k !== varKey)
+      state = prevState
+      state.applyChanges(changes)
+      gameData = state.getState()
+      lockedKeys = state.getLockedKeys()
+      onceKeys = state.getOnceKeys()
+    }
+
+    const newIndex = replaceWithIndentation(directive, parent, index, output)
+    const markerIndex = newIndex + output.length
+    removeDirectiveMarker(parent, markerIndex)
+    const offset = output.length > 0 ? output.length - 1 : 0
+    return [SKIP, newIndex + offset]
   }
 
   /**
@@ -2537,6 +2620,7 @@ export const useDirectiveHandlers = () => {
       concat: handleConcat,
       unset: handleUnset,
       if: handleIf,
+      for: handleFor,
       else: handleElse,
       once: handleOnce,
       batch: handleBatch,
