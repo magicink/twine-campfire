@@ -369,13 +369,14 @@ Create or modify lists of values.
 
 Read or compute data without mutating state.
 
-- `show`: Display a key's value.
+- `show`: Display a key's value or the result of an expression.
 
   ```md
   :show[hp]
+  :show[some_key > 1 ? "X" : " "]
   ```
 
-  Replace `hp` with the key to display.
+  Replace the content with a key or JavaScript expression to display.
 
   | Input | Description          |
   | ----- | -------------------- |

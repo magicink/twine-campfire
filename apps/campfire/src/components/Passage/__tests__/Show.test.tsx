@@ -58,4 +58,10 @@ describe('Show', () => {
     const { container } = render(<Show data-key='hp' />)
     expect(container).toBeEmptyDOMElement()
   })
+
+  it('renders the result of an expression', () => {
+    useGameStore.getState().setGameData({ some_key: 2 })
+    render(<Show data-expr='some_key > 1 ? "X" : " "' />)
+    expect(screen.getByText('X')).toBeInTheDocument()
+  })
 })

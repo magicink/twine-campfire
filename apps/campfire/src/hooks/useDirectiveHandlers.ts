@@ -399,21 +399,26 @@ export const useDirectiveHandlers = () => {
     processRangeDirective('set', directive, parent, index)
 
   /**
-   * Inserts a Show component that displays the value for the provided key.
+   * Inserts a Show component that displays the value for a key or the result
+   * of an expression.
    *
    * @param directive - The directive node representing the show directive.
    * @param parent - The parent AST node containing this directive.
    * @param index - The index of the directive node within its parent.
    */
   const handleShow: DirectiveHandler = (directive, parent, index) => {
-    const key = ensureKey(toString(directive), parent, index)
-    if (!key) return index
+    const raw = toString(directive).trim()
+    if (!raw) return removeNode(parent, index)
+    const keyPattern = /^[A-Za-z_$][A-Za-z0-9_$]*$/
+    const props = keyPattern.test(raw)
+      ? { 'data-key': raw }
+      : { 'data-expr': raw }
     const node: MdText = {
       type: 'text',
       value: '',
       data: {
         hName: 'show',
-        hProperties: { 'data-key': key }
+        hProperties: props
       }
     }
     if (parent && typeof index === 'number') {
