@@ -3,7 +3,7 @@ import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkDirective from 'remark-directive'
 import type { RootContent } from 'mdast'
-import { runDirectiveBlock } from '@campfire/utils/directiveHelpers'
+import { runDirectiveBlock } from '@campfire/utils/directiveUtils'
 import type { DirectiveHandler } from '@campfire/remark-campfire'
 
 describe('runDirectiveBlock', () => {

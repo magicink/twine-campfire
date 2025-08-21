@@ -2,7 +2,7 @@ import { produce } from 'immer'
 import type { Draft } from 'immer'
 import type { StoreApi } from 'zustand'
 import rfdc from 'rfdc'
-import { clamp } from '@campfire/remark-campfire/helpers'
+import { clamp } from '@campfire/utils/directiveUtils'
 
 /**
  * Zustand's `set` function signature.
