@@ -60,6 +60,27 @@ describe('Passage i18n directives', () => {
     expect(text).toBeInTheDocument()
   })
 
+  it('evaluates expressions for translation keys', async () => {
+    i18next.addResource('en-US', 'translation', 'hello', 'Hello')
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':t[flag ? "hello" : "missing"]' }]
+    }
+
+    useGameStore.setState({ gameData: { flag: true } })
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    const text = await screen.findByText('Hello')
+    expect(text).toBeInTheDocument()
+  })
+
   it('handles pluralization with t directive', async () => {
     const passage: Element = {
       type: 'element',

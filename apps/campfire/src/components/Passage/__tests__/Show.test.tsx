@@ -1,14 +1,12 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { render, screen, act } from '@testing-library/preact'
-import i18next from 'i18next'
-import { initReactI18next } from 'react-i18next'
 import { Show } from '@campfire/components/Passage/Show'
 import { useGameStore } from '@campfire/state/useGameStore'
 
 /**
  * Resets the game store to an empty state before each test.
  */
-beforeEach(async () => {
+beforeEach(() => {
   useGameStore.setState({
     gameData: {},
     _initialGameData: {},
@@ -18,12 +16,6 @@ beforeEach(async () => {
     errors: [],
     loading: false
   })
-  if (!i18next.isInitialized) {
-    await i18next.use(initReactI18next).init({ lng: 'en-US', resources: {} })
-  } else {
-    await i18next.changeLanguage('en-US')
-    i18next.services.resourceStore.data = {}
-  }
 })
 
 describe('Show', () => {
@@ -57,5 +49,11 @@ describe('Show', () => {
     useGameStore.getState().setGameData({ hp: null })
     const { container } = render(<Show data-key='hp' />)
     expect(container).toBeEmptyDOMElement()
+  })
+
+  it('renders the result of an expression', () => {
+    useGameStore.getState().setGameData({ some_key: 2 })
+    render(<Show data-expr='some_key > 1 ? "X" : " "' />)
+    expect(screen.getByText('X')).toBeInTheDocument()
   })
 })

@@ -1014,6 +1014,33 @@ describe('Passage game state directives', () => {
     })
   })
 
+  it('renders show directive with an expression', async () => {
+    useGameStore.setState(state => ({
+      ...state,
+      gameData: { some_key: 2 }
+    }))
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: 'Value :show[some_key > 1 ? "X" : " "]'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      const span = screen.getByText('X')
+      expect(span.closest('p')?.textContent?.replace(/\s+/g, '')).toBe('ValueX')
+    })
+  })
+
   it('unsets game data with the unset directive', async () => {
     useGameStore.setState(state => ({
       ...state,
