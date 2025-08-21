@@ -24,6 +24,7 @@ const directiveParser = unified()
   .use(remarkParse)
   .use(remarkGfm)
   .use(remarkDirective)
+  .freeze()
 
 export {
   clamp,
@@ -198,6 +199,156 @@ export interface ExtractResult<S extends AttributeSchema> {
 }
 
 /**
+ * Parses an attribute value according to its specification.
+ *
+ * @param raw - Raw attribute value from the directive.
+ * @param spec - Attribute specification describing type and flags.
+ * @param state - Optional expression scope used for evaluations.
+ * @returns The parsed value or undefined when parsing fails.
+ */
+export const parseAttributeValue = (
+  raw: unknown,
+  spec: AttributeSpec,
+  state: Record<string, unknown> = {}
+): unknown => {
+  const evalExpr = (expr: string): unknown => {
+    try {
+      return evalExpression(expr, state)
+    } catch {
+      return undefined
+    }
+  }
+  if (raw == null) return undefined
+  switch (spec.type) {
+    case 'string': {
+      if (typeof raw === 'string') {
+        const m = raw.match(QUOTE_PATTERN)
+        if (m) return m[2]
+        if (spec.expression === false) return raw
+        const evaluated = evalExpr(raw)
+        if (typeof evaluated === 'string') return evaluated
+        return evaluated != null ? String(evaluated) : raw
+      }
+      return String(raw)
+    }
+    case 'number': {
+      if (typeof raw === 'number') return raw
+      const expr = typeof raw === 'string' ? raw : String(raw)
+      const evaluated = spec.expression === false ? expr : evalExpr(expr)
+      const num =
+        typeof evaluated === 'number'
+          ? evaluated
+          : parseFloat(String(evaluated))
+      return Number.isNaN(num) ? undefined : num
+    }
+    case 'boolean': {
+      if (typeof raw === 'boolean') return raw
+      if (typeof raw === 'string') {
+        if (spec.expression === false) return raw === 'true'
+        const evaluated = evalExpr(raw)
+        return typeof evaluated === 'boolean' ? evaluated : raw === 'true'
+      }
+      return undefined
+    }
+    case 'object': {
+      if (raw && typeof raw === 'object' && !Array.isArray(raw)) return raw
+      if (typeof raw === 'string') {
+        const evaluated = spec.expression === false ? undefined : evalExpr(raw)
+        if (
+          evaluated &&
+          typeof evaluated === 'object' &&
+          !Array.isArray(evaluated)
+        )
+          return evaluated
+        try {
+          const parsed = JSON.parse(raw)
+          return typeof parsed === 'object' && !Array.isArray(parsed)
+            ? parsed
+            : undefined
+        } catch {
+          return undefined
+        }
+      }
+      return undefined
+    }
+    case 'array': {
+      if (Array.isArray(raw)) return raw
+      if (typeof raw === 'string') {
+        const evaluated = spec.expression === false ? undefined : evalExpr(raw)
+        if (Array.isArray(evaluated)) return evaluated
+        try {
+          const parsed = JSON.parse(raw)
+          if (Array.isArray(parsed)) return parsed
+        } catch {
+          return raw
+            .split(',')
+            .map(s => s.trim())
+            .filter(Boolean)
+        }
+      }
+      return undefined
+    }
+    default:
+      return raw
+  }
+}
+
+/**
+ * Validates that a required attribute has a value, recording an error when
+ * missing.
+ *
+ * @param directive - Name of the directive being processed.
+ * @param name - Attribute name.
+ * @param spec - Attribute specification.
+ * @param value - Parsed attribute value.
+ * @param errors - Collection to record validation errors.
+ * @returns True if the attribute is present or optional.
+ */
+const validateRequiredAttribute = (
+  directive: string,
+  name: string,
+  spec: AttributeSpec,
+  value: unknown,
+  errors: string[]
+): boolean => {
+  if (typeof value === 'undefined') {
+    if (spec.required)
+      errors.push(
+        `Directive "${directive}" missing required attribute "${name}"`
+      )
+    return false
+  }
+  return true
+}
+
+/**
+ * Processes a key attribute, ensuring uniqueness and recording errors.
+ *
+ * @param value - Parsed value of the key attribute.
+ * @param name - Name of the key attribute.
+ * @param directive - Name of the directive being processed.
+ * @param parent - Parent node used when removing duplicates.
+ * @param index - Index of the directive within its parent.
+ * @param errors - Collection to record validation errors.
+ * @returns The ensured key value.
+ */
+const processKeyAttribute = (
+  value: unknown,
+  name: string,
+  directive: string,
+  parent: Parent | undefined,
+  index: number | undefined,
+  errors: string[]
+): string | undefined => {
+  const key = ensureKey(value, parent, index)
+  if (!key)
+    errors.push(
+      `Directive "${directive}" missing required key attribute "${name}"`
+    )
+  return key
+}
+
+/**
  * Extracts and validates directive attributes based on a schema.
  *
  * @param directive - Directive node containing raw attributes.
@@ -217,134 +368,51 @@ export const extractAttributes = <S extends AttributeSchema>(
   const attrs = (directive.attributes || {}) as Record<string, unknown>
   const processed: Record<string, unknown> = {}
   const errors: string[] = []
-  const state = options.state || {}
-  const keyAttr = options.keyAttr as string | undefined
-  const includeLabel = options.label
+  const { state = {}, keyAttr, label: includeLabel } = options
 
   let key: string | undefined
-
-  const evalExpr = (expr: string): unknown => {
-    try {
-      return evalExpression(expr, state)
-    } catch {
-      return undefined
-    }
-  }
-
-  const parse = (raw: unknown, spec: AttributeSpec): unknown => {
-    if (raw == null) return undefined
-    switch (spec.type) {
-      case 'string': {
-        if (typeof raw === 'string') {
-          const m = raw.match(QUOTE_PATTERN)
-          if (m) return m[2]
-          if (spec.expression === false) return raw
-          const evaluated = evalExpr(raw)
-          if (typeof evaluated === 'string') return evaluated
-          return evaluated != null ? String(evaluated) : raw
-        }
-        return String(raw)
-      }
-      case 'number': {
-        if (typeof raw === 'number') return raw
-        const expr = typeof raw === 'string' ? raw : String(raw)
-        const evaluated = spec.expression === false ? expr : evalExpr(expr)
-        const num =
-          typeof evaluated === 'number'
-            ? evaluated
-            : parseFloat(String(evaluated))
-        return Number.isNaN(num) ? undefined : num
-      }
-      case 'boolean': {
-        if (typeof raw === 'boolean') return raw
-        if (typeof raw === 'string') {
-          if (spec.expression === false) return raw === 'true'
-          const evaluated = evalExpr(raw)
-          return typeof evaluated === 'boolean' ? evaluated : raw === 'true'
-        }
-        return undefined
-      }
-      case 'object': {
-        if (raw && typeof raw === 'object' && !Array.isArray(raw)) return raw
-        if (typeof raw === 'string') {
-          const evaluated =
-            spec.expression === false ? undefined : evalExpr(raw)
-          if (
-            evaluated &&
-            typeof evaluated === 'object' &&
-            !Array.isArray(evaluated)
-          )
-            return evaluated
-          try {
-            const parsed = JSON.parse(raw)
-            return typeof parsed === 'object' && !Array.isArray(parsed)
-              ? parsed
-              : undefined
-          } catch {
-            return undefined
-          }
-        }
-        return undefined
-      }
-      case 'array': {
-        if (Array.isArray(raw)) return raw
-        if (typeof raw === 'string') {
-          const evaluated =
-            spec.expression === false ? undefined : evalExpr(raw)
-          if (Array.isArray(evaluated)) return evaluated
-          try {
-            const parsed = JSON.parse(raw)
-            if (Array.isArray(parsed)) return parsed
-          } catch {
-            return raw
-              .split(',')
-              .map(s => s.trim())
-              .filter(Boolean)
-          }
-        }
-        return undefined
-      }
-      default:
-        return raw
-    }
-  }
 
   for (const [name, spec] of Object.entries(schema) as [
     keyof S,
     AttributeSpec
   ][]) {
     const raw = attrs[name as string]
-    let value = parse(raw, spec)
+    let value = parseAttributeValue(raw, spec, state)
     if (typeof value === 'undefined' && typeof spec.default !== 'undefined') {
       value = spec.default
     }
     if (name === keyAttr) {
-      key = ensureKey(value, parent, index)
-      if (!key) {
-        errors.push(
-          `Directive "${directive.name}" missing required key attribute "${String(name)}"`
-        )
+      key = processKeyAttribute(
+        value,
+        String(name),
+        directive.name,
+        parent,
+        index,
+        errors
+      )
+      if (!key)
         return {
           attrs: processed as ExtractedAttrs<S>,
           key,
           valid: false,
           errors
         }
-      }
-    } else if (typeof value === 'undefined') {
-      if (spec.required)
-        errors.push(
-          `Directive "${directive.name}" missing required attribute "${String(name)}"`
-        )
-    } else {
-      processed[name as string] = value
+    } else if (
+      validateRequiredAttribute(
+        directive.name,
+        String(name),
+        spec,
+        value,
+        errors
+      )
+    ) {
+      processed[name as string] = value as unknown
     }
   }
 
   let label: string | undefined
-  if (includeLabel && 'children' in directive) {
+  if (includeLabel && 'children' in directive)
     label = getLabel(directive as ContainerDirective)
-  }
 
   return {
     attrs: processed as ExtractedAttrs<S>,
@@ -469,7 +537,7 @@ export const expandIndentedCode = (
   if (depth >= maxDepth) return nodes
   return nodes.flatMap(node => {
     if (node.type === 'code' && !node.lang) {
-      const root = directiveParser.parse((node as Code).value) as Root
+      const root = directiveParser().parse((node as Code).value) as Root
       return expandIndentedCode(
         root.children as RootContent[],
         depth + 1,
