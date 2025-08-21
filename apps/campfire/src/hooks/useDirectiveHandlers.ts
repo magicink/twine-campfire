@@ -57,7 +57,8 @@ import {
 } from '@campfire/utils/core'
 import {
   createStateManager,
-  type SetOptions
+  type SetOptions,
+  type StateManagerType
 } from '@campfire/state/stateManager'
 
 const NUMERIC_PATTERN = /^\d+$/
@@ -817,6 +818,33 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
+   * Merges scoped state changes back into the parent state while optionally
+   * excluding a loop variable key.
+   *
+   * @param prev - The parent state manager.
+   * @param scoped - The scoped state manager.
+   * @param excludeKey - Optional key to remove from the pending changes.
+   */
+  const mergeScopedChanges = (
+    prev: StateManagerType<Record<string, unknown>>,
+    scoped: StateManagerType<Record<string, unknown>>,
+    excludeKey?: string
+  ) => {
+    const changes = scoped.getChanges()
+    if (excludeKey) {
+      delete (changes.data as Record<string, unknown>)[excludeKey]
+      changes.unset = changes.unset.filter(k => k !== excludeKey)
+      changes.locks = changes.locks.filter(k => k !== excludeKey)
+      changes.once = changes.once.filter(k => k !== excludeKey)
+    }
+    state = prev
+    state.applyChanges(changes)
+    gameData = state.getState()
+    lockedKeys = state.getLockedKeys()
+    onceKeys = state.getOnceKeys()
+  }
+
+  /**
    * Repeats the directive block for each item in an iterable expression.
    *
    * @param directive - The `for` directive node.
@@ -841,32 +869,30 @@ export const useDirectiveHandlers = () => {
     if (!varKey) return [SKIP, index]
     const expr = match[2]
 
-    let result: unknown
+    let iterableValue: unknown
     try {
-      result = evalExpression(expr, gameData)
-      if (typeof result === 'undefined') {
-        result = parseTypedValue(expr, gameData)
+      iterableValue = evalExpression(expr, gameData)
+      if (typeof iterableValue === 'undefined') {
+        iterableValue = parseTypedValue(expr, gameData)
       }
     } catch (error) {
       console.warn(
         `Failed to evaluate expression in for directive: ${expr}`,
         error
       )
-      result = parseTypedValue(expr, gameData)
+      iterableValue = parseTypedValue(expr, gameData)
     }
 
     let items: unknown[] = []
-    if (Array.isArray(result)) {
-      items = result
-    } else if (isRange(result)) {
-      for (let v = result.min; v <= result.max; v++) {
+    if (Array.isArray(iterableValue)) {
+      items = iterableValue
+    } else if (isRange(iterableValue)) {
+      for (let v = iterableValue.min; v <= iterableValue.max; v++) {
         items.push(v)
       }
     }
 
-    const baseChildren = stripLabel(container.children as RootContent[])
-    // Serialize once to avoid repeated deep clones in large loops
-    const template = JSON.stringify(baseChildren)
+    const template = stripLabel(container.children as RootContent[])
     const output: RootContent[] = []
     for (const item of items) {
       const scoped = state.createScope()
@@ -878,23 +904,14 @@ export const useDirectiveHandlers = () => {
 
       setValue(varKey, item)
 
-      const cloned = JSON.parse(template) as RootContent[]
+      const cloned = structuredClone(template) as RootContent[]
       const processed = runDirectiveBlock(
         expandIndentedCode(cloned),
         handlersRef.current
       )
       output.push(...processed)
 
-      const changes = scoped.getChanges()
-      delete (changes.data as Record<string, unknown>)[varKey]
-      changes.unset = changes.unset.filter(k => k !== varKey)
-      changes.locks = changes.locks.filter(k => k !== varKey)
-      changes.once = changes.once.filter(k => k !== varKey)
-      state = prevState
-      state.applyChanges(changes)
-      gameData = state.getState()
-      lockedKeys = state.getLockedKeys()
-      onceKeys = state.getOnceKeys()
+      mergeScopedChanges(prevState, scoped, varKey)
     }
 
     const newIndex = replaceWithIndentation(directive, parent, index, output)
