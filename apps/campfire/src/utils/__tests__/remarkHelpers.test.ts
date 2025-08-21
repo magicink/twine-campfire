@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'bun:test'
-import { appendClassNames } from '@campfire/utils/remarkHelpers'
+import { appendClassNames } from '@campfire/utils/remarkStyles'
 
 describe('appendClassNames', () => {
   it('creates className array when none exists', () => {

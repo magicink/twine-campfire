@@ -3,7 +3,7 @@ import {
   evalExpression,
   clearExpressionCache,
   getCompiledExpression
-} from '@campfire/utils/evalExpression'
+} from '@campfire/utils/core'
 
 describe('evalExpression', () => {
   it('caches compiled expressions', () => {

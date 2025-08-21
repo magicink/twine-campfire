@@ -9,8 +9,10 @@ import rehypeCampfire from '@campfire/rehype-campfire'
 import rehypeStringify from 'rehype-stringify'
 import rehypeSlideText from '@campfire/utils/rehypeSlideText'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
-import { remarkHeadingStyles } from '@campfire/utils/remarkHeadingStyles'
-import { remarkParagraphStyles } from '@campfire/utils/remarkParagraphStyles'
+import {
+  remarkHeadingStyles,
+  remarkParagraphStyles
+} from '@campfire/utils/remarkStyles'
 import {
   useStoryDataStore,
   type StoryDataState
