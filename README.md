@@ -369,14 +369,17 @@ Create or modify lists of values.
 
 Read or compute data without mutating state.
 
-- `show`: Display a key's value or the result of an expression.
+- `show`: Display a key's value, the result of an expression, or an
+  interpolated string.
 
   ```md
   :show[hp]
+  :show[`Hello ${name}`]
   :show[some_key > 1 ? "X" : " "]
   ```
 
-  Replace the content with a key or JavaScript expression to display.
+  Replace the content with a key, template string, or JavaScript expression to
+  display.
 
   | Input | Description          |
   | ----- | -------------------- |
@@ -816,20 +819,24 @@ Change language and handle translations.
   | locale | Locale code to activate |
 
 - `t`: Output a translated string or expression. Use the optional `count`
-  attribute for pluralization.
+  attribute for pluralization and `fallback` for default text when the
+  translation is missing.
 
   ```md
   :t[ui:apple]{count=2}
   :t[favoriteFruit]
+  :t[missing]{fallback="`Hello ${player}`"}
   ```
 
   Replace `apple` and `ui` with your key and namespace, or supply a JavaScript
-  expression that resolves to one.
+  expression that resolves to one. Wrap fallback text in quotes or backticks to
+  enable string interpolation.
 
-  | Input  | Description                          |
-  | ------ | ------------------------------------ |
-  | ns:key | Namespace and key of the translation |
-  | count  | Optional count for pluralization     |
+  | Input    | Description                          |
+  | -------- | ------------------------------------ |
+  | ns:key   | Namespace and key of the translation |
+  | count    | Optional count for pluralization     |
+  | fallback | Fallback text when key is missing    |
 
 - `translations`: Add a translation.
 

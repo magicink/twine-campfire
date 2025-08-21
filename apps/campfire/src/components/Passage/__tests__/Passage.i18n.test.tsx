@@ -168,6 +168,28 @@ describe('Passage i18n directives', () => {
     expect(text).toBeInTheDocument()
   })
 
+  it('uses fallback when translation is missing', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        { type: 'text', value: ':t[missing]{fallback="`Hello ${player}`"}' }
+      ]
+    }
+
+    useGameStore.setState({ gameData: { player: 'Sam' } })
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    const text = await screen.findByText('Hello Sam')
+    expect(text).toBeInTheDocument()
+  })
+
   it('resolves translations inside links', async () => {
     const start: Element = {
       type: 'element',

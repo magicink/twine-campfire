@@ -31,11 +31,16 @@ export const Examples: StoryObj<typeof Translate> = {
       }
     }
     void init()
-    useGameStore.getState().setGameData({ greet: 'hello' })
+    useGameStore.getState().setGameData({ greet: 'hello', player: 'Sam' })
+    const player = useGameStore.getState().gameData.player as string
     return (
       <div className='flex flex-col gap-2'>
         <Translate data-i18n-key='hello' />
         <Translate data-i18n-expr='greet' />
+        <Translate
+          data-i18n-key='missing'
+          data-i18n-fallback={`Hello, ${player}!`}
+        />
       </div>
     )
   }

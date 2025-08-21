@@ -1,10 +1,15 @@
 import { visit } from 'unist-util-visit'
 import type { Root, Parent, Paragraph, Text } from 'mdast'
 import type { Node, Data } from 'unist'
-import type { LeafDirective, TextDirective } from 'mdast-util-directive'
+import type {
+  ContainerDirective,
+  LeafDirective,
+  TextDirective
+} from 'mdast-util-directive'
 import type { SKIP } from 'unist-util-visit'
 import type { VFile } from 'vfile'
-import type { DirectiveNode } from './helpers'
+
+export type DirectiveNode = ContainerDirective | LeafDirective | TextDirective
 
 /** Error message for unquoted trigger labels */
 const MSG_TRIGGER_LABEL_UNQUOTED = 'trigger label must be a quoted string'

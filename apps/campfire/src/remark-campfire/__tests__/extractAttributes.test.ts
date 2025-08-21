@@ -1,7 +1,10 @@
 import { describe, it, expect } from 'bun:test'
 import type { Parent } from 'mdast'
 import type { ContainerDirective } from 'mdast-util-directive'
-import { extractAttributes, type DirectiveNode } from '../helpers'
+import {
+  extractAttributes,
+  type DirectiveNode
+} from '@campfire/utils/directiveUtils'
 
 /**
  * Creates a directive node with the given attributes for testing.

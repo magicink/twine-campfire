@@ -4,7 +4,7 @@ import { VFile } from 'vfile'
 import remarkParse from 'remark-parse'
 import remarkDirective from 'remark-directive'
 import remarkCampfire, { type DirectiveHandler } from '../index'
-import type { DirectiveNode } from '../helpers'
+import type { DirectiveNode } from '@campfire/utils/directiveUtils'
 import { toString } from 'mdast-util-to-string'
 
 /**

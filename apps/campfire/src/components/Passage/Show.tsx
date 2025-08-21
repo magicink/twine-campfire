@@ -1,6 +1,6 @@
 import { useGameStore } from '@campfire/state/useGameStore'
-import { isRange } from '@campfire/remark-campfire/helpers'
-import { evalExpression } from '@campfire/utils/core'
+import { isRange } from '@campfire/utils/directiveUtils'
+import { evalExpression, interpolateString } from '@campfire/utils/core'
 
 interface ShowProps {
   /** Game data key to display */
@@ -20,7 +20,12 @@ export const Show = (props: ShowProps) => {
   const expr = props['data-expr']
   if (expr) {
     try {
-      const result = evalExpression(expr, gameData)
+      let result: unknown
+      if (expr.startsWith('`') && expr.endsWith('`')) {
+        result = interpolateString(expr.slice(1, -1), gameData)
+      } else {
+        result = evalExpression(expr, gameData)
+      }
       if (result == null) return null
       const display = isRange(result) ? result.value : result
       return <span data-testid='show'>{String(display)}</span>
