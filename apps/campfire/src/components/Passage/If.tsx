@@ -15,10 +15,12 @@ import { TriggerButton } from '@campfire/components/Passage/TriggerButton'
 import { Show } from '@campfire/components/Passage/Show'
 import { Translate } from '@campfire/components/Passage/Translate'
 import { OnExit } from '@campfire/components/Passage/OnExit'
-import { SlideReveal } from '@campfire/components/Deck/Slide/SlideReveal'
-import { SlideText } from '@campfire/components/Deck/Slide/SlideText'
-import { SlideImage } from '@campfire/components/Deck/Slide/SlideImage'
-import { SlideShape } from '@campfire/components/Deck/Slide/SlideShape'
+import {
+  SlideReveal,
+  SlideText,
+  SlideImage,
+  SlideShape
+} from '@campfire/components/Deck/Slide'
 import { rehypeSlideText } from '@campfire/utils/rehypeSlideText'
 
 interface IfProps {

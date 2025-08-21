@@ -9,9 +9,7 @@ import { OnExit } from '@campfire/components/Passage/OnExit'
 import { Deck } from '@campfire/components/Deck/Deck'
 import { Slide } from './Slide'
 import { SlideReveal } from './SlideReveal'
-import { SlideText } from './SlideText'
-import { SlideImage } from './SlideImage'
-import { SlideShape } from './SlideShape'
+import { SlideText, SlideImage, SlideShape } from './SlideElements'
 import { createMarkdownProcessor } from '@campfire/utils/createMarkdownProcessor'
 
 /**

@@ -22,11 +22,13 @@ import { Show } from '@campfire/components/Passage/Show'
 import { Translate } from '@campfire/components/Passage/Translate'
 import { OnExit } from '@campfire/components/Passage/OnExit'
 import { Deck } from '@campfire/components/Deck/Deck'
-import { Slide } from '@campfire/components/Deck/Slide/Slide'
-import { SlideReveal } from '@campfire/components/Deck/Slide/SlideReveal'
-import { SlideText } from '@campfire/components/Deck/Slide/SlideText'
-import { SlideImage } from '@campfire/components/Deck/Slide/SlideImage'
-import { SlideShape } from '@campfire/components/Deck/Slide/SlideShape'
+import {
+  Slide,
+  SlideReveal,
+  SlideText,
+  SlideImage,
+  SlideShape
+} from '@campfire/components/Deck/Slide'
 
 const DIRECTIVE_MARKER_PATTERN = '(:::[^\\n]*|:[^\\n]*|<<)'
 
