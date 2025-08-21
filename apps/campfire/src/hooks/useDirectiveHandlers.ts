@@ -893,6 +893,23 @@ export const useDirectiveHandlers = () => {
     }
 
     const template = stripLabel(container.children as RootContent[])
+    const serializedTemplate = JSON.stringify(template)
+
+    /**
+     * Retrieves directive metadata from a node.
+     *
+     * @param node - The node to inspect.
+     * @returns The directive's hName and hProperties if available.
+     */
+    const getNodeData = (
+      node: unknown
+    ): { hName?: string; hProperties?: Record<string, unknown> } =>
+      (
+        node as {
+          data?: { hName?: string; hProperties?: Record<string, unknown> }
+        }
+      ).data || {}
+
     const output: RootContent[] = []
     for (const item of items) {
       const scoped = state.createScope()
@@ -904,7 +921,7 @@ export const useDirectiveHandlers = () => {
 
       setValue(varKey, item)
 
-      const cloned = structuredClone(template) as RootContent[]
+      const cloned = JSON.parse(serializedTemplate) as RootContent[]
       const processed = runDirectiveBlock(
         expandIndentedCode(cloned),
         handlersRef.current
@@ -936,10 +953,7 @@ export const useDirectiveHandlers = () => {
             nodes[i] = { type: 'text', value: String(item) }
             continue
           }
-          const hName = (node as any).data?.hName
-          const props = (node as any).data?.hProperties as
-            | Record<string, unknown>
-            | undefined
+          const { hName, hProperties: props } = getNodeData(node)
           if (hName === 'if' && props) {
             const testExpr = String(props.test)
             let passes = false
