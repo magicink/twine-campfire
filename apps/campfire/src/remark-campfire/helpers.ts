@@ -1,6 +1,5 @@
 import { toString } from 'mdast-util-to-string'
-import { evalExpression } from '@campfire/utils/evalExpression'
-import { QUOTE_PATTERN } from '@campfire/utils/quote'
+import { evalExpression, QUOTE_PATTERN } from '@campfire/utils/core'
 import type { Parent, Paragraph, RootContent } from 'mdast'
 import type {
   ContainerDirective,

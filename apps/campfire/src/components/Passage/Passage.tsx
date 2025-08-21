@@ -2,8 +2,10 @@ import { useEffect, useMemo, useRef, useState } from 'preact/hooks'
 import type { ComponentChild } from 'preact'
 import type { Text as HastText, Content } from 'hast'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
-import { remarkHeadingStyles } from '@campfire/utils/remarkHeadingStyles'
-import { remarkParagraphStyles } from '@campfire/utils/remarkParagraphStyles'
+import {
+  remarkHeadingStyles,
+  remarkParagraphStyles
+} from '@campfire/utils/remarkStyles'
 import { createMarkdownProcessor } from '@campfire/utils/createMarkdownProcessor'
 import {
   isTitleOverridden,

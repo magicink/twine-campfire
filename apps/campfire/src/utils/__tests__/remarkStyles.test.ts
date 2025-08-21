@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'bun:test'
 import type { Root } from 'mdast'
-import { remarkHeadingStyles } from '@campfire/utils/remarkHeadingStyles'
-import { remarkParagraphStyles } from '@campfire/utils/remarkParagraphStyles'
+import {
+  remarkHeadingStyles,
+  remarkParagraphStyles
+} from '@campfire/utils/remarkStyles'
 
 describe('remarkHeadingStyles', () => {
   it('appends default classes', () => {
@@ -20,7 +22,9 @@ describe('remarkHeadingStyles', () => {
     remarkHeadingStyles()(tree)
     expect(tree.children[0].data?.hProperties?.className).toEqual([
       'existing',
-      'font-libertinus text-3xl font-semibold'
+      'font-libertinus',
+      'text-3xl',
+      'font-semibold'
     ])
   })
 })
