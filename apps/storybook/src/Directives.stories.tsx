@@ -36,6 +36,23 @@ You clicked the button!
   )
 }
 
+export const For: StoryObj = {
+  render: () => (
+    <>
+      <tw-storydata startnode='1' options='debug'>
+        <tw-passagedata pid='1' name='Start'>
+          {`
+:::for[x in [1,2,3]]
+Value :show[x]
+:::
+          `}
+        </tw-passagedata>
+      </tw-storydata>
+      <Campfire />
+    </>
+  )
+}
+
 // Expected component composition of the Deck directives below (JSX-style):
 // <Deck size={{ width: 800, height: 600 }}>
 //   <Slide transition={{ type: 'fade' }}>

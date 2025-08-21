@@ -844,10 +844,14 @@ export const useDirectiveHandlers = () => {
     let result: unknown
     try {
       result = evalExpression(expr, gameData)
-    } catch {
-      result = parseTypedValue(expr, gameData)
-    }
-    if (typeof result === 'undefined') {
+      if (typeof result === 'undefined') {
+        result = parseTypedValue(expr, gameData)
+      }
+    } catch (error) {
+      console.warn(
+        `Failed to evaluate expression in for directive: ${expr}`,
+        error
+      )
       result = parseTypedValue(expr, gameData)
     }
 
@@ -861,6 +865,8 @@ export const useDirectiveHandlers = () => {
     }
 
     const baseChildren = stripLabel(container.children as RootContent[])
+    // Serialize once to avoid repeated deep clones in large loops
+    const template = JSON.stringify(baseChildren)
     const output: RootContent[] = []
     for (const item of items) {
       const scoped = state.createScope()
@@ -872,7 +878,7 @@ export const useDirectiveHandlers = () => {
 
       setValue(varKey, item)
 
-      const cloned = baseChildren.map(node => structuredClone(node))
+      const cloned = JSON.parse(template) as RootContent[]
       const processed = runDirectiveBlock(
         expandIndentedCode(cloned),
         handlersRef.current
