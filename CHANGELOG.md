@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.80.0](https://github.com/magicink/twine-campfire/compare/v1.79.0...v1.80.0) (2025-08-21)
+
+
+### Features
+
+* add interpolation support for show and t fallback ([#468](https://github.com/magicink/twine-campfire/issues/468)) ([0d39030](https://github.com/magicink/twine-campfire/commit/0d39030f4632c3d30e9dadc0df613978627ad875))
+
 ## [1.79.0](https://github.com/magicink/twine-campfire/compare/v1.78.0...v1.79.0) (2025-08-21)
 
 
