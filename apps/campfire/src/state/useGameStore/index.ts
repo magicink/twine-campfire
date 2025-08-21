@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
-import { setImmer } from '@campfire/state/setImmer'
+import { setImmer } from '@campfire/state/utils'
 
 export interface GameState<T = Record<string, unknown>> {
   /** Arbitrary game state */

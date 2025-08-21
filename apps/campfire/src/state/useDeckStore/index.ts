@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { setImmer } from '@campfire/state/setImmer'
+import { setImmer } from '@campfire/state/utils'
 
 export interface DeckState {
   /** Currently active slide index */
