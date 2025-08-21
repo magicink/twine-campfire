@@ -174,7 +174,7 @@ describe('Passage i18n directives', () => {
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
       children: [
-        { type: 'text', value: ':t[missing]{fallback="`Hello ${player}`"}' }
+        { type: 'text', value: ':t[missing]{fallback=`Hello ${player}`}' }
       ]
     }
 

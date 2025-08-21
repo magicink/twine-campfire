@@ -825,12 +825,13 @@ Change language and handle translations.
   ```md
   :t[ui:apple]{count=2}
   :t[favoriteFruit]
-  :t[missing]{fallback="`Hello ${player}`"}
+  :t[missing]{fallback=`Hello ${player}`}
   ```
 
   Replace `apple` and `ui` with your key and namespace, or supply a JavaScript
-  expression that resolves to one. Wrap fallback text in quotes or backticks to
-  enable string interpolation.
+  expression that resolves to one. The `fallback` attribute accepts either a
+  quoted string or a template literal. For interpolation, use backticks without
+  wrapping the value in quotes.
 
   | Input    | Description                          |
   | -------- | ------------------------------------ |
