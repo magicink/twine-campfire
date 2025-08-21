@@ -14,6 +14,8 @@ interface TranslateProps {
   'data-i18n-count'?: number
   /** Interpolation values for the translation */
   'data-i18n-vars'?: string
+  /** Fallback text when translation key is missing */
+  'data-i18n-fallback'?: string
 }
 
 /**
@@ -27,6 +29,7 @@ export const Translate = (props: TranslateProps) => {
   let ns = props['data-i18n-ns']
   let tKey = props['data-i18n-key']
   const expr = props['data-i18n-expr']
+  const fallback = props['data-i18n-fallback']
   if (!tKey && expr) {
     try {
       const result = evalExpression(expr, gameData)
@@ -43,10 +46,11 @@ export const Translate = (props: TranslateProps) => {
       const msg = `Failed to evaluate translation expression: ${expr}`
       console.error(msg, error)
       addError(msg)
-      return null
+      return fallback ? <span data-testid='translate'>{fallback}</span> : null
     }
   }
-  if (!tKey) return null
+  if (!tKey)
+    return fallback ? <span data-testid='translate'>{fallback}</span> : null
   let vars: Record<string, unknown> = {}
   if (typeof props['data-i18n-vars'] === 'string') {
     try {
@@ -60,7 +64,8 @@ export const Translate = (props: TranslateProps) => {
   }
   const options = {
     ...vars,
-    ...getTranslationOptions({ ns, count: props['data-i18n-count'] })
+    ...getTranslationOptions({ ns, count: props['data-i18n-count'] }),
+    defaultValue: fallback
   }
   return <span data-testid='translate'>{t(tKey, options)}</span>
 }

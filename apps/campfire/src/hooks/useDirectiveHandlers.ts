@@ -13,7 +13,7 @@ import type {
 import remarkCampfire, {
   remarkCampfireIndentation
 } from '@campfire/remark-campfire'
-import type { Parent, RootContent, Text as MdText } from 'mdast'
+import type { Parent, RootContent, Text as MdText, InlineCode } from 'mdast'
 import type { Node } from 'unist'
 import type {
   Element,
@@ -53,6 +53,7 @@ import { DEFAULT_DECK_HEIGHT, DEFAULT_DECK_WIDTH } from '@campfire/constants'
 import {
   evalExpression,
   getTranslationOptions,
+  interpolateString,
   QUOTE_PATTERN
 } from '@campfire/utils/core'
 import {
@@ -407,7 +408,14 @@ export const useDirectiveHandlers = () => {
    * @param index - The index of the directive node within its parent.
    */
   const handleShow: DirectiveHandler = (directive, parent, index) => {
-    const raw = toString(directive).trim()
+    let raw = toString(directive).trim()
+    if (
+      directive.children &&
+      directive.children.length === 1 &&
+      directive.children[0].type === 'inlineCode'
+    ) {
+      raw = `\`${(directive.children[0] as InlineCode).value}\``
+    }
     if (!raw) return removeNode(parent, index)
     const keyPattern = /^[A-Za-z_$][A-Za-z0-9_$]*$/
     const props = keyPattern.test(raw)
@@ -1380,7 +1388,7 @@ export const useDirectiveHandlers = () => {
       directive,
       parent,
       index,
-      { count: { type: 'number' } },
+      { count: { type: 'number' }, fallback: { type: 'string' } },
       { state: gameData }
     )
     const keyPattern = /^[A-Za-z_$][A-Za-z0-9_$]*(?::[A-Za-z0-9_.$-]+)?$/
@@ -1400,7 +1408,9 @@ export const useDirectiveHandlers = () => {
       string,
       unknown
     >
+    const rawFallback = rawAttrs.fallback as string | undefined
     delete rawAttrs.count
+    delete rawAttrs.fallback
     const vars: Record<string, unknown> = {}
     for (const [name, rawVal] of Object.entries(rawAttrs)) {
       if (rawVal == null) continue
@@ -1417,6 +1427,25 @@ export const useDirectiveHandlers = () => {
         }
       } else {
         vars[name] = rawVal
+      }
+    }
+    let fallback: string | undefined
+    if (typeof rawFallback === 'string') {
+      const trimmed = rawFallback.trim()
+      const match = trimmed.match(QUOTE_PATTERN)
+      const inner = match ? match[2] : trimmed
+      try {
+        fallback = match
+          ? interpolateString(inner, gameData)
+          : ((): string | undefined => {
+              const val = evalExpression(inner, gameData)
+              return val != null ? String(val) : undefined
+            })()
+      } catch (error) {
+        const msg = `Failed to evaluate t directive fallback: ${rawFallback}`
+        console.error(msg, error)
+        addError(msg)
+        fallback = match ? inner : trimmed
       }
     }
     if (parent && typeof index === 'number') {
@@ -1469,6 +1498,7 @@ export const useDirectiveHandlers = () => {
       if (attrs.count !== undefined) props['data-i18n-count'] = attrs.count
       if (Object.keys(vars).length > 0)
         props['data-i18n-vars'] = JSON.stringify(vars)
+      if (fallback !== undefined) props['data-i18n-fallback'] = fallback
       const node: MdText = {
         type: 'text',
         value: '0', // non-empty placeholder required for mdast conversion
