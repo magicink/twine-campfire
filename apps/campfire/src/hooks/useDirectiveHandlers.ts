@@ -1442,7 +1442,7 @@ export const useDirectiveHandlers = () => {
       const node: MdText = {
         type: 'text',
         value: '0', // non-empty placeholder required for mdast conversion
-        data: { hName: 'show', hProperties: props }
+        data: { hName: 'translate', hProperties: props }
       }
       return replaceWithIndentation(directive, parent, index, [node])
     }
