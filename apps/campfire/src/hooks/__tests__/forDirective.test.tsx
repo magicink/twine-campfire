@@ -49,4 +49,12 @@ describe('for directive', () => {
     render(<MarkdownRunner markdown={md} />)
     expect(document.body.textContent?.replace(/\n/g, '')).toBe('HiHi')
   })
+
+  it('expands show directives using loop variables', () => {
+    const md = ':::for[x in [1,2,3]]\nValue :show[x]\n:::'
+    render(<MarkdownRunner markdown={md} />)
+    expect(document.body.textContent?.replace(/\n/g, '')).toBe(
+      'Value 1Value 2Value 3'
+    )
+  })
 })

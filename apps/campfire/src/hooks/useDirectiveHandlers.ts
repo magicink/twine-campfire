@@ -909,6 +909,28 @@ export const useDirectiveHandlers = () => {
         expandIndentedCode(cloned),
         handlersRef.current
       )
+
+      /**
+       * Replaces `show` directives referencing the loop variable with text
+       * nodes so each iteration renders its current value.
+       *
+       * @param nodes - Nodes to process for replacement.
+       */
+      const replaceShowNodes = (nodes: RootContent[]): void => {
+        nodes.forEach((node, i) => {
+          if (
+            isTextNode(node) &&
+            node.data?.hName === 'show' &&
+            node.data.hProperties?.['data-key'] === varKey
+          ) {
+            nodes[i] = { type: 'text', value: String(item) }
+          } else if ('children' in node) {
+            replaceShowNodes(((node as Parent).children as RootContent[]) || [])
+          }
+        })
+      }
+
+      replaceShowNodes(processed)
       output.push(...processed)
 
       mergeScopedChanges(prevState, scoped, varKey)
