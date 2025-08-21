@@ -8,6 +8,29 @@ const meta: Meta = {
 export default meta
 
 /**
+ * Iterates over a numeric array using the `for` directive and displays each
+ * value.
+ *
+ * @returns Campfire story demonstrating numeric iteration with `show`.
+ */
+export const Numbers: StoryObj = {
+  render: () => (
+    <>
+      <tw-storydata startnode='1' options='debug'>
+        <tw-passagedata pid='1' name='Start'>
+          {`
+:::for[x in [1,2,3]]
+Value :show[x]
+:::
+          `}
+        </tw-passagedata>
+      </tw-storydata>
+      <Campfire />
+    </>
+  )
+}
+
+/**
  * Iterates over an array of fruits using the `for` directive and skips
  * bananas via a nested `if` directive.
  *
