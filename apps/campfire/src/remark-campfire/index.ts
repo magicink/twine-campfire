@@ -46,6 +46,9 @@ export interface LangDirective extends Omit<TextDirective, 'attributes'> {
   name: 'lang'
 }
 
+/** RegExp matching safe characters in directive attribute values. */
+const SAFE_ATTR_VALUE_PATTERN = /^[\w\s.,'"`{}\[\]$!-]*$/
+
 /**
  * Data structure for paragraph nodes that may include custom hast element
  * metadata.
@@ -109,7 +112,7 @@ const parseFallbackAttributes = (
     const match = textNode.value.match(/^\{([\w-]+)=([^}]*)\}$/)
     if (match) {
       const [, name, raw] = match
-      if (/^[\w\s.,'"`{}\[\]$!-]*$/.test(raw)) {
+      if (SAFE_ATTR_VALUE_PATTERN.test(raw)) {
         directive.attributes = { [name]: raw }
         parent.children.splice(index + 1, 1)
       } else {
@@ -130,7 +133,7 @@ const parseFallbackAttributes = (
     ) {
       const [, name] = open
       const raw = (codeNode as InlineCode).value
-      if (/^[\w\s.,'"`{}\[\]$!-]*$/.test(raw)) {
+      if (SAFE_ATTR_VALUE_PATTERN.test(raw)) {
         directive.attributes = { [name]: raw }
       }
       parent.children.splice(index + 1, 3)

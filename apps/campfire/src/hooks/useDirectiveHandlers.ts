@@ -1435,14 +1435,13 @@ export const useDirectiveHandlers = () => {
       const match = trimmed.match(QUOTE_PATTERN)
       const inner = match ? match[2] : trimmed
       try {
-        fallback = match
+        const shouldInterpolate = !!match || trimmed.includes('${')
+        fallback = shouldInterpolate
           ? interpolateString(inner, gameData)
-          : trimmed.includes('${')
-            ? interpolateString(inner, gameData)
-            : ((): string | undefined => {
-                const val = evalExpression(inner, gameData)
-                return val != null ? String(val) : undefined
-              })()
+          : ((): string | undefined => {
+              const val = evalExpression(inner, gameData)
+              return val != null ? String(val) : undefined
+            })()
       } catch (error) {
         const msg = `Failed to evaluate t directive fallback: ${rawFallback}`
         console.error(msg, error)
