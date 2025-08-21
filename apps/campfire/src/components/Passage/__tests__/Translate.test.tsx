@@ -32,4 +32,11 @@ describe('Translate', () => {
     render(<Translate data-i18n-key='hello' />)
     expect(screen.getByText('Hello')).toBeInTheDocument()
   })
+
+  it('renders a translated string from expression', () => {
+    i18next.addResource('en-US', 'translation', 'hello', 'Hello')
+    useGameStore.getState().setGameData({ key: 'hello' })
+    render(<Translate data-i18n-expr='key' />)
+    expect(screen.getByText('Hello')).toBeInTheDocument()
+  })
 })

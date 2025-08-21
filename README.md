@@ -815,14 +815,16 @@ Change language and handle translations.
   | ------ | ----------------------- |
   | locale | Locale code to activate |
 
-- `t`: Output a translated string. Use the optional `count` attribute for
-  pluralization.
+- `t`: Output a translated string or expression. Use the optional `count`
+  attribute for pluralization.
 
   ```md
   :t[ui:apple]{count=2}
+  :t[favoriteFruit]
   ```
 
-  Replace `apple` and `ui` with your key and namespace.
+  Replace `apple` and `ui` with your key and namespace, or supply a JavaScript
+  expression that resolves to one.
 
   | Input  | Description                          |
   | ------ | ------------------------------------ |

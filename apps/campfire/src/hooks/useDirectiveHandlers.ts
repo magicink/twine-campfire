@@ -1353,24 +1353,12 @@ export const useDirectiveHandlers = () => {
    * @param index - The index of the directive within its parent.
    */
   const handleTranslate: DirectiveHandler = (directive, parent, index) => {
-    const { attrs } = extractAttributes(
-      directive,
-      parent,
-      index,
-      { count: { type: 'number' } },
-      { state: gameData }
-    )
-    const label = hasLabel(directive) ? directive.label.trim() : undefined
-    let key = ''
+    let raw = ''
     let ns: string | undefined
+    let key: string | undefined
+    const label = hasLabel(directive) ? directive.label.trim() : undefined
     if (label) {
-      const [nsPart, keyPart] = label.split(':', 2)
-      if (keyPart !== undefined) {
-        ns = nsPart.trim()
-        key = keyPart.trim()
-      } else {
-        key = nsPart.trim()
-      }
+      raw = label
     } else {
       const children = directive.children as (RootContent & { name?: string })[]
       if (
@@ -1380,35 +1368,55 @@ export const useDirectiveHandlers = () => {
       ) {
         ns = (children[0] as MdText).value.trim()
         key = (children[1] as DirectiveNode).name
+        raw = `${ns}:${key}`
       } else if (children.length === 1 && children[0].type === 'text') {
-        key = (children[0] as MdText).value.trim()
+        raw = (children[0] as MdText).value.trim()
       } else {
-        const text = toString(directive).trim()
-        if (text) key = text
+        raw = toString(directive).trim()
       }
     }
-    if (!key) return removeNode(parent, index)
+    if (!raw) return removeNode(parent, index)
+    const { attrs } = extractAttributes(
+      directive,
+      parent,
+      index,
+      { count: { type: 'number' } },
+      { state: gameData }
+    )
+    const keyPattern = /^[A-Za-z_$][A-Za-z0-9_$]*(?::[A-Za-z0-9_.$-]+)?$/
+    let props: Properties
+    if (key || keyPattern.test(raw)) {
+      if (!key) {
+        const [nsPart, keyPart] = raw.split(':', 2)
+        key = keyPart ?? nsPart
+        if (keyPart !== undefined) ns = nsPart
+      }
+      props = { 'data-i18n-key': key }
+      if (ns) props['data-i18n-ns'] = ns
+    } else {
+      props = { 'data-i18n-expr': raw }
+    }
     const rawAttrs = { ...(directive.attributes || {}) } as Record<
       string,
       unknown
     >
     delete rawAttrs.count
     const vars: Record<string, unknown> = {}
-    for (const [name, raw] of Object.entries(rawAttrs)) {
-      if (raw == null) continue
-      if (typeof raw === 'string') {
+    for (const [name, rawVal] of Object.entries(rawAttrs)) {
+      if (rawVal == null) continue
+      if (typeof rawVal === 'string') {
         try {
-          const value = evalExpression(raw, gameData)
-          vars[name] = value ?? raw
+          const value = evalExpression(rawVal, gameData)
+          vars[name] = value ?? rawVal
         } catch (error) {
-          const msg = `Failed to evaluate t directive var: ${raw}`
+          const msg = `Failed to evaluate t directive var: ${rawVal}`
           console.error(msg, error)
           addError(msg)
-          const match = raw.match(QUOTE_PATTERN)
-          vars[name] = match ? match[2] : raw
+          const match = rawVal.match(QUOTE_PATTERN)
+          vars[name] = match ? match[2] : rawVal
         }
       } else {
-        vars[name] = raw
+        vars[name] = rawVal
       }
     }
     if (parent && typeof index === 'number') {
@@ -1419,12 +1427,34 @@ export const useDirectiveHandlers = () => {
         prev.value.endsWith('[[') &&
         next?.type === 'text' &&
         next.value.includes(']]')
+      let nsVal = props['data-i18n-ns'] as string | undefined
+      let tKey = props['data-i18n-key'] as string | undefined
+      if (!tKey && 'data-i18n-expr' in props) {
+        try {
+          const result = evalExpression(
+            props['data-i18n-expr'] as string,
+            gameData
+          )
+          if (typeof result === 'string') {
+            if (!nsVal && result.includes(':')) {
+              ;[nsVal, tKey] = result.split(':', 2)
+            } else {
+              tKey = result
+            }
+          }
+        } catch (error) {
+          const msg = `Failed to evaluate t directive key expression: ${props['data-i18n-expr']}`
+          console.error(msg, error)
+          addError(msg)
+          tKey = undefined
+        }
+      }
       const options = {
         ...vars,
-        ...getTranslationOptions({ ns, count: attrs.count })
+        ...getTranslationOptions({ ns: nsVal, count: attrs.count })
       }
-      if (inLink) {
-        const text = i18next.t(key, options)
+      if (inLink && tKey) {
+        const text = i18next.t(tKey, options)
         if (prev && next) {
           prev.value += text + next.value
           parent.children.splice(index, 2)
@@ -1434,9 +1464,9 @@ export const useDirectiveHandlers = () => {
           { type: 'text', value: text }
         ])
       }
-      const props: Properties = { 'data-i18n-key': key }
-      if (ns) props['data-i18n-ns'] = ns
-      if (options.count !== undefined) props['data-i18n-count'] = options.count
+      if (nsVal) props['data-i18n-ns'] = nsVal
+      if (tKey) props['data-i18n-key'] = tKey
+      if (attrs.count !== undefined) props['data-i18n-count'] = attrs.count
       if (Object.keys(vars).length > 0)
         props['data-i18n-vars'] = JSON.stringify(vars)
       const node: MdText = {
