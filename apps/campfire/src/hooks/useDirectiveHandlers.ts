@@ -35,7 +35,7 @@ import {
   isRange,
   removeNode,
   stripLabel
-} from '@campfire/remark-campfire/helpers'
+} from '@campfire/utils/directiveUtils'
 import {
   getRandomInt,
   getRandomItem,
@@ -48,7 +48,7 @@ import {
   expandIndentedCode,
   applyKeyValue,
   runDirectiveBlock
-} from '@campfire/utils/directiveHelpers'
+} from '@campfire/utils/directiveUtils'
 import { DEFAULT_DECK_HEIGHT, DEFAULT_DECK_WIDTH } from '@campfire/constants'
 import {
   evalExpression,

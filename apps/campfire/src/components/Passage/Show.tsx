@@ -1,5 +1,5 @@
 import { useGameStore } from '@campfire/state/useGameStore'
-import { isRange } from '@campfire/remark-campfire/helpers'
+import { isRange } from '@campfire/utils/directiveUtils'
 import { evalExpression, interpolateString } from '@campfire/utils/core'
 
 interface ShowProps {

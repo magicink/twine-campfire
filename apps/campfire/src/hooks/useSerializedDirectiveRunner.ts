@@ -3,10 +3,10 @@ import type { RootContent } from 'mdast'
 import type { ContainerDirective } from 'mdast-util-directive'
 import rfdc from 'rfdc'
 import { evalExpression } from '@campfire/utils/core'
-import { runDirectiveBlock } from '@campfire/utils/directiveHelpers'
+import { runDirectiveBlock } from '@campfire/utils/directiveUtils'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { useGameStore } from '@campfire/state/useGameStore'
-import { getLabel, stripLabel } from '@campfire/remark-campfire/helpers'
+import { getLabel, stripLabel } from '@campfire/utils/directiveUtils'
 
 const clone = rfdc()
 

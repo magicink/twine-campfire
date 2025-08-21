@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'bun:test'
-import type { DirectiveNode } from '@campfire/remark-campfire/helpers'
+import type { DirectiveNode } from '@campfire/utils/directiveUtils'
 import type { Parent } from 'mdast'
 import {
   parseTypedValue,
   extractKeyValue,
   applyKeyValue
-} from '@campfire/utils/directiveHelpers'
+} from '@campfire/utils/directiveUtils'
 
 describe('parseTypedValue', () => {
   it('parses numbers and booleans', () => {
