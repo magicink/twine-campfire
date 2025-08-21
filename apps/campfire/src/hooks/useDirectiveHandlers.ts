@@ -912,19 +912,44 @@ export const useDirectiveHandlers = () => {
 
       /**
        * Replaces `show` directives referencing the loop variable with text
-       * nodes so each iteration renders its current value.
+       * nodes so each iteration renders its current value. Also processes
+       * serialized `if` directive content and fallback blocks to ensure loop
+       * variables are expanded within nested conditional sections.
        *
        * @param nodes - Nodes to process for replacement.
        */
       const replaceShowNodes = (nodes: RootContent[]): void => {
         nodes.forEach((node, i) => {
           if (
-            isTextNode(node) &&
-            node.data?.hName === 'show' &&
-            node.data.hProperties?.['data-key'] === varKey
+            (isTextNode(node) &&
+              node.data?.hName === 'show' &&
+              node.data.hProperties?.['data-key'] === varKey) ||
+            (node.type === 'textDirective' &&
+              (node as { name?: string }).name === 'show' &&
+              toString(node) === varKey)
           ) {
             nodes[i] = { type: 'text', value: String(item) }
-          } else if ('children' in node) {
+            return
+          }
+          const hName = (node as any).data?.hName
+          const props = (node as any).data?.hProperties as
+            | Record<string, unknown>
+            | undefined
+          if (hName === 'if' && props) {
+            ;['content', 'fallback'].forEach(key => {
+              const value = props[key as 'content' | 'fallback']
+              if (typeof value === 'string') {
+                try {
+                  const parsed = JSON.parse(value) as RootContent[]
+                  replaceShowNodes(parsed)
+                  props[key as 'content' | 'fallback'] = JSON.stringify(parsed)
+                } catch {
+                  // ignore JSON parse errors
+                }
+              }
+            })
+          }
+          if ('children' in node) {
             replaceShowNodes(((node as Parent).children as RootContent[]) || [])
           }
         })
