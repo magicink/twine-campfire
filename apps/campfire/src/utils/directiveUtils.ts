@@ -17,6 +17,14 @@ import type {
 import type { Node } from 'unist'
 import type { RangeValue } from '@campfire/utils/math'
 
+/**
+ * Shared remark parser for expanding indented code blocks.
+ */
+const directiveParser = unified()
+  .use(remarkParse)
+  .use(remarkGfm)
+  .use(remarkDirective)
+
 export {
   clamp,
   getRandomInt,
@@ -461,11 +469,7 @@ export const expandIndentedCode = (
   if (depth >= maxDepth) return nodes
   return nodes.flatMap(node => {
     if (node.type === 'code' && !node.lang) {
-      const root = unified()
-        .use(remarkParse)
-        .use(remarkGfm)
-        .use(remarkDirective)
-        .parse((node as Code).value) as Root
+      const root = directiveParser.parse((node as Code).value) as Root
       return expandIndentedCode(
         root.children as RootContent[],
         depth + 1,
