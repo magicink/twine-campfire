@@ -369,13 +369,14 @@ Create or modify lists of values.
 
 Read or compute data without mutating state.
 
-- `show`: Display a key's value.
+- `show`: Display a key's value or the result of an expression.
 
   ```md
   :show[hp]
+  :show[some_key > 1 ? "X" : " "]
   ```
 
-  Replace `hp` with the key to display.
+  Replace the content with a key or JavaScript expression to display.
 
   | Input | Description          |
   | ----- | -------------------- |
@@ -814,14 +815,16 @@ Change language and handle translations.
   | ------ | ----------------------- |
   | locale | Locale code to activate |
 
-- `t`: Output a translated string. Use the optional `count` attribute for
-  pluralization.
+- `t`: Output a translated string or expression. Use the optional `count`
+  attribute for pluralization.
 
   ```md
   :t[ui:apple]{count=2}
+  :t[favoriteFruit]
   ```
 
-  Replace `apple` and `ui` with your key and namespace.
+  Replace `apple` and `ui` with your key and namespace, or supply a JavaScript
+  expression that resolves to one.
 
   | Input  | Description                          |
   | ------ | ------------------------------------ |
