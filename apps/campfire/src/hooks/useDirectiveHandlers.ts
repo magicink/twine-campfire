@@ -57,7 +57,8 @@ import {
 } from '@campfire/utils/core'
 import {
   createStateManager,
-  type SetOptions
+  type SetOptions,
+  type StateManagerType
 } from '@campfire/state/stateManager'
 
 const NUMERIC_PATTERN = /^\d+$/
@@ -72,6 +73,7 @@ const ALLOWED_ONEXIT_DIRECTIVES = new Set([
   'random',
   'randomOnce',
   'if',
+  'for',
   'batch'
 ])
 const ALLOWED_BATCH_DIRECTIVES = new Set(
@@ -813,6 +815,185 @@ export const useDirectiveHandlers = () => {
     const markerIndex = newIndex + 1
     removeDirectiveMarker(parent, markerIndex)
     return [SKIP, newIndex]
+  }
+
+  /**
+   * Merges scoped state changes back into the parent state while optionally
+   * excluding a loop variable key.
+   *
+   * @param prev - The parent state manager.
+   * @param scoped - The scoped state manager.
+   * @param excludeKey - Optional key to remove from the pending changes.
+   */
+  const mergeScopedChanges = (
+    prev: StateManagerType<Record<string, unknown>>,
+    scoped: StateManagerType<Record<string, unknown>>,
+    excludeKey?: string
+  ) => {
+    const changes = scoped.getChanges()
+    if (excludeKey) {
+      delete (changes.data as Record<string, unknown>)[excludeKey]
+      changes.unset = changes.unset.filter(k => k !== excludeKey)
+      changes.locks = changes.locks.filter(k => k !== excludeKey)
+      changes.once = changes.once.filter(k => k !== excludeKey)
+    }
+    state = prev
+    state.applyChanges(changes)
+    gameData = state.getState()
+    lockedKeys = state.getLockedKeys()
+    onceKeys = state.getOnceKeys()
+  }
+
+  /**
+   * Repeats the directive block for each item in an iterable expression.
+   *
+   * @param directive - The `for` directive node.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within the parent.
+   * @returns Visitor instruction tuple.
+   */
+  const handleFor: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    const container = directive as ContainerDirective
+    const label = getLabel(container).trim()
+    const match = label.match(/^([A-Za-z_$][\w$]*)\s+in\s+(.+)$/)
+    if (!match) {
+      const msg = `Malformed for directive: ${label}`
+      console.error(msg)
+      addError(msg)
+      const removed = removeNode(parent, index)
+      if (typeof removed === 'number') removeDirectiveMarker(parent, removed)
+      return [SKIP, index]
+    }
+    const varKey = ensureKey(match[1], parent, index)
+    if (!varKey) return [SKIP, index]
+    const expr = match[2]
+
+    let iterableValue: unknown
+    try {
+      iterableValue = evalExpression(expr, gameData)
+      if (typeof iterableValue === 'undefined') {
+        iterableValue = parseTypedValue(expr, gameData)
+      }
+    } catch (error) {
+      console.warn(
+        `Failed to evaluate expression in for directive: ${expr}`,
+        error
+      )
+      iterableValue = parseTypedValue(expr, gameData)
+    }
+
+    let items: unknown[] = []
+    if (Array.isArray(iterableValue)) {
+      items = iterableValue
+    } else if (isRange(iterableValue)) {
+      for (let v = iterableValue.min; v <= iterableValue.max; v++) {
+        items.push(v)
+      }
+    }
+
+    const template = stripLabel(container.children as RootContent[])
+    const serializedTemplate = JSON.stringify(template)
+
+    /**
+     * Retrieves directive metadata from a node.
+     *
+     * @param node - The node to inspect.
+     * @returns The directive's hName and hProperties if available.
+     */
+    const getNodeData = (
+      node: unknown
+    ): { hName?: string; hProperties?: Record<string, unknown> } =>
+      (
+        node as {
+          data?: { hName?: string; hProperties?: Record<string, unknown> }
+        }
+      ).data || {}
+
+    const output: RootContent[] = []
+    for (const item of items) {
+      const scoped = state.createScope()
+      const prevState = state
+      state = scoped
+      gameData = scoped.getState()
+      lockedKeys = scoped.getLockedKeys()
+      onceKeys = scoped.getOnceKeys()
+
+      setValue(varKey, item)
+
+      const cloned = JSON.parse(serializedTemplate) as RootContent[]
+      const processed = runDirectiveBlock(
+        expandIndentedCode(cloned),
+        handlersRef.current
+      )
+
+      /**
+       * Expands loop variable references within the node tree by:
+       *
+       * - Replacing `show` directives that reference the loop variable with
+       *   plain text nodes containing the current item value.
+       * - Evaluating serialized `if` directive blocks and inlining their
+       *   `content` or `fallback` nodes so conditional checks involving the
+       *   loop variable resolve correctly without relying on state after the
+       *   loop iteration.
+       *
+       * @param nodes - Nodes to process for in-place expansion.
+       */
+      const expandLoopVars = (nodes: RootContent[]): void => {
+        for (let i = 0; i < nodes.length; i++) {
+          const node = nodes[i]
+          if (
+            (isTextNode(node) &&
+              node.data?.hName === 'show' &&
+              node.data.hProperties?.['data-key'] === varKey) ||
+            (node.type === 'textDirective' &&
+              (node as { name?: string }).name === 'show' &&
+              toString(node) === varKey)
+          ) {
+            nodes[i] = { type: 'text', value: String(item) }
+            continue
+          }
+          const { hName, hProperties: props } = getNodeData(node)
+          if (hName === 'if' && props) {
+            const testExpr = String(props.test)
+            let passes = false
+            try {
+              passes = Boolean(evalExpression(testExpr, gameData))
+            } catch {
+              try {
+                passes = Boolean(parseTypedValue(testExpr, gameData))
+              } catch {
+                passes = false
+              }
+            }
+            const key = passes ? 'content' : 'fallback'
+            const selected = props[key as 'content' | 'fallback']
+            const parsed =
+              typeof selected === 'string'
+                ? (JSON.parse(selected) as RootContent[])
+                : []
+            expandLoopVars(parsed)
+            nodes.splice(i, 1, ...parsed)
+            i += parsed.length - 1
+            continue
+          }
+          if ('children' in node) {
+            expandLoopVars(((node as Parent).children as RootContent[]) || [])
+          }
+        }
+      }
+
+      expandLoopVars(processed)
+      output.push(...processed)
+
+      mergeScopedChanges(prevState, scoped, varKey)
+    }
+
+    const newIndex = replaceWithIndentation(directive, parent, index, output)
+    const markerIndex = newIndex + output.length
+    removeDirectiveMarker(parent, markerIndex)
+    const offset = output.length > 0 ? output.length - 1 : 0
+    return [SKIP, newIndex + offset]
   }
 
   /**
@@ -2537,6 +2718,7 @@ export const useDirectiveHandlers = () => {
       concat: handleConcat,
       unset: handleUnset,
       if: handleIf,
+      for: handleFor,
       else: handleElse,
       once: handleOnce,
       batch: handleBatch,
