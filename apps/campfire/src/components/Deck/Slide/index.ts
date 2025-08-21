@@ -9,9 +9,7 @@ export type {
 } from './types'
 export { Slide }
 export { SlideReveal } from './SlideReveal'
-export { SlideText } from './SlideText'
-export { SlideImage } from './SlideImage'
-export { SlideShape } from './SlideShape'
+export { SlideText, SlideImage, SlideShape } from './SlideElements'
 export { createSlideElement } from './createSlideElement'
 export { Layer } from './Layer'
 export type { LayerProps } from './Layer'
