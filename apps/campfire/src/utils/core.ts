@@ -42,6 +42,32 @@ export const clearExpressionCache = (): void => {
 }
 
 /**
+ * Interpolates `${}` placeholders in a template string using the provided scope.
+ *
+ * @param template - String containing `${}` placeholders.
+ * @param scope - Scope object supplying variables for interpolation.
+ * @returns The interpolated string.
+ */
+export const interpolateString = (
+  template: string,
+  scope: Record<string, unknown> = {}
+): string =>
+  template.replace(/\$\{([^}]+)\}/g, (_, expr: string) => {
+    try {
+      const value = evalExpression(expr, scope)
+      const result =
+        value &&
+        typeof value === 'object' &&
+        'value' in (value as Record<string, unknown>)
+          ? (value as Record<string, unknown>).value
+          : value
+      return result != null ? String(result) : ''
+    } catch {
+      return ''
+    }
+  })
+
+/**
  * Converts a CSS style string into a JSX style object.
  *
  * Accepts either a style object or a semicolon-delimited string and

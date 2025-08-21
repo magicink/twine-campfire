@@ -39,4 +39,9 @@ describe('Translate', () => {
     render(<Translate data-i18n-expr='key' />)
     expect(screen.getByText('Hello')).toBeInTheDocument()
   })
+
+  it('renders fallback when translation key is missing', () => {
+    render(<Translate data-i18n-key='missing' data-i18n-fallback='Hello Sam' />)
+    expect(screen.getByText('Hello Sam')).toBeInTheDocument()
+  })
 })
