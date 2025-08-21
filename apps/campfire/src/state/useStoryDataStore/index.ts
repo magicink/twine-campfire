@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { setImmer } from '@campfire/state/setImmer'
+import { setImmer } from '@campfire/state/utils'
 import type { Element } from 'hast'
 
 export interface StoryDataState {
