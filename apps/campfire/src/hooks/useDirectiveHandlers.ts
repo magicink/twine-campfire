@@ -911,15 +911,20 @@ export const useDirectiveHandlers = () => {
       )
 
       /**
-       * Replaces `show` directives referencing the loop variable with text
-       * nodes so each iteration renders its current value. Also processes
-       * serialized `if` directive content and fallback blocks to ensure loop
-       * variables are expanded within nested conditional sections.
+       * Expands loop variable references within the node tree by:
        *
-       * @param nodes - Nodes to process for replacement.
+       * - Replacing `show` directives that reference the loop variable with
+       *   plain text nodes containing the current item value.
+       * - Evaluating serialized `if` directive blocks and inlining their
+       *   `content` or `fallback` nodes so conditional checks involving the
+       *   loop variable resolve correctly without relying on state after the
+       *   loop iteration.
+       *
+       * @param nodes - Nodes to process for in-place expansion.
        */
-      const replaceShowNodes = (nodes: RootContent[]): void => {
-        nodes.forEach((node, i) => {
+      const expandLoopVars = (nodes: RootContent[]): void => {
+        for (let i = 0; i < nodes.length; i++) {
+          const node = nodes[i]
           if (
             (isTextNode(node) &&
               node.data?.hName === 'show' &&
@@ -929,33 +934,42 @@ export const useDirectiveHandlers = () => {
               toString(node) === varKey)
           ) {
             nodes[i] = { type: 'text', value: String(item) }
-            return
+            continue
           }
           const hName = (node as any).data?.hName
           const props = (node as any).data?.hProperties as
             | Record<string, unknown>
             | undefined
           if (hName === 'if' && props) {
-            ;['content', 'fallback'].forEach(key => {
-              const value = props[key as 'content' | 'fallback']
-              if (typeof value === 'string') {
-                try {
-                  const parsed = JSON.parse(value) as RootContent[]
-                  replaceShowNodes(parsed)
-                  props[key as 'content' | 'fallback'] = JSON.stringify(parsed)
-                } catch {
-                  // ignore JSON parse errors
-                }
+            const testExpr = String(props.test)
+            let passes = false
+            try {
+              passes = Boolean(evalExpression(testExpr, gameData))
+            } catch {
+              try {
+                passes = Boolean(parseTypedValue(testExpr, gameData))
+              } catch {
+                passes = false
               }
-            })
+            }
+            const key = passes ? 'content' : 'fallback'
+            const selected = props[key as 'content' | 'fallback']
+            const parsed =
+              typeof selected === 'string'
+                ? (JSON.parse(selected) as RootContent[])
+                : []
+            expandLoopVars(parsed)
+            nodes.splice(i, 1, ...parsed)
+            i += parsed.length - 1
+            continue
           }
           if ('children' in node) {
-            replaceShowNodes(((node as Parent).children as RootContent[]) || [])
+            expandLoopVars(((node as Parent).children as RootContent[]) || [])
           }
-        })
+        }
       }
 
-      replaceShowNodes(processed)
+      expandLoopVars(processed)
       output.push(...processed)
 
       mergeScopedChanges(prevState, scoped, varKey)

@@ -57,4 +57,16 @@ describe('for directive', () => {
       'Value 1Value 2Value 3'
     )
   })
+
+  it('evaluates nested if blocks using loop variables', () => {
+    const md =
+      ':array[fruits=["apple","banana","cherry"]]\n' +
+      ':::for[fruit in fruits]\n' +
+      ':::if[fruit !== "banana"]\n' +
+      ':show[fruit]\n' +
+      ':::\n' +
+      ':::'
+    render(<MarkdownRunner markdown={md} />)
+    expect(document.body.textContent?.replace(/\n/g, '')).toBe('applecherry')
+  })
 })
