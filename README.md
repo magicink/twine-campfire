@@ -129,7 +129,7 @@ Operations that set, update, or remove scalar values.
 
   Replace `key` with the key name and `value` with the number, string, or
   expression to store. Quoted values are treated as strings, `true`/`false` as
-  booleans, unquoted values wrapped in `{}` as objects, purely numeric values as numbers
+  booleans, values wrapped in `{}` as objects, purely numeric values as numbers
   and any other value is evaluated as an expression or state reference.
 
   | Input | Description                  |
@@ -141,6 +141,7 @@ Operations that set, update, or remove scalar values.
   :set[health=100]
   :set[playerName="John"]
   :set[isActive=true]
+  :set[player={name: "Ada", level: 1}]
   ```
 
 - `setOnce`: Set a key only if it has not been set. This directive is leaf-only
