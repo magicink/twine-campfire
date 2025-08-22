@@ -45,24 +45,6 @@ describe('reveal directive', () => {
     expect(reveal.props['data-test']).toBe('ok')
   })
 
-  it('parses object transition definitions', () => {
-    const md =
-      ':::reveal{enter=\'{"type":"slide","dir":"left","duration":200}\' exit=\'{"type":"fade","duration":150}\'}\nHi\n:::'
-    render(<MarkdownRunner markdown={md} />)
-    const getReveal = (node: any): any => {
-      if (Array.isArray(node)) return getReveal(node[0])
-      if (node?.type === Fragment) return getReveal(node.props.children)
-      return node
-    }
-    const reveal = getReveal(output)
-    expect(reveal.props.enter).toEqual({
-      type: 'slide',
-      dir: 'left',
-      duration: 200
-    })
-    expect(reveal.props.exit).toEqual({ type: 'fade', duration: 150 })
-  })
-
   it('applies reveal presets with overrides', () => {
     const md =
       ':preset{type="reveal" name="fade" at=2}\n:::reveal{from="fade" exitAt=3}\nHi\n:::'

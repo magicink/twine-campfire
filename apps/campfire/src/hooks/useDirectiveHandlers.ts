@@ -1936,19 +1936,21 @@ export const useDirectiveHandlers = () => {
 
   /**
    * Parses a transition attribute value into a Transition object.
+   * Returns the raw string when quoted input resembles an object.
    *
    * @param value - Raw transition value from attributes.
-   * @returns Parsed transition configuration or undefined.
+   * @returns Parsed transition configuration, the raw string, or undefined.
    */
   const parseTransition = (
     value: unknown,
     raw?: unknown
-  ): Transition | undefined => {
+  ): Transition | string | undefined => {
     if (!value) return undefined
     if (typeof value === 'string') {
       const trimmed = value.trim()
       const quoted = typeof raw === 'string' && QUOTE_PATTERN.test(raw.trim())
-      if (!quoted && (trimmed.startsWith('{') || trimmed.includes(':'))) {
+      const looksObject = trimmed.startsWith('{') || trimmed.includes(':')
+      if (!quoted && looksObject) {
         const wrapped = trimmed.startsWith('{') ? trimmed : `{${trimmed}}`
         try {
           return JSON.parse(wrapped) as Transition
@@ -1963,6 +1965,7 @@ export const useDirectiveHandlers = () => {
           }
         }
       }
+      if (quoted && looksObject) return trimmed
       return { type: trimmed as Transition['type'] }
     }
     return value as Transition
