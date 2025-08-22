@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.80.1](https://github.com/magicink/twine-campfire/compare/v1.80.0...v1.80.1) (2025-08-22)
+
+
+### Bug Fixes
+
+* allow unquoted fallback template literals ([#474](https://github.com/magicink/twine-campfire/issues/474)) ([f196f73](https://github.com/magicink/twine-campfire/commit/f196f734dbaf99d1f121aaf2650fb5b7cd61380a))
+* **passage:** reset deck state via hook ([#475](https://github.com/magicink/twine-campfire/issues/475)) ([fa6b93a](https://github.com/magicink/twine-campfire/commit/fa6b93a18b3111a44ef2b7d0ff2fadeb37b13c85))
+
 ## [1.80.0](https://github.com/magicink/twine-campfire/compare/v1.79.0...v1.80.0) (2025-08-21)
 
 
