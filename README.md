@@ -457,20 +457,6 @@ Run content only when conditions hold.
   | ---------- | -------------------------------------------- |
   | expression | JavaScript condition evaluated against state |
 
-- `once`: Run content once per key.
-
-  ```md
-  :::once{key=SCENE}
-  CONTENT
-  :::
-  ```
-
-  Replace `SCENE` with a unique key for the block.
-
-  | Input | Description                      |
-  | ----- | -------------------------------- |
-  | key   | Unique key identifying the block |
-
 ### Iteration
 
 Repeat blocks for each item in a collection.
