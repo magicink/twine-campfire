@@ -1435,7 +1435,8 @@ export const useDirectiveHandlers = () => {
       const match = trimmed.match(QUOTE_PATTERN)
       const inner = match ? match[2] : trimmed
       try {
-        fallback = match
+        const shouldInterpolate = !!match || trimmed.includes('${')
+        fallback = shouldInterpolate
           ? interpolateString(inner, gameData)
           : ((): string | undefined => {
               const val = evalExpression(inner, gameData)

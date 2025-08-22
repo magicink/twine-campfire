@@ -1,5 +1,5 @@
 import { visit } from 'unist-util-visit'
-import type { Root, Parent, Paragraph, Text } from 'mdast'
+import type { Root, Parent, Paragraph, Text, InlineCode } from 'mdast'
 import type { Node, Data } from 'unist'
 import type {
   ContainerDirective,
@@ -45,6 +45,9 @@ export interface IncludeDirective extends Omit<LeafDirective, 'attributes'> {
 export interface LangDirective extends Omit<TextDirective, 'attributes'> {
   name: 'lang'
 }
+
+/** RegExp matching safe characters in directive attribute values. */
+const SAFE_ATTR_VALUE_PATTERN = /^[\w\s.,'"`{}\[\]$!-]*$/
 
 /**
  * Data structure for paragraph nodes that may include custom hast element
@@ -103,16 +106,37 @@ const parseFallbackAttributes = (
   index: number
 ) => {
   const next = parent.children[index + 1]
-  if (!next || next.type !== 'text') return
-  const textNode = next as Text
-  const match = textNode.value.match(/^\{([\w-]+)=([^}]*)\}$/)
-  if (match) {
-    const [, name, raw] = match
-    if (/^[\w\s.,'"`\[\]-]*$/.test(raw)) {
-      directive.attributes = { [name]: raw }
-      parent.children.splice(index + 1, 1)
-    } else {
-      directive.attributes = undefined
+  if (!next) return
+  if (next.type === 'text') {
+    const textNode = next as Text
+    const match = textNode.value.match(/^\{([\w-]+)=([^}]*)\}$/)
+    if (match) {
+      const [, name, raw] = match
+      if (SAFE_ATTR_VALUE_PATTERN.test(raw)) {
+        directive.attributes = { [name]: raw }
+        parent.children.splice(index + 1, 1)
+      } else {
+        directive.attributes = undefined
+      }
+      return
+    }
+    const open = textNode.value.match(/^\{([\w-]+)=$/)
+    const codeNode = parent.children[index + 2]
+    const close = parent.children[index + 3]
+    if (
+      open &&
+      codeNode &&
+      codeNode.type === 'inlineCode' &&
+      close &&
+      close.type === 'text' &&
+      close.value === '}'
+    ) {
+      const [, name] = open
+      const raw = (codeNode as InlineCode).value
+      if (SAFE_ATTR_VALUE_PATTERN.test(raw)) {
+        directive.attributes = { [name]: raw }
+      }
+      parent.children.splice(index + 1, 3)
     }
   }
 }
