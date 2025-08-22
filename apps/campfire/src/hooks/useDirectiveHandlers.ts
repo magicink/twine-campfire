@@ -108,15 +108,6 @@ export const useDirectiveHandlers = () => {
   let lockedKeys = state.getLockedKeys()
   let onceKeys = state.getOnceKeys()
 
-  /**
-   * Marks a key so associated blocks run only once.
-   *
-   * @param key - Identifier to mark as executed.
-   */
-  const markOnce = (key: string) => {
-    state.markOnce(key)
-    onceKeys = state.getOnceKeys()
-  }
   const saveCheckpoint = useGameStore(state => state.saveCheckpoint)
   const removeCheckpoint = useGameStore(state => state.removeCheckpoint)
   const loadCheckpointFn = useGameStore(state => state.loadCheckpoint)
@@ -1023,38 +1014,6 @@ export const useDirectiveHandlers = () => {
     return [SKIP, newIndex + offset]
   }
 
-  /**
-   * Processes `:::once` blocks so their contents run only once per key.
-   *
-   * @param directive - The `once` directive node.
-   * @param parent - The directive's parent in the AST.
-   * @param index - Index of the directive within its parent.
-   * @returns Visitor instructions after processing the directive.
-   */
-  const handleOnce: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
-    const container = directive as ContainerDirective
-    const attrs = container.attributes || {}
-    const key = ensureKey(
-      (attrs as Record<string, unknown>).key ??
-        (getLabel(container) || Object.keys(attrs)[0]),
-      parent,
-      index
-    )
-    if (!key) return [SKIP, index]
-    if (onceKeys[key]) {
-      const markerIndex = removeNode(parent, index)
-      if (typeof markerIndex === 'number') {
-        removeDirectiveMarker(parent, markerIndex)
-        return [SKIP, markerIndex]
-      }
-      return [SKIP, index]
-    }
-    markOnce(key)
-    const content = stripLabel(container.children as RootContent[])
-    const newIndex = replaceWithIndentation(directive, parent, index, content)
-    return [SKIP, newIndex + Math.max(0, content.length - 1)]
-  }
   /**
    * Executes a block of directives against a temporary state and commits
    * the resulting changes in a single update.
@@ -2786,7 +2745,6 @@ export const useDirectiveHandlers = () => {
       if: handleIf,
       for: handleFor,
       else: handleElse,
-      once: handleOnce,
       batch: handleBatch,
       trigger: handleTrigger,
       onExit: handleOnExit,
