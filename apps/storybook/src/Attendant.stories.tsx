@@ -21,10 +21,8 @@ export const Basic: StoryObj = {
 :::deck{size='9x16' autoplay=true hideNavigation=true}
   :::slide
     :::reveal{at=0}
-      :::layer{x=0 y=0 className="flex h-full w-full items-center justify-center"}
-        :::text{align='center'}
-        Splash Screen 1
-        :::
+      :::text{x=540 y=960 anchor='center' align='center'}
+      Splash Screen 1
       :::
     :::
   :::
