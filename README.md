@@ -639,13 +639,14 @@ Control the flow between passages or how they reveal.
   ```
 
   Customize animations by passing transition objects to the `enter` and `exit`
-  attributes. Objects may be provided without quotes; wrapping them in quotes
-  leaves the value as a string:
+  attributes. To avoid parsing issues, wrap object values in **single quotes**.
+  The quotes are removed before parsing, so the value becomes an object rather
+  than a string:
 
   ```md
   :::deck
   :::slide
-  :::reveal{at=0 enter={type:"slide",dir:"left",duration:300} exit={type:"fade",duration:150}}
+  :::reveal{at=0 enter='{"type":"slide","dir":"left","duration":300}' exit='{"type":"fade","duration":150}'}
   Revealed with custom transitions
   :::
   :::
