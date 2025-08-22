@@ -18,7 +18,7 @@ export const Basic: StoryObj = {
       <tw-storydata startnode='1' options='debug'>
         <tw-passagedata pid='1' name='Start'>
           {`
-:::deck{size='9x16'}
+:::deck{size='9x16' autoplay=true hideNavigation=true}
   :::slide
     :::reveal{at=0}
       :::layer{x=0 y=0 className="flex h-full w-full items-center justify-center"}
