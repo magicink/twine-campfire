@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.81.0](https://github.com/magicink/twine-campfire/compare/v1.80.1...v1.81.0) (2025-08-22)
+
+
+### Features
+
+* remove once directive ([#478](https://github.com/magicink/twine-campfire/issues/478)) ([7d96888](https://github.com/magicink/twine-campfire/commit/7d968885137cce34073396065d2783b07964f5ab))
+* use bracket syntax for if directive ([#479](https://github.com/magicink/twine-campfire/issues/479)) ([f214c32](https://github.com/magicink/twine-campfire/commit/f214c32661345d02591e0084e6a7becd7953ad5a))
+
 ## [1.80.1](https://github.com/magicink/twine-campfire/compare/v1.80.0...v1.80.1) (2025-08-22)
 
 
