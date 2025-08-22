@@ -30,6 +30,7 @@ describe('layer directive', () => {
     render(<MarkdownRunner markdown={md} />)
     const el = document.querySelector('[data-testid="layer"]') as HTMLElement
     expect(el).toBeTruthy()
+    expect(el.tagName).toBe('DIV')
     expect(el.style.left).toBe('10px')
     expect(el.style.top).toBe('20px')
     expect(el.style.width).toBe('30px')
