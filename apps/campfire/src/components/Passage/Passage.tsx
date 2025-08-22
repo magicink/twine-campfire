@@ -15,6 +15,7 @@ import {
   useStoryDataStore,
   type StoryDataState
 } from '@campfire/state/useStoryDataStore'
+import { useDeckStore } from '@campfire/state/useDeckStore'
 import { LinkButton } from '@campfire/components/Passage/LinkButton'
 import { TriggerButton } from '@campfire/components/Passage/TriggerButton'
 import { If } from '@campfire/components/Passage/If'
@@ -140,6 +141,7 @@ export const Passage = () => {
   const storyData = useStoryDataStore(
     (state: StoryDataState) => state.storyData
   )
+  const resetDeck = useDeckStore(state => state.reset)
   const [content, setContent] = useState<ComponentChild | null>(null)
   const prevPassageId = useRef<string | undefined>(undefined)
 
@@ -153,6 +155,7 @@ export const Passage = () => {
     if (isNewPassage) {
       prevPassageId.current = id
       clearTitleOverride()
+      resetDeck()
     }
     const name =
       typeof passage.properties?.name === 'string'
@@ -173,7 +176,7 @@ export const Passage = () => {
         document.title = title
       }
     }
-  }, [passage, storyData])
+  }, [passage, storyData, resetDeck])
 
   useEffect(() => {
     const controller = new AbortController()
