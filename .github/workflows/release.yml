@@ -97,7 +97,6 @@ jobs:
 
   deploy-storybook:
     needs: build-storybook
-    if: needs.release.outputs.release_created == 'true'
     runs-on: ubuntu-latest
     permissions:
       pages: write
