@@ -638,14 +638,28 @@ Control the flow between passages or how they reveal.
   :::
   ```
 
-  | Input             | Description                          |
-  | ----------------- | ------------------------------------ |
-  | at                | Deck step when content reveals       |
-  | exitAt            | Deck step when content hides         |
-  | enter             | Enter animation key                  |
-  | exit              | Exit animation key                   |
-  | interruptBehavior | How to handle interrupted animations |
-  | from              | Name of a reveal preset to apply     |
+  Customize animations by passing transition objects to the `enter` and `exit`
+  attributes. Objects may be provided without quotes; wrapping them in quotes
+  leaves the value as a string:
+
+  ```md
+  :::deck
+  :::slide
+  :::reveal{at=0 enter={type:"slide",dir:"left",duration:300} exit={type:"fade",duration:150}}
+  Revealed with custom transitions
+  :::
+  :::
+  :::
+  ```
+
+  | Input             | Description                                             |
+  | ----------------- | ------------------------------------------------------- |
+  | at                | Deck step when content reveals                          |
+  | exitAt            | Deck step when content hides                            |
+  | enter             | Enter transition name or `{type, dir, duration}` object |
+  | exit              | Exit transition name or `{type, dir, duration}` object  |
+  | interruptBehavior | How to handle interrupted animations                    |
+  | from              | Name of a reveal preset to apply                        |
 
 - `text`: Position typographic content within a slide.
 

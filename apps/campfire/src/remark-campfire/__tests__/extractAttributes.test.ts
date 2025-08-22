@@ -81,4 +81,11 @@ describe('extractAttributes', () => {
     })
     expect(result.label).toBe('Label text')
   })
+
+  it('parses unquoted object attributes', () => {
+    const directive = createDirective({ obj: "x:1,y:'two'" })
+    const schema = { obj: { type: 'object' } } as const
+    const result = extractAttributes(directive, undefined, undefined, schema)
+    expect((result.attrs as any).obj).toEqual({ x: 1, y: 'two' })
+  })
 })

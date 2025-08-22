@@ -260,14 +260,19 @@ export const parseAttributeValue = (
           !Array.isArray(evaluated)
         )
           return evaluated
+        const trimmed = raw.trim()
+        const wrapped = trimmed.startsWith('{') ? trimmed : `{${trimmed}}`
         try {
-          const parsed = JSON.parse(raw)
-          return typeof parsed === 'object' && !Array.isArray(parsed)
-            ? parsed
-            : undefined
+          const json = JSON.parse(wrapped)
+          if (json && typeof json === 'object' && !Array.isArray(json))
+            return json
         } catch {
-          return undefined
+          /* fallback to manual parsing */
         }
+        const parsed = parseTypedValue(wrapped, state, { eval: false })
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed))
+          return parsed
+        return undefined
       }
       return undefined
     }
@@ -433,8 +438,10 @@ export const extractAttributes = <S extends AttributeSchema>(
  */
 export const parseTypedValue = (
   raw: string,
-  data: Record<string, unknown> = {}
+  data: Record<string, unknown> = {},
+  opts: { eval?: boolean } = {}
 ): unknown => {
+  const { eval: shouldEval = true } = opts
   const trimmed = raw.trim()
   if (!trimmed) return undefined
   const quoted = trimmed.match(QUOTE_PATTERN)
@@ -450,13 +457,14 @@ export const parseTypedValue = (
       const key = part.slice(0, colon).trim()
       if (!key) continue
       const value = part.slice(colon + 1)
-      const parsed = parseTypedValue(value, data)
+      const parsed = parseTypedValue(value, data, opts)
       if (typeof parsed !== 'undefined') obj[key] = parsed
     }
     return obj
   }
   const num = Number(trimmed)
   if (!Number.isNaN(num)) return num
+  if (!shouldEval) return trimmed
   try {
     return evalExpression(trimmed, data)
   } catch {

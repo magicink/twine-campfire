@@ -47,7 +47,7 @@ export interface LangDirective extends Omit<TextDirective, 'attributes'> {
 }
 
 /** RegExp matching safe characters in directive attribute values. */
-const SAFE_ATTR_VALUE_PATTERN = /^[\w\s.,'"`{}\[\]$!-]*$/
+const SAFE_ATTR_VALUE_PATTERN = /^[\w\s.,:'"`{}\[\]$!-]*$/
 
 /**
  * Data structure for paragraph nodes that may include custom hast element

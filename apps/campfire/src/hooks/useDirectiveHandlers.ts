@@ -49,6 +49,7 @@ import {
   applyKeyValue,
   runDirectiveBlock
 } from '@campfire/utils/directiveUtils'
+import type { Transition } from '@campfire/components/Deck/Slide/types'
 import { DEFAULT_DECK_HEIGHT, DEFAULT_DECK_WIDTH } from '@campfire/constants'
 import {
   evalExpression,
@@ -1933,6 +1934,40 @@ export const useDirectiveHandlers = () => {
     'interruptBehavior'
   ] as const
 
+  /**
+   * Parses a transition attribute value into a Transition object.
+   *
+   * @param value - Raw transition value from attributes.
+   * @returns Parsed transition configuration or undefined.
+   */
+  const parseTransition = (
+    value: unknown,
+    raw?: unknown
+  ): Transition | undefined => {
+    if (!value) return undefined
+    if (typeof value === 'string') {
+      const trimmed = value.trim()
+      const quoted = typeof raw === 'string' && QUOTE_PATTERN.test(raw.trim())
+      if (!quoted && (trimmed.startsWith('{') || trimmed.includes(':'))) {
+        const wrapped = trimmed.startsWith('{') ? trimmed : `{${trimmed}}`
+        try {
+          return JSON.parse(wrapped) as Transition
+        } catch {
+          const parsed = parseTypedValue(
+            wrapped,
+            {},
+            { eval: false }
+          ) as unknown
+          if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+            return parsed as Transition
+          }
+        }
+      }
+      return { type: trimmed as Transition['type'] }
+    }
+    return value as Transition
+  }
+
   /** Schema describing supported slide directive attributes. */
   const slideSchema = {
     transition: { type: 'string' },
@@ -2062,16 +2097,16 @@ export const useDirectiveHandlers = () => {
       if (preset) {
         if (typeof preset.at === 'number') props.at = preset.at
         if (typeof preset.exitAt === 'number') props.exitAt = preset.exitAt
-        if (preset.enter) props.enter = preset.enter
-        if (preset.exit) props.exit = preset.exit
+        if (preset.enter) props.enter = parseTransition(preset.enter)
+        if (preset.exit) props.exit = parseTransition(preset.exit)
         if (preset.interruptBehavior)
           props.interruptBehavior = preset.interruptBehavior
         applyAdditionalAttributes(preset, props, REVEAL_EXCLUDES)
       }
       if (typeof attrs.at === 'number') props.at = attrs.at
       if (typeof attrs.exitAt === 'number') props.exitAt = attrs.exitAt
-      if (attrs.enter) props.enter = attrs.enter
-      if (attrs.exit) props.exit = attrs.exit
+      if (attrs.enter) props.enter = parseTransition(attrs.enter, raw.enter)
+      if (attrs.exit) props.exit = parseTransition(attrs.exit, raw.exit)
       if (attrs.interruptBehavior)
         props.interruptBehavior = attrs.interruptBehavior
       const mergedRaw = mergeAttrs(preset, raw)

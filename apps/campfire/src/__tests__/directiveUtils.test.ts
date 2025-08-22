@@ -26,6 +26,10 @@ describe('parseTypedValue', () => {
     expect(obj.a).toBe(1)
     expect(obj.b).toBe('two')
   })
+
+  it('treats quoted objects as strings', () => {
+    expect(parseTypedValue('"{a:1}"')).toBe('{a:1}')
+  })
 })
 
 describe('extractKeyValue and applyKeyValue', () => {
