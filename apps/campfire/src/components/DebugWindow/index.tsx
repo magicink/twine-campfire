@@ -65,13 +65,13 @@ const normalizeDirectiveIndentation = (input: string): string =>
     .replace(new RegExp(`^[ ]{4,}(?=(${DIRECTIVE_MARKER_PATTERN}))`, 'gm'), '')
 
 /**
- * Converts legacy if directive syntax using braces into label-based
+ * Converts legacy if directive syntax using braces into bracket-based
  * directives.
  *
  * @param input - Raw passage text.
  * @returns Passage text with if directives normalized.
  */
-const normalizeIfDirectives = (input: string): string =>
+const normalizeLegacyIfDirectives = (input: string): string =>
   input
     .split('\n')
     .map(line => {
@@ -193,7 +193,7 @@ export const DebugWindow = () => {
         setJsxPassage('')
         return
       }
-      const normalized = normalizeIfDirectives(
+      const normalized = normalizeLegacyIfDirectives(
         normalizeDirectiveIndentation(rawPassage)
       )
       const file = await processor.process(normalized)

@@ -47,7 +47,7 @@ const normalizeDirectiveIndentation = (input: string): string =>
     .replace(new RegExp(`^[ ]{4,}(?=(${DIRECTIVE_MARKER_PATTERN}))`, 'gm'), '')
 
 /**
- * Converts legacy if directive syntax using braces into label-based directives.
+ * Converts legacy if directive syntax using braces into bracket-based directives.
  *
  * Remark's directive parser only accepts attribute names with characters valid
  * in HTML. Expressions like `!open` or `a < b` therefore cause the `:::if`
@@ -56,7 +56,7 @@ const normalizeDirectiveIndentation = (input: string): string =>
  * characters are allowed, enabling complex JavaScript conditions. Supports
  * directives with leading whitespace and expressions containing nested braces.
  */
-const normalizeIfDirectives = (input: string): string =>
+const normalizeLegacyIfDirectives = (input: string): string =>
   input
     .split('\n')
     .map(line => {
@@ -193,7 +193,7 @@ export const Passage = () => {
             : ''
         )
         .join('')
-      const normalized = normalizeIfDirectives(
+      const normalized = normalizeLegacyIfDirectives(
         normalizeDirectiveIndentation(text)
       )
       if (controller.signal.aborted) return

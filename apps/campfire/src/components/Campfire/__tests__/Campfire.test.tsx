@@ -83,11 +83,11 @@ describe('Story', () => {
 :::set[open=false]
 :::
 
-:::if{!open}
+:::if[!open]
 not open
 :::
 
-:::if{open}
+:::if[open]
 is open!
 :::</tw-passagedata>
 </tw-storydata>
@@ -109,7 +109,7 @@ is open!
   <tw-passagedata pid="1" name="Start">:::set[open=true]
 :::
 
-:::if{open}
+:::if[open]
 :::trigger{label="open"}
 :::set[clicked=true]
 :::
@@ -135,14 +135,14 @@ is open!
   <tw-passagedata pid="1" name="Start">:::set[open=true]
 :::
 
-:::if{!open}
+:::if[!open]
 not open
 :::</tw-passagedata>
 </tw-storydata>
     `
     render(<Campfire />)
     await waitFor(() => expect(screen.queryByText('not open')).toBeNull())
-    expect(screen.queryByText(':::if{!open}')).toBeNull()
+    expect(screen.queryByText(':::if[!open]')).toBeNull()
   })
 
   it('does not render ::: when if has no else', async () => {
@@ -151,7 +151,7 @@ not open
   <tw-passagedata pid="1" name="Start">:::set[open=true]
 :::
 
-:::if{open}
+:::if[open]
 :::set[done=true]
 :::
 :::
@@ -171,7 +171,7 @@ not open
   <tw-passagedata pid="1" name="Start">:::set[open=true]
 :::
 
-:::if{open}
+:::if[open]
 :::set[yes=true]
 :::
 :::else
@@ -193,7 +193,7 @@ not open
   <tw-passagedata pid="1" name="Start">:::set[open=false]
 :::
 
-:::if{open}
+:::if[open]
 :::set[yes=true]
 :::
 :::else

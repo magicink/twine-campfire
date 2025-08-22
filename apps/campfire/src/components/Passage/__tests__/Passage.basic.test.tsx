@@ -392,7 +392,7 @@ describe('Passage rendering and navigation', () => {
       children: [
         {
           type: 'text',
-          value: ':include["Second"]\n:::if{true}\nAfter\n:::'
+          value: ':include["Second"]\n:::if[true]\nAfter\n:::'
         }
       ]
     }

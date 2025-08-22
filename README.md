@@ -95,7 +95,7 @@ The value is currently :show[testRange]
 :setRange[testRange=(testRange.value+1)]
 :::
 
-:::if{testRange.value === testRange.max}
+:::if[testRange.value === testRange.max]
 [[Next Page->Next]]
 :::
 ```
@@ -394,7 +394,7 @@ Run content only when conditions hold.
   Basic truthy check:
 
   ```md
-  :::if{some_key}
+  :::if[some_key]
   CONTENT WHEN `some_key` IS TRUTHY
   :::
   ```
@@ -402,7 +402,7 @@ Run content only when conditions hold.
   Negation check:
 
   ```md
-  :::if{!some_key}
+  :::if[!some_key]
   CONTENT WHEN `some_key` IS FALSY
   :::
   ```
@@ -410,7 +410,7 @@ Run content only when conditions hold.
   Double negation for boolean coercion:
 
   ```md
-  :::if{!!some_key}
+  :::if[!!some_key]
   CONTENT WHEN `some_key` COERCES TO TRUE
   :::
   ```
@@ -418,7 +418,7 @@ Run content only when conditions hold.
   Comparison operators:
 
   ```md
-  :::if{key_a < key_b}
+  :::if[key_a < key_b]
   CONTENT WHEN `key_a` IS LESS THAN `key_b`
   :::
   ```
@@ -426,7 +426,7 @@ Run content only when conditions hold.
   Type checking:
 
   ```md
-  :::if{typeof key_a !== "string"}
+  :::if[typeof key_a !== "string"]
   CONTENT WHEN `key_a` IS NOT A STRING
   :::
   ```
@@ -434,7 +434,7 @@ Run content only when conditions hold.
   Using with else block:
 
   ```md
-  :::if{some_key}
+  :::if[some_key]
   TRUTHY CONTENT
   :::else
   FALLBACK CONTENT
@@ -444,7 +444,7 @@ Run content only when conditions hold.
   Combining with other directives and links:
 
   ```md
-  :::if{has_key}
+  :::if[has_key]
   You unlock the door.
   :set[door_opened=true]
   [[Enter->Hallway]]
