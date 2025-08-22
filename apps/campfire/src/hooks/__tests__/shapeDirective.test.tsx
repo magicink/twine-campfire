@@ -66,7 +66,7 @@ describe('shape directive', () => {
   })
 
   it('does not render stray colons after shape blocks', () => {
-    const md = ':shape{type="rect"}\n:::if{true}\nHi\n:::\n'
+    const md = ':shape{type="rect"}\n:::if[true]\nHi\n:::\n'
     render(<MarkdownRunner markdown={md} />)
     const text = document.body.textContent || ''
     expect(text).not.toContain(':::')

@@ -46,7 +46,7 @@ export const Fruits: StoryObj = {
 
 :::for[fruit in fruits]
 
-  :::if{fruit !== "banana"}
+  :::if[fruit !== "banana"]
 
   - :show[fruit]
 

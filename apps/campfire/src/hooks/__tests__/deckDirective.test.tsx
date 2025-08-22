@@ -107,7 +107,7 @@ describe('deck directive', () => {
   })
 
   it('does not render stray colons when slide contains directives', () => {
-    const md = `:::deck\n:::slide\n:::if{true}\nHi\n:::\n:::\n:::\n`
+    const md = `:::deck\n:::slide\n:::if[true]\nHi\n:::\n:::\n:::\n`
     render(<MarkdownRunner markdown={md} />)
     const text = getText(output)
     expect(text).not.toContain(':::')

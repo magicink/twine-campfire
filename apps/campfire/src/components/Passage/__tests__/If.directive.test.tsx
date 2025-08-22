@@ -20,7 +20,7 @@ describe('If directive', () => {
         {
           type: 'text',
           value:
-            ':::if{true}\n  :::trigger{label="One"}\n  :::\n  :::trigger{label="Two"}\n  :::\n:::'
+            ':::if[true]\n  :::trigger{label="One"}\n  :::\n  :::trigger{label="Two"}\n  :::\n:::'
         }
       ]
     }
@@ -46,7 +46,7 @@ describe('If directive', () => {
         {
           type: 'text',
           value:
-            ':::if{true}\n  :::trigger{label="One"}\n  :::\n  :::trigger{label="Two"}\n  :::\n:::'
+            ':::if[true]\n  :::trigger{label="One"}\n  :::\n  :::trigger{label="Two"}\n  :::\n:::'
         }
       ]
     }
@@ -70,7 +70,7 @@ describe('If directive', () => {
         {
           type: 'text',
           value:
-            ':::if{false}\n  :::trigger{label="One"}\n  :::\n  :::trigger{label="Two"}\n  :::\n:::'
+            ':::if[false]\n  :::trigger{label="One"}\n  :::\n  :::trigger{label="Two"}\n  :::\n:::'
         }
       ]
     }

@@ -21,7 +21,7 @@ export const Trigger: StoryObj = {
   :set[test=false]
 :::
 
-:::if{!test}
+:::if[!test]
 You clicked the button!
 :::
 
