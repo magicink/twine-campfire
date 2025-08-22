@@ -129,7 +129,7 @@ Operations that set, update, or remove scalar values.
 
   Replace `key` with the key name and `value` with the number, string, or
   expression to store. Quoted values are treated as strings, `true`/`false` as
-  booleans, values wrapped in `{}` as objects, purely numeric values as numbers
+  booleans, unquoted values wrapped in `{}` as objects, purely numeric values as numbers
   and any other value is evaluated as an expression or state reference.
 
   | Input | Description                  |
@@ -639,14 +639,13 @@ Control the flow between passages or how they reveal.
   ```
 
   Customize animations by passing transition objects to the `enter` and `exit`
-  attributes. To avoid parsing issues, wrap object values in **single quotes**.
-  The quotes are removed before parsing, so the value becomes an object rather
-  than a string:
+  attributes. Unquoted object values are parsed directly, while quoted values
+  remain strings:
 
   ```md
   :::deck
   :::slide
-  :::reveal{at=0 enter='{"type":"slide","dir":"left","duration":300}' exit='{"type":"fade","duration":150}'}
+  :::reveal{at=0 enter={type:'slide',dir:'left',duration:300} exit={type:'fade',duration:150}}
   Revealed with custom transitions
   :::
   :::
