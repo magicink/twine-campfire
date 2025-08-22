@@ -9,6 +9,7 @@ import { OnExit } from '@campfire/components/Passage/OnExit'
 import { Deck } from '@campfire/components/Deck/Deck'
 import { Slide } from './Slide'
 import { SlideReveal } from './SlideReveal'
+import { Layer } from './Layer'
 import { SlideText, SlideImage, SlideShape } from './SlideElements'
 import { createMarkdownProcessor } from '@campfire/utils/createMarkdownProcessor'
 
@@ -34,6 +35,7 @@ export const renderDirectiveMarkdown = (
     deck: Deck,
     slide: Slide,
     reveal: SlideReveal,
+    layer: Layer,
     slideText: SlideText,
     slideImage: SlideImage,
     slideShape: SlideShape
