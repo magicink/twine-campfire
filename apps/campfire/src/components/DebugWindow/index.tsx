@@ -65,43 +65,6 @@ const normalizeDirectiveIndentation = (input: string): string =>
     .replace(new RegExp(`^[ ]{4,}(?=(${DIRECTIVE_MARKER_PATTERN}))`, 'gm'), '')
 
 /**
- * Converts legacy if directive syntax using braces into bracket-based
- * directives.
- *
- * @param input - Raw passage text.
- * @returns Passage text with if directives normalized.
- */
-const normalizeLegacyIfDirectives = (input: string): string =>
-  input
-    .split('\n')
-    .map(line => {
-      const trimmed = line.trimStart()
-      if (!trimmed.startsWith(':::if{')) return line
-      const indent = line.slice(0, line.length - trimmed.length)
-      const after = trimmed.slice(':::if{'.length)
-      let depth = 1
-      let expr = ''
-      let i = 0
-      for (; i < after.length; i++) {
-        const char = after[i]
-        if (char === '{') {
-          depth++
-          expr += char
-        } else if (char === '}') {
-          depth--
-          if (depth === 0) break
-          expr += char
-        } else {
-          expr += char
-        }
-      }
-      if (depth !== 0) return line
-      const rest = after.slice(i + 1)
-      return `${indent}:::if[${expr}]${rest}`
-    })
-    .join('\n')
-
-/**
  * Renders a debug window showing game, story, translation and passage data.
  * Also displays passage information when the debug option is enabled.
  */
@@ -193,9 +156,7 @@ export const DebugWindow = () => {
         setJsxPassage('')
         return
       }
-      const normalized = normalizeLegacyIfDirectives(
-        normalizeDirectiveIndentation(rawPassage)
-      )
+      const normalized = normalizeDirectiveIndentation(rawPassage)
       const file = await processor.process(normalized)
       if (controller.signal.aborted) return
       setJsxPassage(String(file.value))
