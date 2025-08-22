@@ -28,7 +28,8 @@ import {
   SlideReveal,
   SlideText,
   SlideImage,
-  SlideShape
+  SlideShape,
+  Layer
 } from '@campfire/components/Deck/Slide'
 
 const DIRECTIVE_MARKER_PATTERN = '(:::[^\\n]*|:[^\\n]*|<<)'
@@ -87,6 +88,7 @@ export const Passage = () => {
           deck: Deck,
           slide: Slide,
           reveal: SlideReveal,
+          layer: Layer,
           slideText: SlideText,
           slideImage: SlideImage,
           slideShape: SlideShape

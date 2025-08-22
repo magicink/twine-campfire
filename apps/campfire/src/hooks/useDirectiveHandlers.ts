@@ -1947,6 +1947,33 @@ export const useDirectiveHandlers = () => {
 
   const SLIDE_EXCLUDES = ['transition', 'steps', 'onEnter', 'onExit'] as const
 
+  /** Schema describing supported layer directive attributes. */
+  const layerSchema = {
+    x: { type: 'number' },
+    y: { type: 'number' },
+    w: { type: 'number' },
+    h: { type: 'number' },
+    z: { type: 'number' },
+    rotate: { type: 'number' },
+    scale: { type: 'number' },
+    anchor: { type: 'string' },
+    from: { type: 'string', expression: false }
+  } as const
+
+  type LayerSchema = typeof layerSchema
+  type LayerAttrs = ExtractedAttrs<LayerSchema>
+
+  const LAYER_EXCLUDES = [
+    'x',
+    'y',
+    'w',
+    'h',
+    'z',
+    'rotate',
+    'scale',
+    'anchor'
+  ] as const
+
   /** Schema describing supported text directive attributes. */
   const textSchema = {
     x: { type: 'number' },
@@ -2049,6 +2076,48 @@ export const useDirectiveHandlers = () => {
         props.interruptBehavior = attrs.interruptBehavior
       const mergedRaw = mergeAttrs(preset, raw)
       applyAdditionalAttributes(mergedRaw, props, [...REVEAL_EXCLUDES, 'from'])
+      return props
+    }
+  )
+
+  /**
+   * Converts a `:::layer` directive into a Layer element.
+   *
+   * @param directive - The layer directive node.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within its parent.
+   * @returns Visitor instructions after replacement.
+   */
+  const handleLayer = createContainerHandler(
+    'layer',
+    layerSchema,
+    (attrs, raw) => {
+      const props: Record<string, unknown> = {}
+      const preset = attrs.from
+        ? presetsRef.current['layer']?.[String(attrs.from)]
+        : undefined
+      if (preset) {
+        if (typeof preset.x === 'number') props.x = preset.x
+        if (typeof preset.y === 'number') props.y = preset.y
+        if (typeof preset.w === 'number') props.w = preset.w
+        if (typeof preset.h === 'number') props.h = preset.h
+        if (typeof preset.z === 'number') props.z = preset.z
+        if (typeof preset.rotate === 'number') props.rotate = preset.rotate
+        if (typeof preset.scale === 'number') props.scale = preset.scale
+        if (preset.anchor) props.anchor = preset.anchor
+        applyAdditionalAttributes(preset, props, LAYER_EXCLUDES)
+      }
+      if (typeof attrs.x === 'number') props.x = attrs.x
+      if (typeof attrs.y === 'number') props.y = attrs.y
+      if (typeof attrs.w === 'number') props.w = attrs.w
+      if (typeof attrs.h === 'number') props.h = attrs.h
+      if (typeof attrs.z === 'number') props.z = attrs.z
+      if (typeof attrs.rotate === 'number') props.rotate = attrs.rotate
+      if (typeof attrs.scale === 'number') props.scale = attrs.scale
+      if (attrs.anchor) props.anchor = attrs.anchor
+      const mergedRaw = mergeAttrs(preset, raw)
+      props['data-testid'] = 'layer'
+      applyAdditionalAttributes(mergedRaw, props, [...LAYER_EXCLUDES, 'from'])
       return props
     }
   )
@@ -2749,6 +2818,7 @@ export const useDirectiveHandlers = () => {
       trigger: handleTrigger,
       onExit: handleOnExit,
       reveal: handleReveal,
+      layer: handleLayer,
       text: handleText,
       image: handleImage,
       shape: handleShape,
