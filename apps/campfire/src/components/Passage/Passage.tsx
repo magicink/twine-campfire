@@ -47,46 +47,6 @@ const normalizeDirectiveIndentation = (input: string): string =>
     .replace(new RegExp(`^[ ]{4,}(?=(${DIRECTIVE_MARKER_PATTERN}))`, 'gm'), '')
 
 /**
- * Converts legacy if directive syntax using braces into label-based directives.
- *
- * Remark's directive parser only accepts attribute names with characters valid
- * in HTML. Expressions like `!open` or `a < b` therefore cause the `:::if`
- * block to be treated as plain text. By converting `:::if{expr}` to
- * `:::if[expr]`, the expression is moved into the directive label where any
- * characters are allowed, enabling complex JavaScript conditions. Supports
- * directives with leading whitespace and expressions containing nested braces.
- */
-const normalizeIfDirectives = (input: string): string =>
-  input
-    .split('\n')
-    .map(line => {
-      const trimmed = line.trimStart()
-      if (!trimmed.startsWith(':::if{')) return line
-      const indent = line.slice(0, line.length - trimmed.length)
-      const after = trimmed.slice(':::if{'.length)
-      let depth = 1
-      let expr = ''
-      let i = 0
-      for (; i < after.length; i++) {
-        const char = after[i]
-        if (char === '{') {
-          depth++
-          expr += char
-        } else if (char === '}') {
-          depth--
-          if (depth === 0) break
-          expr += char
-        } else {
-          expr += char
-        }
-      }
-      if (depth !== 0) return line
-      const rest = after.slice(i + 1)
-      return `${indent}:::if[${expr}]${rest}`
-    })
-    .join('\n')
-
-/**
  * Builds a document title from story and passage names.
  *
  * @param storyName - Name of the story.
@@ -193,9 +153,7 @@ export const Passage = () => {
             : ''
         )
         .join('')
-      const normalized = normalizeIfDirectives(
-        normalizeDirectiveIndentation(text)
-      )
+      const normalized = normalizeDirectiveIndentation(text)
       if (controller.signal.aborted) return
       const file = await processor.process(normalized)
       if (controller.signal.aborted) return

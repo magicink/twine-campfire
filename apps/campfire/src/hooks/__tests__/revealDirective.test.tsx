@@ -60,7 +60,7 @@ describe('reveal directive', () => {
   })
 
   it('does not render stray colons when reveal contains directives', () => {
-    const md = `:::reveal\n:::if{true}\nHi\n:::\n:::\n`
+    const md = `:::reveal\n:::if[true]\nHi\n:::\n:::\n`
     render(<MarkdownRunner markdown={md} />)
     const getText = (node: any): string => {
       if (!node) return ''

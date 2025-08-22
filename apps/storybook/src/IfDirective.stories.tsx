@@ -20,7 +20,7 @@ export const Truthy: StoryObj = {
           {`
 :set[flag=true]
 
-:::if{flag}
+:::if[flag]
 Flag is true
 :::else
 Flag is false
@@ -46,7 +46,7 @@ export const Falsy: StoryObj = {
           {`
 :set[flag=false]
 
-:::if{flag}
+:::if[flag]
 Flag is true
 :::else
 Flag is false
