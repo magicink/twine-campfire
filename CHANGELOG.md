@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.82.0](https://github.com/magicink/twine-campfire/compare/v1.81.0...v1.82.0) (2025-08-22)
+
+
+### Features
+
+* **storybook:** add layer directive ([#482](https://github.com/magicink/twine-campfire/issues/482)) ([177e14b](https://github.com/magicink/twine-campfire/commit/177e14bb624f071cd59e959f357e292782d9bea2))
+* **storybook:** add layer directive ([#482](https://github.com/magicink/twine-campfire/issues/482)) ([11964d5](https://github.com/magicink/twine-campfire/commit/11964d5c1595e6e78358ef13f03003a320f2e726))
+
 ## [1.81.0](https://github.com/magicink/twine-campfire/compare/v1.80.1...v1.81.0) (2025-08-22)
 
 
