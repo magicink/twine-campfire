@@ -34,9 +34,8 @@ describe('text directive', () => {
       '[data-testid="slideText"]'
     ) as HTMLElement
     expect(el).toBeTruthy()
-    const inner = el.firstElementChild as HTMLElement
-    expect(inner.tagName).toBe('H2')
-    const rawStyle = inner.getAttribute('style') || ''
+    expect(el.tagName).toBe('H2')
+    const rawStyle = el.getAttribute('style') || ''
     const style = rawStyle
       .split(';')
       .filter(Boolean)
@@ -60,11 +59,11 @@ describe('text directive', () => {
     expect(styleObj.fontWeight).toBe('700')
     expect(styleObj.lineHeight).toBe('1.2')
     expect(styleObj.color).toBe('red')
-    expect(inner.className.split(' ')).toEqual(
+    expect(el.className.split(' ')).toEqual(
       expect.arrayContaining(['underline', 'text-base', 'font-normal'])
     )
     expect(el.getAttribute('data-test')).toBe('ok')
-    expect(inner.textContent).toBe('Hello')
+    expect(el.textContent).toBe('Hello')
   })
 
   it('applies text presets with overrides', () => {
@@ -74,8 +73,7 @@ describe('text directive', () => {
     const el = document.querySelector(
       '[data-testid="slideText"]'
     ) as HTMLElement
-    const inner = el.firstElementChild as HTMLElement
-    const style = inner.getAttribute('style') || ''
+    const style = el.getAttribute('style') || ''
     expect(style).toContain('left: 10px')
     expect(style).toContain('top: 20px')
     expect(style).toContain('font-size: 32px')

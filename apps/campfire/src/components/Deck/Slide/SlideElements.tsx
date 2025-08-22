@@ -1,6 +1,8 @@
 import { type ComponentChildren, type JSX } from 'preact'
 import { createSlideElement } from './createSlideElement'
 import { type SlideLayerProps } from './SlideLayer'
+import { type LayerProps } from './Layer'
+import { parseInlineStyle } from '@campfire/utils/core'
 
 export interface SlideImageProps
   extends Omit<SlideLayerProps, 'children' | 'as' | 'elementProps'> {
@@ -28,7 +30,10 @@ export const SlideImage = createSlideElement<SlideImageProps>({
 })
 
 export interface SlideTextProps
-  extends Omit<SlideLayerProps, 'children' | 'as'> {
+  extends Pick<
+    LayerProps,
+    'x' | 'y' | 'w' | 'h' | 'z' | 'rotate' | 'scale' | 'anchor'
+  > {
   /** The HTML tag to render. Defaults to 'p'. */
   as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'li' | 'span'
   /** Horizontal alignment. Defaults to 'left'. */
@@ -45,45 +50,87 @@ export interface SlideTextProps
   className?: string
   /** Additional CSS properties for the text element. */
   style?: JSX.CSSProperties | string
+  /** data-testid for the text element. */
+  testId?: string
   /** Text or rich node children to render inside the element. */
   children?: ComponentChildren
+  /** Additional props forwarded to the text element. */
+  [key: string]: unknown
 }
 
 /**
- * Renders typographic content within an absolutely positioned layer.
+ * Renders typographic content absolutely positioned on a slide.
  *
  * @param props - Configuration options for the text element.
  * @returns The rendered text element.
  */
-export const SlideText = createSlideElement<SlideTextProps>({
-  as: 'p',
-  getAs: ({ as = 'p' }) => as,
-  testId: 'slideText',
-  mapClassName: ({ className }) => {
-    const classes = ['text-base', 'font-normal']
-    if (className) classes.unshift(className)
-    return classes.join(' ')
-  },
-  mapStyleTransform:
-    ({ align, size, weight, lineHeight, color }) =>
-    (base: JSX.CSSProperties): JSX.CSSProperties => ({
-      ...base,
-      fontSize: size !== undefined ? `${size}px` : base.fontSize,
-      fontWeight: weight !== undefined ? String(weight) : base.fontWeight,
-      lineHeight: lineHeight ? String(lineHeight) : base.lineHeight,
-      color: color ?? base.color,
-      textAlign: align ?? base.textAlign
-    }),
-  mapLayerProps: ({
-    as: _as,
-    align,
-    size,
-    weight,
-    lineHeight,
-    color,
-    ...layerProps
-  }) => layerProps
-})
+export const SlideText = ({
+  as: Tag = 'p',
+  align,
+  size,
+  weight,
+  lineHeight,
+  color,
+  className,
+  style,
+  testId = 'slideText',
+  x,
+  y,
+  w,
+  h,
+  z,
+  rotate,
+  scale,
+  anchor = 'top-left',
+  children,
+  ...rest
+}: SlideTextProps): JSX.Element => {
+  const baseStyle = parseInlineStyle(style ?? {})
+  const finalStyle: JSX.CSSProperties = { position: 'absolute', ...baseStyle }
+  if (x !== undefined) finalStyle.left = `${x}px`
+  if (y !== undefined) finalStyle.top = `${y}px`
+  if (w !== undefined) finalStyle.width = `${w}px`
+  if (h !== undefined) finalStyle.height = `${h}px`
+  if (z !== undefined) finalStyle.zIndex = z
+  const transforms: string[] = []
+  if (baseStyle.transform) transforms.push(String(baseStyle.transform))
+  if (rotate !== undefined) transforms.push(`rotate(${rotate}deg)`)
+  if (scale !== undefined) transforms.push(`scale(${scale})`)
+  if (transforms.length) finalStyle.transform = transforms.join(' ')
+  if (anchor !== 'top-left') {
+    const originMap: Record<string, string> = {
+      'top-left': '0% 0%',
+      top: '50% 0%',
+      'top-right': '100% 0%',
+      left: '0% 50%',
+      center: '50% 50%',
+      right: '100% 50%',
+      'bottom-left': '0% 100%',
+      bottom: '50% 100%',
+      'bottom-right': '100% 100%'
+    }
+    finalStyle.transformOrigin = originMap[anchor]
+  } else if (baseStyle.transformOrigin) {
+    finalStyle.transformOrigin = baseStyle.transformOrigin
+  }
+  if (align) finalStyle.textAlign = align
+  if (size !== undefined) finalStyle.fontSize = `${size}px`
+  if (weight !== undefined) finalStyle.fontWeight = String(weight)
+  if (lineHeight !== undefined) finalStyle.lineHeight = String(lineHeight)
+  if (color) finalStyle.color = color
+  const classes = ['text-base', 'font-normal']
+  if (className) classes.unshift(className)
+  return (
+    <Tag
+      data-testid={testId}
+      className={classes.join(' ')}
+      style={finalStyle}
+      {...rest}
+    >
+      {children}
+    </Tag>
+  )
+}
 
 export interface SlideShapeProps
   extends Omit<SlideLayerProps, 'children' | 'as' | 'elementProps'> {

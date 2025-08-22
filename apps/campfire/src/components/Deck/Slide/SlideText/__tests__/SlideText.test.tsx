@@ -5,22 +5,21 @@ import { SlideText } from '@campfire/components/Deck/Slide'
 describe('SlideText', () => {
   it('renders the specified HTML tag', () => {
     render(<SlideText as='h2'>Hello</SlideText>)
-    const wrapper = screen.getByTestId('slideText') as HTMLElement
-    const el = wrapper.firstElementChild as HTMLElement
+    const el = screen.getByTestId('slideText') as HTMLElement
     expect(el.tagName).toBe('H2')
   })
 
-  it('forwards positioning props to Layer', () => {
+  it('applies positioning props directly', () => {
     render(
       <SlideText x={10} y={20} w={100} h={50}>
         Positioned
       </SlideText>
     )
-    const wrapper = screen.getByTestId('slideText') as HTMLElement
-    expect(wrapper.style.left).toBe('10px')
-    expect(wrapper.style.top).toBe('20px')
-    expect(wrapper.style.width).toBe('100px')
-    expect(wrapper.style.height).toBe('50px')
+    const el = screen.getByTestId('slideText') as HTMLElement
+    expect(el.style.left).toBe('10px')
+    expect(el.style.top).toBe('20px')
+    expect(el.style.width).toBe('100px')
+    expect(el.style.height).toBe('50px')
   })
 
   it('applies custom typography styles', () => {
@@ -43,7 +42,7 @@ describe('SlideText', () => {
     expect(el.style.lineHeight).toBe('1.5')
   })
 
-  it('parses style strings via SlideLayer', () => {
+  it('parses style strings', () => {
     render(<SlideText style='color: blue; font-weight: 900;'>Text</SlideText>)
     const el = screen.getByText('Text') as HTMLElement
     expect(el.style.color).toBe('blue')
