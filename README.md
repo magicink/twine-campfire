@@ -14,6 +14,42 @@ A cozy story format for Twine.
 
 See [AI disclosure](docs/ai-disclosure.md).
 
+## Directives
+
+Campfire extends Markdown with
+[remark-directive](https://github.com/remarkjs/remark-directive) syntax.
+Directives begin with a colon and let passages interact with the game state.
+They come in leaf or container form.
+
+- **Leaf/Text** – `:name[LABEL]{attr=value}`
+- **Container** –
+
+  ```md
+  :::name{attr=value}
+  CONTENT
+  :::
+  ```
+
+Directives are grouped by purpose.
+
+See the dedicated docs for detailed usage:
+
+- [Example](docs/directives/example.md)
+- [Indentation](docs/directives/indentation.md)
+- [Variables & simple state](docs/directives/variables-and-state.md)
+- [Ranges](docs/directives/ranges.md)
+- [Arrays & collection management](docs/directives/arrays.md)
+- [Data retrieval & evaluation](docs/directives/data-retrieval.md)
+- [Conditional logic](docs/directives/conditional-logic.md)
+- [Iteration](docs/directives/iteration.md)
+- [Event & trigger blocks](docs/directives/event-trigger-blocks.md)
+- [Navigation & composition](docs/directives/navigation-composition.md)
+- [Transitions](docs/directives/transitions.md)
+- [Persistence](docs/directives/persistence.md)
+- [Localization & internationalization](docs/directives/localization.md)
+
+Campfire prints descriptive error messages to the browser console when it encounters invalid markup.
+
 ## Twine links
 
 Campfire recognizes Twine's `[[Link]]` syntax. The text inside becomes a
@@ -63,42 +99,6 @@ Examples:
   ```md
   <https://twine-campfire.dev>
   ```
-
-## Directives
-
-Campfire extends Markdown with
-[remark-directive](https://github.com/remarkjs/remark-directive) syntax.
-Directives begin with a colon and let passages interact with the game state.
-They come in leaf or container form.
-
-- **Leaf/Text** – `:name[LABEL]{attr=value}`
-- **Container** –
-
-  ```md
-  :::name{attr=value}
-  CONTENT
-  :::
-  ```
-
-Directives are grouped by purpose.
-
-See the dedicated docs for detailed usage:
-
-- [Example](docs/directives/example.md)
-- [Indentation](docs/directives/indentation.md)
-- [Variables & simple state](docs/directives/variables-and-state.md)
-- [Ranges](docs/directives/ranges.md)
-- [Arrays & collection management](docs/directives/arrays.md)
-- [Data retrieval & evaluation](docs/directives/data-retrieval.md)
-- [Conditional logic](docs/directives/conditional-logic.md)
-- [Iteration](docs/directives/iteration.md)
-- [Event & trigger blocks](docs/directives/event-trigger-blocks.md)
-- [Navigation & composition](docs/directives/navigation-composition.md)
-- [Transitions](docs/directives/transitions.md)
-- [Persistence](docs/directives/persistence.md)
-- [Localization & internationalization](docs/directives/localization.md)
-
-Campfire prints descriptive error messages to the browser console when it encounters invalid markup.
 
 ## Further reading
 
