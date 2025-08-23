@@ -28,7 +28,7 @@ beforeEach(() => {
 describe('reveal directive', () => {
   it('renders a SlideReveal component with props', () => {
     const md =
-      ':::reveal{at=1 exitAt=3 enter="slide" exit="fade" interruptBehavior="cancel" data-test="ok"}\nHello\n:::'
+      ':::reveal{at=1 exitAt=3 enter="slide" enterDir="left" enterDuration=500 exit="fade" exitDir="down" exitDuration=400 interruptBehavior="cancel" data-test="ok"}\nHello\n:::'
     render(<MarkdownRunner markdown={md} />)
     const getReveal = (node: any): any => {
       if (Array.isArray(node)) return getReveal(node[0])
@@ -39,15 +39,23 @@ describe('reveal directive', () => {
     expect(reveal.type).toBe(SlideReveal)
     expect(reveal.props.at).toBe(1)
     expect(reveal.props.exitAt).toBe(3)
-    expect(reveal.props.enter).toBe('slide')
-    expect(reveal.props.exit).toBe('fade')
+    expect(reveal.props.enter).toEqual({
+      type: 'slide',
+      dir: 'left',
+      duration: 500
+    })
+    expect(reveal.props.exit).toEqual({
+      type: 'fade',
+      dir: 'down',
+      duration: 400
+    })
     expect(reveal.props.interruptBehavior).toBe('cancel')
     expect(reveal.props['data-test']).toBe('ok')
   })
 
   it('applies reveal presets with overrides', () => {
     const md =
-      ':preset{type="reveal" name="fade" at=2}\n:::reveal{from="fade" exitAt=3}\nHi\n:::'
+      ':preset{type="reveal" name="fade" at=2 enter="slide" enterDir="right" enterDuration=200 exit="zoom" exitDir="left"}\n:::reveal{from="fade" exitAt=3 enterDir="up" exitDuration=700}\nHi\n:::'
     render(<MarkdownRunner markdown={md} />)
     const getReveal = (node: any): any => {
       if (Array.isArray(node)) return getReveal(node[0])
@@ -57,6 +65,16 @@ describe('reveal directive', () => {
     const reveal = getReveal(output)
     expect(reveal.props.at).toBe(2)
     expect(reveal.props.exitAt).toBe(3)
+    expect(reveal.props.enter).toEqual({
+      type: 'slide',
+      dir: 'up',
+      duration: 200
+    })
+    expect(reveal.props.exit).toEqual({
+      type: 'zoom',
+      dir: 'left',
+      duration: 700
+    })
   })
 
   it('does not render stray colons when reveal contains directives', () => {

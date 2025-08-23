@@ -642,8 +642,12 @@ Control the flow between passages or how they reveal.
   | ----------------- | ------------------------------------ |
   | at                | Deck step when content reveals       |
   | exitAt            | Deck step when content hides         |
-  | enter             | Enter animation key                  |
-  | exit              | Exit animation key                   |
+  | enter             | Enter transition key                 |
+  | exit              | Exit transition key                  |
+  | enterDir          | Enter transition direction           |
+  | exitDir           | Exit transition direction            |
+  | enterDuration     | Enter transition duration in ms      |
+  | exitDuration      | Exit transition duration in ms       |
   | interruptBehavior | How to handle interrupted animations |
   | from              | Name of a reveal preset to apply     |
 

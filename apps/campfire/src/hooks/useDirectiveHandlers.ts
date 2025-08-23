@@ -1918,6 +1918,10 @@ export const useDirectiveHandlers = () => {
     exitAt: { type: 'number' },
     enter: { type: 'string' },
     exit: { type: 'string' },
+    enterDir: { type: 'string' },
+    exitDir: { type: 'string' },
+    enterDuration: { type: 'number' },
+    exitDuration: { type: 'number' },
     interruptBehavior: { type: 'string' },
     from: { type: 'string', expression: false }
   } as const
@@ -1930,8 +1934,35 @@ export const useDirectiveHandlers = () => {
     'exitAt',
     'enter',
     'exit',
+    'enterDir',
+    'exitDir',
+    'enterDuration',
+    'exitDuration',
     'interruptBehavior'
   ] as const
+
+  /**
+   * Builds a transition object from a base value and optional extras.
+   *
+   * @param base - Transition key or existing configuration.
+   * @param dir - Optional direction to apply.
+   * @param duration - Optional duration in milliseconds.
+   * @returns A transition object when a base is provided.
+   */
+  const buildTransition = (
+    base?: unknown,
+    dir?: unknown,
+    duration?: unknown
+  ): Record<string, unknown> | undefined => {
+    if (!base) return undefined
+    const t: Record<string, unknown> =
+      typeof base === 'string'
+        ? { type: base }
+        : { ...(base as Record<string, unknown>) }
+    if (typeof dir === 'string') t.dir = dir
+    if (typeof duration === 'number') t.duration = duration
+    return t
+  }
 
   /** Schema describing supported slide directive attributes. */
   const slideSchema = {
@@ -2059,19 +2090,37 @@ export const useDirectiveHandlers = () => {
       const preset = attrs.from
         ? presetsRef.current['reveal']?.[String(attrs.from)]
         : undefined
+      let enter = buildTransition(
+        preset?.enter,
+        preset?.enterDir,
+        preset?.enterDuration
+      )
+      let exit = buildTransition(
+        preset?.exit,
+        preset?.exitDir,
+        preset?.exitDuration
+      )
       if (preset) {
         if (typeof preset.at === 'number') props.at = preset.at
         if (typeof preset.exitAt === 'number') props.exitAt = preset.exitAt
-        if (preset.enter) props.enter = preset.enter
-        if (preset.exit) props.exit = preset.exit
         if (preset.interruptBehavior)
           props.interruptBehavior = preset.interruptBehavior
         applyAdditionalAttributes(preset, props, REVEAL_EXCLUDES)
       }
       if (typeof attrs.at === 'number') props.at = attrs.at
       if (typeof attrs.exitAt === 'number') props.exitAt = attrs.exitAt
-      if (attrs.enter) props.enter = attrs.enter
-      if (attrs.exit) props.exit = attrs.exit
+      enter = buildTransition(
+        attrs.enter ?? enter,
+        attrs.enterDir ?? (enter as any)?.dir,
+        attrs.enterDuration ?? (enter as any)?.duration
+      )
+      exit = buildTransition(
+        attrs.exit ?? exit,
+        attrs.exitDir ?? (exit as any)?.dir,
+        attrs.exitDuration ?? (exit as any)?.duration
+      )
+      if (enter) props.enter = enter
+      if (exit) props.exit = exit
       if (attrs.interruptBehavior)
         props.interruptBehavior = attrs.interruptBehavior
       const mergedRaw = mergeAttrs(preset, raw)
