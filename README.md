@@ -620,7 +620,7 @@ Control the flow between passages or how they reveal.
   | autoplayDelay | Milliseconds between automatic slide advances (defaults to 3000)           |
   | pause         | Start autoplay paused and display a play button                            |
 
-Transition keys: `fade`, `slide`, `zoom`, `none` (to disable animations).
+Transition types: `fade`, `slide`, `zoom`, `none` (to disable animations).
 
 - `reveal`: Reveal slide content step-by-step.
 
@@ -644,8 +644,8 @@ Transition keys: `fade`, `slide`, `zoom`, `none` (to disable animations).
   | ----------------- | ------------------------------------ |
   | at                | Deck step when content reveals       |
   | exitAt            | Deck step when content hides         |
-  | enter             | Enter transition key                 |
-  | exit              | Exit transition key                  |
+  | enter             | Enter transition type                |
+  | exit              | Exit transition type                 |
   | enterDir          | Enter transition direction           |
   | exitDir           | Exit transition direction            |
   | enterDuration     | Enter transition duration in ms      |
@@ -653,7 +653,7 @@ Transition keys: `fade`, `slide`, `zoom`, `none` (to disable animations).
   | interruptBehavior | How to handle interrupted animations |
   | from              | Name of a reveal preset to apply     |
 
-Transition keys: `fade`, `slide`, `zoom`, `none` (to disable animations).
+Transition types: `fade`, `slide`, `zoom`, `none` (to disable animations).
 
 - `text`: Position typographic content within a slide.
 
@@ -707,6 +707,15 @@ Transition keys: `fade`, `slide`, `zoom`, `none` (to disable animations).
   ```
 
   Presets allow authors to reuse common configurations across multiple directives.
+
+### Transitions
+
+| Type  | Directives       | Attributes                                             |
+| ----- | ---------------- | ------------------------------------------------------ |
+| fade  | `deck`, `reveal` | `enterDuration`, `exitDuration`                        |
+| slide | `deck`, `reveal` | `enterDir`, `exitDir`, `enterDuration`, `exitDuration` |
+| zoom  | `deck`, `reveal` | `enterDuration`, `exitDuration`                        |
+| none  | `deck`, `reveal` | _(none)_                                               |
 
 ### Persistence
 
