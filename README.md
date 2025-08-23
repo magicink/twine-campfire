@@ -524,20 +524,20 @@ Run directives on specific passage events or group actions.
 - `trigger`: Render a button that runs directives when clicked.
 
   ```md
-  :::trigger{label="Do it" class="primary" disabled}
+  :::trigger{label="Do it" className="primary" disabled}
   :set[key=value]
   :::
   ```
 
   The `label` attribute must be a quoted string using matching single-, double-,
-  or backtick quotes. Replace the label, classes, disabled state, and directives
-  as needed.
+  or backtick quotes. Replace the label, class name, disabled state, and
+  directives as needed.
 
-  | Input    | Description                            |
-  | -------- | -------------------------------------- |
-  | label    | Text displayed on the button           |
-  | class    | Optional space-separated classes       |
-  | disabled | Optional boolean to disable the button |
+  | Input     | Description                            |
+  | --------- | -------------------------------------- |
+  | label     | Text displayed on the button           |
+  | className | Optional space-separated classes       |
+  | disabled  | Optional boolean to disable the button |
 
 ### Navigation & composition
 
@@ -684,7 +684,7 @@ Control the flow between passages or how they reveal.
   :::
   ```
 
-  Accepts the same attributes as the `Text` component, supports a `from` attribute to apply presets, and uses `layerClass` to add classes to the Layer wrapper.
+  Accepts the same attributes as the `Text` component, supports a `from` attribute to apply presets, and uses `layerClassName` to add classes to the Layer wrapper.
 
 - `image`: Position an image within a slide.
 
@@ -696,7 +696,7 @@ Control the flow between passages or how they reveal.
   :::
   ```
 
-  Accepts the same attributes as the `SlideImage` component, supports a `from` attribute to apply presets, and uses `layerClass` to add classes to the Layer wrapper.
+  Accepts the same attributes as the `SlideImage` component, supports a `from` attribute to apply presets, and uses `layerClassName` to add classes to the Layer wrapper.
 
 - `shape`: Draw basic shapes within a slide.
 
@@ -708,7 +708,7 @@ Control the flow between passages or how they reveal.
   :::
   ```
 
-  Accepts the same attributes as the `SlideShape` component, supports a `from` attribute to apply presets, and uses `layerClass` to add classes to the Layer wrapper.
+  Accepts the same attributes as the `SlideShape` component, supports a `from` attribute to apply presets, and uses `layerClassName` to add classes to the Layer wrapper.
 
 - `preset`: Define reusable attribute sets that can be applied via the `from` attribute on `deck`, `reveal`, `image`, `shape`, and `text` directives.
 

@@ -1079,16 +1079,14 @@ export const useDirectiveHandlers = () => {
     if (!parent || typeof index !== 'number') return
     const container = directive as ContainerDirective
     const attrs = (directive.attributes || {}) as Record<string, unknown>
+    if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
+      const msg = 'class is a reserved attribute. Use className instead.'
+      console.error(msg)
+      addError(msg)
+    }
     const label =
       typeof attrs.label === 'string' ? attrs.label : getLabel(container)
-    const classAttr =
-      typeof attrs.class === 'string'
-        ? attrs.class
-        : typeof attrs.className === 'string'
-          ? attrs.className
-          : typeof attrs.classes === 'string'
-            ? attrs.classes
-            : ''
+    const classAttr = typeof attrs.className === 'string' ? attrs.className : ''
     const disabled =
       typeof attrs.disabled === 'string'
         ? attrs.disabled !== 'false'
@@ -1778,7 +1776,8 @@ export const useDirectiveHandlers = () => {
 
   /**
    * Copies attributes from a source map into a target props object, excluding
-   * keys specified in {@link exclude}.
+   * keys specified in {@link exclude}. Emits an error if the `class` attribute
+   * is encountered, as it is reserved.
    *
    * @param source - Raw attribute map.
    * @param target - Props object to receive the attributes.
@@ -1790,6 +1789,14 @@ export const useDirectiveHandlers = () => {
     exclude: readonly string[]
   ) => {
     for (const key of Object.keys(source)) {
+      if (key === 'class') {
+        const msg = 'class is a reserved attribute. Use className instead.'
+        console.error(msg)
+        addError(msg)
+        throw new Error(msg)
+      }
+      if (key === 'classes' || key === 'layerClass' || key === 'layerClasses')
+        continue
       if (!exclude.includes(key)) {
         target[key] = source[key]
       }
@@ -2183,7 +2190,11 @@ export const useDirectiveHandlers = () => {
       if (attrs.anchor) props.anchor = attrs.anchor
       const mergedRaw = mergeAttrs(preset, raw)
       props['data-testid'] = 'layer'
-      applyAdditionalAttributes(mergedRaw, props, [...LAYER_EXCLUDES, 'from'])
+      applyAdditionalAttributes(mergedRaw, props, [
+        ...LAYER_EXCLUDES,
+        'from',
+        'layerClassName'
+      ])
       return props
     }
   )
@@ -2272,21 +2283,11 @@ export const useDirectiveHandlers = () => {
     if (mergedAttrs.anchor) props.anchor = mergedAttrs.anchor
     if (style.length) props.style = style.join(';')
     const classAttr =
-      typeof mergedRaw.class === 'string'
-        ? mergedRaw.class
-        : typeof mergedRaw.className === 'string'
-          ? mergedRaw.className
-          : typeof mergedRaw.classes === 'string'
-            ? mergedRaw.classes
-            : undefined
+      typeof mergedRaw.className === 'string' ? mergedRaw.className : undefined
     const layerClassAttr =
-      typeof mergedRaw.layerClass === 'string'
-        ? mergedRaw.layerClass
-        : typeof mergedRaw.layerClassName === 'string'
-          ? mergedRaw.layerClassName
-          : typeof mergedRaw.layerClasses === 'string'
-            ? mergedRaw.layerClasses
-            : undefined
+      typeof mergedRaw.layerClassName === 'string'
+        ? mergedRaw.layerClassName
+        : undefined
     const classes = ['text-base', 'font-normal']
     if (classAttr) classes.unshift(classAttr)
     props.className = classes.join(' ')
@@ -2308,12 +2309,8 @@ export const useDirectiveHandlers = () => {
       'weight',
       'lineHeight',
       'color',
-      'class',
       'className',
-      'classes',
-      'layerClass',
       'layerClassName',
-      'layerClasses',
       'from'
     ])
     const processed = runDirectiveBlock(
@@ -2376,21 +2373,11 @@ export const useDirectiveHandlers = () => {
     if (mergedAttrs.alt) props.alt = mergedAttrs.alt
     if (mergedAttrs.style) props.style = mergedAttrs.style
     const classAttr =
-      typeof mergedRaw.class === 'string'
-        ? mergedRaw.class
-        : typeof mergedRaw.className === 'string'
-          ? mergedRaw.className
-          : typeof mergedRaw.classes === 'string'
-            ? mergedRaw.classes
-            : undefined
+      typeof mergedRaw.className === 'string' ? mergedRaw.className : undefined
     const layerClassAttr =
-      typeof mergedRaw.layerClass === 'string'
-        ? mergedRaw.layerClass
-        : typeof mergedRaw.layerClassName === 'string'
-          ? mergedRaw.layerClassName
-          : typeof mergedRaw.layerClasses === 'string'
-            ? mergedRaw.layerClasses
-            : undefined
+      typeof mergedRaw.layerClassName === 'string'
+        ? mergedRaw.layerClassName
+        : undefined
     if (classAttr) props.className = classAttr
     if (layerClassAttr) props.layerClassName = layerClassAttr
     applyAdditionalAttributes(mergedRaw, props, [
@@ -2405,12 +2392,8 @@ export const useDirectiveHandlers = () => {
       'src',
       'alt',
       'style',
-      'class',
       'className',
-      'classes',
-      'layerClass',
       'layerClassName',
-      'layerClasses',
       'from'
     ])
     const node: Parent = {
@@ -2479,21 +2462,11 @@ export const useDirectiveHandlers = () => {
       props.shadow = mergedAttrs.shadow
     if (mergedAttrs.style) props.style = mergedAttrs.style
     const classAttr =
-      typeof mergedRaw.class === 'string'
-        ? mergedRaw.class
-        : typeof mergedRaw.className === 'string'
-          ? mergedRaw.className
-          : typeof mergedRaw.classes === 'string'
-            ? mergedRaw.classes
-            : undefined
+      typeof mergedRaw.className === 'string' ? mergedRaw.className : undefined
     const layerClassAttr =
-      typeof mergedRaw.layerClass === 'string'
-        ? mergedRaw.layerClass
-        : typeof mergedRaw.layerClassName === 'string'
-          ? mergedRaw.layerClassName
-          : typeof mergedRaw.layerClasses === 'string'
-            ? mergedRaw.layerClasses
-            : undefined
+      typeof mergedRaw.layerClassName === 'string'
+        ? mergedRaw.layerClassName
+        : undefined
     if (classAttr) props.className = classAttr
     if (layerClassAttr) props.layerClassName = layerClassAttr
     applyAdditionalAttributes(mergedRaw, props, [
@@ -2517,12 +2490,8 @@ export const useDirectiveHandlers = () => {
       'radius',
       'shadow',
       'style',
-      'class',
       'className',
-      'classes',
-      'layerClass',
       'layerClassName',
-      'layerClasses',
       'from'
     ])
     const node: Parent = {

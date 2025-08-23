@@ -31,7 +31,7 @@ beforeEach(() => {
 describe('image directive', () => {
   it('renders a SlideImage component with props', () => {
     const md =
-      ':::reveal\n:image{src="https://example.com/cat.png" x=10 y=20 alt="Cat" class="rounded" layerClass="wrapper" style="border:1px solid red" data-test="ok"}\n:::\n'
+      ':::reveal\n:image{src="https://example.com/cat.png" x=10 y=20 alt="Cat" className="rounded" layerClassName="wrapper" style="border:1px solid red" data-test="ok"}\n:::\n'
     render(<MarkdownRunner markdown={md} />)
     const el = document.querySelector(
       '[data-testid="slideImage"]'

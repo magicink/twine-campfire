@@ -28,7 +28,7 @@ beforeEach(() => {
 describe('text directive', () => {
   it('renders a SlideText component with styles', () => {
     const md =
-      ':::text{x=10 y=20 w=100 h=50 z=5 rotate=45 scale=1.5 anchor=center as="h2" align=center size=24 weight=700 lineHeight=1.2 color="red" class="underline" layerClass="wrapper" data-test="ok"}\nHello\n:::'
+      ':::text{x=10 y=20 w=100 h=50 z=5 rotate=45 scale=1.5 anchor=center as="h2" align=center size=24 weight=700 lineHeight=1.2 color="red" className="underline" layerClassName="wrapper" data-test="ok"}\nHello\n:::'
     render(<MarkdownRunner markdown={md} />)
     const el = document.querySelector(
       '[data-testid="slideText"]'
@@ -66,6 +66,13 @@ describe('text directive', () => {
     )
     expect(el.getAttribute('data-test')).toBe('ok')
     expect(inner.textContent).toBe('Hello')
+  })
+
+  it('throws when using reserved class attribute', () => {
+    const md = ':::text{class="bad"}\nOops\n:::'
+    expect(() => render(<MarkdownRunner markdown={md} />)).toThrow(
+      'class is a reserved attribute. Use className instead.'
+    )
   })
 
   it('applies text presets with overrides', () => {
