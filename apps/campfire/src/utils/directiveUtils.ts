@@ -5,17 +5,16 @@ import remarkGfm from 'remark-gfm'
 import remarkDirective from 'remark-directive'
 import remarkCampfire, {
   remarkCampfireIndentation,
-  type DirectiveHandler
+  type DirectiveHandler,
+  type DirectiveNode
 } from '@campfire/remark-campfire'
 import { toString } from 'mdast-util-to-string'
 import type { Parent, Root, RootContent, Code, Paragraph } from 'mdast'
-import type {
-  ContainerDirective,
-  LeafDirective,
-  TextDirective
-} from 'mdast-util-directive'
+import type { ContainerDirective } from 'mdast-util-directive'
 import type { Node } from 'unist'
 import type { RangeValue } from '@campfire/utils/math'
+
+export type { DirectiveNode }
 
 /**
  * Shared remark parser for expanding indented code blocks.
@@ -34,8 +33,6 @@ export {
   parseRange
 } from '@campfire/utils/math'
 export type { RangeValue } from '@campfire/utils/math'
-
-export type DirectiveNode = ContainerDirective | LeafDirective | TextDirective
 
 interface ParagraphLabel extends Paragraph {
   data: { directiveLabel: true }

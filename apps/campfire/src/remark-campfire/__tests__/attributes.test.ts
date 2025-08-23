@@ -2,14 +2,10 @@ import { describe, it, expect } from 'bun:test'
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkDirective from 'remark-directive'
-import remarkCampfire, { type DirectiveHandler } from '../index'
-import type {
-  ContainerDirective,
-  LeafDirective,
-  TextDirective
-} from 'mdast-util-directive'
-
-type DirectiveNode = ContainerDirective | LeafDirective | TextDirective
+import remarkCampfire, {
+  type DirectiveHandler,
+  type DirectiveNode
+} from '../index'
 
 /**
  * Processes markdown containing a directive and returns the directive node.
