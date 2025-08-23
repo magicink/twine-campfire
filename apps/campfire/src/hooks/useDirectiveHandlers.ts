@@ -21,6 +21,7 @@ import type {
   Properties,
   Text as HastText
 } from 'hast'
+import type { HastData } from '@campfire/types/hast'
 import type { ContainerDirective } from 'mdast-util-directive'
 import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
 import { type Checkpoint, useGameStore } from '@campfire/state/useGameStore'
@@ -909,14 +910,8 @@ export const useDirectiveHandlers = () => {
      * @param node - The node to inspect.
      * @returns The directive's hName and hProperties if available.
      */
-    const getNodeData = (
-      node: unknown
-    ): { hName?: string; hProperties?: Record<string, unknown> } =>
-      (
-        node as {
-          data?: { hName?: string; hProperties?: Record<string, unknown> }
-        }
-      ).data || {}
+    const getNodeData = (node: unknown): HastData =>
+      (node as { data?: HastData }).data || {}
 
     const output: RootContent[] = []
     for (const item of items) {

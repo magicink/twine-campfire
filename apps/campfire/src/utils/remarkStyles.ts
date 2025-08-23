@@ -2,6 +2,7 @@ import { visit } from 'unist-util-visit'
 import type { Root, Paragraph } from 'mdast'
 import type { Data } from 'unist'
 import type { Properties } from 'hast'
+import type { HastData } from '@campfire/types/hast'
 
 /**
  * Appends one or more class names to a node's `hProperties.className`,
@@ -35,14 +36,9 @@ export const appendClassNames = (
  *
  * @returns Transformer attaching class names to paragraph elements.
  */
-interface NodeData extends Data {
-  hName?: string
-  hProperties?: Properties
-}
-
 export const remarkParagraphStyles = () => (tree: Root) => {
   visit(tree, 'paragraph', (node: Paragraph) => {
-    const data = (node.data ?? (node.data = {})) as NodeData
+    const data = (node.data ?? (node.data = {})) as HastData
     if (data.hName) return
     appendClassNames(node, ['font-libertinus', 'text-base'])
   })
