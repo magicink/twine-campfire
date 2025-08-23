@@ -613,14 +613,11 @@ Control the flow between passages or how they reveal.
   | Input         | Description                                                                |
   | ------------- | -------------------------------------------------------------------------- |
   | size          | Slide size as `WIDTHxHEIGHT` in pixels or aspect ratio like `16x9`         |
-  | transition    | Default transition applied between slides                                  |
   | theme         | Optional JSON object or string of CSS properties applied to the deck theme |
   | from          | Name of a deck preset to apply before other attributes                     |
   | autoplay      | Whether to automatically advance through slides                            |
   | autoplayDelay | Milliseconds between automatic slide advances (defaults to 3000)           |
   | pause         | Start autoplay paused and display a play button                            |
-
-Transition types: `fade`, `slide`, `zoom`, `flip`, `none` (to disable animations).
 
 - `slide`: Customize an individual slide.
 
@@ -644,8 +641,6 @@ Transition types: `fade`, `slide`, `zoom`, `flip`, `none` (to disable animations
   | onEnter       | Directive block to run on enter     |
   | onExit        | Directive block to run on exit      |
   | from          | Name of a slide preset to apply     |
-
-Transition types: `fade`, `slide`, `zoom`, `flip`, `none` (to disable animations).
 
 - `reveal`: Reveal slide content step-by-step.
 
@@ -677,8 +672,6 @@ Transition types: `fade`, `slide`, `zoom`, `flip`, `none` (to disable animations
   | exitDuration      | Exit transition duration in ms       |
   | interruptBehavior | How to handle interrupted animations |
   | from              | Name of a reveal preset to apply     |
-
-Transition types: `fade`, `slide`, `zoom`, `flip`, `none` (to disable animations).
 
 - `text`: Position typographic content within a slide.
 
@@ -735,13 +728,15 @@ Transition types: `fade`, `slide`, `zoom`, `flip`, `none` (to disable animations
 
 ### Transitions
 
-| Type  | Directives                | Attributes                                             |
-| ----- | ------------------------- | ------------------------------------------------------ |
-| fade  | `deck`, `reveal`, `slide` | `enterDuration`, `exitDuration`                        |
-| slide | `deck`, `reveal`, `slide` | `enterDir`, `exitDir`, `enterDuration`, `exitDuration` |
-| zoom  | `deck`, `reveal`, `slide` | `enterDuration`, `exitDuration`                        |
-| flip  | `deck`, `reveal`, `slide` | `enterDuration`, `exitDuration`                        |
-| none  | `deck`, `reveal`, `slide` | _(none)_                                               |
+Transitions are available on the `deck`, `slide`, and `reveal` directives.
+
+| Type  | Attributes                                             |
+| ----- | ------------------------------------------------------ |
+| fade  | `enterDuration`, `exitDuration`                        |
+| slide | `enterDir`, `exitDir`, `enterDuration`, `exitDuration` |
+| zoom  | `enterDuration`, `exitDuration`                        |
+| flip  | `enterDuration`, `exitDuration`                        |
+| none  | _(none)_                                               |
 
 ### Persistence
 
