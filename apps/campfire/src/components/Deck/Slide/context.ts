@@ -1,5 +1,5 @@
 import { createContext } from 'preact'
-import type { Transition } from '@campfire/types'
+import type { Transition } from 'types'
 
 /**
  * Context providing default transitions for SlideReveal components within a Slide.

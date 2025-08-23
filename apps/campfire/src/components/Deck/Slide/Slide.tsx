@@ -2,7 +2,7 @@ import { type JSX } from 'preact'
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'preact/hooks'
 import { useSerializedDirectiveRunner } from '@campfire/hooks/useSerializedDirectiveRunner'
 import { SlideTransitionContext } from './context'
-import type { SlideProps } from '@campfire/types'
+import type { SlideProps } from 'types'
 
 /**
  * Renders a presentation slide with optional transition metadata.

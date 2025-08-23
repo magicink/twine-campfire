@@ -21,7 +21,7 @@ import type {
   Properties,
   Text as HastText
 } from 'hast'
-import type { HastData, Transition, Direction } from '@campfire/types'
+import type { HastData, Transition, Direction } from 'types'
 import type { ContainerDirective } from 'mdast-util-directive'
 import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
 import { type Checkpoint, useGameStore } from '@campfire/state/useGameStore'
