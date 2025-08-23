@@ -31,12 +31,13 @@ beforeEach(() => {
 describe('image directive', () => {
   it('renders a SlideImage component with props', () => {
     const md =
-      ':::reveal\n:image{src="https://example.com/cat.png" x=10 y=20 alt="Cat" class="rounded" style="border:1px solid red" data-test="ok"}\n:::\n'
+      ':::reveal\n:image{src="https://example.com/cat.png" x=10 y=20 alt="Cat" class="rounded" layerClass="wrapper" style="border:1px solid red" data-test="ok"}\n:::\n'
     render(<MarkdownRunner markdown={md} />)
     const el = document.querySelector(
       '[data-testid="slideImage"]'
     ) as HTMLElement
     expect(el).toBeTruthy()
+    expect(el.className).toBe('wrapper')
     expect(el.style.left).toBe('10px')
     expect(el.style.top).toBe('20px')
     expect(el.getAttribute('data-test')).toBe('ok')

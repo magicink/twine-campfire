@@ -2279,9 +2279,18 @@ export const useDirectiveHandlers = () => {
           : typeof mergedRaw.classes === 'string'
             ? mergedRaw.classes
             : undefined
+    const layerClassAttr =
+      typeof mergedRaw.layerClass === 'string'
+        ? mergedRaw.layerClass
+        : typeof mergedRaw.layerClassName === 'string'
+          ? mergedRaw.layerClassName
+          : typeof mergedRaw.layerClasses === 'string'
+            ? mergedRaw.layerClasses
+            : undefined
     const classes = ['text-base', 'font-normal']
     if (classAttr) classes.unshift(classAttr)
     props.className = classes.join(' ')
+    if (layerClassAttr) props.layerClassName = layerClassAttr
     props['data-component'] = 'slideText'
     props['data-as'] = tagName
     applyAdditionalAttributes(mergedRaw, props, [
@@ -2302,6 +2311,9 @@ export const useDirectiveHandlers = () => {
       'class',
       'className',
       'classes',
+      'layerClass',
+      'layerClassName',
+      'layerClasses',
       'from'
     ])
     const processed = runDirectiveBlock(
@@ -2371,7 +2383,16 @@ export const useDirectiveHandlers = () => {
           : typeof mergedRaw.classes === 'string'
             ? mergedRaw.classes
             : undefined
+    const layerClassAttr =
+      typeof mergedRaw.layerClass === 'string'
+        ? mergedRaw.layerClass
+        : typeof mergedRaw.layerClassName === 'string'
+          ? mergedRaw.layerClassName
+          : typeof mergedRaw.layerClasses === 'string'
+            ? mergedRaw.layerClasses
+            : undefined
     if (classAttr) props.className = classAttr
+    if (layerClassAttr) props.layerClassName = layerClassAttr
     applyAdditionalAttributes(mergedRaw, props, [
       'x',
       'y',
@@ -2387,6 +2408,9 @@ export const useDirectiveHandlers = () => {
       'class',
       'className',
       'classes',
+      'layerClass',
+      'layerClassName',
+      'layerClasses',
       'from'
     ])
     const node: Parent = {
@@ -2462,7 +2486,16 @@ export const useDirectiveHandlers = () => {
           : typeof mergedRaw.classes === 'string'
             ? mergedRaw.classes
             : undefined
+    const layerClassAttr =
+      typeof mergedRaw.layerClass === 'string'
+        ? mergedRaw.layerClass
+        : typeof mergedRaw.layerClassName === 'string'
+          ? mergedRaw.layerClassName
+          : typeof mergedRaw.layerClasses === 'string'
+            ? mergedRaw.layerClasses
+            : undefined
     if (classAttr) props.className = classAttr
+    if (layerClassAttr) props.layerClassName = layerClassAttr
     applyAdditionalAttributes(mergedRaw, props, [
       'x',
       'y',
@@ -2487,6 +2520,9 @@ export const useDirectiveHandlers = () => {
       'class',
       'className',
       'classes',
+      'layerClass',
+      'layerClassName',
+      'layerClasses',
       'from'
     ])
     const node: Parent = {

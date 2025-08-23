@@ -684,7 +684,7 @@ Control the flow between passages or how they reveal.
   :::
   ```
 
-  Accepts the same attributes as the `Text` component and supports a `from` attribute to apply presets.
+  Accepts the same attributes as the `Text` component, supports a `from` attribute to apply presets, and uses `layerClass` to add classes to the Layer wrapper.
 
 - `image`: Position an image within a slide.
 
@@ -696,7 +696,7 @@ Control the flow between passages or how they reveal.
   :::
   ```
 
-  Accepts the same attributes as the `SlideImage` component and supports a `from` attribute to apply presets.
+  Accepts the same attributes as the `SlideImage` component, supports a `from` attribute to apply presets, and uses `layerClass` to add classes to the Layer wrapper.
 
 - `shape`: Draw basic shapes within a slide.
 
@@ -708,7 +708,7 @@ Control the flow between passages or how they reveal.
   :::
   ```
 
-  Accepts the same attributes as the `SlideShape` component and supports a `from` attribute to apply presets.
+  Accepts the same attributes as the `SlideShape` component, supports a `from` attribute to apply presets, and uses `layerClass` to add classes to the Layer wrapper.
 
 - `preset`: Define reusable attribute sets that can be applied via the `from` attribute on `deck`, `reveal`, `image`, `shape`, and `text` directives.
 
