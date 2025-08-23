@@ -3,6 +3,7 @@ import type { Draft } from 'immer'
 import type { StoreApi } from 'zustand'
 import rfdc from 'rfdc'
 import { clamp } from '@campfire/utils/directiveUtils'
+import type { RangeValue } from '@campfire/utils/math'
 
 /**
  * Zustand's `set` function signature.
@@ -21,13 +22,6 @@ export const setImmer =
   <T extends object>(set: SetFn<T>) =>
   (fn: (draft: Draft<T>) => void) =>
     set(produce<T>(fn))
-
-/** Range value representation */
-export interface RangeValue {
-  min: number
-  max: number
-  value: number
-}
 
 /** Options for setting values */
 export interface SetOptions {
@@ -291,3 +285,4 @@ export class StateManager<T extends Record<string, unknown>> {
 }
 
 export type { StateManager as StateManagerType }
+export type { RangeValue } from '@campfire/utils/math'
