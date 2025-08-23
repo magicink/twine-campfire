@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.83.0](https://github.com/magicink/twine-campfire/compare/v1.82.0...v1.83.0) (2025-08-23)
+
+
+### Features
+
+* **reveal:** add entrance and exit transitions ([#489](https://github.com/magicink/twine-campfire/issues/489)) ([e8d51e9](https://github.com/magicink/twine-campfire/commit/e8d51e92ab348caf8c9f9b6442168eafe81520db))
+
 ## [1.82.0](https://github.com/magicink/twine-campfire/compare/v1.81.0...v1.82.0) (2025-08-22)
 
 
