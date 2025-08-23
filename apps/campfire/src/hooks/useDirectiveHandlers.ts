@@ -43,6 +43,7 @@ import {
 } from '@campfire/utils/math'
 import {
   parseTypedValue,
+  parseObjectLiteral,
   extractKeyValue,
   replaceWithIndentation,
   expandIndentedCode,
@@ -1951,19 +1952,8 @@ export const useDirectiveHandlers = () => {
       const quoted = typeof raw === 'string' && QUOTE_PATTERN.test(raw.trim())
       const looksObject = trimmed.startsWith('{') || trimmed.includes(':')
       if (!quoted && looksObject) {
-        const wrapped = trimmed.startsWith('{') ? trimmed : `{${trimmed}}`
-        try {
-          return JSON.parse(wrapped) as Transition
-        } catch {
-          const parsed = parseTypedValue(
-            wrapped,
-            {},
-            { eval: false }
-          ) as unknown
-          if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-            return parsed as Transition
-          }
-        }
+        const parsed = parseObjectLiteral(trimmed)
+        if (parsed) return parsed as unknown as Transition
       }
       if (quoted && looksObject) return trimmed
       return { type: trimmed as Transition['type'] }

@@ -260,19 +260,7 @@ export const parseAttributeValue = (
           !Array.isArray(evaluated)
         )
           return evaluated
-        const trimmed = raw.trim()
-        const wrapped = trimmed.startsWith('{') ? trimmed : `{${trimmed}}`
-        try {
-          const json = JSON.parse(wrapped)
-          if (json && typeof json === 'object' && !Array.isArray(json))
-            return json
-        } catch {
-          /* fallback to manual parsing */
-        }
-        const parsed = parseTypedValue(wrapped, state, { eval: false })
-        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed))
-          return parsed
-        return undefined
+        return parseObjectLiteral(raw, state)
       }
       return undefined
     }
@@ -426,6 +414,32 @@ export const extractAttributes = <S extends AttributeSchema>(
     valid: errors.length === 0,
     errors
   }
+}
+
+/**
+ * Parses a string containing an object literal. Supports both JSON-style
+ * objects and colon-delimited forms without surrounding braces.
+ *
+ * @param value - Raw string to parse.
+ * @param state - Optional context for nested value parsing.
+ * @returns Parsed object or undefined when parsing fails.
+ */
+export const parseObjectLiteral = (
+  value: string,
+  state: Record<string, unknown> = {}
+): Record<string, unknown> | undefined => {
+  const trimmed = value.trim()
+  const wrapped = trimmed.startsWith('{') ? trimmed : `{${trimmed}}`
+  try {
+    const json = JSON.parse(wrapped)
+    if (json && typeof json === 'object' && !Array.isArray(json)) return json
+  } catch {
+    /* fallback to manual parsing */
+  }
+  const parsed = parseTypedValue(wrapped, state, { eval: false })
+  return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+    ? (parsed as Record<string, unknown>)
+    : undefined
 }
 
 /**

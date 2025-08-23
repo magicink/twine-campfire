@@ -3,6 +3,7 @@ import type { DirectiveNode } from '@campfire/utils/directiveUtils'
 import type { Parent } from 'mdast'
 import {
   parseTypedValue,
+  parseObjectLiteral,
   extractKeyValue,
   applyKeyValue
 } from '@campfire/utils/directiveUtils'
@@ -29,6 +30,13 @@ describe('parseTypedValue', () => {
 
   it('treats quoted objects as strings', () => {
     expect(parseTypedValue('"{a:1}"')).toBe('{a:1}')
+  })
+})
+
+describe('parseObjectLiteral', () => {
+  it('parses colon-delimited objects without braces', () => {
+    const obj = parseObjectLiteral('a:1, b:"two"')
+    expect(obj).toEqual({ a: 1, b: 'two' })
   })
 })
 
