@@ -10,10 +10,6 @@ A cozy story format for Twine.
 4. Click **Add**, paste the copied URL into the form, then confirm.
 5. To activate the format, open a story and choose **campfire 1.x.x** from the **Story Format** dropdown in **Story > Details**.
 
-## AI Disclosure
-
-See [AI disclosure](docs/ai-disclosure.md).
-
 ## Directives
 
 Campfire extends Markdown with
@@ -124,3 +120,7 @@ Examples:
 - [Twine documentation](https://twinery.org/)
 - [remark-directive](https://github.com/remarkjs/remark-directive)
 - [i18next](https://www.i18next.com/)
+
+## AI Disclosure
+
+See [AI disclosure](docs/ai-disclosure.md).
