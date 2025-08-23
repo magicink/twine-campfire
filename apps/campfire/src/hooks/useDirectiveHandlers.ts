@@ -50,6 +50,10 @@ import {
   runDirectiveBlock
 } from '@campfire/utils/directiveUtils'
 import { DEFAULT_DECK_HEIGHT, DEFAULT_DECK_WIDTH } from '@campfire/constants'
+import type {
+  Transition,
+  Direction
+} from '@campfire/components/Deck/Slide/types'
 import {
   evalExpression,
   getTranslationOptions,
@@ -1957,16 +1961,14 @@ export const useDirectiveHandlers = () => {
    * @returns A transition object when a base is provided.
    */
   const buildTransition = (
-    base?: unknown,
-    dir?: unknown,
-    duration?: unknown
-  ): Record<string, unknown> | undefined => {
+    base?: Transition | Transition['type'],
+    dir?: Direction,
+    duration?: number
+  ): Transition | undefined => {
     if (!base) return undefined
-    const t: Record<string, unknown> =
-      typeof base === 'string'
-        ? { type: base }
-        : { ...(base as Record<string, unknown>) }
-    if (typeof dir === 'string') t.dir = dir
+    const t: Transition =
+      typeof base === 'string' ? { type: base } : { ...base }
+    if (dir) t.dir = dir
     if (typeof duration === 'number') t.duration = duration
     return t
   }
@@ -2112,16 +2114,18 @@ export const useDirectiveHandlers = () => {
     (attrs, raw) => {
       const props: Record<string, unknown> = {}
       const preset = attrs.from
-        ? presetsRef.current['reveal']?.[String(attrs.from)]
+        ? (presetsRef.current['reveal']?.[String(attrs.from)] as
+            | (Partial<RevealAttrs> & Record<string, unknown>)
+            | undefined)
         : undefined
       let enter = buildTransition(
-        preset?.enter,
-        preset?.enterDir,
+        preset?.enter as Transition | Transition['type'] | undefined,
+        preset?.enterDir as Direction | undefined,
         preset?.enterDuration
       )
       let exit = buildTransition(
-        preset?.exit,
-        preset?.exitDir,
+        preset?.exit as Transition | Transition['type'] | undefined,
+        preset?.exitDir as Direction | undefined,
         preset?.exitDuration
       )
       if (preset) {
@@ -2134,14 +2138,20 @@ export const useDirectiveHandlers = () => {
       if (typeof attrs.at === 'number') props.at = attrs.at
       if (typeof attrs.exitAt === 'number') props.exitAt = attrs.exitAt
       enter = buildTransition(
-        attrs.enter ?? enter,
-        attrs.enterDir ?? (enter as any)?.dir,
-        attrs.enterDuration ?? (enter as any)?.duration
+        (attrs.enter ?? enter?.type) as
+          | Transition
+          | Transition['type']
+          | undefined,
+        (attrs.enterDir as Direction | undefined) ?? enter?.dir,
+        attrs.enterDuration ?? enter?.duration
       )
       exit = buildTransition(
-        attrs.exit ?? exit,
-        attrs.exitDir ?? (exit as any)?.dir,
-        attrs.exitDuration ?? (exit as any)?.duration
+        (attrs.exit ?? exit?.type) as
+          | Transition
+          | Transition['type']
+          | undefined,
+        (attrs.exitDir as Direction | undefined) ?? exit?.dir,
+        attrs.exitDuration ?? exit?.duration
       )
       if (enter) props.enter = enter
       if (exit) props.exit = exit
@@ -2516,17 +2526,25 @@ export const useDirectiveHandlers = () => {
   ): Record<string, unknown> => {
     const props: Record<string, unknown> = {}
     const preset = attrs.from
-      ? presetsRef.current['slide']?.[String(attrs.from)]
+      ? (presetsRef.current['slide']?.[String(attrs.from)] as
+          | (Partial<SlideAttrs> & Record<string, unknown>)
+          | undefined)
       : undefined
     let enter = buildTransition(
-      (preset as any)?.enter ?? (preset as any)?.transition,
-      (preset as any)?.enterDir,
-      (preset as any)?.enterDuration
+      (preset?.enter ?? preset?.transition) as
+        | Transition
+        | Transition['type']
+        | undefined,
+      preset?.enterDir as Direction | undefined,
+      preset?.enterDuration
     )
     let exit = buildTransition(
-      (preset as any)?.exit ?? (preset as any)?.transition,
-      (preset as any)?.exitDir,
-      (preset as any)?.exitDuration
+      (preset?.exit ?? preset?.transition) as
+        | Transition
+        | Transition['type']
+        | undefined,
+      preset?.exitDir as Direction | undefined,
+      preset?.exitDuration
     )
     if (preset) {
       if (typeof preset.steps === 'number') props.steps = preset.steps
@@ -2534,14 +2552,20 @@ export const useDirectiveHandlers = () => {
       if (preset.onExit) props.onExit = preset.onExit
     }
     enter = buildTransition(
-      attrs.enter ?? attrs.transition ?? (enter as any)?.type,
-      attrs.enterDir ?? (enter as any)?.dir,
-      attrs.enterDuration ?? (enter as any)?.duration
+      (attrs.enter ?? attrs.transition ?? enter?.type) as
+        | Transition
+        | Transition['type']
+        | undefined,
+      (attrs.enterDir as Direction | undefined) ?? enter?.dir,
+      attrs.enterDuration ?? enter?.duration
     )
     exit = buildTransition(
-      attrs.exit ?? attrs.transition ?? (exit as any)?.type,
-      attrs.exitDir ?? (exit as any)?.dir,
-      attrs.exitDuration ?? (exit as any)?.duration
+      (attrs.exit ?? attrs.transition ?? exit?.type) as
+        | Transition
+        | Transition['type']
+        | undefined,
+      (attrs.exitDir as Direction | undefined) ?? exit?.dir,
+      attrs.exitDuration ?? exit?.duration
     )
     if (enter || exit) {
       props.transition = {
