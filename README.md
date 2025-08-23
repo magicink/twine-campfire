@@ -622,6 +622,31 @@ Control the flow between passages or how they reveal.
 
 Transition types: `fade`, `slide`, `zoom`, `flip`, `none` (to disable animations).
 
+- `slide`: Customize an individual slide.
+
+  ```md
+  :::deck
+  :::slide{enter="slide" exit="fade"}
+  Content
+  :::
+  :::
+  ```
+
+  | Input         | Description                         |
+  | ------------- | ----------------------------------- |
+  | enter         | Enter transition type               |
+  | exit          | Exit transition type                |
+  | enterDir      | Enter transition direction          |
+  | exitDir       | Exit transition direction           |
+  | enterDuration | Enter transition duration in ms     |
+  | exitDuration  | Exit transition duration in ms      |
+  | steps         | Number of build steps on this slide |
+  | onEnter       | Directive block to run on enter     |
+  | onExit        | Directive block to run on exit      |
+  | from          | Name of a slide preset to apply     |
+
+Transition types: `fade`, `slide`, `zoom`, `flip`, `none` (to disable animations).
+
 - `reveal`: Reveal slide content step-by-step.
 
   ```md
@@ -710,13 +735,13 @@ Transition types: `fade`, `slide`, `zoom`, `flip`, `none` (to disable animations
 
 ### Transitions
 
-| Type  | Directives       | Attributes                                             |
-| ----- | ---------------- | ------------------------------------------------------ |
-| fade  | `deck`, `reveal` | `enterDuration`, `exitDuration`                        |
-| slide | `deck`, `reveal` | `enterDir`, `exitDir`, `enterDuration`, `exitDuration` |
-| zoom  | `deck`, `reveal` | `enterDuration`, `exitDuration`                        |
-| flip  | `deck`, `reveal` | `enterDuration`, `exitDuration`                        |
-| none  | `deck`, `reveal` | _(none)_                                               |
+| Type  | Directives                | Attributes                                             |
+| ----- | ------------------------- | ------------------------------------------------------ |
+| fade  | `deck`, `reveal`, `slide` | `enterDuration`, `exitDuration`                        |
+| slide | `deck`, `reveal`, `slide` | `enterDir`, `exitDir`, `enterDuration`, `exitDuration` |
+| zoom  | `deck`, `reveal`, `slide` | `enterDuration`, `exitDuration`                        |
+| flip  | `deck`, `reveal`, `slide` | `enterDuration`, `exitDuration`                        |
+| none  | `deck`, `reveal`, `slide` | _(none)_                                               |
 
 ### Persistence
 

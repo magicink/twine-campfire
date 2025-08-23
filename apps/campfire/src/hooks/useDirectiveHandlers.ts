@@ -1967,6 +1967,12 @@ export const useDirectiveHandlers = () => {
   /** Schema describing supported slide directive attributes. */
   const slideSchema = {
     transition: { type: 'string' },
+    enter: { type: 'string' },
+    exit: { type: 'string' },
+    enterDir: { type: 'string' },
+    exitDir: { type: 'string' },
+    enterDuration: { type: 'number' },
+    exitDuration: { type: 'number' },
     steps: { type: 'number' },
     onEnter: { type: 'string' },
     onExit: { type: 'string' },
@@ -1976,7 +1982,18 @@ export const useDirectiveHandlers = () => {
   type SlideSchema = typeof slideSchema
   type SlideAttrs = ExtractedAttrs<SlideSchema>
 
-  const SLIDE_EXCLUDES = ['transition', 'steps', 'onEnter', 'onExit'] as const
+  const SLIDE_EXCLUDES = [
+    'transition',
+    'enter',
+    'exit',
+    'enterDir',
+    'exitDir',
+    'enterDuration',
+    'exitDuration',
+    'steps',
+    'onEnter',
+    'onExit'
+  ] as const
 
   /** Schema describing supported layer directive attributes. */
   const layerSchema = {
@@ -2488,36 +2505,50 @@ export const useDirectiveHandlers = () => {
    * @param attrs - Extracted slide attributes.
    * @returns Slide props object.
    */
-  const buildSlideProps = (attrs: SlideAttrs): Record<string, unknown> => {
+  const buildSlideProps = (
+    attrs: SlideAttrs,
+    raw: Record<string, unknown> = {}
+  ): Record<string, unknown> => {
     const props: Record<string, unknown> = {}
-    if (attrs.from) {
-      const preset = presetsRef.current['slide']?.[String(attrs.from)]
-      if (preset) {
-        if (preset.transition) {
-          props.transition =
-            typeof preset.transition === 'string'
-              ? { type: preset.transition as string }
-              : preset.transition
-        }
-        if (typeof preset.steps === 'number') props.steps = preset.steps
-        if (preset.onEnter) props.onEnter = preset.onEnter
-        if (preset.onExit) props.onExit = preset.onExit
-        applyAdditionalAttributes(preset, props, SLIDE_EXCLUDES)
-      }
+    const preset = attrs.from
+      ? presetsRef.current['slide']?.[String(attrs.from)]
+      : undefined
+    let enter = buildTransition(
+      (preset as any)?.enter ?? (preset as any)?.transition,
+      (preset as any)?.enterDir,
+      (preset as any)?.enterDuration
+    )
+    let exit = buildTransition(
+      (preset as any)?.exit ?? (preset as any)?.transition,
+      (preset as any)?.exitDir,
+      (preset as any)?.exitDuration
+    )
+    if (preset) {
+      if (typeof preset.steps === 'number') props.steps = preset.steps
+      if (preset.onEnter) props.onEnter = preset.onEnter
+      if (preset.onExit) props.onExit = preset.onExit
     }
-    if (attrs.transition) {
-      props.transition =
-        typeof attrs.transition === 'string'
-          ? { type: attrs.transition }
-          : attrs.transition
+    enter = buildTransition(
+      attrs.enter ?? attrs.transition ?? (enter as any)?.type,
+      attrs.enterDir ?? (enter as any)?.dir,
+      attrs.enterDuration ?? (enter as any)?.duration
+    )
+    exit = buildTransition(
+      attrs.exit ?? attrs.transition ?? (exit as any)?.type,
+      attrs.exitDir ?? (exit as any)?.dir,
+      attrs.exitDuration ?? (exit as any)?.duration
+    )
+    if (enter || exit) {
+      props.transition = {
+        ...(enter ? { enter } : {}),
+        ...(exit ? { exit } : {})
+      }
     }
     if (typeof attrs.steps === 'number') props.steps = attrs.steps
     if (attrs.onEnter) props.onEnter = attrs.onEnter
     if (attrs.onExit) props.onExit = attrs.onExit
-    applyAdditionalAttributes(attrs as Record<string, unknown>, props, [
-      ...SLIDE_EXCLUDES,
-      'from'
-    ])
+    const mergedRaw = mergeAttrs(preset, raw)
+    applyAdditionalAttributes(mergedRaw, props, [...SLIDE_EXCLUDES, 'from'])
     return props
   }
 
@@ -2683,7 +2714,10 @@ export const useDirectiveHandlers = () => {
           children: content,
           data: {
             hName: 'slide',
-            hProperties: buildSlideProps(parsed) as Properties
+            hProperties: buildSlideProps(
+              parsed,
+              pendingAttrs as Record<string, unknown>
+            ) as Properties
           }
         }
         slides.push(slideNode)
@@ -2715,7 +2749,10 @@ export const useDirectiveHandlers = () => {
           children: content,
           data: {
             hName: 'slide',
-            hProperties: buildSlideProps(parsed) as Properties
+            hProperties: buildSlideProps(
+              parsed,
+              slideDir.attributes as Record<string, unknown>
+            ) as Properties
           }
         }
         slides.push(slideNode)
