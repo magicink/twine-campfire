@@ -616,3 +616,64 @@ export const runDirectiveBlock = (
   }
   return children
 }
+
+/**
+ * Recursively resolves conditional `if` directives, returning only nodes
+ * whose conditions evaluate to true.
+ *
+ * @param nodes - Nodes to evaluate.
+ * @param data - Current game data for expression evaluation.
+ * @returns Array of nodes with conditionals resolved.
+ */
+export const resolveIf = (
+  nodes: RootContent[],
+  data: Record<string, unknown>
+): RootContent[] =>
+  nodes.flatMap(node => {
+    if (
+      node.type === 'containerDirective' &&
+      (node as ContainerDirective).name === 'if'
+    ) {
+      const container = node as ContainerDirective
+      const test = getLabel(container) || ''
+      let condition = false
+      try {
+        condition = !!evalExpression(test, data)
+      } catch {
+        condition = false
+      }
+      const children = stripLabel(container.children as RootContent[])
+      const elseIndex = children.findIndex(
+        child =>
+          child.type === 'containerDirective' &&
+          (child as ContainerDirective).name === 'else'
+      )
+      let branch: RootContent[] = []
+      if (condition) {
+        branch = elseIndex === -1 ? children : children.slice(0, elseIndex)
+      } else if (elseIndex !== -1) {
+        const elseNode = children[elseIndex] as ContainerDirective
+        branch = stripLabel(elseNode.children as RootContent[])
+      }
+      return resolveIf(branch, data)
+    }
+    return [node]
+  })
+
+/**
+ * Resolves conditional directives and processes the resulting nodes through
+ * the Campfire remark pipeline.
+ *
+ * @param block - Directive block to execute.
+ * @param data - Current game data for evaluating conditions.
+ * @param handlers - Optional directive handlers.
+ */
+export const runBlock = (
+  block: RootContent[],
+  data: Record<string, unknown>,
+  handlers: Record<string, DirectiveHandler> = {}
+): void => {
+  const processed = resolveIf(block, data)
+  if (processed.length === 0) return
+  runDirectiveBlock(processed, handlers)
+}
