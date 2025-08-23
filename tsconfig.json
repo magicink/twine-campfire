@@ -21,6 +21,7 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
+      "@campfire/types": ["types.d.ts"],
       "@campfire/*": ["apps/campfire/src/*"]
     }
   }

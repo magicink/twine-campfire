@@ -1,7 +1,7 @@
 import { visit } from 'unist-util-visit'
 import type { Root, Parent, Paragraph, Text, InlineCode } from 'mdast'
 import type { Node } from 'unist'
-import type { HastData } from '@campfire/types/hast'
+import type { HastData } from '@campfire/types'
 import type {
   ContainerDirective,
   LeafDirective,
