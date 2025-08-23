@@ -1,6 +1,7 @@
 import { visit } from 'unist-util-visit'
 import type { Root, Parent, Paragraph, Text, InlineCode } from 'mdast'
-import type { Node, Data } from 'unist'
+import type { Node } from 'unist'
+import type { HastData } from '@campfire/types/hast'
 import type {
   ContainerDirective,
   LeafDirective,
@@ -49,16 +50,8 @@ export interface LangDirective extends Omit<TextDirective, 'attributes'> {
 /** RegExp matching safe characters in directive attribute values. */
 const SAFE_ATTR_VALUE_PATTERN = /^[\w\s.,'"`{}\[\]$!-]*$/
 
-/**
- * Data structure for paragraph nodes that may include custom hast element
- * metadata.
- */
-interface ParagraphData extends Data {
-  /** Custom element name applied by rehype */
-  hName?: string
-}
-
-type ParagraphWithData = Paragraph & { data?: ParagraphData }
+/** Paragraph node with optional HAST metadata. */
+type ParagraphWithData = Paragraph & { data?: HastData }
 
 /**
  * Attaches indentation information to directive nodes by capturing trailing
