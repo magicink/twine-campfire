@@ -29,7 +29,7 @@ describe('Passage trigger directives', () => {
         {
           type: 'text',
           value:
-            ':::trigger{label="Fire" class="extra"}\n:::set[fired=true]\n:::\n:::'
+            ':::trigger{label="Fire" className="extra"}\n:::set[fired=true]\n:::\n:::'
         }
       ]
     }

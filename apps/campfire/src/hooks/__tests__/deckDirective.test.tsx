@@ -253,7 +253,12 @@ describe('deck directive', () => {
     const [slide] = slides
     expect(slide).toMatchObject({
       type: Slide,
-      props: { transition: { type: 'fade' } }
+      props: {
+        transition: {
+          enter: { type: 'fade' },
+          exit: { type: 'fade' }
+        }
+      }
     })
     const revealChildren = Array.isArray(slide.props.children)
       ? slide.props.children

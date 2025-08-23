@@ -524,20 +524,20 @@ Run directives on specific passage events or group actions.
 - `trigger`: Render a button that runs directives when clicked.
 
   ```md
-  :::trigger{label="Do it" class="primary" disabled}
+  :::trigger{label="Do it" className="primary" disabled}
   :set[key=value]
   :::
   ```
 
   The `label` attribute must be a quoted string using matching single-, double-,
-  or backtick quotes. Replace the label, classes, disabled state, and directives
-  as needed.
+  or backtick quotes. Replace the label, class name, disabled state, and
+  directives as needed.
 
-  | Input    | Description                            |
-  | -------- | -------------------------------------- |
-  | label    | Text displayed on the button           |
-  | class    | Optional space-separated classes       |
-  | disabled | Optional boolean to disable the button |
+  | Input     | Description                            |
+  | --------- | -------------------------------------- |
+  | label     | Text displayed on the button           |
+  | className | Optional space-separated classes       |
+  | disabled  | Optional boolean to disable the button |
 
 ### Navigation & composition
 
@@ -613,12 +613,34 @@ Control the flow between passages or how they reveal.
   | Input         | Description                                                                |
   | ------------- | -------------------------------------------------------------------------- |
   | size          | Slide size as `WIDTHxHEIGHT` in pixels or aspect ratio like `16x9`         |
-  | transition    | Default transition applied between slides                                  |
   | theme         | Optional JSON object or string of CSS properties applied to the deck theme |
   | from          | Name of a deck preset to apply before other attributes                     |
   | autoplay      | Whether to automatically advance through slides                            |
   | autoplayDelay | Milliseconds between automatic slide advances (defaults to 3000)           |
   | pause         | Start autoplay paused and display a play button                            |
+
+- `slide`: Customize an individual slide.
+
+  ```md
+  :::deck
+  :::slide{enter="slide" exit="fade"}
+  Content
+  :::
+  :::
+  ```
+
+  | Input         | Description                         |
+  | ------------- | ----------------------------------- |
+  | enter         | Enter transition type               |
+  | exit          | Exit transition type                |
+  | enterDir      | Enter transition direction          |
+  | exitDir       | Exit transition direction           |
+  | enterDuration | Enter transition duration in ms     |
+  | exitDuration  | Exit transition duration in ms      |
+  | steps         | Number of build steps on this slide |
+  | onEnter       | Directive block to run on enter     |
+  | onExit        | Directive block to run on exit      |
+  | from          | Name of a slide preset to apply     |
 
 - `reveal`: Reveal slide content step-by-step.
 
@@ -642,8 +664,12 @@ Control the flow between passages or how they reveal.
   | ----------------- | ------------------------------------ |
   | at                | Deck step when content reveals       |
   | exitAt            | Deck step when content hides         |
-  | enter             | Enter animation key                  |
-  | exit              | Exit animation key                   |
+  | enter             | Enter transition type                |
+  | exit              | Exit transition type                 |
+  | enterDir          | Enter transition direction           |
+  | exitDir           | Exit transition direction            |
+  | enterDuration     | Enter transition duration in ms      |
+  | exitDuration      | Exit transition duration in ms       |
   | interruptBehavior | How to handle interrupted animations |
   | from              | Name of a reveal preset to apply     |
 
@@ -658,7 +684,7 @@ Control the flow between passages or how they reveal.
   :::
   ```
 
-  Accepts the same attributes as the `Text` component and supports a `from` attribute to apply presets.
+  Accepts the same attributes as the `Text` component, supports a `from` attribute to apply presets, and uses `layerClassName` to add classes to the Layer wrapper.
 
 - `image`: Position an image within a slide.
 
@@ -670,7 +696,7 @@ Control the flow between passages or how they reveal.
   :::
   ```
 
-  Accepts the same attributes as the `SlideImage` component and supports a `from` attribute to apply presets.
+  Accepts the same attributes as the `SlideImage` component, supports a `from` attribute to apply presets, and uses `layerClassName` to add classes to the Layer wrapper.
 
 - `shape`: Draw basic shapes within a slide.
 
@@ -682,7 +708,7 @@ Control the flow between passages or how they reveal.
   :::
   ```
 
-  Accepts the same attributes as the `SlideShape` component and supports a `from` attribute to apply presets.
+  Accepts the same attributes as the `SlideShape` component, supports a `from` attribute to apply presets, and uses `layerClassName` to add classes to the Layer wrapper.
 
 - `preset`: Define reusable attribute sets that can be applied via the `from` attribute on `deck`, `reveal`, `image`, `shape`, and `text` directives.
 
@@ -699,6 +725,21 @@ Control the flow between passages or how they reveal.
   ```
 
   Presets allow authors to reuse common configurations across multiple directives.
+
+### Transitions
+
+Transitions are available on the `deck`, `slide`, and `reveal` directives.
+
+| Type  | Attributes                                             |
+| ----- | ------------------------------------------------------ |
+| fade  | `enterDuration`, `exitDuration`                        |
+| slide | `enterDir`, `exitDir`, `enterDuration`, `exitDuration` |
+| zoom  | `enterDuration`, `exitDuration`                        |
+| flip  | `enterDuration`, `exitDuration`                        |
+| none  | _(none)_                                               |
+
+Flip transitions rotate elements in 3D and automatically apply a CSS
+perspective to the parent container for proper depth rendering.
 
 ### Persistence
 

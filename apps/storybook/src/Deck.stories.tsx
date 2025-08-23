@@ -77,8 +77,8 @@ const render: StoryObj<typeof Deck>['render'] = () => (
     </Slide>
     <Slide
       transition={{
-        enter: { type: 'fade', duration: 400 },
-        exit: { type: 'fade', duration: 400 }
+        enter: { type: 'flip', duration: 400 },
+        exit: { type: 'flip', duration: 400 }
       }}
     >
       <SlideReveal at={0}>
