@@ -23,14 +23,17 @@ describe('buildKeyframes', () => {
 describe('runAnimation', () => {
   it('adds perspective for flip transitions', () => {
     const parent = document.createElement('div')
-    const child = document.createElement('div')
+    const child = document.createElement('div') as HTMLElement & {
+      animate: (
+        keyframes: Keyframe[] | PropertyIndexedKeyframes | null,
+        options?: number | KeyframeAnimationOptions
+      ) => Animation
+    }
     parent.appendChild(child)
-    ;(child as unknown as { animate: () => Animation }).animate = () =>
-      ({
-        finished: Promise.resolve()
-      }) as unknown as Animation
+    child.animate = () =>
+      ({ finished: Promise.resolve() }) as unknown as Animation
     const animate = spyOn(child, 'animate')
-    runAnimation(child as HTMLElement, { type: 'flip' }, 'in')
+    runAnimation(child, { type: 'flip' }, 'in')
     expect(parent.style.perspective).toBe('1000px')
     expect(animate).toHaveBeenCalled()
   })

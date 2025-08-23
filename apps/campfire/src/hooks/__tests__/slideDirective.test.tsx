@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { render } from '@testing-library/preact'
 import { Fragment } from 'preact/jsx-runtime'
-import type { ComponentChild } from 'preact'
+import type { ComponentChild, VNode } from 'preact'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { renderDirectiveMarkdown } from '@campfire/components/Deck/Slide'
 import { Slide } from '@campfire/components/Deck/Slide'
@@ -20,6 +20,26 @@ const MarkdownRunner = ({ markdown }: { markdown: string }) => {
   return null
 }
 
+/**
+ * Traverses rendered children to locate the Slide vnode.
+ *
+ * @param node - Rendered node tree.
+ * @returns The Slide vnode when found.
+ */
+const findSlide = (node: ComponentChild | null): VNode<any> | undefined => {
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      const found = findSlide(child)
+      if (found) return found
+    }
+    return undefined
+  }
+  const vnode = node as VNode
+  if (vnode?.type === Fragment) return findSlide(vnode.props.children)
+  if (vnode?.type === Slide) return vnode as VNode<any>
+  return vnode?.props?.children ? findSlide(vnode.props.children) : undefined
+}
+
 beforeEach(() => {
   output = null
   document.body.innerHTML = ''
@@ -30,14 +50,7 @@ describe('slide directive', () => {
     const md =
       ':::deck\n:::slide{enter="slide" enterDir="left" enterDuration=500 exit="fade" exitDir="down" exitDuration=400 data-test="ok"}\nHello\n:::\n:::'
     render(<MarkdownRunner markdown={md} />)
-    const getSlide = (node: any): any => {
-      if (Array.isArray(node)) return node.map(getSlide).find(Boolean)
-      if (node?.type === Fragment) return getSlide(node.props.children)
-      if (node?.type === Slide) return node
-      if (node?.props?.children) return getSlide(node.props.children)
-      return undefined
-    }
-    const slide = getSlide(output)
+    const slide = findSlide(output)!
     expect(slide.type).toBe(Slide)
     expect(slide.props.transition).toEqual({
       enter: { type: 'slide', dir: 'left', duration: 500 },
@@ -50,14 +63,7 @@ describe('slide directive', () => {
     const md =
       ':preset{type="slide" name="fade" enter="slide" enterDir="right" enterDuration=200 exit="zoom" exitDir="left"}\n:::deck\n:::slide{from="fade" exitDir="up" exitDuration=700}\nHi\n:::\n:::'
     render(<MarkdownRunner markdown={md} />)
-    const getSlide = (node: any): any => {
-      if (Array.isArray(node)) return node.map(getSlide).find(Boolean)
-      if (node?.type === Fragment) return getSlide(node.props.children)
-      if (node?.type === Slide) return node
-      if (node?.props?.children) return getSlide(node.props.children)
-      return undefined
-    }
-    const slide = getSlide(output)
+    const slide = findSlide(output)!
     expect(slide.props.transition).toEqual({
       enter: { type: 'slide', dir: 'right', duration: 200 },
       exit: { type: 'zoom', dir: 'up', duration: 700 }
@@ -67,14 +73,7 @@ describe('slide directive', () => {
   it('supports the flip transition type', () => {
     const md = ':::deck\n:::slide{enter="flip" enterDuration=500}\nHi\n:::\n:::'
     render(<MarkdownRunner markdown={md} />)
-    const getSlide = (node: any): any => {
-      if (Array.isArray(node)) return node.map(getSlide).find(Boolean)
-      if (node?.type === Fragment) return getSlide(node.props.children)
-      if (node?.type === Slide) return node
-      if (node?.props?.children) return getSlide(node.props.children)
-      return undefined
-    }
-    const slide = getSlide(output)
+    const slide = findSlide(output)!
     expect(slide.props.transition).toEqual({
       enter: { type: 'flip', duration: 500 }
     })
