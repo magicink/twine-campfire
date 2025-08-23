@@ -10,9 +10,60 @@ A cozy story format for Twine.
 4. Click **Add**, paste the copied URL into the form, then confirm.
 5. To activate the format, open a story and choose **campfire 1.x.x** from the **Story Format** dropdown in **Story > Details**.
 
-## AI Disclosure
+## Directives
 
-Portions of this project were created with the assistance of AI tools, including ChatGPT and GitHub Copilot.
+Campfire extends Markdown with
+[remark-directive](https://github.com/remarkjs/remark-directive) syntax.
+Directives begin with a colon and let passages interact with the game state.
+They come in leaf or container form.
+
+- **Leaf/Text** – `:name[LABEL]{attr=value}`
+- **Container** –
+
+  ```md
+  :::name{attr=value}
+  CONTENT
+  :::
+  ```
+
+Directives are grouped by purpose.
+
+### Example
+
+Here's a practical example showing how directives can be combined to create interactive content:
+
+```md
+:createRange[testRange=0]{min=0 max=10}
+
+The value is currently :show[testRange]
+
+:::trigger{label="add"}
+:setRange[testRange=(testRange.value+1)]
+:::
+
+:::if[testRange.value === testRange.max]
+[[Next Page->Next]]
+:::
+```
+
+This example creates a numeric range with a minimum of 0 and maximum of 10, displays the current value, provides a button to increment the value, and shows a link to the next passage when the maximum value is reached.
+
+See the dedicated docs for detailed usage:
+
+- [Indentation](docs/directives/indentation.md)
+- [Variables & simple state](docs/directives/variables-and-state.md)
+- [Ranges](docs/directives/ranges.md)
+- [Arrays & collection management](docs/directives/arrays.md)
+- [Data retrieval & evaluation](docs/directives/data-retrieval.md)
+- [Conditional logic](docs/directives/conditional-logic.md)
+- [Iteration](docs/directives/iteration.md)
+- [Event & trigger blocks](docs/directives/event-trigger-blocks.md)
+- [Navigation & composition](docs/directives/navigation-composition.md)
+- [Transitions](docs/directives/transitions.md)
+- [Persistence](docs/directives/persistence.md)
+- [Localization & internationalization](docs/directives/localization.md)
+
+Campfire prints descriptive error messages to the browser console when it encounters invalid markup.
 
 ## Twine links
 
@@ -64,44 +115,12 @@ Examples:
   <https://twine-campfire.dev>
   ```
 
-## Directives
-
-Campfire extends Markdown with
-[remark-directive](https://github.com/remarkjs/remark-directive) syntax.
-Directives begin with a colon and let passages interact with the game state.
-They come in leaf or container form.
-
-- **Leaf/Text** – `:name[LABEL]{attr=value}`
-- **Container** –
-
-  ```md
-  :::name{attr=value}
-  CONTENT
-  :::
-  ```
-
-Directives are grouped by purpose.
-
-See the dedicated docs for detailed usage:
-
-- [Example](docs/directives/example.md)
-- [Indentation](docs/directives/indentation.md)
-- [Variables & simple state](docs/directives/variables-and-state.md)
-- [Ranges](docs/directives/ranges.md)
-- [Arrays & collection management](docs/directives/arrays.md)
-- [Data retrieval & evaluation](docs/directives/data-retrieval.md)
-- [Conditional logic](docs/directives/conditional-logic.md)
-- [Iteration](docs/directives/iteration.md)
-- [Event & trigger blocks](docs/directives/event-trigger-blocks.md)
-- [Navigation & composition](docs/directives/navigation-composition.md)
-- [Transitions](docs/directives/transitions.md)
-- [Persistence](docs/directives/persistence.md)
-- [Localization & internationalization](docs/directives/localization.md)
-
-Campfire prints descriptive error messages to the browser console when it encounters invalid markup.
-
 ## Further reading
 
 - [Twine documentation](https://twinery.org/)
 - [remark-directive](https://github.com/remarkjs/remark-directive)
 - [i18next](https://www.i18next.com/)
+
+## AI Disclosure
+
+See [AI disclosure](docs/ai-disclosure.md).
