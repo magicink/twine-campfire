@@ -620,7 +620,7 @@ Control the flow between passages or how they reveal.
   | autoplayDelay | Milliseconds between automatic slide advances (defaults to 3000)           |
   | pause         | Start autoplay paused and display a play button                            |
 
-Transition types: `fade`, `slide`, `zoom`, `none` (to disable animations).
+Transition types: `fade`, `slide`, `zoom`, `flip`, `none` (to disable animations).
 
 - `reveal`: Reveal slide content step-by-step.
 
@@ -653,7 +653,7 @@ Transition types: `fade`, `slide`, `zoom`, `none` (to disable animations).
   | interruptBehavior | How to handle interrupted animations |
   | from              | Name of a reveal preset to apply     |
 
-Transition types: `fade`, `slide`, `zoom`, `none` (to disable animations).
+Transition types: `fade`, `slide`, `zoom`, `flip`, `none` (to disable animations).
 
 - `text`: Position typographic content within a slide.
 
@@ -715,6 +715,7 @@ Transition types: `fade`, `slide`, `zoom`, `none` (to disable animations).
 | fade  | `deck`, `reveal` | `enterDuration`, `exitDuration`                        |
 | slide | `deck`, `reveal` | `enterDir`, `exitDir`, `enterDuration`, `exitDuration` |
 | zoom  | `deck`, `reveal` | `enterDuration`, `exitDuration`                        |
+| flip  | `deck`, `reveal` | `enterDuration`, `exitDuration`                        |
 | none  | `deck`, `reveal` | _(none)_                                               |
 
 ### Persistence

@@ -77,6 +77,18 @@ describe('reveal directive', () => {
     })
   })
 
+  it('supports the flip transition type', () => {
+    const md = ':::reveal{at=1 enter="flip" enterDuration=500}\nHi\n:::'
+    render(<MarkdownRunner markdown={md} />)
+    const getReveal = (node: any): any => {
+      if (Array.isArray(node)) return getReveal(node[0])
+      if (node?.type === Fragment) return getReveal(node.props.children)
+      return node
+    }
+    const reveal = getReveal(output)
+    expect(reveal.props.enter).toEqual({ type: 'flip', duration: 500 })
+  })
+
   it('does not render stray colons when reveal contains directives', () => {
     const md = `:::reveal\n:::if[true]\nHi\n:::\n:::\n`
     render(<MarkdownRunner markdown={md} />)

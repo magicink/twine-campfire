@@ -72,6 +72,16 @@ export const buildKeyframes = (
             { transform: 'scale(1)', opacity: 1 },
             { transform: 'scale(0.95)', opacity: 0 }
           ]
+    case 'flip':
+      return mode === 'in'
+        ? [
+            { transform: 'rotateX(-90deg)', opacity: 0 },
+            { transform: 'rotateX(0deg)', opacity: 1 }
+          ]
+        : [
+            { transform: 'rotateX(0deg)', opacity: 1 },
+            { transform: 'rotateX(90deg)', opacity: 0 }
+          ]
     default:
       return []
   }

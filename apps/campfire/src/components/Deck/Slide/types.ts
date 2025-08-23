@@ -1,7 +1,7 @@
 import { type ComponentChildren } from 'preact'
 
 /** Transition type used by slides. */
-export type TransitionType = 'none' | 'fade' | 'slide' | 'zoom'
+export type TransitionType = 'none' | 'fade' | 'slide' | 'zoom' | 'flip'
 
 /** Direction for slide transitions. */
 export type Direction = 'left' | 'right' | 'up' | 'down'
