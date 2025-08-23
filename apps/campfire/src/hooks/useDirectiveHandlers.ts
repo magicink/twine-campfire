@@ -21,7 +21,7 @@ import type {
   Properties,
   Text as HastText
 } from 'hast'
-import type { HastData } from '@campfire/types/hast'
+import type { HastData, Transition, Direction } from '@campfire/types'
 import type { ContainerDirective } from 'mdast-util-directive'
 import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
 import { type Checkpoint, useGameStore } from '@campfire/state/useGameStore'
@@ -51,10 +51,6 @@ import {
   runDirectiveBlock
 } from '@campfire/utils/directiveUtils'
 import { DEFAULT_DECK_HEIGHT, DEFAULT_DECK_WIDTH } from '@campfire/constants'
-import type {
-  Transition,
-  Direction
-} from '@campfire/components/Deck/Slide/types'
 import {
   evalExpression,
   getTranslationOptions,

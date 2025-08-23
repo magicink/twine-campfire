@@ -2,7 +2,7 @@ import { visit } from 'unist-util-visit'
 import type { Root, Paragraph } from 'mdast'
 import type { Data } from 'unist'
 import type { Properties } from 'hast'
-import type { HastData } from '@campfire/types/hast'
+import type { HastData } from '@campfire/types'
 
 /**
  * Appends one or more class names to a node's `hProperties.className`,

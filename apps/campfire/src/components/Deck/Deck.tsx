@@ -22,7 +22,7 @@ import {
   runAnimation
 } from '@campfire/components/transition'
 import { getRevealMax } from './Slide/utils'
-import type { Transition, SlideTransition } from './Slide/types'
+import type { Transition, SlideTransition } from '@campfire/types'
 
 export type ThemeTokens = Record<string, string | number>
 

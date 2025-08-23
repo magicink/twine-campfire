@@ -6,7 +6,7 @@ export type {
   Transition,
   SlideTransition,
   SlideProps
-} from './types'
+} from '@campfire/types'
 export { Slide }
 export { SlideReveal } from './SlideReveal'
 export { SlideText, SlideImage, SlideShape } from './SlideElements'
