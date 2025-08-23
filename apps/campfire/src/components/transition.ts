@@ -89,6 +89,8 @@ export const buildKeyframes = (
 
 /**
  * Runs a WAAPI animation for the provided element and transition.
+ * When using the `flip` transition, applies a CSS perspective to the
+ * parent element so the 3D rotation renders correctly.
  *
  * @param el - Target element.
  * @param transition - Transition configuration.
@@ -99,10 +101,17 @@ export const runAnimation = (
   el: HTMLElement,
   transition: Transition,
   mode: 'in' | 'out'
-): Animation =>
-  el.animate(buildKeyframes(transition, mode), {
+): Animation => {
+  if (transition.type === 'flip') {
+    const parent = el.parentElement
+    if (parent instanceof HTMLElement && parent.style.perspective === '') {
+      parent.style.perspective = '1000px'
+    }
+  }
+  return el.animate(buildKeyframes(transition, mode), {
     duration: transition.duration ?? 300,
     easing: transition.easing ?? 'ease',
     delay: transition.delay ?? 0,
     fill: 'forwards'
   })
+}
