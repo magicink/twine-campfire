@@ -12,7 +12,7 @@ A cozy story format for Twine.
 
 ## AI Disclosure
 
-Portions of this project were created with the assistance of AI tools, including ChatGPT and GitHub Copilot.
+See [AI disclosure](docs/ai-disclosure.md).
 
 ## Twine links
 
