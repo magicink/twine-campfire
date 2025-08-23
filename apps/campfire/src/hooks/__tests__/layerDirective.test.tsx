@@ -26,7 +26,7 @@ beforeEach(() => {
 describe('layer directive', () => {
   it('renders a Layer component with props', () => {
     const md =
-      ':::layer{x=10 y=20 w=30 h=40 z=5 rotate=45 scale=2 anchor="center" class="box" data-test="ok"}\nContent\n:::'
+      ':::layer{x=10 y=20 w=30 h=40 z=5 rotate=45 scale=2 anchor="center" className="box" data-test="ok"}\nContent\n:::'
     render(<MarkdownRunner markdown={md} />)
     const el = document.querySelector('[data-testid="layer"]') as HTMLElement
     expect(el).toBeTruthy()

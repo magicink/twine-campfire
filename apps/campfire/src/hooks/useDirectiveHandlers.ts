@@ -50,6 +50,10 @@ import {
   runDirectiveBlock
 } from '@campfire/utils/directiveUtils'
 import { DEFAULT_DECK_HEIGHT, DEFAULT_DECK_WIDTH } from '@campfire/constants'
+import type {
+  Transition,
+  Direction
+} from '@campfire/components/Deck/Slide/types'
 import {
   evalExpression,
   getTranslationOptions,
@@ -1079,16 +1083,14 @@ export const useDirectiveHandlers = () => {
     if (!parent || typeof index !== 'number') return
     const container = directive as ContainerDirective
     const attrs = (directive.attributes || {}) as Record<string, unknown>
+    if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
+      const msg = 'class is a reserved attribute. Use className instead.'
+      console.error(msg)
+      addError(msg)
+    }
     const label =
       typeof attrs.label === 'string' ? attrs.label : getLabel(container)
-    const classAttr =
-      typeof attrs.class === 'string'
-        ? attrs.class
-        : typeof attrs.className === 'string'
-          ? attrs.className
-          : typeof attrs.classes === 'string'
-            ? attrs.classes
-            : ''
+    const classAttr = typeof attrs.className === 'string' ? attrs.className : ''
     const disabled =
       typeof attrs.disabled === 'string'
         ? attrs.disabled !== 'false'
@@ -1778,7 +1780,8 @@ export const useDirectiveHandlers = () => {
 
   /**
    * Copies attributes from a source map into a target props object, excluding
-   * keys specified in {@link exclude}.
+   * keys specified in {@link exclude}. Emits an error if the `class` attribute
+   * is encountered, as it is reserved.
    *
    * @param source - Raw attribute map.
    * @param target - Props object to receive the attributes.
@@ -1790,6 +1793,14 @@ export const useDirectiveHandlers = () => {
     exclude: readonly string[]
   ) => {
     for (const key of Object.keys(source)) {
+      if (key === 'class') {
+        const msg = 'class is a reserved attribute. Use className instead.'
+        console.error(msg)
+        addError(msg)
+        throw new Error(msg)
+      }
+      if (key === 'classes' || key === 'layerClass' || key === 'layerClasses')
+        continue
       if (!exclude.includes(key)) {
         target[key] = source[key]
       }
@@ -1918,6 +1929,10 @@ export const useDirectiveHandlers = () => {
     exitAt: { type: 'number' },
     enter: { type: 'string' },
     exit: { type: 'string' },
+    enterDir: { type: 'string' },
+    exitDir: { type: 'string' },
+    enterDuration: { type: 'number' },
+    exitDuration: { type: 'number' },
     interruptBehavior: { type: 'string' },
     from: { type: 'string', expression: false }
   } as const
@@ -1930,12 +1945,43 @@ export const useDirectiveHandlers = () => {
     'exitAt',
     'enter',
     'exit',
+    'enterDir',
+    'exitDir',
+    'enterDuration',
+    'exitDuration',
     'interruptBehavior'
   ] as const
+
+  /**
+   * Builds a transition object from a base value and optional extras.
+   *
+   * @param base - Transition key or existing configuration.
+   * @param dir - Optional direction to apply.
+   * @param duration - Optional duration in milliseconds.
+   * @returns A transition object when a base is provided.
+   */
+  const buildTransition = (
+    base?: Transition | Transition['type'],
+    dir?: Direction,
+    duration?: number
+  ): Transition | undefined => {
+    if (!base) return undefined
+    const t: Transition =
+      typeof base === 'string' ? { type: base } : { ...base }
+    if (dir) t.dir = dir
+    if (typeof duration === 'number') t.duration = duration
+    return t
+  }
 
   /** Schema describing supported slide directive attributes. */
   const slideSchema = {
     transition: { type: 'string' },
+    enter: { type: 'string' },
+    exit: { type: 'string' },
+    enterDir: { type: 'string' },
+    exitDir: { type: 'string' },
+    enterDuration: { type: 'number' },
+    exitDuration: { type: 'number' },
     steps: { type: 'number' },
     onEnter: { type: 'string' },
     onExit: { type: 'string' },
@@ -1945,7 +1991,18 @@ export const useDirectiveHandlers = () => {
   type SlideSchema = typeof slideSchema
   type SlideAttrs = ExtractedAttrs<SlideSchema>
 
-  const SLIDE_EXCLUDES = ['transition', 'steps', 'onEnter', 'onExit'] as const
+  const SLIDE_EXCLUDES = [
+    'transition',
+    'enter',
+    'exit',
+    'enterDir',
+    'exitDir',
+    'enterDuration',
+    'exitDuration',
+    'steps',
+    'onEnter',
+    'onExit'
+  ] as const
 
   /** Schema describing supported layer directive attributes. */
   const layerSchema = {
@@ -2057,21 +2114,47 @@ export const useDirectiveHandlers = () => {
     (attrs, raw) => {
       const props: Record<string, unknown> = {}
       const preset = attrs.from
-        ? presetsRef.current['reveal']?.[String(attrs.from)]
+        ? (presetsRef.current['reveal']?.[String(attrs.from)] as
+            | (Partial<RevealAttrs> & Record<string, unknown>)
+            | undefined)
         : undefined
+      let enter = buildTransition(
+        preset?.enter as Transition | Transition['type'] | undefined,
+        preset?.enterDir as Direction | undefined,
+        preset?.enterDuration
+      )
+      let exit = buildTransition(
+        preset?.exit as Transition | Transition['type'] | undefined,
+        preset?.exitDir as Direction | undefined,
+        preset?.exitDuration
+      )
       if (preset) {
         if (typeof preset.at === 'number') props.at = preset.at
         if (typeof preset.exitAt === 'number') props.exitAt = preset.exitAt
-        if (preset.enter) props.enter = preset.enter
-        if (preset.exit) props.exit = preset.exit
         if (preset.interruptBehavior)
           props.interruptBehavior = preset.interruptBehavior
         applyAdditionalAttributes(preset, props, REVEAL_EXCLUDES)
       }
       if (typeof attrs.at === 'number') props.at = attrs.at
       if (typeof attrs.exitAt === 'number') props.exitAt = attrs.exitAt
-      if (attrs.enter) props.enter = attrs.enter
-      if (attrs.exit) props.exit = attrs.exit
+      enter = buildTransition(
+        (attrs.enter ?? enter?.type) as
+          | Transition
+          | Transition['type']
+          | undefined,
+        (attrs.enterDir as Direction | undefined) ?? enter?.dir,
+        attrs.enterDuration ?? enter?.duration
+      )
+      exit = buildTransition(
+        (attrs.exit ?? exit?.type) as
+          | Transition
+          | Transition['type']
+          | undefined,
+        (attrs.exitDir as Direction | undefined) ?? exit?.dir,
+        attrs.exitDuration ?? exit?.duration
+      )
+      if (enter) props.enter = enter
+      if (exit) props.exit = exit
       if (attrs.interruptBehavior)
         props.interruptBehavior = attrs.interruptBehavior
       const mergedRaw = mergeAttrs(preset, raw)
@@ -2117,7 +2200,11 @@ export const useDirectiveHandlers = () => {
       if (attrs.anchor) props.anchor = attrs.anchor
       const mergedRaw = mergeAttrs(preset, raw)
       props['data-testid'] = 'layer'
-      applyAdditionalAttributes(mergedRaw, props, [...LAYER_EXCLUDES, 'from'])
+      applyAdditionalAttributes(mergedRaw, props, [
+        ...LAYER_EXCLUDES,
+        'from',
+        'layerClassName'
+      ])
       return props
     }
   )
@@ -2206,16 +2293,15 @@ export const useDirectiveHandlers = () => {
     if (mergedAttrs.anchor) props.anchor = mergedAttrs.anchor
     if (style.length) props.style = style.join(';')
     const classAttr =
-      typeof mergedRaw.class === 'string'
-        ? mergedRaw.class
-        : typeof mergedRaw.className === 'string'
-          ? mergedRaw.className
-          : typeof mergedRaw.classes === 'string'
-            ? mergedRaw.classes
-            : undefined
+      typeof mergedRaw.className === 'string' ? mergedRaw.className : undefined
+    const layerClassAttr =
+      typeof mergedRaw.layerClassName === 'string'
+        ? mergedRaw.layerClassName
+        : undefined
     const classes = ['text-base', 'font-normal']
     if (classAttr) classes.unshift(classAttr)
     props.className = classes.join(' ')
+    if (layerClassAttr) props.layerClassName = layerClassAttr
     props['data-component'] = 'slideText'
     props['data-as'] = tagName
     applyAdditionalAttributes(mergedRaw, props, [
@@ -2233,9 +2319,8 @@ export const useDirectiveHandlers = () => {
       'weight',
       'lineHeight',
       'color',
-      'class',
       'className',
-      'classes',
+      'layerClassName',
       'from'
     ])
     const processed = runDirectiveBlock(
@@ -2298,14 +2383,13 @@ export const useDirectiveHandlers = () => {
     if (mergedAttrs.alt) props.alt = mergedAttrs.alt
     if (mergedAttrs.style) props.style = mergedAttrs.style
     const classAttr =
-      typeof mergedRaw.class === 'string'
-        ? mergedRaw.class
-        : typeof mergedRaw.className === 'string'
-          ? mergedRaw.className
-          : typeof mergedRaw.classes === 'string'
-            ? mergedRaw.classes
-            : undefined
+      typeof mergedRaw.className === 'string' ? mergedRaw.className : undefined
+    const layerClassAttr =
+      typeof mergedRaw.layerClassName === 'string'
+        ? mergedRaw.layerClassName
+        : undefined
     if (classAttr) props.className = classAttr
+    if (layerClassAttr) props.layerClassName = layerClassAttr
     applyAdditionalAttributes(mergedRaw, props, [
       'x',
       'y',
@@ -2318,9 +2402,8 @@ export const useDirectiveHandlers = () => {
       'src',
       'alt',
       'style',
-      'class',
       'className',
-      'classes',
+      'layerClassName',
       'from'
     ])
     const node: Parent = {
@@ -2389,14 +2472,13 @@ export const useDirectiveHandlers = () => {
       props.shadow = mergedAttrs.shadow
     if (mergedAttrs.style) props.style = mergedAttrs.style
     const classAttr =
-      typeof mergedRaw.class === 'string'
-        ? mergedRaw.class
-        : typeof mergedRaw.className === 'string'
-          ? mergedRaw.className
-          : typeof mergedRaw.classes === 'string'
-            ? mergedRaw.classes
-            : undefined
+      typeof mergedRaw.className === 'string' ? mergedRaw.className : undefined
+    const layerClassAttr =
+      typeof mergedRaw.layerClassName === 'string'
+        ? mergedRaw.layerClassName
+        : undefined
     if (classAttr) props.className = classAttr
+    if (layerClassAttr) props.layerClassName = layerClassAttr
     applyAdditionalAttributes(mergedRaw, props, [
       'x',
       'y',
@@ -2418,9 +2500,8 @@ export const useDirectiveHandlers = () => {
       'radius',
       'shadow',
       'style',
-      'class',
       'className',
-      'classes',
+      'layerClassName',
       'from'
     ])
     const node: Parent = {
@@ -2439,36 +2520,64 @@ export const useDirectiveHandlers = () => {
    * @param attrs - Extracted slide attributes.
    * @returns Slide props object.
    */
-  const buildSlideProps = (attrs: SlideAttrs): Record<string, unknown> => {
+  const buildSlideProps = (
+    attrs: SlideAttrs,
+    raw: Record<string, unknown> = {}
+  ): Record<string, unknown> => {
     const props: Record<string, unknown> = {}
-    if (attrs.from) {
-      const preset = presetsRef.current['slide']?.[String(attrs.from)]
-      if (preset) {
-        if (preset.transition) {
-          props.transition =
-            typeof preset.transition === 'string'
-              ? { type: preset.transition as string }
-              : preset.transition
-        }
-        if (typeof preset.steps === 'number') props.steps = preset.steps
-        if (preset.onEnter) props.onEnter = preset.onEnter
-        if (preset.onExit) props.onExit = preset.onExit
-        applyAdditionalAttributes(preset, props, SLIDE_EXCLUDES)
-      }
+    const preset = attrs.from
+      ? (presetsRef.current['slide']?.[String(attrs.from)] as
+          | (Partial<SlideAttrs> & Record<string, unknown>)
+          | undefined)
+      : undefined
+    let enter = buildTransition(
+      (preset?.enter ?? preset?.transition) as
+        | Transition
+        | Transition['type']
+        | undefined,
+      preset?.enterDir as Direction | undefined,
+      preset?.enterDuration
+    )
+    let exit = buildTransition(
+      (preset?.exit ?? preset?.transition) as
+        | Transition
+        | Transition['type']
+        | undefined,
+      preset?.exitDir as Direction | undefined,
+      preset?.exitDuration
+    )
+    if (preset) {
+      if (typeof preset.steps === 'number') props.steps = preset.steps
+      if (preset.onEnter) props.onEnter = preset.onEnter
+      if (preset.onExit) props.onExit = preset.onExit
     }
-    if (attrs.transition) {
-      props.transition =
-        typeof attrs.transition === 'string'
-          ? { type: attrs.transition }
-          : attrs.transition
+    enter = buildTransition(
+      (attrs.enter ?? attrs.transition ?? enter?.type) as
+        | Transition
+        | Transition['type']
+        | undefined,
+      (attrs.enterDir as Direction | undefined) ?? enter?.dir,
+      attrs.enterDuration ?? enter?.duration
+    )
+    exit = buildTransition(
+      (attrs.exit ?? attrs.transition ?? exit?.type) as
+        | Transition
+        | Transition['type']
+        | undefined,
+      (attrs.exitDir as Direction | undefined) ?? exit?.dir,
+      attrs.exitDuration ?? exit?.duration
+    )
+    if (enter || exit) {
+      props.transition = {
+        ...(enter ? { enter } : {}),
+        ...(exit ? { exit } : {})
+      }
     }
     if (typeof attrs.steps === 'number') props.steps = attrs.steps
     if (attrs.onEnter) props.onEnter = attrs.onEnter
     if (attrs.onExit) props.onExit = attrs.onExit
-    applyAdditionalAttributes(attrs as Record<string, unknown>, props, [
-      ...SLIDE_EXCLUDES,
-      'from'
-    ])
+    const mergedRaw = mergeAttrs(preset, raw)
+    applyAdditionalAttributes(mergedRaw, props, [...SLIDE_EXCLUDES, 'from'])
     return props
   }
 
@@ -2634,7 +2743,10 @@ export const useDirectiveHandlers = () => {
           children: content,
           data: {
             hName: 'slide',
-            hProperties: buildSlideProps(parsed) as Properties
+            hProperties: buildSlideProps(
+              parsed,
+              pendingAttrs as Record<string, unknown>
+            ) as Properties
           }
         }
         slides.push(slideNode)
@@ -2666,7 +2778,10 @@ export const useDirectiveHandlers = () => {
           children: content,
           data: {
             hName: 'slide',
-            hProperties: buildSlideProps(parsed) as Properties
+            hProperties: buildSlideProps(
+              parsed,
+              slideDir.attributes as Record<string, unknown>
+            ) as Properties
           }
         }
         slides.push(slideNode)
