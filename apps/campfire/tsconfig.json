@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "types": ["bun", "preact", "../../matchers.d.ts"],
+    "types": ["bun", "preact", "../../types.d.ts"],
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
