@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.84.0](https://github.com/magicink/twine-campfire/compare/v1.83.0...v1.84.0) (2025-08-23)
+
+
+### Features
+
+* **docs:** reorganize directive documentation ([#501](https://github.com/magicink/twine-campfire/issues/501)) ([eeb49c2](https://github.com/magicink/twine-campfire/commit/eeb49c2765cab6e3862c693cb9c60349848f4350))
+
 ## [1.83.0](https://github.com/magicink/twine-campfire/compare/v1.82.0...v1.83.0) (2025-08-23)
 
 
