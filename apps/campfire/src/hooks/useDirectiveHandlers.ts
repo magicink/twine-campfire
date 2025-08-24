@@ -1934,6 +1934,7 @@ export const useDirectiveHandlers = () => {
     enterDuration: { type: 'number' },
     exitDuration: { type: 'number' },
     interruptBehavior: { type: 'string' },
+    style: { type: 'object' },
     from: { type: 'string', expression: false }
   } as const
 
@@ -1949,7 +1950,8 @@ export const useDirectiveHandlers = () => {
     'exitDir',
     'enterDuration',
     'exitDuration',
-    'interruptBehavior'
+    'interruptBehavior',
+    'style'
   ] as const
 
   /**
@@ -2158,6 +2160,12 @@ export const useDirectiveHandlers = () => {
       if (attrs.interruptBehavior)
         props.interruptBehavior = attrs.interruptBehavior
       const mergedRaw = mergeAttrs(preset, raw)
+      const styleValue =
+        attrs.style ??
+        (typeof mergedRaw.style === 'string'
+          ? (parseTypedValue(mergedRaw.style) as Record<string, unknown>)
+          : undefined)
+      if (styleValue) props.style = styleValue
       applyAdditionalAttributes(mergedRaw, props, [...REVEAL_EXCLUDES, 'from'])
       return props
     }

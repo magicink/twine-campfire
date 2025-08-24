@@ -3,6 +3,7 @@ import { render } from '@testing-library/preact'
 import { Fragment } from 'preact/jsx-runtime'
 import type { ComponentChild, VNode } from 'preact'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
+import { useDeckStore } from '@campfire/state/useDeckStore'
 import { renderDirectiveMarkdown } from '@campfire/components/Deck/Slide'
 import { SlideReveal } from '@campfire/components/Deck/Slide'
 
@@ -12,12 +13,12 @@ let output: ComponentChild | null = null
  * Component used in tests to render markdown with directive handlers.
  *
  * @param markdown - Markdown string that may include directive containers.
- * @returns Nothing; sets `output` with rendered content.
+ * @returns Rendered content for the provided markdown.
  */
 const MarkdownRunner = ({ markdown }: { markdown: string }) => {
   const handlers = useDirectiveHandlers()
   output = renderDirectiveMarkdown(markdown, handlers)
-  return null
+  return <>{output}</>
 }
 
 /**
@@ -42,6 +43,7 @@ const findReveal = (node: ComponentChild | null): VNode<any> | undefined => {
 beforeEach(() => {
   output = null
   document.body.innerHTML = ''
+  useDeckStore.getState().reset()
 })
 
 describe('reveal directive', () => {
@@ -91,6 +93,14 @@ describe('reveal directive', () => {
     render(<MarkdownRunner markdown={md} />)
     const reveal = findReveal(output)!
     expect(reveal.props.enter).toEqual({ type: 'flip', duration: 500 })
+  })
+
+  it.skip('accepts an object for the style attribute', () => {
+    const md =
+      ":::reveal{style={width: '14px', height: '14px'}}\\nContent\\n:::"
+    render(<MarkdownRunner markdown={md} />)
+    const reveal = findReveal(output)!
+    expect(reveal.props.style).toEqual({ width: '14px', height: '14px' })
   })
 
   it('does not render stray colons when reveal contains directives', () => {

@@ -34,7 +34,7 @@ const render: StoryObj<typeof SlideReveal>['render'] = () => (
           First
         </SlideText>
       </SlideReveal>
-      <SlideReveal at={1}>
+      <SlideReveal at={1} style={{ width: '14px', height: '14px' }}>
         <SlideText
           x={280}
           y={280}

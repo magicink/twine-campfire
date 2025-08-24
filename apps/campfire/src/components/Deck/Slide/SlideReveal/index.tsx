@@ -15,12 +15,15 @@ import {
   runAnimation
 } from '@campfire/components/transition'
 
-export interface SlideRevealProps {
+export interface SlideRevealProps
+  extends Omit<JSX.HTMLAttributes<HTMLDivElement>, 'style'> {
   at?: number
   exitAt?: number
   enter?: Transition
   exit?: Transition
   interruptBehavior?: 'jumpToEnd' | 'cancel'
+  /** Additional CSS properties applied to the reveal element. */
+  style?: JSX.CSSProperties
   children: ComponentChildren
 }
 
@@ -36,7 +39,9 @@ export const SlideReveal = ({
   enter,
   exit,
   interruptBehavior = 'jumpToEnd',
-  children
+  style,
+  children,
+  ...rest
 }: SlideRevealProps): JSX.Element | null => {
   const currentStep = useDeckStore(state => state.currentStep)
   const currentSlide = useDeckStore(state => state.currentSlide)
@@ -158,8 +163,9 @@ export const SlideReveal = ({
   return (
     <div
       ref={ref}
-      style={{ display: visible ? '' : 'none' }}
+      style={{ display: visible ? '' : 'none', ...(style ?? {}) }}
       data-testid='slide-reveal'
+      {...rest}
     >
       {children}
     </div>
