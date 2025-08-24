@@ -52,4 +52,5 @@
 ## Notes
 
 - Prefer arrow functions and include JSDoc comments for functions and components.
+- Visual components must include `data-testid` attributes and a default `campfire-{name}` class with no associated styles.
 - Trust these instructions and search the repository only if information is missing or incorrect.
