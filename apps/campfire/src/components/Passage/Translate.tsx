@@ -46,11 +46,19 @@ export const Translate = (props: TranslateProps) => {
       const msg = `Failed to evaluate translation expression: ${expr}`
       console.error(msg, error)
       addError(msg)
-      return fallback ? <span data-testid='translate'>{fallback}</span> : null
+      return fallback ? (
+        <span className='campfire-translate' data-testid='translate'>
+          {fallback}
+        </span>
+      ) : null
     }
   }
   if (!tKey)
-    return fallback ? <span data-testid='translate'>{fallback}</span> : null
+    return fallback ? (
+      <span className='campfire-translate' data-testid='translate'>
+        {fallback}
+      </span>
+    ) : null
   let vars: Record<string, unknown> = {}
   if (typeof props['data-i18n-vars'] === 'string') {
     try {
@@ -67,7 +75,11 @@ export const Translate = (props: TranslateProps) => {
     ...getTranslationOptions({ ns, count: props['data-i18n-count'] }),
     defaultValue: fallback
   }
-  return <span data-testid='translate'>{t(tKey, options)}</span>
+  return (
+    <span className='campfire-translate' data-testid='translate'>
+      {t(tKey, options)}
+    </span>
+  )
 }
 
 export default Translate

@@ -164,5 +164,9 @@ export const Passage = () => {
     return () => controller.abort()
   }, [passage, processor])
 
-  return <>{content}</>
+  return (
+    <div className='campfire-passage' data-testid='passage'>
+      {content}
+    </div>
+  )
 }

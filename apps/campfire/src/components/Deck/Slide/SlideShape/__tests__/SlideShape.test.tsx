@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'bun:test'
 import { render, screen } from '@testing-library/preact'
 import { SlideShape } from '@campfire/components/Deck/Slide'
+import { getSvgClassName } from '@campfire/test-utils/helpers'
 
 describe('SlideShape', () => {
   it('renders a rectangle with styling options', () => {
@@ -24,6 +25,7 @@ describe('SlideShape', () => {
     expect(rect.getAttribute('rx')).toBe('5')
     expect(rect.getAttribute('fill')).toBe('blue')
     expect(rect.getAttribute('stroke')).toBe('red')
+    expect(getSvgClassName(svg)).toContain('campfire-slide-shape')
     expect(svg.style.filter).toContain('blur(2px)')
     expect(svg.style.filter).toContain('drop-shadow')
     expect(wrapper.style.left).toBe('10px')
@@ -47,10 +49,11 @@ describe('SlideShape', () => {
         stroke='black'
       />
     )
-    const line = screen
-      .getByTestId('slideShape')
-      .querySelector('line') as SVGLineElement
+    const wrapper = screen.getByTestId('slideShape') as HTMLElement
+    const line = wrapper.querySelector('line') as SVGLineElement
     expect(line.getAttribute('x1')).toBe('0')
     expect(line.getAttribute('x2')).toBe('100')
+    const svg = wrapper.querySelector('svg') as SVGSVGElement
+    expect(getSvgClassName(svg)).toContain('campfire-slide-shape')
   })
 })

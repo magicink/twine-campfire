@@ -28,7 +28,11 @@ export const Show = (props: ShowProps) => {
       }
       if (result == null) return null
       const display = isRange(result) ? result.value : result
-      return <span data-testid='show'>{String(display)}</span>
+      return (
+        <span className='campfire-show' data-testid='show'>
+          {String(display)}
+        </span>
+      )
     } catch (error) {
       const msg = `Failed to evaluate show expression: ${expr}`
       console.error(msg, error)
@@ -42,5 +46,9 @@ export const Show = (props: ShowProps) => {
     : undefined
   if (value == null) return null
   const displayValue = isRange(value) ? value.value : value
-  return <span data-testid='show'>{String(displayValue)}</span>
+  return (
+    <span className='campfire-show' data-testid='show'>
+      {String(displayValue)}
+    </span>
+  )
 }

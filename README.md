@@ -73,8 +73,6 @@ target.
 [[DISPLAY TEXT->PASSAGE NAME]]
 ```
 
-> To style the button, update the `.campfire-link` class in your CSS.
-
 ## Markdown formatting
 
 Campfire accepts standard Markdown and extras from
@@ -112,6 +110,8 @@ Examples:
   ```md
   <https://twine-campfire.dev>
   ```
+
+For more on internal classes and default styling, see [Styling elements](docs/styling-elements.md).
 
 ## Further reading
 

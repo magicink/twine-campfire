@@ -9,6 +9,7 @@ describe('SlideImage', () => {
     const img = wrapper.querySelector('img') as HTMLImageElement
     expect(img.getAttribute('src')).toBe('img.png')
     expect(img.alt).toBe('test image')
+    expect(img.className).toContain('campfire-slide-image')
   })
 
   it('forwards positioning props to Layer', () => {
@@ -30,6 +31,7 @@ describe('SlideImage', () => {
       />
     )
     const img = screen.getByAltText('styled') as HTMLImageElement
+    expect(img.className).toContain('campfire-slide-image')
     expect(img.className).toContain('rounded')
     expect(img.style.border).toBe('1px solid red')
   })

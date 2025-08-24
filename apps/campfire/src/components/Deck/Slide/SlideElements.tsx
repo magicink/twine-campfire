@@ -23,6 +23,10 @@ export interface SlideImageProps
 export const SlideImage = createSlideElement<SlideImageProps>({
   as: 'img',
   testId: 'slideImage',
+  mapClassName: ({ className }) =>
+    ['campfire-slide-image', className]
+      .filter(c => c != null && c !== '')
+      .join(' '),
   mapElementProps: ({ src, alt }) => ({ src, alt }),
   mapLayerProps: ({ src, alt, ...layerProps }) => layerProps
 })
@@ -60,7 +64,7 @@ export const SlideText = createSlideElement<SlideTextProps>({
   getAs: ({ as = 'p' }) => as,
   testId: 'slideText',
   mapClassName: ({ className }) => {
-    const classes = ['text-base', 'font-normal']
+    const classes = ['campfire-slide-text', 'text-base', 'font-normal']
     if (className) classes.unshift(className)
     return classes.join(' ')
   },
@@ -124,6 +128,10 @@ export interface SlideShapeProps
 export const SlideShape = createSlideElement<SlideShapeProps>({
   as: 'svg',
   testId: 'slideShape',
+  mapClassName: ({ className }) =>
+    ['campfire-slide-shape', className]
+      .filter(c => c != null && c !== '')
+      .join(' '),
   mapElementProps: () => ({ width: '100%', height: '100%' }),
   mapStyleTransform:
     ({ shadow }) =>

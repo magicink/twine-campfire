@@ -20,4 +20,9 @@ describe('LinkButton', () => {
     fireEvent.click(getByTestId('link-button'))
     expect(clicked).toBe(false)
   })
+
+  it('includes the campfire-link class by default', () => {
+    const { getByTestId } = render(<LinkButton>Go</LinkButton>)
+    expect(getByTestId('link-button').className).toContain('campfire-link')
+  })
 })
