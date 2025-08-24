@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.84.2](https://github.com/magicink/twine-campfire/compare/v1.84.1...v1.84.2) (2025-08-24)
+
+
+### Bug Fixes
+
+* add full height class to passage ([#514](https://github.com/magicink/twine-campfire/issues/514)) ([5f711b4](https://github.com/magicink/twine-campfire/commit/5f711b470a75c3c1d1a92bd692ed351d65ceb068))
+
 ## [1.84.1](https://github.com/magicink/twine-campfire/compare/v1.84.0...v1.84.1) (2025-08-24)
 
 
