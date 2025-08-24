@@ -17,3 +17,13 @@ Read or compute data without mutating state.
   | Input | Description          |
   | ----- | -------------------- |
   | key   | State key to display |
+
+  To read range data, access the range's properties with dot notation:
+
+  ```md
+  :show[score.value]
+  :show[score.min]
+  :show[score.max]
+  ```
+
+  Range objects expose `value`, `min`, and `max` fields.
