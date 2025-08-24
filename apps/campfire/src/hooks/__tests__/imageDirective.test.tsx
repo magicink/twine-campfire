@@ -37,14 +37,17 @@ describe('image directive', () => {
       '[data-testid="slideImage"]'
     ) as HTMLElement
     expect(el).toBeTruthy()
-    expect(el.className).toBe('wrapper')
+    expect(el.className).toContain('campfire-layer')
+    expect(el.className).toContain('campfire-slide-layer')
+    expect(el.className).toContain('wrapper')
     expect(el.style.left).toBe('10px')
     expect(el.style.top).toBe('20px')
     expect(el.getAttribute('data-test')).toBe('ok')
     const img = el.querySelector('img') as HTMLImageElement
     expect(img.getAttribute('src')).toBe('https://example.com/cat.png')
     expect(img.getAttribute('alt')).toBe('Cat')
-    expect(img.className).toBe('rounded')
+    expect(img.className).toContain('campfire-slide-image')
+    expect(img.className).toContain('rounded')
     expect(img.style.border).toBe('1px solid red')
   })
 

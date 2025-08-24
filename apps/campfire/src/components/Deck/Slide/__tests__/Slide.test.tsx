@@ -37,6 +37,7 @@ describe('Slide', () => {
       </Deck>
     )
     const el = screen.getByText('Slide 1') as HTMLElement
+    expect(el.className).toContain('campfire-slide')
     expect(el).not.toHaveClass('bg-gray-100', 'dark:bg-gray-900')
   })
 

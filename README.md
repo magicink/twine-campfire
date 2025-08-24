@@ -50,7 +50,6 @@ This example creates a numeric range with a minimum of 0 and maximum of 10, disp
 
 See the dedicated docs for detailed usage:
 
-- [Indentation](docs/directives/indentation.md)
 - [Variables & simple state](docs/directives/variables-and-state.md)
 - [Ranges](docs/directives/ranges.md)
 - [Arrays & collection management](docs/directives/arrays.md)
@@ -58,8 +57,7 @@ See the dedicated docs for detailed usage:
 - [Conditional logic](docs/directives/conditional-logic.md)
 - [Iteration](docs/directives/iteration.md)
 - [Event & trigger blocks](docs/directives/event-trigger-blocks.md)
-- [Navigation & composition](docs/directives/navigation-composition.md)
-- [Transitions](docs/directives/transitions.md)
+- [Navigation, composition & transitions](docs/directives/navigation-composition.md)
 - [Persistence](docs/directives/persistence.md)
 - [Localization & internationalization](docs/directives/localization.md)
 
@@ -74,8 +72,6 @@ target.
 ```md
 [[DISPLAY TEXT->PASSAGE NAME]]
 ```
-
-> To style the button, update the `.campfire-link` class in your CSS.
 
 ## Markdown formatting
 
@@ -114,6 +110,8 @@ Examples:
   ```md
   <https://twine-campfire.dev>
   ```
+
+For more on internal classes and default styling, see [Styling elements](docs/styling-elements.md).
 
 ## Further reading
 

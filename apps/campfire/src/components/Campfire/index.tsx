@@ -118,7 +118,12 @@ export const Campfire = () => {
   if (!i18nInitialized) return null
 
   return (
-    <div className={'absolute inset-0 overflow-y-auto overflow-x-hidden'}>
+    <div
+      className={
+        'campfire-campfire absolute inset-0 overflow-y-auto overflow-x-hidden'
+      }
+      data-testid='campfire'
+    >
       {passage ? <Passage /> : null}
       <DebugWindow />
     </div>

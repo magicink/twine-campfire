@@ -40,6 +40,8 @@ describe('Deck', () => {
       </Deck>
     )
     expect(useDeckStore.getState().slidesCount).toBe(2)
+    const deckEl = screen.getByTestId('deck')
+    expect(deckEl.className).toContain('campfire-deck')
     expect(screen.getByText('Slide 1')).toBeInTheDocument()
   })
 

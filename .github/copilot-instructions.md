@@ -6,6 +6,7 @@
 - The project uses [Bun](https://bun.sh/) as the JavaScript runtime and package manager.
 - This monorepo contains the main story format in `apps/campfire` and shared utilities in `packages/*`.
 - Source files are TypeScript/TSX; build artifacts live in `dist/` directories.
+- Whenever `AGENTS.md` is updated, update this file to keep instructions synchronized.
 
 ## Build & Validation
 
@@ -28,7 +29,28 @@
   - each package has `index.ts`, `__tests__/`, and its own `package.json`
 - **CI**: `.github/workflows/test.yml` installs dependencies with Bun and runs `bun test` on pushes and pull requests.
 
+## Coding Standards
+
+- Do not create new files for helpers or utilities unless absolutely necessary. Prefer fewer utility or helper files overall.
+
+## Directives and Attributes
+
+### Container directives
+
+- Always group nested container directives within their parent until the closing `:::` marker.
+- Filter out whitespace-only nodes and directive markers before committing content to a slide.
+- Use helpers like `stripLabel`, `removeDirectiveMarker`, and `runBlock` to handle labels and markers.
+- Add regression tests for new container directives to prevent splitting issues.
+- Keep any blank lines between the opening tag and content and between content and the closing tag to avoid breaking grouping.
+
+### Attributes
+
+- If a directive attribute's value is surrounded by quotes or backticks, it MUST be treated as a string and NEVER converted into JSON, even if the contents of the string appear to be JSON.
+- Wrap string values in quotes or backticks unless referencing a state key.
+- To pass an object via an attribute, do not wrap the object in quotes (e.g., `:directive{attribute={key: val}}`).
+
 ## Notes
 
 - Prefer arrow functions and include JSDoc comments for functions and components.
+- Visual components must include `data-testid` attributes and a default `campfire-{name}` class with no associated styles.
 - Trust these instructions and search the repository only if information is missing or incorrect.
