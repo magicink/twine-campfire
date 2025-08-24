@@ -30,8 +30,7 @@ beforeEach(() => {
 
 describe('image directive', () => {
   it('renders a SlideImage component with props', () => {
-    const md =
-      ':::reveal\n:image{src="https://example.com/cat.png" x=10 y=20 alt="Cat" className="rounded" layerClassName="wrapper" style="border:1px solid red" data-test="ok"}\n:::\n'
+    const md = `:::reveal\n:image{src="https://example.com/cat.png" x=10 y=20 alt="Cat" className="rounded" layerClassName="wrapper" data-test="ok" style="{borderWidth: '1px', borderStyle: 'solid', borderColor: 'red'}"}\n:::\n`
     render(<MarkdownRunner markdown={md} />)
     const el = document.querySelector(
       '[data-testid="slideImage"]'
@@ -45,7 +44,7 @@ describe('image directive', () => {
     expect(img.getAttribute('src')).toBe('https://example.com/cat.png')
     expect(img.getAttribute('alt')).toBe('Cat')
     expect(img.className).toBe('rounded')
-    expect(img.style.border).toBe('1px solid red')
+    expect(img.style.borderWidth).toBe('1px')
   })
 
   it('applies image presets with overrides', () => {

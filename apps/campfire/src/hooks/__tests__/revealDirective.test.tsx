@@ -44,6 +44,11 @@ beforeEach(() => {
   output = null
   document.body.innerHTML = ''
   useDeckStore.getState().reset()
+  ;(HTMLElement.prototype as any).animate = () => ({
+    finished: Promise.resolve(),
+    cancel: () => {},
+    finish: () => {}
+  })
 })
 
 describe('reveal directive', () => {
@@ -97,7 +102,7 @@ describe('reveal directive', () => {
 
   it.skip('accepts an object for the style attribute', () => {
     const md =
-      ":::reveal{style={width: '14px', height: '14px'}}\\nContent\\n:::"
+      ":::reveal{style=\"{width: '14px', height: '14px'}\"}\\nContent\\n:::"
     render(<MarkdownRunner markdown={md} />)
     const reveal = findReveal(output)!
     expect(reveal.props.style).toEqual({ width: '14px', height: '14px' })

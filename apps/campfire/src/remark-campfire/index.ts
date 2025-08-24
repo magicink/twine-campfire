@@ -47,7 +47,7 @@ export interface LangDirective extends Omit<TextDirective, 'attributes'> {
 }
 
 /** RegExp matching safe characters in directive attribute values. */
-const SAFE_ATTR_VALUE_PATTERN = /^[\w\s.,'"`{}\[\]$!-]*$/
+const SAFE_ATTR_VALUE_PATTERN = /^[\w\s.,:'"`{}\[\]$!-]*$/
 
 /**
  * Data structure for paragraph nodes that may include custom hast element
@@ -240,6 +240,23 @@ const remarkCampfire =
             typeof index === 'number'
           ) {
             parseFallbackAttributes(directive, parent, index)
+            if (!directive.attributes || !('style' in directive.attributes)) {
+              const content =
+                typeof file.value === 'string' ? file.value : undefined
+              if (content && directive.position) {
+                const raw = content.slice(
+                  directive.position.start.offset ?? 0,
+                  directive.position.end.offset ?? 0
+                )
+                const match = raw.match(/style=\{([^}]*)\}/)
+                if (match && SAFE_ATTR_VALUE_PATTERN.test(match[1])) {
+                  directive.attributes = {
+                    ...directive.attributes,
+                    style: `{${match[1]}}`
+                  }
+                }
+              }
+            }
           }
           if (directive.attributes) {
             if (

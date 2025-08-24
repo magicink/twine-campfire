@@ -38,6 +38,7 @@ export const Basic: StoryObj<typeof SlideShape> = {
           h={100}
           fill='#a3e635'
           stroke='#365314'
+          style={{ opacity: 0.6 }}
         />
         <SlideShape
           className={'animate-pulse'}

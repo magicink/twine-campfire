@@ -30,8 +30,7 @@ beforeEach(() => {
 
 describe('shape directive', () => {
   it('renders a SlideShape component with props', () => {
-    const md =
-      ':::reveal\n:shape{x=10 y=20 w=100 h=50 type="rect" stroke="red" fill="blue" radius=5 shadow=true className="rounded" layerClassName="wrapper" data-test="ok"}\n:::\n'
+    const md = `:::reveal\n:shape{x=10 y=20 w=100 h=50 type="rect" stroke="red" fill="blue" radius=5 shadow=true className="rounded" layerClassName="wrapper" data-test="ok" style="{opacity: 0.5}"}\n:::\n`
     render(<MarkdownRunner markdown={md} />)
     const el = document.querySelector(
       '[data-testid="slideShape"]'
@@ -50,6 +49,7 @@ describe('shape directive', () => {
     expect(rect.getAttribute('rx')).toBe('5')
     expect(svg.classList.contains('rounded')).toBe(true)
     expect(svg.style.filter).toContain('drop-shadow')
+    expect(svg.style.opacity).toBe('0.5')
   })
 
   it('applies shape presets with overrides', () => {

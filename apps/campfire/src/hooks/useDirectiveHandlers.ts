@@ -2067,7 +2067,7 @@ export const useDirectiveHandlers = () => {
     anchor: { type: 'string' },
     src: { type: 'string', required: true },
     alt: { type: 'string' },
-    style: { type: 'string' },
+    style: { type: 'object' },
     from: { type: 'string', expression: false }
   } as const
 
@@ -2095,7 +2095,7 @@ export const useDirectiveHandlers = () => {
     fill: { type: 'string' },
     radius: { type: 'number' },
     shadow: { type: 'boolean' },
-    style: { type: 'string' },
+    style: { type: 'object' },
     from: { type: 'string', expression: false }
   } as const
 
@@ -2389,7 +2389,12 @@ export const useDirectiveHandlers = () => {
     if (typeof mergedAttrs.scale === 'number') props.scale = mergedAttrs.scale
     if (mergedAttrs.anchor) props.anchor = mergedAttrs.anchor
     if (mergedAttrs.alt) props.alt = mergedAttrs.alt
-    if (mergedAttrs.style) props.style = mergedAttrs.style
+    const styleValue =
+      mergedAttrs.style ??
+      (typeof mergedRaw.style === 'string'
+        ? (parseTypedValue(mergedRaw.style) as Record<string, unknown>)
+        : undefined)
+    if (styleValue) props.style = styleValue
     const classAttr =
       typeof mergedRaw.className === 'string' ? mergedRaw.className : undefined
     const layerClassAttr =
@@ -2478,7 +2483,12 @@ export const useDirectiveHandlers = () => {
       props.radius = mergedAttrs.radius
     if (typeof mergedAttrs.shadow === 'boolean')
       props.shadow = mergedAttrs.shadow
-    if (mergedAttrs.style) props.style = mergedAttrs.style
+    const styleValue =
+      mergedAttrs.style ??
+      (typeof mergedRaw.style === 'string'
+        ? (parseTypedValue(mergedRaw.style) as Record<string, unknown>)
+        : undefined)
+    if (styleValue) props.style = styleValue
     const classAttr =
       typeof mergedRaw.className === 'string' ? mergedRaw.className : undefined
     const layerClassAttr =

@@ -28,6 +28,14 @@ They come in leaf or container form.
 
 Directives are grouped by purpose.
 
+Directives that support a `style` attribute accept a style object:
+
+```
+:::reveal{style="{width: '14px', height: '14px'}"}
+Content
+:::
+```
+
 ### Example
 
 Here's a practical example showing how directives can be combined to create interactive content:

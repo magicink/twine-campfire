@@ -42,6 +42,7 @@ export const Basic: StoryObj<typeof SlideImage> = {
             alt='Kitten'
             x={500}
             y={300}
+            style={{ border: '4px solid red' }}
           />
         </SlideReveal>
       </Slide>
