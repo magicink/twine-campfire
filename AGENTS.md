@@ -7,6 +7,7 @@
 - Include JSDoc comments for all functions and components.
 - Always add `data-testid` attributes to visual components.
 - Use Conventional Commits for all commit messages.
+- If this `AGENTS.md` file is updated, also update `.github/copilot-instructions.md` to reflect the changes.
 - If you update the `template.ejs` file, also update the Storybook preview template to keep them in sync.
 - If you update React components, add or update corresponding Storybook stories to reflect the changes.
 
@@ -28,3 +29,4 @@
 
 - If a directive attribute's value is surrounded by quotes or backticks, it MUST be treated as a string and NEVER converted into JSON, even if the contents of the string appear to be JSON.
 - Wrap string values in quotes or backticks unless referencing a state key.
+- To pass an object via an attribute, do not wrap the object in quotes (e.g., `:directive{attribute={key: val}}`).
