@@ -9,10 +9,22 @@
 - Use Conventional Commits for all commit messages.
 - If you update the `template.ejs` file, also update the Storybook preview template to keep them in sync.
 - If you update React components, add or update corresponding Storybook stories to reflect the changes.
-- When processing container directives:
-  - Always group nested container directives within their parent until the closing `:::` marker.
-  - Filter out whitespace-only nodes and directive markers before committing content to a slide.
-  - Use helpers like `stripLabel`, `removeDirectiveMarker`, and `runBlock` to handle labels and markers.
-  - Add regression tests for new container directives to prevent splitting issues.
-  - Keep any blank lines between the opening tag and content and between content and the closing tag to avoid breaking grouping.
-- When defining directive attributes, wrap string values in quotes or backticks unless referencing a state key.
+
+## Coding Standards
+
+- Do not create new files for helpers or utilities unless absolutely necessary. Prefer fewer utility or helper files overall.
+
+## Directives and Attributes
+
+### Container directives
+
+- Always group nested container directives within their parent until the closing `:::` marker.
+- Filter out whitespace-only nodes and directive markers before committing content to a slide.
+- Use helpers like `stripLabel`, `removeDirectiveMarker`, and `runBlock` to handle labels and markers.
+- Add regression tests for new container directives to prevent splitting issues.
+- Keep any blank lines between the opening tag and content and between content and the closing tag to avoid breaking grouping.
+
+### Attributes
+
+- If a directive attribute's value is surrounded by quotes or backticks, it MUST be treated as a string and NEVER converted into JSON, even if the contents of the string appear to be JSON.
+- Wrap string values in quotes or backticks unless referencing a state key.
