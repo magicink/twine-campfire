@@ -1,4 +1,4 @@
-# Navigation, composition & transitions
+# Navigation & composition
 
 Control the flow between passages or how they reveal.
 
@@ -96,6 +96,10 @@ Control the flow between passages or how they reveal.
   | exitDir       | Exit transition direction           |
   | enterDuration | Enter transition duration in ms     |
   | exitDuration  | Exit transition duration in ms      |
+  | enterDelay    | Enter transition delay in ms        |
+  | exitDelay     | Exit transition delay in ms         |
+  | enterEasing   | Enter transition easing             |
+  | exitEasing    | Exit transition easing              |
   | steps         | Number of build steps on this slide |
   | onEnter       | Directive block to run on enter     |
   | onExit        | Directive block to run on exit      |
@@ -184,17 +188,3 @@ Control the flow between passages or how they reveal.
   ```
 
   Presets allow authors to reuse common configurations across multiple directives.
-
-## Transitions
-
-Transitions are available on the `deck`, `slide`, and `reveal` directives.
-
-| Type  | Attributes                                             |
-| ----- | ------------------------------------------------------ |
-| fade  | `enterDuration`, `exitDuration`                        |
-| slide | `enterDir`, `exitDir`, `enterDuration`, `exitDuration` |
-| zoom  | `enterDuration`, `exitDuration`                        |
-| flip  | `enterDuration`, `exitDuration`                        |
-| none  | _(none)_                                               |
-
-Flip transitions rotate elements in 3D and automatically apply a CSS perspective to the parent container for proper depth rendering.
