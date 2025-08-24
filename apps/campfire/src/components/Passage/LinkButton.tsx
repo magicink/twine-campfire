@@ -33,15 +33,13 @@ export const LinkButton = ({
     <button
       type='button'
       data-testid='link-button'
-      className={Array.from(
-        new Set([
-          'campfire-link',
-          'font-libertinus',
-          'disabled:opacity-50',
-          className
-        ])
-      )
-        .filter(c => c != null && c !== '')
+      className={[
+        'campfire-link',
+        'font-libertinus',
+        'disabled:opacity-50',
+        className
+      ]
+        .filter((c, i, arr) => c && arr.indexOf(c) === i)
         .join(' ')}
       {...rest}
       onClick={e => {

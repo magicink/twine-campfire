@@ -32,3 +32,9 @@ export const resetStores = () => {
   localStorage.clear()
   document.title = ''
 }
+
+/**
+ * Returns the `className` string from an SVG element across environments.
+ */
+export const getSvgClassName = (svg: SVGElement) =>
+  typeof svg.className === 'object' ? svg.className.baseVal : svg.className

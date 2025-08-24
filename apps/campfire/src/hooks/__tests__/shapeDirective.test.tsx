@@ -3,6 +3,7 @@ import { render } from '@testing-library/preact'
 import type { ComponentChild } from 'preact'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { renderDirectiveMarkdown } from '@campfire/components/Deck/Slide'
+import { getSvgClassName } from '@campfire/test-utils/helpers'
 
 let output: ComponentChild | null = null
 
@@ -50,9 +51,7 @@ describe('shape directive', () => {
     expect(rect.getAttribute('stroke')).toBe('red')
     expect(rect.getAttribute('fill')).toBe('blue')
     expect(rect.getAttribute('rx')).toBe('5')
-    const svgClass =
-      typeof svg.className === 'object' ? svg.className.baseVal : svg.className
-    expect(svgClass).toContain('campfire-slide-shape')
+    expect(getSvgClassName(svg)).toContain('campfire-slide-shape')
     expect(svg.classList.contains('rounded')).toBe(true)
     expect(svg.style.filter).toContain('drop-shadow')
   })
