@@ -4,6 +4,18 @@ import type { JSX } from 'preact'
 /** Pattern matching a string enclosed in matching quotes or backticks. */
 export const QUOTE_PATTERN = /^(['"`])(.*)\1$/
 
+/**
+ * Extracts the inner content from a string wrapped in matching quotes or
+ * backticks.
+ *
+ * @param value - Value to inspect for surrounding quotes.
+ * @returns The unwrapped string when quoted, otherwise undefined.
+ */
+export const extractQuoted = (value: string): string | undefined => {
+  const match = value.match(QUOTE_PATTERN)
+  return match ? match[2] : undefined
+}
+
 /** Cache of compiled expressions keyed by their source string. */
 const cache = new Map<string, (scope: Record<string, unknown>) => unknown>()
 

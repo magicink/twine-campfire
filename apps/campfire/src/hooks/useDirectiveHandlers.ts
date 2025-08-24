@@ -58,7 +58,8 @@ import {
   evalExpression,
   getTranslationOptions,
   interpolateString,
-  QUOTE_PATTERN
+  QUOTE_PATTERN,
+  extractQuoted
 } from '@campfire/utils/core'
 import {
   createStateManager,
@@ -294,8 +295,8 @@ export const useDirectiveHandlers = () => {
 
     return applyKeyValue(directive, parent, index, {
       parse: (valueRaw, key) => {
-        const match = valueRaw.match(QUOTE_PATTERN)
-        if (match) return match[2]
+        const quoted = extractQuoted(valueRaw)
+        if (quoted !== undefined) return quoted
         if (!valueRaw.startsWith('[') || !valueRaw.endsWith(']')) {
           const msg = `Array directive value must be in [ ] notation: ${key}=${valueRaw}`
           console.error(msg)
