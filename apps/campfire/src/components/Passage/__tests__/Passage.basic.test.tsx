@@ -39,6 +39,25 @@ describe('Passage rendering and navigation', () => {
     expect(text).toBeInTheDocument()
   })
 
+  it('applies full height class to passage wrapper', () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: 'Hello' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    const wrapper = screen.getByTestId('passage')
+    expect(wrapper).toHaveClass('h-full')
+  })
+
   it('preserves line breaks in passage text', async () => {
     const passage: Element = {
       type: 'element',

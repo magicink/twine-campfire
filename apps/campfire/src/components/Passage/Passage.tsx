@@ -165,7 +165,7 @@ export const Passage = () => {
   }, [passage, processor])
 
   return (
-    <div className='campfire-passage' data-testid='passage'>
+    <div className='campfire-passage h-full' data-testid='passage'>
       {content}
     </div>
   )
