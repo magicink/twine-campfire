@@ -300,6 +300,11 @@ export const useDirectiveHandlers = () => {
           addError(msg)
           return []
         }
+        // Check if the value is quoted - if so, return as string per attribute rules
+        const quotedMatch = valueRaw.match(QUOTE_PATTERN)
+        if (quotedMatch) {
+          return quotedMatch[2] // Return the quoted content as string
+        }
         try {
           const parsed = JSON.parse(valueRaw)
           if (Array.isArray(parsed)) return parsed
