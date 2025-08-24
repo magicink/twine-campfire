@@ -253,6 +253,8 @@ export const parseAttributeValue = (
     case 'object': {
       if (raw && typeof raw === 'object' && !Array.isArray(raw)) return raw
       if (typeof raw === 'string') {
+        const m = raw.match(QUOTE_PATTERN)
+        if (m) return m[2]
         const evaluated = spec.expression === false ? undefined : evalExpr(raw)
         if (
           evaluated &&
@@ -274,6 +276,8 @@ export const parseAttributeValue = (
     case 'array': {
       if (Array.isArray(raw)) return raw
       if (typeof raw === 'string') {
+        const m = raw.match(QUOTE_PATTERN)
+        if (m) return m[2]
         const evaluated = spec.expression === false ? undefined : evalExpr(raw)
         if (Array.isArray(evaluated)) return evaluated
         try {
