@@ -1,4 +1,4 @@
-import { evalExpression, QUOTE_PATTERN } from '@campfire/utils/core'
+import { evalExpression, extractQuoted } from '@campfire/utils/core'
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
@@ -222,8 +222,8 @@ export const parseAttributeValue = (
   switch (spec.type) {
     case 'string': {
       if (typeof raw === 'string') {
-        const m = raw.match(QUOTE_PATTERN)
-        if (m) return m[2]
+        const quoted = extractQuoted(raw)
+        if (quoted !== undefined) return quoted
         if (spec.expression === false) return raw
         const evaluated = evalExpr(raw)
         if (typeof evaluated === 'string') return evaluated
@@ -253,6 +253,8 @@ export const parseAttributeValue = (
     case 'object': {
       if (raw && typeof raw === 'object' && !Array.isArray(raw)) return raw
       if (typeof raw === 'string') {
+        const quoted = extractQuoted(raw)
+        if (quoted !== undefined) return quoted
         const evaluated = spec.expression === false ? undefined : evalExpr(raw)
         if (
           evaluated &&
@@ -274,6 +276,8 @@ export const parseAttributeValue = (
     case 'array': {
       if (Array.isArray(raw)) return raw
       if (typeof raw === 'string') {
+        const quoted = extractQuoted(raw)
+        if (quoted !== undefined) return quoted
         const evaluated = spec.expression === false ? undefined : evalExpr(raw)
         if (Array.isArray(evaluated)) return evaluated
         try {
@@ -437,8 +441,8 @@ export const parseTypedValue = (
 ): unknown => {
   const trimmed = raw.trim()
   if (!trimmed) return undefined
-  const quoted = trimmed.match(QUOTE_PATTERN)
-  if (quoted) return quoted[2]
+  const quoted = extractQuoted(trimmed)
+  if (quoted !== undefined) return quoted
   if (trimmed === 'true') return true
   if (trimmed === 'false') return false
   if (trimmed.startsWith('{') && trimmed.endsWith('}')) {

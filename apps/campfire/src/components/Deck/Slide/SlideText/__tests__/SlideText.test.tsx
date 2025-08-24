@@ -8,6 +8,7 @@ describe('SlideText', () => {
     const wrapper = screen.getByTestId('slideText') as HTMLElement
     const el = wrapper.firstElementChild as HTMLElement
     expect(el.tagName).toBe('H2')
+    expect(el.className).toContain('campfire-slide-text')
   })
 
   it('forwards positioning props to Layer', () => {

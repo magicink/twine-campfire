@@ -46,6 +46,8 @@ describe('DebugWindow', () => {
     render(<DebugWindow />)
     const header = screen.getByText('Debug')
     expect(header).toBeInTheDocument()
+    const container = screen.getByTestId('debug-window')
+    expect(container.className).toContain('campfire-debug-window')
   })
 
   it('toggles minimized state when clicked', () => {

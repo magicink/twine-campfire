@@ -42,7 +42,13 @@ export const SlideLayer = ({
   const baseStyle = parseInlineStyle(style ?? {})
   const finalStyle = styleTransform ? styleTransform(baseStyle) : baseStyle
   return (
-    <Layer data-testid={testId} className={layerClassName} {...layerProps}>
+    <Layer
+      data-testid={testId}
+      className={['campfire-slide-layer', layerClassName]
+        .filter(c => c != null && c !== '')
+        .join(' ')}
+      {...layerProps}
+    >
       <Tag className={className} style={finalStyle} {...elementProps}>
         {children}
       </Tag>

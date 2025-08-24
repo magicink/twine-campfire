@@ -188,7 +188,8 @@ export const DebugWindow = () => {
       role='dialog'
       aria-labelledby='debug-window-title'
       onClick={() => setMinimized(m => !m)}
-      className={`fixed right-0 top-0 w-80 bg-white text-black shadow-lg text-xs overflow-y-auto ${
+      data-testid='debug-window'
+      className={`campfire-debug-window fixed right-0 top-0 w-80 bg-white text-black shadow-lg text-xs overflow-y-auto ${
         minimized ? '' : 'bottom-0'
       }`}
     >

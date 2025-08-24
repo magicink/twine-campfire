@@ -27,6 +27,18 @@ beforeEach(() => {
 })
 
 describe('SlideReveal', () => {
+  it('includes the campfire-slide-reveal class', () => {
+    render(
+      <Deck>
+        <Slide>
+          <SlideReveal>Hello</SlideReveal>
+        </Slide>
+      </Deck>
+    )
+    const reveal = screen.getByTestId('slide-reveal')
+    expect(reveal.className).toContain('campfire-slide-reveal')
+  })
+
   it.skip('toggles visibility at the configured steps', async () => {
     // @ts-expect-error override animate
     HTMLElement.prototype.animate = () => new StubAnimation()
