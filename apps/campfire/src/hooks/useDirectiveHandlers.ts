@@ -1961,18 +1961,24 @@ export const useDirectiveHandlers = () => {
    * @param base - Transition key or existing configuration.
    * @param dir - Optional direction to apply.
    * @param duration - Optional duration in milliseconds.
+   * @param delay - Optional delay before the transition starts.
+   * @param easing - Optional easing function to apply.
    * @returns A transition object when a base is provided.
    */
   const buildTransition = (
     base?: Transition | Transition['type'],
     dir?: Direction,
-    duration?: number
+    duration?: number,
+    delay?: number,
+    easing?: string
   ): Transition | undefined => {
     if (!base) return undefined
     const t: Transition =
       typeof base === 'string' ? { type: base } : { ...base }
     if (dir) t.dir = dir
     if (typeof duration === 'number') t.duration = duration
+    if (typeof delay === 'number') t.delay = delay
+    if (easing) t.easing = easing
     return t
   }
 
@@ -1985,6 +1991,10 @@ export const useDirectiveHandlers = () => {
     exitDir: { type: 'string' },
     enterDuration: { type: 'number' },
     exitDuration: { type: 'number' },
+    enterDelay: { type: 'number' },
+    exitDelay: { type: 'number' },
+    enterEasing: { type: 'string', expression: false },
+    exitEasing: { type: 'string', expression: false },
     steps: { type: 'number' },
     onEnter: { type: 'string' },
     onExit: { type: 'string' },
@@ -2002,6 +2012,10 @@ export const useDirectiveHandlers = () => {
     'exitDir',
     'enterDuration',
     'exitDuration',
+    'enterDelay',
+    'exitDelay',
+    'enterEasing',
+    'exitEasing',
     'steps',
     'onEnter',
     'onExit'
@@ -2539,7 +2553,9 @@ export const useDirectiveHandlers = () => {
         | Transition['type']
         | undefined,
       preset?.enterDir as Direction | undefined,
-      preset?.enterDuration
+      preset?.enterDuration,
+      preset?.enterDelay,
+      preset?.enterEasing
     )
     let exit = buildTransition(
       (preset?.exit ?? preset?.transition) as
@@ -2547,7 +2563,9 @@ export const useDirectiveHandlers = () => {
         | Transition['type']
         | undefined,
       preset?.exitDir as Direction | undefined,
-      preset?.exitDuration
+      preset?.exitDuration,
+      preset?.exitDelay,
+      preset?.exitEasing
     )
     if (preset) {
       if (typeof preset.steps === 'number') props.steps = preset.steps
@@ -2560,7 +2578,9 @@ export const useDirectiveHandlers = () => {
         | Transition['type']
         | undefined,
       (attrs.enterDir as Direction | undefined) ?? enter?.dir,
-      attrs.enterDuration ?? enter?.duration
+      attrs.enterDuration ?? enter?.duration,
+      attrs.enterDelay ?? enter?.delay,
+      attrs.enterEasing ?? enter?.easing
     )
     exit = buildTransition(
       (attrs.exit ?? attrs.transition ?? exit?.type) as
@@ -2568,7 +2588,9 @@ export const useDirectiveHandlers = () => {
         | Transition['type']
         | undefined,
       (attrs.exitDir as Direction | undefined) ?? exit?.dir,
-      attrs.exitDuration ?? exit?.duration
+      attrs.exitDuration ?? exit?.duration,
+      attrs.exitDelay ?? exit?.delay,
+      attrs.exitEasing ?? exit?.easing
     )
     if (enter || exit) {
       props.transition = {
