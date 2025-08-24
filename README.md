@@ -50,12 +50,9 @@ This example creates a numeric range with a minimum of 0 and maximum of 10, disp
 
 See the dedicated docs for detailed usage:
 
-- [Variables & simple state](docs/directives/variables-and-state.md)
-- [Ranges](docs/directives/ranges.md)
-- [Arrays & collection management](docs/directives/arrays.md)
+- [Variables, ranges & arrays](docs/directives/variables-and-state.md)
 - [Data retrieval & evaluation](docs/directives/data-retrieval.md)
-- [Conditional logic](docs/directives/conditional-logic.md)
-- [Iteration](docs/directives/iteration.md)
+- [Conditional logic & iteration](docs/directives/conditional-logic-and-iteration.md)
 - [Event & trigger blocks](docs/directives/event-trigger-blocks.md)
 - [Navigation, composition & transitions](docs/directives/navigation-composition.md)
 - [Persistence](docs/directives/persistence.md)
