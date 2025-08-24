@@ -21,9 +21,12 @@ describe('SlideShape', () => {
     const wrapper = screen.getByTestId('slideShape') as HTMLElement
     const rect = wrapper.querySelector('rect') as SVGRectElement
     const svg = wrapper.querySelector('svg') as SVGSVGElement
+    const svgClass =
+      typeof svg.className === 'object' ? svg.className.baseVal : svg.className
     expect(rect.getAttribute('rx')).toBe('5')
     expect(rect.getAttribute('fill')).toBe('blue')
     expect(rect.getAttribute('stroke')).toBe('red')
+    expect(svgClass).toContain('campfire-slide-shape')
     expect(svg.style.filter).toContain('blur(2px)')
     expect(svg.style.filter).toContain('drop-shadow')
     expect(wrapper.style.left).toBe('10px')
@@ -47,10 +50,13 @@ describe('SlideShape', () => {
         stroke='black'
       />
     )
-    const line = screen
-      .getByTestId('slideShape')
-      .querySelector('line') as SVGLineElement
+    const wrapper = screen.getByTestId('slideShape') as HTMLElement
+    const line = wrapper.querySelector('line') as SVGLineElement
     expect(line.getAttribute('x1')).toBe('0')
     expect(line.getAttribute('x2')).toBe('100')
+    const svg = wrapper.querySelector('svg') as SVGSVGElement
+    const svgClass =
+      typeof svg.className === 'object' ? svg.className.baseVal : svg.className
+    expect(svgClass).toContain('campfire-slide-shape')
   })
 })

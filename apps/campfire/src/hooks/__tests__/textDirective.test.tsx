@@ -34,7 +34,9 @@ describe('text directive', () => {
       '[data-testid="slideText"]'
     ) as HTMLElement
     expect(el).toBeTruthy()
-    expect(el.className).toBe('wrapper')
+    expect(el.className).toContain('campfire-layer')
+    expect(el.className).toContain('campfire-slide-layer')
+    expect(el.className).toContain('wrapper')
     const inner = el.firstElementChild as HTMLElement
     expect(inner.tagName).toBe('H2')
     const rawStyle = inner.getAttribute('style') || ''
@@ -62,7 +64,12 @@ describe('text directive', () => {
     expect(styleObj.lineHeight).toBe('1.2')
     expect(styleObj.color).toBe('red')
     expect(inner.className.split(' ')).toEqual(
-      expect.arrayContaining(['underline', 'text-base', 'font-normal'])
+      expect.arrayContaining([
+        'campfire-slide-text',
+        'underline',
+        'text-base',
+        'font-normal'
+      ])
     )
     expect(el.getAttribute('data-test')).toBe('ok')
     expect(inner.textContent).toBe('Hello')

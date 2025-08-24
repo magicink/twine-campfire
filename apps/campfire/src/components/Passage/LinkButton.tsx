@@ -33,7 +33,14 @@ export const LinkButton = ({
     <button
       type='button'
       data-testid='link-button'
-      className={['font-libertinus', 'disabled:opacity-50', className]
+      className={Array.from(
+        new Set([
+          'campfire-link',
+          'font-libertinus',
+          'disabled:opacity-50',
+          className
+        ])
+      )
         .filter(c => c != null && c !== '')
         .join(' ')}
       {...rest}

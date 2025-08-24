@@ -376,7 +376,7 @@ export const Deck = ({
   return (
     <div
       ref={hostRef}
-      className={`relative w-full h-full overflow-hidden bg-[var(--deck-bg,#0b0b0c)] ${
+      className={`campfire-deck relative w-full h-full overflow-hidden bg-[var(--deck-bg,#0b0b0c)] ${
         className ?? ''
       }`}
       style={themeStyle}

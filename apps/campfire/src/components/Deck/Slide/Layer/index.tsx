@@ -71,7 +71,13 @@ export const Layer = ({
     style.transformOrigin = originMap[anchor]
   }
   return (
-    <div className={className} style={style} {...rest}>
+    <div
+      className={['campfire-layer', className]
+        .filter(c => c != null && c !== '')
+        .join(' ')}
+      style={style}
+      {...rest}
+    >
       {children}
     </div>
   )

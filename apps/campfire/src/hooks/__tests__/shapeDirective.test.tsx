@@ -37,7 +37,9 @@ describe('shape directive', () => {
       '[data-testid="slideShape"]'
     ) as HTMLElement
     expect(el).toBeTruthy()
-    expect(el.className).toBe('wrapper')
+    expect(el.className).toContain('campfire-layer')
+    expect(el.className).toContain('campfire-slide-layer')
+    expect(el.className).toContain('wrapper')
     expect(el.style.left).toBe('10px')
     expect(el.style.top).toBe('20px')
     expect(el.style.width).toBe('100px')
@@ -48,6 +50,9 @@ describe('shape directive', () => {
     expect(rect.getAttribute('stroke')).toBe('red')
     expect(rect.getAttribute('fill')).toBe('blue')
     expect(rect.getAttribute('rx')).toBe('5')
+    const svgClass =
+      typeof svg.className === 'object' ? svg.className.baseVal : svg.className
+    expect(svgClass).toContain('campfire-slide-shape')
     expect(svg.classList.contains('rounded')).toBe(true)
     expect(svg.style.filter).toContain('drop-shadow')
   })

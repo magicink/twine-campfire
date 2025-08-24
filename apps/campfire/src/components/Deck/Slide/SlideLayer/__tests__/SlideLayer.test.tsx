@@ -18,6 +18,7 @@ describe('SlideLayer', () => {
     const wrapper = screen.getByTestId('layer') as HTMLElement
     const p = wrapper.querySelector('p') as HTMLElement
     expect(p.style.color).toBe('rgb(0, 0, 255)')
+    expect(wrapper.className).toContain('campfire-slide-layer')
     expect(wrapper.style.left).toBe('5px')
     expect(wrapper.style.top).toBe('10px')
   })

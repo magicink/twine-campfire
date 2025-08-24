@@ -30,7 +30,9 @@ describe('Translate', () => {
   it('renders a translated string', () => {
     i18next.addResource('en-US', 'translation', 'hello', 'Hello')
     render(<Translate data-i18n-key='hello' />)
-    expect(screen.getByText('Hello')).toBeInTheDocument()
+    const el = screen.getByText('Hello') as HTMLElement
+    expect(el).toBeInTheDocument()
+    expect(el.className).toContain('campfire-translate')
   })
 
   it('renders a translated string from expression', () => {

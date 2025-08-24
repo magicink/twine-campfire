@@ -22,7 +22,9 @@ describe('Show', () => {
   it('renders the value for a given key', () => {
     useGameStore.getState().setGameData({ hp: 5 })
     render(<Show data-key='hp' />)
-    expect(screen.getByText('5')).toBeInTheDocument()
+    const el = screen.getByText('5') as HTMLElement
+    expect(el).toBeInTheDocument()
+    expect(el.className).toContain('campfire-show')
   })
 
   it('renders the value of range objects', () => {
