@@ -2031,6 +2031,7 @@ export const useDirectiveHandlers = () => {
     rotate: { type: 'number' },
     scale: { type: 'number' },
     anchor: { type: 'string' },
+    className: { type: 'string' },
     from: { type: 'string', expression: false }
   } as const
 
@@ -2045,7 +2046,8 @@ export const useDirectiveHandlers = () => {
     'z',
     'rotate',
     'scale',
-    'anchor'
+    'anchor',
+    'className'
   ] as const
 
   /** Schema describing supported text directive attributes. */
@@ -2217,6 +2219,13 @@ export const useDirectiveHandlers = () => {
       if (attrs.anchor) props.anchor = attrs.anchor
       const mergedRaw = mergeAttrs(preset, raw)
       props['data-testid'] = 'layer'
+      const classAttr =
+        typeof attrs.className === 'string'
+          ? attrs.className
+          : typeof mergedRaw.className === 'string'
+            ? mergedRaw.className
+            : undefined
+      if (classAttr) props.className = classAttr
       applyAdditionalAttributes(mergedRaw, props, [
         ...LAYER_EXCLUDES,
         'from',
