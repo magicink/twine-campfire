@@ -55,6 +55,7 @@ See the dedicated docs for detailed usage:
 - [Conditional logic & iteration](docs/directives/conditional-logic-and-iteration.md)
 - [Event & trigger blocks](docs/directives/event-trigger-blocks.md)
 - [Navigation, composition & transitions](docs/directives/navigation-composition.md)
+- [Audio](docs/directives/audio.md)
 - [Persistence](docs/directives/persistence.md)
 - [Localization & internationalization](docs/directives/localization.md)
 
