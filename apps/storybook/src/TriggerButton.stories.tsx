@@ -24,3 +24,19 @@ export const States: StoryObj<typeof TriggerButton> = {
     </div>
   )
 }
+
+/**
+ * Displays a TriggerButton with custom inline styles.
+ *
+ * @returns A styled TriggerButton example.
+ */
+export const Styled: StoryObj<typeof TriggerButton> = {
+  render: () => (
+    <TriggerButton
+      content='[]'
+      style={{ backgroundColor: '#2563eb', color: '#fff' }}
+    >
+      Styled
+    </TriggerButton>
+  )
+}

@@ -20,4 +20,15 @@ describe('TriggerButton', () => {
     fireEvent.click(getByTestId('trigger-button'))
     expect(clicked).toBe(false)
   })
+
+  it('applies inline styles when provided', () => {
+    const { getByTestId } = render(
+      <TriggerButton content='[]' style={{ color: 'red' }}>
+        Fire
+      </TriggerButton>
+    )
+    expect(
+      (getByTestId('trigger-button') as HTMLButtonElement).style.color
+    ).toBe('red')
+  })
 })
