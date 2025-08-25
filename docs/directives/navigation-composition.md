@@ -195,7 +195,31 @@ Control the flow between passages or how they reveal.
   :::
   ```
 
-  Accepts the same attributes as the `SlideShape` component, supports a `from` attribute to apply presets, and uses `layerClassName` to add classes to the Layer wrapper.
+  | Input          | Description                                       |
+  | -------------- | ------------------------------------------------- |
+  | x              | Horizontal position in pixels                     |
+  | y              | Vertical position in pixels                       |
+  | w              | Width in pixels                                   |
+  | h              | Height in pixels                                  |
+  | z              | z-index value                                     |
+  | rotate         | Rotation in degrees                               |
+  | scale          | Scale multiplier                                  |
+  | anchor         | Transform origin (`top-left` by default)          |
+  | type           | Shape type (`rect`, `ellipse`, `line`, `polygon`) |
+  | points         | Points for polygon shapes                         |
+  | x1             | Starting x-coordinate for line shapes             |
+  | y1             | Starting y-coordinate for line shapes             |
+  | x2             | Ending x-coordinate for line shapes               |
+  | y2             | Ending y-coordinate for line shapes               |
+  | stroke         | Stroke color                                      |
+  | strokeWidth    | Stroke width in pixels                            |
+  | fill           | Fill color (`none` by default)                    |
+  | radius         | Corner radius for rectangles                      |
+  | shadow         | Adds a drop shadow when true                      |
+  | className      | Classes applied to the `<svg>` element            |
+  | layerClassName | Classes applied to the Layer wrapper              |
+  | style          | Inline styles applied to the `<svg>` element      |
+  | from           | Name of a shape preset to apply                   |
 
 - `preset`: Define reusable attribute sets that can be applied via the `from` attribute on `deck`, `reveal`, `image`, `shape`, and `text` directives.
 
