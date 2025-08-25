@@ -2050,6 +2050,7 @@ export const useDirectiveHandlers = () => {
     weight: { type: 'number' },
     lineHeight: { type: 'number' },
     color: { type: 'string' },
+    style: { type: 'string' },
     from: { type: 'string', expression: false }
   } as const
 
@@ -2284,6 +2285,7 @@ export const useDirectiveHandlers = () => {
     if (typeof mergedAttrs.lineHeight === 'number')
       style.push(`line-height:${mergedAttrs.lineHeight}`)
     if (mergedAttrs.color) style.push(`color:${mergedAttrs.color}`)
+    if (mergedAttrs.style) style.push(String(mergedAttrs.style))
     const props: Record<string, unknown> = {}
     if (typeof mergedAttrs.x === 'number') props.x = mergedAttrs.x
     if (typeof mergedAttrs.y === 'number') props.y = mergedAttrs.y
@@ -2322,6 +2324,7 @@ export const useDirectiveHandlers = () => {
       'weight',
       'lineHeight',
       'color',
+      'style',
       'className',
       'layerClassName',
       'from'

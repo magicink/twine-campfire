@@ -143,7 +143,26 @@ Control the flow between passages or how they reveal.
   :::
   ```
 
-  Accepts the same attributes as the `Text` component, supports a `from` attribute to apply presets, and uses `layerClassName` to add classes to the Layer wrapper.
+  | Input          | Description                             |
+  | -------------- | --------------------------------------- |
+  | x              | Horizontal position in pixels           |
+  | y              | Vertical position in pixels             |
+  | w              | Width in pixels                         |
+  | h              | Height in pixels                        |
+  | z              | Z-index order                           |
+  | rotate         | Rotation in degrees                     |
+  | scale          | Scale factor                            |
+  | anchor         | Positioning anchor point                |
+  | as             | HTML tag to render (e.g., `p`, `h1`)    |
+  | align          | Text alignment                          |
+  | size           | Font size in pixels                     |
+  | weight         | Font weight                             |
+  | lineHeight     | Line height multiplier                  |
+  | color          | Text color                              |
+  | className      | Additional classes for the text element |
+  | style          | Inline CSS rules for the text element   |
+  | layerClassName | Classes added to the Layer wrapper      |
+  | from           | Name of a text preset to apply          |
 
 - `image`: Position an image within a slide.
 
