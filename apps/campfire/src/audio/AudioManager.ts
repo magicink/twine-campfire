@@ -18,16 +18,33 @@ export class AudioManager {
   }
 
   /**
+   * Retrieves a cached audio element or creates one from the given source.
+   *
+   * @param id - Identifier for the audio track.
+   * @param source - Optional source URL for the track.
+   * @returns The audio element or undefined if no source was available.
+   */
+  private getOrCreateAudio(
+    id: string,
+    source?: string
+  ): HTMLAudioElement | undefined {
+    if (this.sfxMap.has(id)) return this.sfxMap.get(id)!
+    const src = source ?? id
+    if (!src) return undefined
+    const audio = new Audio(src)
+    audio.preload = 'auto'
+    this.sfxMap.set(id, audio)
+    return audio
+  }
+
+  /**
    * Preloads an audio file. If the id already exists, it will be ignored.
    *
    * @param id - Unique identifier for the audio file.
    * @param src - Source URL of the audio file.
    */
   load(id: string, src: string): void {
-    if (this.sfxMap.has(id)) return
-    const audio = new Audio(src)
-    audio.preload = 'auto'
-    this.sfxMap.set(id, audio)
+    this.getOrCreateAudio(id, src)?.load()
   }
 
   /**
@@ -41,17 +58,9 @@ export class AudioManager {
     id: string,
     opts: { src?: string; volume?: number; loop?: boolean; fade?: number } = {}
   ): void {
-    let audio: HTMLAudioElement | undefined
-    const source = opts.src ?? id
-    if (this.sfxMap.has(id)) {
-      audio = this.sfxMap.get(id)!.cloneNode(true) as HTMLAudioElement
-    } else if (source) {
-      const base = new Audio(source)
-      base.preload = 'auto'
-      this.sfxMap.set(id, base)
-      audio = base.cloneNode(true) as HTMLAudioElement
-    }
-    if (!audio) return
+    const base = this.getOrCreateAudio(id, opts.src)
+    if (!base) return
+    const audio = base.cloneNode(true) as HTMLAudioElement
 
     if (this.bgm) {
       this.stopBgm(opts.fade)
@@ -124,15 +133,7 @@ export class AudioManager {
     id: string,
     opts: { src?: string; volume?: number; delay?: number } = {}
   ): void {
-    let base: HTMLAudioElement | undefined
-    const source = opts.src ?? id
-    if (this.sfxMap.has(id)) {
-      base = this.sfxMap.get(id)!
-    } else if (source) {
-      base = new Audio(source)
-      base.preload = 'auto'
-      this.sfxMap.set(id, base)
-    }
+    const base = this.getOrCreateAudio(id, opts.src)
     if (!base) return
     const audio = base.cloneNode(true) as HTMLAudioElement
     audio.volume = (opts.volume ?? 1) * this.globalSfxVolume

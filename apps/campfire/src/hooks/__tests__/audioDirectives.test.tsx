@@ -107,14 +107,29 @@ describe('audio directives', () => {
 
 describe('AudioManager', () => {
   it('scales track volume by global level', () => {
+    const original = (globalThis as unknown as { Audio?: unknown }).Audio
+    let clone: any
+    class MockAudio {
+      volume = 1
+      preload = ''
+      loop = false
+      currentTime = 0
+      constructor(public src?: string) {}
+      play = () => Promise.resolve()
+      pause = () => {}
+      load = () => {}
+      cloneNode = () => {
+        clone = new MockAudio(this.src)
+        return clone
+      }
+    }
+    ;(globalThis as unknown as { Audio: unknown }).Audio = MockAudio
+
     const manager = AudioManager.getInstance()
-    const fake = { volume: 0 } as HTMLAudioElement
-    ;(manager as unknown as { bgm: HTMLAudioElement | undefined }).bgm = fake
-    ;(manager as unknown as { bgmBaseVolume: number }).bgmBaseVolume = 0.5
+    manager.playBgm('track', { src: 'test.mp3', volume: 0.5 })
     manager.setBgmVolume(0.8)
-    expect(fake.volume).toBeCloseTo(0.4)
-    ;(manager as unknown as { bgm: HTMLAudioElement | undefined }).bgm =
-      undefined
-    ;(manager as unknown as { bgmBaseVolume: number }).bgmBaseVolume = 1
+    expect(clone.volume).toBeCloseTo(0.4)
+    manager.stopBgm()
+    ;(globalThis as unknown as { Audio: unknown }).Audio = original
   })
 })
