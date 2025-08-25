@@ -1098,6 +1098,7 @@ export const useDirectiveHandlers = () => {
       typeof attrs.disabled === 'string'
         ? attrs.disabled !== 'false'
         : Boolean(attrs.disabled)
+    const styleAttr = typeof attrs.style === 'string' ? attrs.style : undefined
     const content = JSON.stringify(
       stripLabel(container.children as RootContent[])
     )
@@ -1110,7 +1111,8 @@ export const useDirectiveHandlers = () => {
         hProperties: {
           className: classes,
           content,
-          disabled
+          disabled,
+          ...(styleAttr ? { style: styleAttr } : {})
         }
       }
     }
