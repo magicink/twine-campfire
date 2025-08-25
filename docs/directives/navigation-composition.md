@@ -136,6 +136,30 @@ Control the flow between passages or how they reveal.
   | interruptBehavior | How to handle interrupted animations |
   | from              | Name of a reveal preset to apply     |
 
+- `layer`: Absolutely position arbitrary content within a slide.
+
+  ```md
+  :::deck
+  :::slide
+  :::layer{x=10 y=20 w=100 h=50 className="bg-blue-500"}
+  Content
+  :::
+  :::
+  ```
+
+  | Input     | Description                              |
+  | --------- | ---------------------------------------- |
+  | x         | Horizontal position in pixels            |
+  | y         | Vertical position in pixels              |
+  | w         | Width in pixels                          |
+  | h         | Height in pixels                         |
+  | z         | z-index value                            |
+  | rotate    | Rotation in degrees                      |
+  | scale     | Scale multiplier                         |
+  | anchor    | Transform origin (`top-left` by default) |
+  | className | Additional classes applied to the Layer  |
+  | from      | Name of a layer preset to apply          |
+
 - `text`: Position typographic content within a slide.
 
   ```md
