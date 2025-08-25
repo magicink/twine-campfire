@@ -42,10 +42,11 @@ export class AudioManager {
     opts: { src?: string; volume?: number; loop?: boolean; fade?: number } = {}
   ): void {
     let audio: HTMLAudioElement | undefined
+    const source = opts.src ?? id
     if (this.sfxMap.has(id)) {
       audio = this.sfxMap.get(id)!.cloneNode(true) as HTMLAudioElement
-    } else if (opts.src) {
-      const base = new Audio(opts.src)
+    } else if (source) {
+      const base = new Audio(source)
       base.preload = 'auto'
       this.sfxMap.set(id, base)
       audio = base.cloneNode(true) as HTMLAudioElement
@@ -124,10 +125,11 @@ export class AudioManager {
     opts: { src?: string; volume?: number; delay?: number } = {}
   ): void {
     let base: HTMLAudioElement | undefined
+    const source = opts.src ?? id
     if (this.sfxMap.has(id)) {
       base = this.sfxMap.get(id)!
-    } else if (opts.src) {
-      base = new Audio(opts.src)
+    } else if (source) {
+      base = new Audio(source)
       base.preload = 'auto'
       this.sfxMap.set(id, base)
     }

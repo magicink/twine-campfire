@@ -1613,7 +1613,7 @@ export const useDirectiveHandlers = () => {
     if (id) {
       audio.playSfx(id, { src, volume, delay })
     } else if (src) {
-      audio.playSfx(src, { src, volume, delay })
+      audio.playSfx(src, { volume, delay })
     } else {
       addError('sound directive requires id or src')
     }
@@ -1648,7 +1648,7 @@ export const useDirectiveHandlers = () => {
     } else if (id) {
       audio.playBgm(id, { src, volume, loop, fade })
     } else if (src) {
-      audio.playBgm(src, { src, volume, loop, fade })
+      audio.playBgm(src, { volume, loop, fade })
     } else {
       addError('bgm directive requires id or src')
     }

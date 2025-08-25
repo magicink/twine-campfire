@@ -62,6 +62,7 @@ describe('audio directives', () => {
     runDirectiveBlock(nodes, handlers)
     expect(spy).toHaveBeenCalled()
     expect(spy.mock.calls[0][0]).toBe('beep.mp3')
+    expect(spy.mock.calls[0][1]?.src).toBeUndefined()
     spy.mockRestore()
   })
 
@@ -74,6 +75,7 @@ describe('audio directives', () => {
     runDirectiveBlock(nodes, handlers)
     expect(spy).toHaveBeenCalled()
     expect(spy.mock.calls[0][0]).toBe('ambient.mp3')
+    expect(spy.mock.calls[0][1]?.src).toBeUndefined()
     spy.mockRestore()
   })
 
