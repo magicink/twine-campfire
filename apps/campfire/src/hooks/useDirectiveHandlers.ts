@@ -1592,6 +1592,33 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
+   * Invokes an audio callback using either an id or a source URL.
+   *
+   * @param directive - The directive node being processed.
+   * @param attrs - Attribute map containing optional id and src fields.
+   * @param fn - Callback to invoke with the resolved identifier.
+   * @param opts - Options to pass to the callback.
+   * @param err - Error message when neither id nor src is supplied.
+   */
+  const runWithIdOrSrc = <T extends Record<string, unknown>>(
+    directive: DirectiveNode,
+    attrs: { id?: string; src?: string },
+    fn: (id: string, opts: T & { src?: string }) => void,
+    opts: T,
+    err: string
+  ): void => {
+    const id = hasLabel(directive) ? directive.label : attrs.id
+    const { src } = attrs
+    if (id) {
+      fn(id, { ...opts, src })
+    } else if (src) {
+      fn(src, { ...opts })
+    } else {
+      addError(err)
+    }
+  }
+
+  /**
    * Plays a sound effect or preloaded audio track.
    *
    * @param directive - The directive node being processed.
@@ -1606,17 +1633,15 @@ export const useDirectiveHandlers = () => {
       volume: { type: 'number' },
       delay: { type: 'number' }
     })
-    const id = hasLabel(directive) ? directive.label : attrs.id
-    const src = attrs.src
     const volume = typeof attrs.volume === 'number' ? attrs.volume : undefined
     const delay = typeof attrs.delay === 'number' ? attrs.delay : undefined
-    if (id) {
-      audio.playSfx(id, { src, volume, delay })
-    } else if (src) {
-      audio.playSfx(src, { volume, delay })
-    } else {
-      addError('sound directive requires id or src')
-    }
+    runWithIdOrSrc(
+      directive,
+      attrs,
+      (id, opts) => audio.playSfx(id, opts),
+      { volume, delay },
+      'sound directive requires id or src'
+    )
     return removeNode(parent, index)
   }
 
@@ -1637,20 +1662,20 @@ export const useDirectiveHandlers = () => {
       loop: { type: 'boolean' },
       fade: { type: 'number' }
     })
-    const id = hasLabel(directive) ? directive.label : attrs.id
-    const src = attrs.src
     const stop = attrs.stop === true
     const volume = typeof attrs.volume === 'number' ? attrs.volume : undefined
     const loop = attrs.loop === false ? false : true
     const fade = typeof attrs.fade === 'number' ? attrs.fade : undefined
     if (stop) {
       audio.stopBgm(fade)
-    } else if (id) {
-      audio.playBgm(id, { src, volume, loop, fade })
-    } else if (src) {
-      audio.playBgm(src, { volume, loop, fade })
     } else {
-      addError('bgm directive requires id or src')
+      runWithIdOrSrc(
+        directive,
+        attrs,
+        (id, opts) => audio.playBgm(id, opts),
+        { volume, loop, fade },
+        'bgm directive requires id or src'
+      )
     }
     return removeNode(parent, index)
   }

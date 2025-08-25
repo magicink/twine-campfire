@@ -31,6 +31,14 @@ export class AudioManager {
     if (this.sfxMap.has(id)) return this.sfxMap.get(id)!
     const src = source ?? id
     if (!src) return undefined
+    try {
+      // Validate the URL to avoid creating Audio elements with invalid sources
+      // eslint-disable-next-line no-new
+      new URL(src, 'http://localhost')
+    } catch {
+      console.error(`Invalid audio source: ${src}`)
+      return undefined
+    }
     const audio = new Audio(src)
     audio.preload = 'auto'
     this.sfxMap.set(id, audio)
@@ -44,7 +52,12 @@ export class AudioManager {
    * @param src - Source URL of the audio file.
    */
   load(id: string, src: string): void {
-    this.getOrCreateAudio(id, src)?.load()
+    const audio = this.getOrCreateAudio(id, src)
+    if (audio) {
+      audio.load()
+    } else {
+      console.error(`Failed to load audio: ${id}`)
+    }
   }
 
   /**
