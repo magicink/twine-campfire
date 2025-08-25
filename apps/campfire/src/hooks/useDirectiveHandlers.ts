@@ -2046,8 +2046,7 @@ export const useDirectiveHandlers = () => {
     'z',
     'rotate',
     'scale',
-    'anchor',
-    'className'
+    'anchor'
   ] as const
 
   /** Schema describing supported text directive attributes. */
