@@ -1354,9 +1354,14 @@ export const useDirectiveHandlers = () => {
       directive,
       parent,
       index,
-      { count: { type: 'number' }, fallback: { type: 'string' } },
+      {
+        count: { type: 'number' },
+        fallback: { type: 'string' },
+        ns: { type: 'string' }
+      },
       { state: gameData }
     )
+    if (attrs.ns) ns = attrs.ns
     const keyPattern = /^[A-Za-z_$][A-Za-z0-9_$]*(?::[A-Za-z0-9_.$-]+)?$/
     let props: Properties
     if (key || keyPattern.test(raw)) {
@@ -1377,6 +1382,7 @@ export const useDirectiveHandlers = () => {
     const rawFallback = rawAttrs.fallback as string | undefined
     delete rawAttrs.count
     delete rawAttrs.fallback
+    delete rawAttrs.ns
     const vars: Record<string, unknown> = {}
     for (const [name, rawVal] of Object.entries(rawAttrs)) {
       if (rawVal == null) continue

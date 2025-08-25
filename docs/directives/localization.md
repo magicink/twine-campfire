@@ -20,20 +20,23 @@ Change language and handle translations.
 
   ```md
   :t[ui:apple]{count=2}
+  :t[apple]{ns="ui"}
   :t[favoriteFruit]
   :t[missing]{fallback=`Hello ${player}`}
   ```
 
-  Replace `apple` and `ui` with your key and namespace, or supply a JavaScript
-  expression that resolves to one. The `fallback` attribute accepts either a
+  Replace `apple` and `ui` with your key and namespace. You can also provide the
+  namespace via the `ns` attribute or supply a JavaScript expression that
+  resolves to the key. The `fallback` attribute accepts either a
   quoted string or a template literal. For interpolation, use backticks without
   wrapping the value in quotes.
 
-  | Input    | Description                          |
-  | -------- | ------------------------------------ |
-  | ns:key   | Namespace and key of the translation |
-  | count    | Optional count for pluralization     |
-  | fallback | Fallback text when key is missing    |
+  | Input    | Description                            |
+  | -------- | -------------------------------------- |
+  | ns:key   | Namespace and key of the translation   |
+  | ns       | Optional namespace for the translation |
+  | count    | Optional count for pluralization       |
+  | fallback | Fallback text when key is missing      |
 
 - `translations`: Add a translation.
 
@@ -44,6 +47,13 @@ Change language and handle translations.
   Replace `lang` with the locale and `ui` with the namespace. Only one
   `namespace:key="value"` pair is allowed per directive. Repeat the directive
   for additional translations.
+
+  ```md
+  :translations[en]{ui:greeting="Hello, {{name}}!"}
+  :t[greeting]{ns="ui" name="Aiden"}
+  ```
+
+  Attributes on `:t` become interpolation variables for i18next.
 
   | Input  | Description                     |
   | ------ | ------------------------------- |

@@ -248,6 +248,28 @@ describe('Passage i18n directives', () => {
     expect(i18next.hasResourceBundle('en-US', 'ui')).toBe(true)
   })
 
+  it('supports namespace attribute on t directive', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        { type: 'text', value: ':translations[en-US]{ui:bye="Bye"}' },
+        { type: 'text', value: ':t[bye]{ns="ui"}' }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    const text = await screen.findByText('Bye')
+    expect(text).toBeInTheDocument()
+  })
+
   it('updates translations when language changes', async () => {
     i18next.addResource('en-US', 'translation', 'hello', 'Hello')
     i18next.addResource('fr-FR', 'translation', 'hello', 'Bonjour')
