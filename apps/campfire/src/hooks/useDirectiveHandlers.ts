@@ -1610,8 +1610,10 @@ export const useDirectiveHandlers = () => {
     const src = attrs.src
     const volume = typeof attrs.volume === 'number' ? attrs.volume : undefined
     const delay = typeof attrs.delay === 'number' ? attrs.delay : undefined
-    if (id || src) {
-      audio.playSfx(id ?? src!, { src, volume, delay })
+    if (id) {
+      audio.playSfx(id, { src, volume, delay })
+    } else if (src) {
+      audio.playSfx(src, { src, volume, delay })
     } else {
       addError('sound directive requires id or src')
     }
@@ -1643,8 +1645,10 @@ export const useDirectiveHandlers = () => {
     const fade = typeof attrs.fade === 'number' ? attrs.fade : undefined
     if (stop) {
       audio.stopBgm(fade)
-    } else if (id || src) {
-      audio.playBgm(id ?? src!, { src, volume, loop, fade })
+    } else if (id) {
+      audio.playBgm(id, { src, volume, loop, fade })
+    } else if (src) {
+      audio.playBgm(src, { src, volume, loop, fade })
     } else {
       addError('bgm directive requires id or src')
     }

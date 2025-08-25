@@ -5,6 +5,7 @@ export class AudioManager {
   private sfxMap: Map<string, HTMLAudioElement> = new Map()
   private globalSfxVolume = 1
   private globalBgmVolume = 1
+  private bgmBaseVolume = 1
 
   /**
    * Retrieves the singleton instance of the AudioManager.
@@ -44,9 +45,10 @@ export class AudioManager {
     if (this.sfxMap.has(id)) {
       audio = this.sfxMap.get(id)!.cloneNode(true) as HTMLAudioElement
     } else if (opts.src) {
-      audio = new Audio(opts.src)
-      audio.preload = 'auto'
-      this.sfxMap.set(id, audio)
+      const base = new Audio(opts.src)
+      base.preload = 'auto'
+      this.sfxMap.set(id, base)
+      audio = base.cloneNode(true) as HTMLAudioElement
     }
     if (!audio) return
 
@@ -56,8 +58,9 @@ export class AudioManager {
 
     this.bgm = audio
     this.bgmName = id
+    this.bgmBaseVolume = opts.volume ?? 1
     audio.loop = opts.loop ?? true
-    audio.volume = (opts.volume ?? 1) * this.globalBgmVolume
+    audio.volume = this.bgmBaseVolume * this.globalBgmVolume
     void audio.play()
   }
 
@@ -88,6 +91,7 @@ export class AudioManager {
     }
     this.bgm = undefined
     this.bgmName = undefined
+    this.bgmBaseVolume = 1
   }
 
   /**
@@ -97,7 +101,7 @@ export class AudioManager {
    */
   setBgmVolume(volume: number): void {
     this.globalBgmVolume = volume
-    if (this.bgm) this.bgm.volume = volume
+    if (this.bgm) this.bgm.volume = this.bgmBaseVolume * volume
   }
 
   /**
