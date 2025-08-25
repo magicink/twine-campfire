@@ -28,7 +28,7 @@ beforeEach(() => {
 describe('text directive', () => {
   it('renders a SlideText component with styles', () => {
     const md =
-      ':::text{x=10 y=20 w=100 h=50 z=5 rotate=45 scale=1.5 anchor=center as="h2" align=center size=24 weight=700 lineHeight=1.2 color="red" className="underline" layerClassName="wrapper" data-test="ok"}\nHello\n:::'
+      ':::text{x=10 y=20 w=100 h=50 z=5 rotate=45 scale=1.5 anchor=center as="h2" align=center size=24 weight=700 lineHeight=1.2 color="red" className="underline" layerClassName="wrapper" style="background: blue" data-test="ok"}\nHello\n:::'
     render(<MarkdownRunner markdown={md} />)
     const el = document.querySelector(
       '[data-testid="slideText"]'
@@ -63,6 +63,7 @@ describe('text directive', () => {
     expect(styleObj.fontWeight).toBe('700')
     expect(styleObj.lineHeight).toBe('1.2')
     expect(styleObj.color).toBe('red')
+    expect(styleObj.background).toBe('blue')
     expect(inner.className.split(' ')).toEqual(
       expect.arrayContaining([
         'campfire-slide-text',
