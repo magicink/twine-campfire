@@ -75,6 +75,21 @@ describe('text directive', () => {
     expect(inner.textContent).toBe('Hello')
   })
 
+  it('merges inline style with computed values', () => {
+    const md =
+      ':::text{x=10 color="red" style="color: blue; font-weight:900"}\nHi\n:::'
+    render(<MarkdownRunner markdown={md} />)
+    const el = document.querySelector(
+      '[data-testid="slideText"]'
+    ) as HTMLElement
+    const inner = el.firstElementChild as HTMLElement
+    const rawStyle = inner.getAttribute('style') || ''
+    expect(rawStyle).toContain('left: 10px')
+    expect(rawStyle).toContain('color: blue')
+    expect(rawStyle).toContain('font-weight: 900')
+    expect(inner.textContent).toBe('Hi')
+  })
+
   it('throws when using reserved class attribute', () => {
     const md = ':::text{class="bad"}\nOops\n:::'
     expect(() => render(<MarkdownRunner markdown={md} />)).toThrow(

@@ -165,13 +165,33 @@ Control the flow between passages or how they reveal.
   ```md
   :::deck
   :::slide
-  :::text{x=100 y=50 align=center size=32}
+  :::text{x=100 y=50 align=center size=32 style="color: blue"}
   Hello
   :::
   :::
   ```
 
-  Accepts the same attributes as the `Text` component, supports a `from` attribute to apply presets, and uses `layerClassName` to add classes to the Layer wrapper.
+  Supports a `from` attribute to apply presets and uses `layerClassName` to add classes to the Layer wrapper.
+
+  | Input          | Description                              |
+  | -------------- | ---------------------------------------- |
+  | x              | Horizontal position in pixels            |
+  | y              | Vertical position in pixels              |
+  | w              | Width in pixels                          |
+  | h              | Height in pixels                         |
+  | z              | z-index value                            |
+  | rotate         | Rotation in degrees                      |
+  | scale          | Scale multiplier                         |
+  | anchor         | Transform origin (`top-left` by default) |
+  | align          | Horizontal text alignment                |
+  | size           | Font size in pixels                      |
+  | weight         | Font weight                              |
+  | lineHeight     | Line height multiplier                   |
+  | color          | Text color                               |
+  | style          | Inline styles applied to the text node   |
+  | className      | Classes applied to the text node         |
+  | layerClassName | Classes applied to the Layer wrapper     |
+  | from           | Name of a text preset to apply           |
 
 - `image`: Position an image within a slide.
 

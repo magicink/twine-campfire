@@ -2318,6 +2318,17 @@ export const useDirectiveHandlers = () => {
     if (typeof mergedAttrs.lineHeight === 'number')
       style.push(`line-height:${mergedAttrs.lineHeight}`)
     if (mergedAttrs.color) style.push(`color:${mergedAttrs.color}`)
+    const rawStyle = mergedRaw.style
+    if (rawStyle) {
+      if (typeof rawStyle === 'string') {
+        style.push(rawStyle)
+      } else if (typeof rawStyle === 'object') {
+        const entries = Object.entries(rawStyle as Record<string, unknown>).map(
+          ([k, v]) => `${k}:${v}`
+        )
+        style.push(entries.join(';'))
+      }
+    }
     const props: Record<string, unknown> = {}
     if (typeof mergedAttrs.x === 'number') props.x = mergedAttrs.x
     if (typeof mergedAttrs.y === 'number') props.y = mergedAttrs.y
@@ -2356,6 +2367,7 @@ export const useDirectiveHandlers = () => {
       'weight',
       'lineHeight',
       'color',
+      'style',
       'className',
       'layerClassName',
       'from'
