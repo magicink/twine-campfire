@@ -57,6 +57,7 @@ See the dedicated docs for detailed usage:
 - [Navigation, composition & transitions](docs/directives/navigation-composition.md)
 - [Persistence](docs/directives/persistence.md)
 - [Localization & internationalization](docs/directives/localization.md)
+- [Audio](docs/directives/audio.md)
 
 Campfire prints descriptive error messages to the browser console when it encounters invalid markup.
 

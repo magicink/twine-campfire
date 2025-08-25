@@ -25,6 +25,7 @@ import type { ContainerDirective } from 'mdast-util-directive'
 import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
 import { type Checkpoint, useGameStore } from '@campfire/state/useGameStore'
 import { markTitleOverridden } from '@campfire/state/titleState'
+import { AudioManager } from '@campfire/audio/AudioManager'
 import {
   type DirectiveNode,
   type ExtractedAttrs,
@@ -131,6 +132,7 @@ export const useDirectiveHandlers = () => {
   const onExitSeenRef = useRef(false)
   const onExitErrorRef = useRef(false)
   const lastPassageIdRef = useRef<string | undefined>(undefined)
+  const audio = AudioManager.getInstance()
 
   const MAX_INCLUDE_DEPTH = 10
   let includeDepth = 0
@@ -1567,6 +1569,111 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
+   * Preloads an audio track into the AudioManager cache.
+   *
+   * @param directive - The directive node being processed.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within the parent.
+   * @returns The index of the removed node.
+   */
+  const handlePreloadAudio: DirectiveHandler = (directive, parent, index) => {
+    const { attrs } = extractAttributes(directive, parent, index, {
+      id: { type: 'string' },
+      src: { type: 'string' }
+    })
+    const id = hasLabel(directive) ? directive.label : attrs.id
+    const src = attrs.src
+    if (id && src) {
+      audio.load(id, src)
+    } else {
+      addError('preloadAudio directive requires id and src')
+    }
+    return removeNode(parent, index)
+  }
+
+  /**
+   * Plays a sound effect or preloaded audio track.
+   *
+   * @param directive - The directive node being processed.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within the parent.
+   * @returns The index of the removed node.
+   */
+  const handleSound: DirectiveHandler = (directive, parent, index) => {
+    const { attrs } = extractAttributes(directive, parent, index, {
+      id: { type: 'string' },
+      src: { type: 'string' },
+      volume: { type: 'number' },
+      delay: { type: 'number' }
+    })
+    const id = hasLabel(directive) ? directive.label : attrs.id
+    const src = attrs.src
+    const volume = typeof attrs.volume === 'number' ? attrs.volume : undefined
+    const delay = typeof attrs.delay === 'number' ? attrs.delay : undefined
+    if (id || src) {
+      audio.playSfx(id ?? src!, { src, volume, delay })
+    } else {
+      addError('sound directive requires id or src')
+    }
+    return removeNode(parent, index)
+  }
+
+  /**
+   * Controls background music playback, allowing start, stop and fade.
+   *
+   * @param directive - The directive node being processed.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within the parent.
+   * @returns The index of the removed node.
+   */
+  const handleBgm: DirectiveHandler = (directive, parent, index) => {
+    const { attrs } = extractAttributes(directive, parent, index, {
+      id: { type: 'string' },
+      src: { type: 'string' },
+      stop: { type: 'boolean' },
+      volume: { type: 'number' },
+      loop: { type: 'boolean' },
+      fade: { type: 'number' }
+    })
+    const id = hasLabel(directive) ? directive.label : attrs.id
+    const src = attrs.src
+    const stop = attrs.stop === true
+    const volume = typeof attrs.volume === 'number' ? attrs.volume : undefined
+    const loop = attrs.loop === false ? false : true
+    const fade = typeof attrs.fade === 'number' ? attrs.fade : undefined
+    if (stop) {
+      audio.stopBgm(fade)
+    } else if (id || src) {
+      audio.playBgm(id ?? src!, { src, volume, loop, fade })
+    } else {
+      addError('bgm directive requires id or src')
+    }
+    return removeNode(parent, index)
+  }
+
+  /**
+   * Adjusts global audio volume levels for BGM and sound effects.
+   *
+   * @param directive - The directive node being processed.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within the parent.
+   * @returns The index of the removed node.
+   */
+  const handleVolume: DirectiveHandler = (directive, parent, index) => {
+    const { attrs } = extractAttributes(directive, parent, index, {
+      bgm: { type: 'number' },
+      sfx: { type: 'number' }
+    })
+    if (typeof attrs.bgm === 'number') {
+      audio.setBgmVolume(attrs.bgm)
+    }
+    if (typeof attrs.sfx === 'number') {
+      audio.setSfxVolume(attrs.sfx)
+    }
+    return removeNode(parent, index)
+  }
+
+  /**
    * Saves the current game state to local storage.
    *
    * @param directive - The directive node being processed.
@@ -2990,6 +3097,10 @@ export const useDirectiveHandlers = () => {
       include: handleInclude,
       title: handleTitle,
       goto: handleGoto,
+      preloadAudio: handlePreloadAudio,
+      sound: handleSound,
+      bgm: handleBgm,
+      volume: handleVolume,
       save: handleSave,
       load: handleLoad,
       clearSave: handleClearSave,
