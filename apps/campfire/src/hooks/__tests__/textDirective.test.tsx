@@ -75,6 +75,25 @@ describe('text directive', () => {
     expect(inner.textContent).toBe('Hello')
   })
 
+  it('supports inline styles via the style attribute', () => {
+    const md = ':::text{style="color: blue; font-weight: 900;"}\nStyled\n:::'
+    render(<MarkdownRunner markdown={md} />)
+    const inner = document.querySelector('[data-testid="slideText"]')
+      ?.firstElementChild as HTMLElement
+    const style = inner.getAttribute('style') || ''
+    const rules = style
+      .split(';')
+      .filter(Boolean)
+      .map(rule => {
+        const [prop, ...rest] = rule.split(':')
+        return [prop.trim(), rest.join(':').trim()]
+      })
+    const styleObj = Object.fromEntries(rules)
+    expect(styleObj.position).toBe('absolute')
+    expect(styleObj.color).toBe('blue')
+    expect(styleObj['font-weight']).toBe('900')
+  })
+
   it('throws when using reserved class attribute', () => {
     const md = ':::text{class="bad"}\nOops\n:::'
     expect(() => render(<MarkdownRunner markdown={md} />)).toThrow(

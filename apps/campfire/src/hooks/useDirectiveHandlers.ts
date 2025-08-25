@@ -2065,6 +2065,9 @@ export const useDirectiveHandlers = () => {
     weight: { type: 'number' },
     lineHeight: { type: 'number' },
     color: { type: 'string' },
+    className: { type: 'string' },
+    layerClassName: { type: 'string' },
+    style: { type: 'string' },
     from: { type: 'string', expression: false }
   } as const
 
@@ -2306,6 +2309,9 @@ export const useDirectiveHandlers = () => {
     if (typeof mergedAttrs.lineHeight === 'number')
       style.push(`line-height:${mergedAttrs.lineHeight}`)
     if (mergedAttrs.color) style.push(`color:${mergedAttrs.color}`)
+    const styleAttr =
+      typeof mergedAttrs.style === 'string' ? mergedAttrs.style : undefined
+    if (styleAttr) style.push(styleAttr)
     const props: Record<string, unknown> = {}
     if (typeof mergedAttrs.x === 'number') props.x = mergedAttrs.x
     if (typeof mergedAttrs.y === 'number') props.y = mergedAttrs.y
@@ -2318,10 +2324,12 @@ export const useDirectiveHandlers = () => {
     if (mergedAttrs.anchor) props.anchor = mergedAttrs.anchor
     if (style.length) props.style = style.join(';')
     const classAttr =
-      typeof mergedRaw.className === 'string' ? mergedRaw.className : undefined
+      typeof mergedAttrs.className === 'string'
+        ? mergedAttrs.className
+        : undefined
     const layerClassAttr =
-      typeof mergedRaw.layerClassName === 'string'
-        ? mergedRaw.layerClassName
+      typeof mergedAttrs.layerClassName === 'string'
+        ? mergedAttrs.layerClassName
         : undefined
     const classes = ['text-base', 'font-normal']
     if (classAttr) classes.unshift(classAttr)
@@ -2346,6 +2354,7 @@ export const useDirectiveHandlers = () => {
       'color',
       'className',
       'layerClassName',
+      'style',
       'from'
     ])
     const processed = runDirectiveBlock(

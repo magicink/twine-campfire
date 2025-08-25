@@ -171,7 +171,7 @@ Control the flow between passages or how they reveal.
   :::
   ```
 
-  Accepts the same attributes as the `Text` component, supports a `from` attribute to apply presets, and uses `layerClassName` to add classes to the Layer wrapper.
+  Accepts the same attributes as the `Text` component, including `className` for element classes and `style` for inline CSS. Supports a `from` attribute to apply presets and uses `layerClassName` to add classes to the Layer wrapper.
 
 - `image`: Position an image within a slide.
 
