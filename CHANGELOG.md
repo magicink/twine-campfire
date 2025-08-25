@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.85.0](https://github.com/magicink/twine-campfire/compare/v1.84.2...v1.85.0) (2025-08-25)
+
+
+### Features
+
+* add namespace attribute to t directive ([#525](https://github.com/magicink/twine-campfire/issues/525)) ([84b5f35](https://github.com/magicink/twine-campfire/commit/84b5f350edf30dcd346fcab86e4f8a47e444e8b2))
+* **directives:** expose className on layer directive ([#519](https://github.com/magicink/twine-campfire/issues/519)) ([92bd269](https://github.com/magicink/twine-campfire/commit/92bd269c5c2ede5ead09a424825e3ad4acea5a86))
+* **shape:** expose shape directive class attributes ([#523](https://github.com/magicink/twine-campfire/issues/523)) ([3ba03ff](https://github.com/magicink/twine-campfire/commit/3ba03ff62c170d5e9b54b0a5c8d3b7830592ea55))
+* **text:** expose style attribute on directive ([#526](https://github.com/magicink/twine-campfire/issues/526)) ([560a970](https://github.com/magicink/twine-campfire/commit/560a970bbd5463a719c9b2d435b6dc30523be69c))
+
+
+### Bug Fixes
+
+* expose image class attributes ([#524](https://github.com/magicink/twine-campfire/issues/524)) ([d9d6a01](https://github.com/magicink/twine-campfire/commit/d9d6a01210ab5f4d83ae03db3c9f3b30e8abd9d6))
+* **trigger:** cover style attribute ([#522](https://github.com/magicink/twine-campfire/issues/522)) ([bd39d84](https://github.com/magicink/twine-campfire/commit/bd39d842df806716d9c0808438f3c78c2083d1fa))
+
 ## [1.84.2](https://github.com/magicink/twine-campfire/compare/v1.84.1...v1.84.2) (2025-08-24)
 
 
