@@ -63,4 +63,16 @@ describe('image directive', () => {
     const img = el.querySelector('img') as HTMLImageElement
     expect(img.getAttribute('src')).toBe('https://example.com/cat.png')
   })
+
+  it('applies class names from presets', () => {
+    const md =
+      ':preset{type="image" name="cat" className="rounded" layerClassName="wrap" src="https://example.com/cat.png"}\n:::reveal\n:image{from="cat"}\n:::\n'
+    render(<MarkdownRunner markdown={md} />)
+    const el = document.querySelector(
+      '[data-testid="slideImage"]'
+    ) as HTMLElement
+    expect(el.className).toContain('wrap')
+    const img = el.querySelector('img') as HTMLImageElement
+    expect(img.className).toContain('rounded')
+  })
 })

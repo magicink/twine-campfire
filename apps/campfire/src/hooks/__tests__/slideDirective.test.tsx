@@ -48,13 +48,25 @@ beforeEach(() => {
 describe('slide directive', () => {
   it('renders a Slide component with transition props', () => {
     const md =
-      ':::deck\n:::slide{enter="slide" enterDir="left" enterDuration=500 exit="fade" exitDir="down" exitDuration=400 data-test="ok"}\nHello\n:::\n:::'
+      ':::deck\n:::slide{enter="slide" enterDir="left" enterDuration=500 enterDelay=100 enterEasing="ease-in" exit="fade" exitDir="down" exitDuration=400 exitDelay=200 exitEasing="ease-out" data-test="ok"}\nHello\n:::\n:::'
     render(<MarkdownRunner markdown={md} />)
     const slide = findSlide(output)!
     expect(slide.type).toBe(Slide)
     expect(slide.props.transition).toEqual({
-      enter: { type: 'slide', dir: 'left', duration: 500 },
-      exit: { type: 'fade', dir: 'down', duration: 400 }
+      enter: {
+        type: 'slide',
+        dir: 'left',
+        duration: 500,
+        delay: 100,
+        easing: 'ease-in'
+      },
+      exit: {
+        type: 'fade',
+        dir: 'down',
+        duration: 400,
+        delay: 200,
+        easing: 'ease-out'
+      }
     })
     expect(slide.props['data-test']).toBe('ok')
   })

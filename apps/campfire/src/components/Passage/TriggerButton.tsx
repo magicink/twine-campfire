@@ -6,12 +6,12 @@ import type { JSX } from 'preact'
 
 const clone = rfdc()
 
-interface TriggerButtonProps {
+interface TriggerButtonProps
+  extends Omit<JSX.HTMLAttributes<HTMLButtonElement>, 'className'> {
   className?: string | string[]
   content: string
   children?: string
   disabled?: boolean
-  style?: JSX.CSSProperties
 }
 
 /**
@@ -28,7 +28,9 @@ export const TriggerButton = ({
   content,
   children,
   disabled,
-  style
+  style,
+  onClick,
+  ...rest
 }: TriggerButtonProps) => {
   const handlers = useDirectiveHandlers()
   const classes = Array.isArray(className)
@@ -48,8 +50,11 @@ export const TriggerButton = ({
       ].join(' ')}
       disabled={disabled}
       style={style}
+      {...rest}
       onClick={e => {
         e.stopPropagation()
+        onClick?.(e)
+        if (e.defaultPrevented) return
         runDirectiveBlock(clone(JSON.parse(content)) as RootContent[], handlers)
       }}
     >

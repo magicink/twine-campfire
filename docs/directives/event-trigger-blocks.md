@@ -37,7 +37,7 @@ Run directives on specific passage events or group actions.
 - `trigger`: Render a button that runs directives when clicked.
 
   ```md
-  :::trigger{label="Do it" className="primary" disabled}
+  :::trigger{label="Do it" className="primary" disabled style="color:red"}
   :set[key=value]
   :::
   ```
@@ -51,3 +51,4 @@ Run directives on specific passage events or group actions.
   | label     | Text displayed on the button           |
   | className | Optional space-separated classes       |
   | disabled  | Optional boolean to disable the button |
+  | style     | Optional inline style declarations     |

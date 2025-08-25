@@ -1098,6 +1098,7 @@ export const useDirectiveHandlers = () => {
       typeof attrs.disabled === 'string'
         ? attrs.disabled !== 'false'
         : Boolean(attrs.disabled)
+    const styleAttr = typeof attrs.style === 'string' ? attrs.style : undefined
     const content = JSON.stringify(
       stripLabel(container.children as RootContent[])
     )
@@ -1110,7 +1111,8 @@ export const useDirectiveHandlers = () => {
         hProperties: {
           className: classes,
           content,
-          disabled
+          disabled,
+          ...(styleAttr ? { style: styleAttr } : {})
         }
       }
     }
@@ -1352,9 +1354,14 @@ export const useDirectiveHandlers = () => {
       directive,
       parent,
       index,
-      { count: { type: 'number' }, fallback: { type: 'string' } },
+      {
+        count: { type: 'number' },
+        fallback: { type: 'string' },
+        ns: { type: 'string' }
+      },
       { state: gameData }
     )
+    if (attrs.ns) ns = attrs.ns
     const keyPattern = /^[A-Za-z_$][A-Za-z0-9_$]*(?::[A-Za-z0-9_.$-]+)?$/
     let props: Properties
     if (key || keyPattern.test(raw)) {
@@ -1375,6 +1382,7 @@ export const useDirectiveHandlers = () => {
     const rawFallback = rawAttrs.fallback as string | undefined
     delete rawAttrs.count
     delete rawAttrs.fallback
+    delete rawAttrs.ns
     const vars: Record<string, unknown> = {}
     for (const [name, rawVal] of Object.entries(rawAttrs)) {
       if (rawVal == null) continue
@@ -1961,18 +1969,24 @@ export const useDirectiveHandlers = () => {
    * @param base - Transition key or existing configuration.
    * @param dir - Optional direction to apply.
    * @param duration - Optional duration in milliseconds.
+   * @param delay - Optional delay before the transition starts.
+   * @param easing - Optional easing function to apply.
    * @returns A transition object when a base is provided.
    */
   const buildTransition = (
     base?: Transition | Transition['type'],
     dir?: Direction,
-    duration?: number
+    duration?: number,
+    delay?: number,
+    easing?: string
   ): Transition | undefined => {
     if (!base) return undefined
     const t: Transition =
       typeof base === 'string' ? { type: base } : { ...base }
     if (dir) t.dir = dir
     if (typeof duration === 'number') t.duration = duration
+    if (typeof delay === 'number') t.delay = delay
+    if (easing) t.easing = easing
     return t
   }
 
@@ -1985,6 +1999,10 @@ export const useDirectiveHandlers = () => {
     exitDir: { type: 'string' },
     enterDuration: { type: 'number' },
     exitDuration: { type: 'number' },
+    enterDelay: { type: 'number' },
+    exitDelay: { type: 'number' },
+    enterEasing: { type: 'string', expression: false },
+    exitEasing: { type: 'string', expression: false },
     steps: { type: 'number' },
     onEnter: { type: 'string' },
     onExit: { type: 'string' },
@@ -2002,6 +2020,10 @@ export const useDirectiveHandlers = () => {
     'exitDir',
     'enterDuration',
     'exitDuration',
+    'enterDelay',
+    'exitDelay',
+    'enterEasing',
+    'exitEasing',
     'steps',
     'onEnter',
     'onExit'
@@ -2017,6 +2039,7 @@ export const useDirectiveHandlers = () => {
     rotate: { type: 'number' },
     scale: { type: 'number' },
     anchor: { type: 'string' },
+    className: { type: 'string' },
     from: { type: 'string', expression: false }
   } as const
 
@@ -2050,7 +2073,6 @@ export const useDirectiveHandlers = () => {
     weight: { type: 'number' },
     lineHeight: { type: 'number' },
     color: { type: 'string' },
-    style: { type: 'string' },
     from: { type: 'string', expression: false }
   } as const
 
@@ -2070,6 +2092,8 @@ export const useDirectiveHandlers = () => {
     src: { type: 'string', required: true },
     alt: { type: 'string' },
     style: { type: 'string' },
+    className: { type: 'string' },
+    layerClassName: { type: 'string' },
     from: { type: 'string', expression: false }
   } as const
 
@@ -2097,6 +2121,8 @@ export const useDirectiveHandlers = () => {
     fill: { type: 'string' },
     radius: { type: 'number' },
     shadow: { type: 'boolean' },
+    className: { type: 'string' },
+    layerClassName: { type: 'string' },
     style: { type: 'string' },
     from: { type: 'string', expression: false }
   } as const
@@ -2204,6 +2230,13 @@ export const useDirectiveHandlers = () => {
       if (attrs.anchor) props.anchor = attrs.anchor
       const mergedRaw = mergeAttrs(preset, raw)
       props['data-testid'] = 'layer'
+      const classAttr =
+        typeof attrs.className === 'string'
+          ? attrs.className
+          : typeof mergedRaw.className === 'string'
+            ? mergedRaw.className
+            : undefined
+      if (classAttr) props.className = classAttr
       applyAdditionalAttributes(mergedRaw, props, [
         ...LAYER_EXCLUDES,
         'from',
@@ -2285,7 +2318,17 @@ export const useDirectiveHandlers = () => {
     if (typeof mergedAttrs.lineHeight === 'number')
       style.push(`line-height:${mergedAttrs.lineHeight}`)
     if (mergedAttrs.color) style.push(`color:${mergedAttrs.color}`)
-    if (mergedAttrs.style) style.push(String(mergedAttrs.style))
+    const rawStyle = mergedRaw.style
+    if (rawStyle) {
+      if (typeof rawStyle === 'string') {
+        style.push(rawStyle)
+      } else if (typeof rawStyle === 'object') {
+        const entries = Object.entries(rawStyle as Record<string, unknown>).map(
+          ([k, v]) => `${k}:${v}`
+        )
+        style.push(entries.join(';'))
+      }
+    }
     const props: Record<string, unknown> = {}
     if (typeof mergedAttrs.x === 'number') props.x = mergedAttrs.x
     if (typeof mergedAttrs.y === 'number') props.y = mergedAttrs.y
@@ -2388,14 +2431,9 @@ export const useDirectiveHandlers = () => {
     if (mergedAttrs.anchor) props.anchor = mergedAttrs.anchor
     if (mergedAttrs.alt) props.alt = mergedAttrs.alt
     if (mergedAttrs.style) props.style = mergedAttrs.style
-    const classAttr =
-      typeof mergedRaw.className === 'string' ? mergedRaw.className : undefined
-    const layerClassAttr =
-      typeof mergedRaw.layerClassName === 'string'
-        ? mergedRaw.layerClassName
-        : undefined
-    if (classAttr) props.className = classAttr
-    if (layerClassAttr) props.layerClassName = layerClassAttr
+    if (mergedAttrs.className) props.className = mergedAttrs.className
+    if (mergedAttrs.layerClassName)
+      props.layerClassName = mergedAttrs.layerClassName
     applyAdditionalAttributes(mergedRaw, props, [
       'x',
       'y',
@@ -2477,14 +2515,9 @@ export const useDirectiveHandlers = () => {
     if (typeof mergedAttrs.shadow === 'boolean')
       props.shadow = mergedAttrs.shadow
     if (mergedAttrs.style) props.style = mergedAttrs.style
-    const classAttr =
-      typeof mergedRaw.className === 'string' ? mergedRaw.className : undefined
-    const layerClassAttr =
-      typeof mergedRaw.layerClassName === 'string'
-        ? mergedRaw.layerClassName
-        : undefined
-    if (classAttr) props.className = classAttr
-    if (layerClassAttr) props.layerClassName = layerClassAttr
+    if (mergedAttrs.className) props.className = mergedAttrs.className
+    if (mergedAttrs.layerClassName)
+      props.layerClassName = mergedAttrs.layerClassName
     applyAdditionalAttributes(mergedRaw, props, [
       'x',
       'y',
@@ -2542,7 +2575,9 @@ export const useDirectiveHandlers = () => {
         | Transition['type']
         | undefined,
       preset?.enterDir as Direction | undefined,
-      preset?.enterDuration
+      preset?.enterDuration,
+      preset?.enterDelay,
+      preset?.enterEasing
     )
     let exit = buildTransition(
       (preset?.exit ?? preset?.transition) as
@@ -2550,7 +2585,9 @@ export const useDirectiveHandlers = () => {
         | Transition['type']
         | undefined,
       preset?.exitDir as Direction | undefined,
-      preset?.exitDuration
+      preset?.exitDuration,
+      preset?.exitDelay,
+      preset?.exitEasing
     )
     if (preset) {
       if (typeof preset.steps === 'number') props.steps = preset.steps
@@ -2563,7 +2600,9 @@ export const useDirectiveHandlers = () => {
         | Transition['type']
         | undefined,
       (attrs.enterDir as Direction | undefined) ?? enter?.dir,
-      attrs.enterDuration ?? enter?.duration
+      attrs.enterDuration ?? enter?.duration,
+      attrs.enterDelay ?? enter?.delay,
+      attrs.enterEasing ?? enter?.easing
     )
     exit = buildTransition(
       (attrs.exit ?? attrs.transition ?? exit?.type) as
@@ -2571,7 +2610,9 @@ export const useDirectiveHandlers = () => {
         | Transition['type']
         | undefined,
       (attrs.exitDir as Direction | undefined) ?? exit?.dir,
-      attrs.exitDuration ?? exit?.duration
+      attrs.exitDuration ?? exit?.duration,
+      attrs.exitDelay ?? exit?.delay,
+      attrs.exitEasing ?? exit?.easing
     )
     if (enter || exit) {
       props.transition = {

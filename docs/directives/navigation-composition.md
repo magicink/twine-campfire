@@ -1,4 +1,4 @@
-# Navigation, composition & transitions
+# Navigation & composition
 
 Control the flow between passages or how they reveal.
 
@@ -96,6 +96,10 @@ Control the flow between passages or how they reveal.
   | exitDir       | Exit transition direction           |
   | enterDuration | Enter transition duration in ms     |
   | exitDuration  | Exit transition duration in ms      |
+  | enterDelay    | Enter transition delay in ms        |
+  | exitDelay     | Exit transition delay in ms         |
+  | enterEasing   | Enter transition easing             |
+  | exitEasing    | Exit transition easing              |
   | steps         | Number of build steps on this slide |
   | onEnter       | Directive block to run on enter     |
   | onExit        | Directive block to run on exit      |
@@ -132,37 +136,62 @@ Control the flow between passages or how they reveal.
   | interruptBehavior | How to handle interrupted animations |
   | from              | Name of a reveal preset to apply     |
 
+- `layer`: Absolutely position arbitrary content within a slide.
+
+  ```md
+  :::deck
+  :::slide
+  :::layer{x=10 y=20 w=100 h=50 className="bg-blue-500"}
+  Content
+  :::
+  :::
+  ```
+
+  | Input     | Description                              |
+  | --------- | ---------------------------------------- |
+  | x         | Horizontal position in pixels            |
+  | y         | Vertical position in pixels              |
+  | w         | Width in pixels                          |
+  | h         | Height in pixels                         |
+  | z         | z-index value                            |
+  | rotate    | Rotation in degrees                      |
+  | scale     | Scale multiplier                         |
+  | anchor    | Transform origin (`top-left` by default) |
+  | className | Additional classes applied to the Layer  |
+  | from      | Name of a layer preset to apply          |
+
 - `text`: Position typographic content within a slide.
 
   ```md
   :::deck
   :::slide
-  :::text{x=100 y=50 align=center size=32}
+  :::text{x=100 y=50 align=center size=32 style="color: blue"}
   Hello
   :::
   :::
   ```
 
-  | Input          | Description                             |
-  | -------------- | --------------------------------------- |
-  | x              | Horizontal position in pixels           |
-  | y              | Vertical position in pixels             |
-  | w              | Width in pixels                         |
-  | h              | Height in pixels                        |
-  | z              | Z-index order                           |
-  | rotate         | Rotation in degrees                     |
-  | scale          | Scale factor                            |
-  | anchor         | Positioning anchor point                |
-  | as             | HTML tag to render (e.g., `p`, `h1`)    |
-  | align          | Text alignment                          |
-  | size           | Font size in pixels                     |
-  | weight         | Font weight                             |
-  | lineHeight     | Line height multiplier                  |
-  | color          | Text color                              |
-  | className      | Additional classes for the text element |
-  | style          | Inline CSS rules for the text element   |
-  | layerClassName | Classes added to the Layer wrapper      |
-  | from           | Name of a text preset to apply          |
+  Supports a `from` attribute to apply presets and uses `layerClassName` to add classes to the Layer wrapper.
+
+  | Input          | Description                              |
+  | -------------- | ---------------------------------------- |
+  | x              | Horizontal position in pixels            |
+  | y              | Vertical position in pixels              |
+  | w              | Width in pixels                          |
+  | h              | Height in pixels                         |
+  | z              | z-index value                            |
+  | rotate         | Rotation in degrees                      |
+  | scale          | Scale multiplier                         |
+  | anchor         | Transform origin (`top-left` by default) |
+  | align          | Horizontal text alignment                |
+  | size           | Font size in pixels                      |
+  | weight         | Font weight                              |
+  | lineHeight     | Line height multiplier                   |
+  | color          | Text color                               |
+  | style          | Inline styles applied to the text node   |
+  | className      | Classes applied to the text node         |
+  | layerClassName | Classes applied to the Layer wrapper     |
+  | from           | Name of a text preset to apply           |
 
 - `image`: Position an image within a slide.
 
@@ -174,7 +203,24 @@ Control the flow between passages or how they reveal.
   :::
   ```
 
-  Accepts the same attributes as the `SlideImage` component, supports a `from` attribute to apply presets, and uses `layerClassName` to add classes to the Layer wrapper.
+  Supports a `from` attribute to apply presets.
+
+  | Input          | Description                              |
+  | -------------- | ---------------------------------------- |
+  | x              | Horizontal position in pixels            |
+  | y              | Vertical position in pixels              |
+  | w              | Width in pixels                          |
+  | h              | Height in pixels                         |
+  | z              | z-index value                            |
+  | rotate         | Rotation in degrees                      |
+  | scale          | Scale multiplier                         |
+  | anchor         | Transform origin (`top-left` by default) |
+  | src            | Image source URL                         |
+  | alt            | Alternate text description               |
+  | style          | Inline styles applied to the `<img>`     |
+  | className      | Classes applied to the `<img>`           |
+  | layerClassName | Classes applied to the Layer wrapper     |
+  | from           | Name of an image preset to apply         |
 
 - `shape`: Draw basic shapes within a slide.
 
@@ -186,7 +232,31 @@ Control the flow between passages or how they reveal.
   :::
   ```
 
-  Accepts the same attributes as the `SlideShape` component, supports a `from` attribute to apply presets, and uses `layerClassName` to add classes to the Layer wrapper.
+  | Input          | Description                                       |
+  | -------------- | ------------------------------------------------- |
+  | x              | Horizontal position in pixels                     |
+  | y              | Vertical position in pixels                       |
+  | w              | Width in pixels                                   |
+  | h              | Height in pixels                                  |
+  | z              | z-index value                                     |
+  | rotate         | Rotation in degrees                               |
+  | scale          | Scale multiplier                                  |
+  | anchor         | Transform origin (`top-left` by default)          |
+  | type           | Shape type (`rect`, `ellipse`, `line`, `polygon`) |
+  | points         | Points for polygon shapes                         |
+  | x1             | Starting x-coordinate for line shapes             |
+  | y1             | Starting y-coordinate for line shapes             |
+  | x2             | Ending x-coordinate for line shapes               |
+  | y2             | Ending y-coordinate for line shapes               |
+  | stroke         | Stroke color                                      |
+  | strokeWidth    | Stroke width in pixels                            |
+  | fill           | Fill color (`none` by default)                    |
+  | radius         | Corner radius for rectangles                      |
+  | shadow         | Adds a drop shadow when true                      |
+  | className      | Classes applied to the `<svg>` element            |
+  | layerClassName | Classes applied to the Layer wrapper              |
+  | style          | Inline styles applied to the `<svg>` element      |
+  | from           | Name of a shape preset to apply                   |
 
 - `preset`: Define reusable attribute sets that can be applied via the `from` attribute on `deck`, `reveal`, `image`, `shape`, and `text` directives.
 
@@ -203,17 +273,3 @@ Control the flow between passages or how they reveal.
   ```
 
   Presets allow authors to reuse common configurations across multiple directives.
-
-## Transitions
-
-Transitions are available on the `deck`, `slide`, and `reveal` directives.
-
-| Type  | Attributes                                             |
-| ----- | ------------------------------------------------------ |
-| fade  | `enterDuration`, `exitDuration`                        |
-| slide | `enterDir`, `exitDir`, `enterDuration`, `exitDuration` |
-| zoom  | `enterDuration`, `exitDuration`                        |
-| flip  | `enterDuration`, `exitDuration`                        |
-| none  | _(none)_                                               |
-
-Flip transitions rotate elements in 3D and automatically apply a CSS perspective to the parent container for proper depth rendering.
