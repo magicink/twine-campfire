@@ -183,7 +183,24 @@ Control the flow between passages or how they reveal.
   :::
   ```
 
-  Accepts the same attributes as the `SlideImage` component, supports a `from` attribute to apply presets, and uses `layerClassName` to add classes to the Layer wrapper.
+  Supports a `from` attribute to apply presets.
+
+  | Input          | Description                              |
+  | -------------- | ---------------------------------------- |
+  | x              | Horizontal position in pixels            |
+  | y              | Vertical position in pixels              |
+  | w              | Width in pixels                          |
+  | h              | Height in pixels                         |
+  | z              | z-index value                            |
+  | rotate         | Rotation in degrees                      |
+  | scale          | Scale multiplier                         |
+  | anchor         | Transform origin (`top-left` by default) |
+  | src            | Image source URL                         |
+  | alt            | Alternate text description               |
+  | style          | Inline styles applied to the `<img>`     |
+  | className      | Classes applied to the `<img>`           |
+  | layerClassName | Classes applied to the Layer wrapper     |
+  | from           | Name of an image preset to apply         |
 
 - `shape`: Draw basic shapes within a slide.
 

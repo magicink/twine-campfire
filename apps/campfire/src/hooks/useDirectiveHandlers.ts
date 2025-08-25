@@ -2086,6 +2086,8 @@ export const useDirectiveHandlers = () => {
     src: { type: 'string', required: true },
     alt: { type: 'string' },
     style: { type: 'string' },
+    className: { type: 'string' },
+    layerClassName: { type: 'string' },
     from: { type: 'string', expression: false }
   } as const
 
@@ -2411,14 +2413,9 @@ export const useDirectiveHandlers = () => {
     if (mergedAttrs.anchor) props.anchor = mergedAttrs.anchor
     if (mergedAttrs.alt) props.alt = mergedAttrs.alt
     if (mergedAttrs.style) props.style = mergedAttrs.style
-    const classAttr =
-      typeof mergedRaw.className === 'string' ? mergedRaw.className : undefined
-    const layerClassAttr =
-      typeof mergedRaw.layerClassName === 'string'
-        ? mergedRaw.layerClassName
-        : undefined
-    if (classAttr) props.className = classAttr
-    if (layerClassAttr) props.layerClassName = layerClassAttr
+    if (mergedAttrs.className) props.className = mergedAttrs.className
+    if (mergedAttrs.layerClassName)
+      props.layerClassName = mergedAttrs.layerClassName
     applyAdditionalAttributes(mergedRaw, props, [
       'x',
       'y',
