@@ -28,8 +28,8 @@ export const Option = ({
       : []
   const mergedStyle =
     typeof style === 'string'
-      ? `color:#000;${style}`
-      : { color: '#000', ...(style ?? {}) }
+      ? `color:#000;background:#fff;${style}`
+      : { color: '#000', background: '#fff', ...(style ?? {}) }
   return (
     <option
       data-testid='option'

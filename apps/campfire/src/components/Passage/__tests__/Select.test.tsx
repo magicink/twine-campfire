@@ -35,7 +35,7 @@ describe('Select', () => {
     expect(field.style.color).toBe('red')
   })
 
-  it('renders with default border and text color', () => {
+  it('renders with default border, text color, and background', () => {
     const { getByTestId } = render(
       <Select stateKey='field'>
         <Option value='a'>A</Option>
@@ -44,5 +44,6 @@ describe('Select', () => {
     const field = getByTestId('select') as HTMLSelectElement
     expect(field.style.border).toBe('1px solid black')
     expect(field.style.color).toBe('#000')
+    expect(field.style.backgroundColor).toBe('#fff')
   })
 })

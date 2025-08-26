@@ -41,6 +41,9 @@ Collect data or trigger actions directly in the passage.
   | className | Optional space-separated classes            |
   | style     | Optional inline style declarations          |
 
+  Both the select and option elements include a visible black border,
+  black text, and a white background by default to ensure readability.
+
   `option` directives accept the following inputs:
 
   | Input     | Description                        |

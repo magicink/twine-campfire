@@ -33,6 +33,7 @@ describe('Select directive', () => {
     const select = await screen.findByTestId('select')
     expect((select as HTMLSelectElement).style.color).toBe('blue')
     expect((select as HTMLSelectElement).style.border).toBe('1px solid black')
+    expect((select as HTMLSelectElement).style.backgroundColor).toBe('#fff')
     expect(select.className.split(' ')).toContain('extra')
     fireEvent.input(select, { target: { value: 'blue' } })
     expect(

@@ -61,8 +61,13 @@ export const Select = ({
       : []
   const mergedStyle =
     typeof style === 'string'
-      ? `border:1px solid black;color:#000;${style}`
-      : { border: '1px solid black', color: '#000', ...(style ?? {}) }
+      ? `border:1px solid black;color:#000;background:#fff;${style}`
+      : {
+          border: '1px solid black',
+          color: '#000',
+          background: '#fff',
+          ...(style ?? {})
+        }
   return (
     <select
       data-testid='select'
