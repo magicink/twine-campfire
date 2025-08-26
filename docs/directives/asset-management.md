@@ -116,3 +116,16 @@ const assets = [
 ```
 
 When all assets finish loading, the component advances to the given passage. Assets can also be preloaded manually in passages using `:preloadAudio` and `:preloadImage`.
+
+The main `Campfire` component can also accept an `assets` prop to show this loading screen automatically:
+
+```tsx
+import { Campfire } from '@campfire/components'
+
+const assets = [
+  { type: 'audio', id: 'click', src: 'audio/click.wav' },
+  { type: 'image', id: 'title', src: 'images/title.png' }
+]
+
+<Campfire assets={assets} />
+```

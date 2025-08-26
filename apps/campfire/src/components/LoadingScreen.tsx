@@ -38,10 +38,13 @@ export const LoadingScreen = ({
     }
 
     assets.forEach(({ type, id, src }) => {
-      const loader =
-        type === 'audio'
-          ? Promise.resolve(audio.load(id, src))
-          : images.load(id, src)
+      let loader: Promise<void>
+      if (type === 'audio') {
+        audio.load(id, src)
+        loader = Promise.resolve()
+      } else {
+        loader = images.load(id, src)
+      }
       loader
         .catch((err: unknown) => console.error('Failed to preload', id, err))
         .finally(() => {

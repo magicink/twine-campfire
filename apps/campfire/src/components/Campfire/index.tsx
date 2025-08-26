@@ -20,11 +20,14 @@ import { evaluateUserScript } from '@campfire/components/Campfire/evaluateUserSc
  * This component initializes story data, passages, user styles, and user scripts from a Twine-compatible document structure.
  * It manages the current passage and provides a debug window for development.
  *
+ * @param assets - Optional list of assets to preload before showing the first passage.
  * @component
  */
-const assetsToLoad: { type: 'image' | 'audio'; id: string; src: string }[] = []
-
-export const Campfire = () => {
+export const Campfire = ({
+  assets = []
+}: {
+  assets?: { type: 'image' | 'audio'; id: string; src: string }[]
+}) => {
   const [i18nInitialized, setI18nInitialized] = useState(i18next.isInitialized)
   const [startNodeId, setStartNodeId] = useState<string>()
   const passage = useStoryDataStore((state: StoryDataState) =>
@@ -119,7 +122,7 @@ export const Campfire = () => {
   if (!i18nInitialized) return null
   if (!passage) {
     if (!startNodeId) return null
-    return <LoadingScreen assets={assetsToLoad} targetPassage={startNodeId} />
+    return <LoadingScreen assets={assets} targetPassage={startNodeId} />
   }
 
   return (
