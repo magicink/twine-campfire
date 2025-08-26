@@ -1,6 +1,10 @@
-# Inputs & triggers
+# Inputs and events
 
-Collect data from players or run directives on demand with interactive elements.
+Collect data from players or run directives on demand with interactive elements, or respond to passage events.
+
+## Inputs & triggers
+
+Collect data or trigger actions directly in the passage.
 
 - `input`: Render a text input bound to a game state key. Use as a leaf or container. The container form can include event directives.
 
@@ -51,3 +55,37 @@ Use event directives inside `input` or `trigger` blocks to run directives on int
 | `onHover` | is hovered by the pointer |
 | `onFocus` | receives focus            |
 | `onBlur`  | loses focus               |
+
+## Passage event blocks
+
+Run directives on specific passage events or group actions.
+
+- `batch`: Apply multiple directives as a single update.
+
+  ```md
+  :::batch
+  :set[hp=value]
+  :push{key=items value=sword}
+  :unset{key=old}
+  :::
+  ```
+
+  Supports only the following directives: `if`, `set`, `setOnce`, `array`, `arrayOnce`, `unset`, `random`, and `randomOnce`. Nested `batch` directives are not allowed.
+
+  | Input    | Description                  |
+  | -------- | ---------------------------- |
+  | _(none)_ | This directive has no inputs |
+
+- `onExit`: Run data directives once when leaving the passage.
+
+  ```md
+  :::onExit
+  :set[key=value]
+  :::
+  ```
+
+  Only one `onExit` block is allowed per passage. Its contents are hidden, and it supports only the following directives: `if`, `set`, `setOnce`, `array`, `arrayOnce`, `unset`, `random`, `randomOnce`, and `batch`.
+
+  | Input    | Description                  |
+  | -------- | ---------------------------- |
+  | _(none)_ | This directive has no inputs |
