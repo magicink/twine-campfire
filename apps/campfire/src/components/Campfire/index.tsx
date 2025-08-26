@@ -7,6 +7,7 @@ import {
 } from '@campfire/state/useStoryDataStore'
 import { Passage } from '@campfire/components/Passage/Passage'
 import { DebugWindow } from '@campfire/components/DebugWindow'
+import { LoadingScreen } from '@campfire/components/LoadingScreen'
 import { fromDom } from 'hast-util-from-dom'
 import type { Element, Root } from 'hast'
 import { EXIT, visit } from 'unist-util-visit'
@@ -21,16 +22,16 @@ import { evaluateUserScript } from '@campfire/components/Campfire/evaluateUserSc
  *
  * @component
  */
+const assetsToLoad: { type: 'image' | 'audio'; id: string; src: string }[] = []
+
 export const Campfire = () => {
   const [i18nInitialized, setI18nInitialized] = useState(i18next.isInitialized)
+  const [startNodeId, setStartNodeId] = useState<string>()
   const passage = useStoryDataStore((state: StoryDataState) =>
     state.getCurrentPassage()
   )
   const setPassages = useStoryDataStore(
     (state: StoryDataState) => state.setPassages
-  )
-  const setCurrentPassage = useStoryDataStore(
-    (state: StoryDataState) => state.setCurrentPassage
   )
   const setStoryData = useStoryDataStore(
     (state: StoryDataState) => state.setStoryData
@@ -88,7 +89,7 @@ export const Campfire = () => {
     evaluateUserScript(doc)
     const start = story?.properties?.startnode as string | undefined
     if (start) {
-      setCurrentPassage(start)
+      setStartNodeId(start)
     }
     return story
   }
@@ -116,6 +117,10 @@ export const Campfire = () => {
   }, [])
 
   if (!i18nInitialized) return null
+  if (!passage) {
+    if (!startNodeId) return null
+    return <LoadingScreen assets={assetsToLoad} targetPassage={startNodeId} />
+  }
 
   return (
     <div
@@ -124,7 +129,7 @@ export const Campfire = () => {
       }
       data-testid='campfire'
     >
-      {passage ? <Passage /> : null}
+      <Passage />
       <DebugWindow />
     </div>
   )

@@ -26,6 +26,7 @@ import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
 import { type Checkpoint, useGameStore } from '@campfire/state/useGameStore'
 import { markTitleOverridden } from '@campfire/state/titleState'
 import { AudioManager } from '@campfire/audio/AudioManager'
+import { ImageManager } from '@campfire/image/ImageManager'
 import {
   type DirectiveNode,
   type ExtractedAttrs,
@@ -134,6 +135,7 @@ export const useDirectiveHandlers = () => {
   const onExitErrorRef = useRef(false)
   const lastPassageIdRef = useRef<string | undefined>(undefined)
   const audio = AudioManager.getInstance()
+  const images = ImageManager.getInstance()
 
   const MAX_INCLUDE_DEPTH = 10
   let includeDepth = 0
@@ -1588,6 +1590,29 @@ export const useDirectiveHandlers = () => {
       audio.load(id, src)
     } else {
       addError('preloadAudio directive requires an id/label and src')
+    }
+    return removeNode(parent, index)
+  }
+
+  /**
+   * Preloads an image asset into cache.
+   *
+   * @param directive - The directive node being processed.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within the parent.
+   * @returns The index of the removed node.
+   */
+  const handlePreloadImage: DirectiveHandler = (directive, parent, index) => {
+    const { attrs } = extractAttributes(directive, parent, index, {
+      id: { type: 'string' },
+      src: { type: 'string' }
+    })
+    const id = hasLabel(directive) ? directive.label : attrs.id
+    const src = attrs.src
+    if (id && src) {
+      void images.load(id, src)
+    } else {
+      addError('preloadImage directive requires an id/label and src')
     }
     return removeNode(parent, index)
   }
@@ -3102,6 +3127,7 @@ export const useDirectiveHandlers = () => {
       include: handleInclude,
       title: handleTitle,
       goto: handleGoto,
+      preloadImage: handlePreloadImage,
       preloadAudio: handlePreloadAudio,
       sound: handleSound,
       bgm: handleBgm,
