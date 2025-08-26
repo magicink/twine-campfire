@@ -8,9 +8,9 @@ import { useGameStore } from '@campfire/state/useGameStore'
 
 const clone = rfdc()
 
-interface InputProps
+interface TextareaProps
   extends Omit<
-    JSX.InputHTMLAttributes<HTMLInputElement>,
+    JSX.TextareaHTMLAttributes<HTMLTextAreaElement>,
     | 'className'
     | 'value'
     | 'defaultValue'
@@ -18,9 +18,9 @@ interface InputProps
     | 'onBlur'
     | 'onMouseEnter'
   > {
-  /** Key in game state to bind the input value to. */
+  /** Key in game state to bind the textarea value to. */
   stateKey: string
-  /** Additional CSS classes for the input element. */
+  /** Additional CSS classes for the textarea element. */
   className?: string | string[]
   /** Serialized directives to run when hovered. */
   onHover?: string
@@ -33,17 +33,17 @@ interface InputProps
 }
 
 /**
- * Text input bound to a game state key. Updates the key on user input.
+ * Textarea bound to a game state key. Updates the key on user input.
  *
  * @param stateKey - Key in game state to store the value.
  * @param className - Optional additional classes.
  * @param onHover - Serialized directives to run when hovered.
  * @param onFocus - Serialized directives to run on focus.
  * @param onBlur - Serialized directives to run on blur.
- * @param rest - Additional input element attributes.
- * @returns The rendered input element.
+ * @param rest - Additional textarea element attributes.
+ * @returns The rendered textarea element.
  */
-export const Input = ({
+export const Textarea = ({
   stateKey,
   className,
   onHover,
@@ -52,7 +52,7 @@ export const Input = ({
   onInput,
   initialValue,
   ...rest
-}: InputProps) => {
+}: TextareaProps) => {
   const value = useGameStore(state => state.gameData[stateKey]) as
     | string
     | undefined
@@ -69,9 +69,9 @@ export const Input = ({
       ? [className]
       : []
   return (
-    <input
-      data-testid='input'
-      className={['campfire-input', ...classes].join(' ')}
+    <textarea
+      data-testid='textarea'
+      className={['campfire-textarea', ...classes].join(' ')}
       value={value ?? ''}
       {...rest}
       onMouseEnter={e => {
@@ -101,11 +101,11 @@ export const Input = ({
       onInput={e => {
         onInput?.(e)
         if (e.defaultPrevented) return
-        const target = e.currentTarget as HTMLInputElement
+        const target = e.currentTarget as HTMLTextAreaElement
         setGameData({ [stateKey]: target.value })
       }}
     />
   )
 }
 
-export default Input
+export default Textarea

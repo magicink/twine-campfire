@@ -46,4 +46,28 @@ describe('Select', () => {
     expect(field.style.color).toBe('#000')
     expect(field.style.backgroundColor).toBe('#fff')
   })
+
+  it('uses existing state value when present', () => {
+    useGameStore.setState({ gameData: { color: 'blue' } })
+    const { getByTestId } = render(
+      <Select stateKey='color'>
+        <Option value='red'>Red</Option>
+        <Option value='blue'>Blue</Option>
+      </Select>
+    )
+    const field = getByTestId('select') as HTMLSelectElement
+    expect(field.value).toBe('blue')
+  })
+
+  it('initializes state when unset', () => {
+    useGameStore.setState({ gameData: {} })
+    render(
+      <Select stateKey='color'>
+        <Option value='red'>Red</Option>
+      </Select>
+    )
+    expect(
+      (useGameStore.getState().gameData as Record<string, unknown>).color
+    ).toBe('')
+  })
 })

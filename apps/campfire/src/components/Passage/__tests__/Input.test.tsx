@@ -26,4 +26,19 @@ describe('Input', () => {
     expect(field.className.split(' ')).toContain('extra')
     expect(field.style.color).toBe('red')
   })
+
+  it('uses existing state value when present', () => {
+    useGameStore.setState({ gameData: { name: 'Existing' } })
+    const { getByTestId } = render(<Input stateKey='name' />)
+    const field = getByTestId('input') as HTMLInputElement
+    expect(field.value).toBe('Existing')
+  })
+
+  it('initializes state when unset', () => {
+    useGameStore.setState({ gameData: {} })
+    render(<Input stateKey='age' />)
+    expect(
+      (useGameStore.getState().gameData as Record<string, unknown>).age
+    ).toBe('')
+  })
 })
