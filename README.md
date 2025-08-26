@@ -110,7 +110,7 @@ Examples:
   ```
 
 For more on internal classes and default styling, see [Styling elements](docs/styling-elements.md).
-For a built-in progress indicator, see [Loading screen](docs/directives/navigation-composition.md#loading-screen).
+For a built-in progress indicator, see [Loading screen](docs/directives/asset-management.md#loading-screen).
 
 ## Further reading
 
