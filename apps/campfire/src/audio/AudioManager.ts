@@ -73,14 +73,33 @@ export class AudioManager {
    *
    * @param id - Unique identifier for the audio file.
    * @param src - Source URL of the audio file.
+   * @returns A promise that resolves when the audio is loaded.
    */
-  load(id: string, src: string): void {
+  load(id: string, src: string): Promise<void> {
     const audio = this.getOrCreateAudio(id, src)
-    if (audio) {
-      audio.load()
-    } else {
+    if (!audio) {
       console.error(`Failed to load audio: ${id}`)
+      return Promise.reject(new Error(`Failed to load audio: ${id}`))
     }
+    if (audio.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA)
+      return Promise.resolve()
+    return new Promise((resolve, reject) => {
+      const cleanup = () => {
+        audio.removeEventListener('canplaythrough', handleLoad)
+        audio.removeEventListener('error', handleError)
+      }
+      const handleLoad = () => {
+        cleanup()
+        resolve()
+      }
+      const handleError = (err: unknown) => {
+        cleanup()
+        reject(err)
+      }
+      audio.addEventListener('canplaythrough', handleLoad)
+      audio.addEventListener('error', handleError)
+      audio.load()
+    })
   }
 
   /**
