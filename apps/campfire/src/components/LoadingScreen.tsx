@@ -38,13 +38,9 @@ export const LoadingScreen = ({
     }
 
     assets.forEach(({ type, id, src }) => {
-      let loader: Promise<void>
-      if (type === 'audio') {
-        audio.load(id, src)
-        loader = Promise.resolve()
-      } else {
-        loader = images.load(id, src)
-      }
+      const loader =
+        type === 'audio' ? audio.load(id, src) : images.load(id, src)
+
       loader
         .catch((err: unknown) => console.error('Failed to preload', id, err))
         .finally(() => {
@@ -70,16 +66,6 @@ export const LoadingScreen = ({
         />
       </div>
       <p>{progress}%</p>
-      {progress >= 100 && (
-        <button
-          type='button'
-          className='campfire-loading-continue'
-          data-testid='loading-continue'
-          onClick={() => setCurrentPassage(targetPassage)}
-        >
-          Click to continue
-        </button>
-      )}
     </div>
   )
 }

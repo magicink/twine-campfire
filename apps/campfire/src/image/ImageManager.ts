@@ -55,7 +55,8 @@ export class ImageManager {
         img.src = new URL(src, this.getBaseUrl()).href
       } catch (err) {
         console.error(`Invalid image source: ${src}`, err)
-        img.src = src
+        reject(err as Error)
+        return
       }
     })
   }
