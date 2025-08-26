@@ -1,20 +1,21 @@
-import type { RootContent } from 'mdast'
+import type { JSX } from 'preact'
 import rfdc from 'rfdc'
+import type { RootContent } from 'mdast'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { runDirectiveBlock } from '@campfire/utils/directiveUtils'
-import type { JSX } from 'preact'
+import { useGameStore } from '@campfire/state/useGameStore'
 
 const clone = rfdc()
 
-interface TriggerButtonProps
+interface InputProps
   extends Omit<
-    JSX.HTMLAttributes<HTMLButtonElement>,
-    'className' | 'onMouseEnter' | 'onFocus' | 'onBlur'
+    JSX.InputHTMLAttributes<HTMLInputElement>,
+    'className' | 'value' | 'onFocus' | 'onBlur' | 'onMouseEnter'
   > {
+  /** Key in game state to bind the input value to. */
+  stateKey: string
+  /** Additional CSS classes for the input element. */
   className?: string | string[]
-  content: string
-  children?: string
-  disabled?: boolean
   /** Serialized directives to run when hovered. */
   onHover?: string
   /** Serialized directives to run on focus. */
@@ -24,47 +25,40 @@ interface TriggerButtonProps
 }
 
 /**
- * Button that processes directive content when clicked.
+ * Text input bound to a game state key. Updates the key on user input.
  *
- * @param className - Optional CSS classes.
- * @param content - Serialized directive block.
- * @param children - Button label.
- * @param disabled - Disables the button when true.
- * @param style - Optional inline styles.
+ * @param stateKey - Key in game state to store the value.
+ * @param className - Optional additional classes.
  * @param onHover - Serialized directives to run when hovered.
  * @param onFocus - Serialized directives to run on focus.
  * @param onBlur - Serialized directives to run on blur.
+ * @param rest - Additional input element attributes.
+ * @returns The rendered input element.
  */
-export const TriggerButton = ({
+export const Input = ({
+  stateKey,
   className,
-  content,
-  children,
-  disabled,
-  style,
   onHover,
   onFocus,
   onBlur,
-  onClick,
+  onInput,
   ...rest
-}: TriggerButtonProps) => {
+}: InputProps) => {
+  const value = useGameStore(state => state.gameData[stateKey]) as
+    | string
+    | undefined
   const handlers = useDirectiveHandlers()
+  const setGameData = useGameStore(state => state.setGameData)
   const classes = Array.isArray(className)
     ? className
     : className
       ? [className]
       : []
   return (
-    <button
-      type='button'
-      data-testid='trigger-button'
-      className={[
-        'campfire-trigger',
-        'font-libertinus',
-        'disabled:opacity-50',
-        ...classes
-      ].join(' ')}
-      disabled={disabled}
-      style={style}
+    <input
+      data-testid='input'
+      className={['campfire-input', ...classes].join(' ')}
+      value={value ?? ''}
       {...rest}
       onMouseEnter={e => {
         if (onHover) {
@@ -90,14 +84,14 @@ export const TriggerButton = ({
           )
         }
       }}
-      onClick={e => {
-        e.stopPropagation()
-        onClick?.(e)
-        if (e.defaultPrevented || disabled) return
-        runDirectiveBlock(clone(JSON.parse(content)) as RootContent[], handlers)
+      onInput={e => {
+        onInput?.(e)
+        if (e.defaultPrevented) return
+        const target = e.currentTarget as HTMLInputElement
+        setGameData({ [stateKey]: target.value })
       }}
-    >
-      {children}
-    </button>
+    />
   )
 }
+
+export default Input

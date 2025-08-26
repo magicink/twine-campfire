@@ -18,6 +18,7 @@ import {
 import { useDeckStore } from '@campfire/state/useDeckStore'
 import { LinkButton } from '@campfire/components/Passage/LinkButton'
 import { TriggerButton } from '@campfire/components/Passage/TriggerButton'
+import { Input } from '@campfire/components/Passage/Input'
 import { If } from '@campfire/components/Passage/If'
 import { Show } from '@campfire/components/Passage/Show'
 import { Translate } from '@campfire/components/Passage/Translate'
@@ -81,6 +82,7 @@ export const Passage = () => {
         {
           button: LinkButton,
           trigger: TriggerButton,
+          input: Input,
           if: If,
           show: Show,
           translate: Translate,

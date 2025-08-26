@@ -53,7 +53,7 @@ See the dedicated docs for detailed usage:
 - [Variables, ranges & arrays](docs/directives/variables-and-state.md)
 - [Data retrieval & evaluation](docs/directives/data-retrieval.md)
 - [Conditional logic & iteration](docs/directives/conditional-logic-and-iteration.md)
-- [Event & trigger blocks](docs/directives/event-trigger-blocks.md)
+- [Inputs and events](docs/directives/inputs-and-events.md)
 - [Navigation, composition & transitions](docs/directives/navigation-composition.md)
 - [Asset management](docs/directives/asset-management.md)
 - [Persistence](docs/directives/persistence.md)

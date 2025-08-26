@@ -93,6 +93,9 @@ const BANNED_BATCH_DIRECTIVES = new Set(['batch'])
 /** Marker inserted to close directive blocks. */
 const DIRECTIVE_MARKER = ':::'
 
+/** Event directives supported by interactive elements. */
+const INTERACTIVE_EVENTS = new Set(['onHover', 'onFocus', 'onBlur'])
+
 /**
  * When both parsed dimensions are less than or equal to this threshold, the
  * value is treated as an aspect ratio instead of explicit pixel dimensions.
@@ -745,6 +748,33 @@ export const useDirectiveHandlers = () => {
       (toString(node).trim() === '' || isMarkerParagraph(node)))
 
   /**
+   * Extracts event directives from a list of child nodes.
+   *
+   * @param nodes - Nodes to inspect.
+   * @returns Object with serialized event blocks and remaining nodes.
+   */
+  const extractEventProps = (
+    nodes: RootContent[]
+  ): { events: Record<string, string>; remaining: RootContent[] } => {
+    const events: Record<string, string> = {}
+    const remaining: RootContent[] = []
+    for (const node of nodes) {
+      if (
+        node.type === 'containerDirective' &&
+        INTERACTIVE_EVENTS.has((node as ContainerDirective).name)
+      ) {
+        const name = (node as ContainerDirective).name
+        events[name] = JSON.stringify(
+          stripLabel((node as ContainerDirective).children as RootContent[])
+        )
+      } else if (!isWhitespaceNode(node)) {
+        remaining.push(node)
+      }
+    }
+    return { events, remaining }
+  }
+
+  /**
    * Serializes `:::if` directive blocks into `<if>` components that
    * evaluate a test expression against game data and render optional
    * fallback content when the expression is falsy.
@@ -1087,6 +1117,107 @@ export const useDirectiveHandlers = () => {
     return [SKIP, index]
   }
 
+  /**
+   * Converts an `:input` directive into an Input component bound to game state.
+   *
+   * @param directive - The input directive node.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within its parent.
+   * @returns The index of the inserted node.
+   */
+  const handleInput: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    if (directive.type === 'textDirective') {
+      const label = hasLabel(directive) ? directive.label : toString(directive)
+      const key = ensureKey(label.trim(), parent, index)
+      if (!key) return index
+      const attrs = (directive.attributes || {}) as Record<string, unknown>
+      if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
+        const msg = 'class is a reserved attribute. Use className instead.'
+        console.error(msg)
+        addError(msg)
+      }
+      const classAttr =
+        typeof attrs.className === 'string' ? attrs.className : ''
+      const styleAttr =
+        typeof attrs.style === 'string' ? attrs.style : undefined
+      const placeholder =
+        typeof attrs.placeholder === 'string' ? attrs.placeholder : undefined
+      const typeAttr = typeof attrs.type === 'string' ? attrs.type : undefined
+      const props: Record<string, unknown> = { stateKey: key }
+      if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
+      if (styleAttr) props.style = styleAttr
+      if (placeholder) props.placeholder = placeholder
+      if (typeAttr) props.type = typeAttr
+      applyAdditionalAttributes(attrs, props, [
+        'className',
+        'style',
+        'placeholder',
+        'type'
+      ])
+      const node: Parent = {
+        type: 'paragraph',
+        children: [],
+        data: { hName: 'input', hProperties: props as Properties }
+      }
+      return replaceWithIndentation(directive, parent, index, [
+        node as RootContent
+      ])
+    }
+    if (directive.type === 'containerDirective') {
+      const container = directive as ContainerDirective
+      const label = getLabel(container)
+      const key = ensureKey(label.trim(), parent, index)
+      if (!key) return index
+      const attrs = (container.attributes || {}) as Record<string, unknown>
+      if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
+        const msg = 'class is a reserved attribute. Use className instead.'
+        console.error(msg)
+        addError(msg)
+      }
+      const classAttr =
+        typeof attrs.className === 'string' ? attrs.className : ''
+      const styleAttr =
+        typeof attrs.style === 'string' ? attrs.style : undefined
+      const placeholder =
+        typeof attrs.placeholder === 'string' ? attrs.placeholder : undefined
+      const typeAttr = typeof attrs.type === 'string' ? attrs.type : undefined
+      const rawChildren = runDirectiveBlock(
+        expandIndentedCode(container.children as RootContent[])
+      )
+      const { events, remaining } = extractEventProps(rawChildren)
+      const props: Record<string, unknown> = { stateKey: key }
+      if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
+      if (styleAttr) props.style = styleAttr
+      if (placeholder) props.placeholder = placeholder
+      if (typeAttr) props.type = typeAttr
+      if (events.onHover) props.onHover = events.onHover
+      if (events.onFocus) props.onFocus = events.onFocus
+      if (events.onBlur) props.onBlur = events.onBlur
+      applyAdditionalAttributes(attrs, props, [
+        'className',
+        'style',
+        'placeholder',
+        'type'
+      ])
+      const node: Parent = {
+        type: 'paragraph',
+        children: [],
+        data: { hName: 'input', hProperties: props as Properties }
+      }
+      const newIndex = replaceWithIndentation(directive, parent, index, [
+        node as RootContent
+      ])
+      const markerIndex = newIndex + 1
+      removeDirectiveMarker(parent, markerIndex)
+      return [SKIP, newIndex]
+    }
+    const msg = 'input can only be used as a leaf or container directive'
+    console.error(msg)
+    addError(msg)
+    return removeNode(parent, index)
+  }
+
   const handleTrigger: DirectiveHandler = (directive, parent, index) => {
     if (!parent || typeof index !== 'number') return
     const container = directive as ContainerDirective
@@ -1104,9 +1235,11 @@ export const useDirectiveHandlers = () => {
         ? attrs.disabled !== 'false'
         : Boolean(attrs.disabled)
     const styleAttr = typeof attrs.style === 'string' ? attrs.style : undefined
-    const content = JSON.stringify(
-      stripLabel(container.children as RootContent[])
+    const rawChildren = runDirectiveBlock(
+      expandIndentedCode(container.children as RootContent[])
     )
+    const { events, remaining } = extractEventProps(rawChildren)
+    const content = JSON.stringify(stripLabel(remaining))
     const classes = classAttr.split(/\s+/).filter(Boolean)
     const node: Parent = {
       type: 'paragraph',
@@ -1117,13 +1250,18 @@ export const useDirectiveHandlers = () => {
           className: classes,
           content,
           disabled,
-          ...(styleAttr ? { style: styleAttr } : {})
+          ...(styleAttr ? { style: styleAttr } : {}),
+          ...(events.onHover ? { onHover: events.onHover } : {}),
+          ...(events.onFocus ? { onFocus: events.onFocus } : {}),
+          ...(events.onBlur ? { onBlur: events.onBlur } : {})
         }
       }
     }
     const newIndex = replaceWithIndentation(directive, parent, index, [
       node as RootContent
     ])
+    const markerIndex = newIndex + 1
+    removeDirectiveMarker(parent, markerIndex)
     return [SKIP, newIndex]
   }
 
@@ -3115,6 +3253,7 @@ export const useDirectiveHandlers = () => {
       else: handleElse,
       batch: handleBatch,
       trigger: handleTrigger,
+      input: handleInput,
       onExit: handleOnExit,
       reveal: handleReveal,
       layer: handleLayer,
