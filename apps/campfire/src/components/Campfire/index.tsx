@@ -7,6 +7,7 @@ import {
 } from '@campfire/state/useStoryDataStore'
 import { Passage } from '@campfire/components/Passage/Passage'
 import { DebugWindow } from '@campfire/components/DebugWindow'
+import { LoadingScreen } from '@campfire/components/LoadingScreen'
 import { fromDom } from 'hast-util-from-dom'
 import type { Element, Root } from 'hast'
 import { EXIT, visit } from 'unist-util-visit'
@@ -19,18 +20,21 @@ import { evaluateUserScript } from '@campfire/components/Campfire/evaluateUserSc
  * This component initializes story data, passages, user styles, and user scripts from a Twine-compatible document structure.
  * It manages the current passage and provides a debug window for development.
  *
+ * @param assets - Optional list of assets to preload before showing the first passage.
  * @component
  */
-export const Campfire = () => {
+export const Campfire = ({
+  assets = []
+}: {
+  assets?: { type: 'image' | 'audio'; id: string; src: string }[]
+}) => {
   const [i18nInitialized, setI18nInitialized] = useState(i18next.isInitialized)
+  const [startNodeId, setStartNodeId] = useState<string>()
   const passage = useStoryDataStore((state: StoryDataState) =>
     state.getCurrentPassage()
   )
   const setPassages = useStoryDataStore(
     (state: StoryDataState) => state.setPassages
-  )
-  const setCurrentPassage = useStoryDataStore(
-    (state: StoryDataState) => state.setCurrentPassage
   )
   const setStoryData = useStoryDataStore(
     (state: StoryDataState) => state.setStoryData
@@ -88,7 +92,7 @@ export const Campfire = () => {
     evaluateUserScript(doc)
     const start = story?.properties?.startnode as string | undefined
     if (start) {
-      setCurrentPassage(start)
+      setStartNodeId(start)
     }
     return story
   }
@@ -116,6 +120,10 @@ export const Campfire = () => {
   }, [])
 
   if (!i18nInitialized) return null
+  if (!passage) {
+    if (!startNodeId) return null
+    return <LoadingScreen assets={assets} targetPassage={startNodeId} />
+  }
 
   return (
     <div
@@ -124,7 +132,7 @@ export const Campfire = () => {
       }
       data-testid='campfire'
     >
-      {passage ? <Passage /> : null}
+      <Passage />
       <DebugWindow />
     </div>
   )
