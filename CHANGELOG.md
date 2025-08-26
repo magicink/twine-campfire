@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.87.0](https://github.com/magicink/twine-campfire/compare/v1.86.0...v1.87.0) (2025-08-26)
+
+
+### Features
+
+* add image preloading and loading screen ([#533](https://github.com/magicink/twine-campfire/issues/533)) ([aa9870a](https://github.com/magicink/twine-campfire/commit/aa9870a878efb8fb265bb23e87c83aec38eed39f))
+* add image preloading and loading screen ([#533](https://github.com/magicink/twine-campfire/issues/533)) ([b11f219](https://github.com/magicink/twine-campfire/commit/b11f21997e026ad21f60a16dd0feefe18f201a0c))
+
 ## [1.86.0](https://github.com/magicink/twine-campfire/compare/v1.85.0...v1.86.0) (2025-08-26)
 
 
