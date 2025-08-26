@@ -14,3 +14,5 @@ const assets = [
 ```
 
 When all assets finish loading, the component advances to the given passage.
+
+For directive syntax to preload assets manually, see [Asset management](directives/asset-management.md).

@@ -193,7 +193,7 @@ Control the flow between passages or how they reveal.
   | layerClassName | Classes applied to the Layer wrapper     |
   | from           | Name of a text preset to apply           |
 
-- See [Images](images.md) for positioning and preloading images.
+- See [Asset management](asset-management.md) for positioning images and preloading assets.
 
 - `shape`: Draw basic shapes within a slide.
 
