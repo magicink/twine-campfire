@@ -424,15 +424,26 @@ export const useDirectiveHandlers = () => {
     }
     if (!raw) return removeNode(parent, index)
     const keyPattern = /^[A-Za-z_$][A-Za-z0-9_$]*$/
-    const props = keyPattern.test(raw)
+    const props: Record<string, unknown> = keyPattern.test(raw)
       ? { 'data-key': raw }
       : { 'data-expr': raw }
+    const attrs = (directive.attributes || {}) as Record<string, unknown>
+    if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
+      const msg = 'class is a reserved attribute. Use className instead.'
+      console.error(msg)
+      addError(msg)
+    }
+    const classAttr = typeof attrs.className === 'string' ? attrs.className : ''
+    const styleAttr = typeof attrs.style === 'string' ? attrs.style : undefined
+    if (classAttr) props.className = classAttr
+    if (styleAttr) props.style = styleAttr
+    applyAdditionalAttributes(attrs, props, ['className', 'style'])
     const node: MdText = {
       type: 'text',
       value: '',
       data: {
         hName: 'show',
-        hProperties: props
+        hProperties: props as Properties
       }
     }
     if (parent && typeof index === 'number') {
@@ -1725,11 +1736,15 @@ export const useDirectiveHandlers = () => {
       {
         count: { type: 'number' },
         fallback: { type: 'string' },
-        ns: { type: 'string' }
+        ns: { type: 'string' },
+        className: { type: 'string', expression: false },
+        style: { type: 'string', expression: false }
       },
       { state: gameData }
     )
     if (attrs.ns) ns = attrs.ns
+    const classAttr = typeof attrs.className === 'string' ? attrs.className : ''
+    const styleAttr = typeof attrs.style === 'string' ? attrs.style : undefined
     const keyPattern = /^[A-Za-z_$][A-Za-z0-9_$]*(?::[A-Za-z0-9_.$-]+)?$/
     let props: Properties
     if (key || keyPattern.test(raw)) {
@@ -1747,10 +1762,17 @@ export const useDirectiveHandlers = () => {
       string,
       unknown
     >
+    if (Object.prototype.hasOwnProperty.call(rawAttrs, 'class')) {
+      const msg = 'class is a reserved attribute. Use className instead.'
+      console.error(msg)
+      addError(msg)
+    }
     const rawFallback = rawAttrs.fallback as string | undefined
     delete rawAttrs.count
     delete rawAttrs.fallback
     delete rawAttrs.ns
+    delete rawAttrs.className
+    delete rawAttrs.style
     const vars: Record<string, unknown> = {}
     for (const [name, rawVal] of Object.entries(rawAttrs)) {
       if (rawVal == null) continue
@@ -1840,6 +1862,8 @@ export const useDirectiveHandlers = () => {
       if (Object.keys(vars).length > 0)
         props['data-i18n-vars'] = JSON.stringify(vars)
       if (fallback !== undefined) props['data-i18n-fallback'] = fallback
+      if (classAttr) props.className = classAttr
+      if (styleAttr) props.style = styleAttr
       const node: MdText = {
         type: 'text',
         value: '0', // non-empty placeholder required for mdast conversion

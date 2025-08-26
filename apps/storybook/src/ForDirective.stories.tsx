@@ -20,7 +20,7 @@ export const Numbers: StoryObj = {
         <tw-passagedata pid='1' name='Start'>
           {`
 :::for[x in [1,2,3]]
-Value :show[x]
+Value :show[x className="text-sky-600"]
 :::
           `}
         </tw-passagedata>
@@ -48,7 +48,7 @@ export const Fruits: StoryObj = {
 
   :::if[fruit !== "banana"]
 
-  - :show[fruit]
+  - :show[fruit className="text-rose-600"]
 
   :::
 

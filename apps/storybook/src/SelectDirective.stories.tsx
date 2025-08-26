@@ -23,7 +23,7 @@ export const Basic: StoryObj = {
 :option{value="blue" label="Blue"}
 :::
 :::if[color]
-You chose :show[color].
+You chose :show[color style={color: color}].
 :::
           `}
         </tw-passagedata>
