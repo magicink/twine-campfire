@@ -55,6 +55,7 @@ See the dedicated docs for detailed usage:
 - [Conditional logic & iteration](docs/directives/conditional-logic-and-iteration.md)
 - [Event & trigger blocks](docs/directives/event-trigger-blocks.md)
 - [Navigation, composition & transitions](docs/directives/navigation-composition.md)
+- [Images](docs/directives/images.md)
 - [Audio](docs/directives/audio.md)
 - [Persistence](docs/directives/persistence.md)
 - [Localization & internationalization](docs/directives/localization.md)
@@ -110,6 +111,7 @@ Examples:
   ```
 
 For more on internal classes and default styling, see [Styling elements](docs/styling-elements.md).
+For a built-in progress indicator, see [Loading screen](docs/loading-screen.md).
 
 ## Further reading
 

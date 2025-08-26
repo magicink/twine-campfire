@@ -222,7 +222,8 @@ Control the flow between passages or how they reveal.
   | layerClassName | Classes applied to the Layer wrapper     |
   | from           | Name of an image preset to apply         |
 
-- `shape`: Draw basic shapes within a slide.
+  Preload images ahead of time with `:preloadImage` to avoid display delays.
+  - `shape`: Draw basic shapes within a slide.
 
   ```md
   :::deck
