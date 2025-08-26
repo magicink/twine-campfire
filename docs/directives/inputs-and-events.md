@@ -8,10 +8,16 @@ Collect data or trigger actions directly in the passage.
 
 - `input`: Render a text input bound to a game state key. Use as a leaf or container. The container form can include event directives.
 
+  Leaf form:
+
   ```md
   :input[name]{placeholder="Your name"}
+  ```
 
-  :::input[name]
+  Container form:
+
+  ```md
+  :::input[email]
   :::onFocus
   :set[focused=true]
   :::
@@ -25,6 +31,33 @@ Collect data or trigger actions directly in the passage.
   | type        | Optional input `type` attribute            |
   | className   | Optional space-separated classes           |
   | style       | Optional inline style declarations         |
+
+- `select`: Render a dropdown bound to a game state key. Must be used as a container with nested `option` directives. The container form can include event directives.
+
+  ```md
+  :::select[color]
+  :option{value="red" label="Red"}
+  :option{value="blue" label="Blue"}
+  :::
+  ```
+
+  | Input     | Description                                 |
+  | --------- | ------------------------------------------- |
+  | state_key | Key in game state to store the select value |
+  | className | Optional space-separated classes            |
+  | style     | Optional inline style declarations          |
+
+  Both the select and option elements include a visible black border,
+  black text, and a white background by default to ensure readability.
+
+  `option` directives accept the following inputs:
+
+  | Input     | Description                        |
+  | --------- | ---------------------------------- |
+  | value     | Value to store when selected       |
+  | label     | Text displayed for the option      |
+  | className | Optional space-separated classes   |
+  | style     | Optional inline style declarations |
 
 - `trigger`: Render a button that runs directives when clicked. Supports event directives inside the block.
 
@@ -48,7 +81,7 @@ Collect data or trigger actions directly in the passage.
 
 ### Event directives
 
-Use event directives inside `input` or `trigger` blocks to run directives on interaction.
+Use event directives inside `input`, `select`, or `trigger` blocks to run directives on interaction.
 
 | Directive | Fires when the element... |
 | --------- | ------------------------- |
