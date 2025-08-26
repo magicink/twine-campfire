@@ -1218,6 +1218,83 @@ export const useDirectiveHandlers = () => {
     return removeNode(parent, index)
   }
 
+  const handleOption: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    const attrs = (directive.attributes || {}) as Record<string, unknown>
+    const value = typeof attrs.value === 'string' ? attrs.value : undefined
+    const label = typeof attrs.label === 'string' ? attrs.label : undefined
+    if (!value || !label) {
+      const msg = 'option requires value and label attributes'
+      console.error(msg)
+      addError(msg)
+      return removeNode(parent, index)
+    }
+    if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
+      const msg = 'class is a reserved attribute. Use className instead.'
+      console.error(msg)
+      addError(msg)
+    }
+    const classAttr = typeof attrs.className === 'string' ? attrs.className : ''
+    const styleAttr = typeof attrs.style === 'string' ? attrs.style : undefined
+    const props: Record<string, unknown> = { value }
+    if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
+    if (styleAttr) props.style = styleAttr
+    applyAdditionalAttributes(attrs, props, [
+      'value',
+      'label',
+      'className',
+      'style'
+    ])
+    const node: Parent = {
+      type: 'paragraph',
+      children: [{ type: 'text', value: label }],
+      data: { hName: 'option', hProperties: props as Properties }
+    }
+    return replaceWithIndentation(directive, parent, index, [
+      node as RootContent
+    ])
+  }
+
+  const handleSelect: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    const container = directive as ContainerDirective
+    const label = getLabel(container)
+    const key = ensureKey(label.trim(), parent, index)
+    if (!key) return index
+    const attrs = (container.attributes || {}) as Record<string, unknown>
+    if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
+      const msg = 'class is a reserved attribute. Use className instead.'
+      console.error(msg)
+      addError(msg)
+    }
+    const classAttr = typeof attrs.className === 'string' ? attrs.className : ''
+    const styleAttr = typeof attrs.style === 'string' ? attrs.style : undefined
+    const rawChildren = runDirectiveBlock(
+      expandIndentedCode(container.children as RootContent[]),
+      handlersRef.current
+    )
+    const { events, remaining } = extractEventProps(rawChildren)
+    const options = remaining.filter(node => !isWhitespaceNode(node))
+    const props: Record<string, unknown> = { stateKey: key }
+    if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
+    if (styleAttr) props.style = styleAttr
+    if (events.onHover) props.onHover = events.onHover
+    if (events.onFocus) props.onFocus = events.onFocus
+    if (events.onBlur) props.onBlur = events.onBlur
+    applyAdditionalAttributes(attrs, props, ['className', 'style'])
+    const node: Parent = {
+      type: 'paragraph',
+      children: options as RootContent[],
+      data: { hName: 'select', hProperties: props as Properties }
+    }
+    const newIndex = replaceWithIndentation(directive, parent, index, [
+      node as RootContent
+    ])
+    const markerIndex = newIndex + 1
+    removeDirectiveMarker(parent, markerIndex)
+    return [SKIP, newIndex]
+  }
+
   const handleTrigger: DirectiveHandler = (directive, parent, index) => {
     if (!parent || typeof index !== 'number') return
     const container = directive as ContainerDirective
@@ -3252,6 +3329,8 @@ export const useDirectiveHandlers = () => {
       for: handleFor,
       else: handleElse,
       batch: handleBatch,
+      option: handleOption,
+      select: handleSelect,
       trigger: handleTrigger,
       input: handleInput,
       onExit: handleOnExit,

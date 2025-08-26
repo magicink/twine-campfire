@@ -26,6 +26,30 @@ Collect data or trigger actions directly in the passage.
   | className   | Optional space-separated classes           |
   | style       | Optional inline style declarations         |
 
+- `select`: Render a dropdown bound to a game state key. Must be used as a container with nested `option` directives. The container form can include event directives.
+
+  ```md
+  :::select[color]
+  :option{value="red" label="Red"}
+  :option{value="blue" label="Blue"}
+  :::
+  ```
+
+  | Input     | Description                                 |
+  | --------- | ------------------------------------------- |
+  | state_key | Key in game state to store the select value |
+  | className | Optional space-separated classes            |
+  | style     | Optional inline style declarations          |
+
+  `option` directives accept the following inputs:
+
+  | Input     | Description                        |
+  | --------- | ---------------------------------- |
+  | value     | Value to store when selected       |
+  | label     | Text displayed for the option      |
+  | className | Optional space-separated classes   |
+  | style     | Optional inline style declarations |
+
 - `trigger`: Render a button that runs directives when clicked. Supports event directives inside the block.
 
   ```md
