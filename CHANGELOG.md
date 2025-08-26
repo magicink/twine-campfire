@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.86.0](https://github.com/magicink/twine-campfire/compare/v1.85.0...v1.86.0) (2025-08-26)
+
+
+### Features
+
+* add audio directives and manager ([#530](https://github.com/magicink/twine-campfire/issues/530)) ([5700c45](https://github.com/magicink/twine-campfire/commit/5700c45e4f8f499e9b87de4669d0be494793c05f))
+* add audio directives and manager ([#530](https://github.com/magicink/twine-campfire/issues/530)) ([426b69a](https://github.com/magicink/twine-campfire/commit/426b69a222a3bb221c6d17cb31812d0286e6a418))
+
 ## [1.85.0](https://github.com/magicink/twine-campfire/compare/v1.84.2...v1.85.0) (2025-08-25)
 
 
