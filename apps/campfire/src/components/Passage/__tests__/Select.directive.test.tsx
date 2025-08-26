@@ -41,7 +41,7 @@ describe('Select directive', () => {
     ).toBe('blue')
   })
 
-  it('runs event directives when used as a container', async () => {
+  it('runs event directives only on interaction', async () => {
     const passage: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
@@ -50,17 +50,22 @@ describe('Select directive', () => {
         {
           type: 'text',
           value:
-            ':::select[color]\n:option{value="red" label="Red"}\n:option{value="blue" label="Blue"}\n:::onFocus\n:set[focused=true]\n:::\n:::onHover\n:set[hovered=true]\n:::\n:::\n'
+            ':::select[color]\n:option{value="red" label="Red"}\n:option{value="blue" label="Blue"}\n:::onFocus\n:set[focused=true]\n:::\n:::onBlur\n:set[blurred=true]\n:::\n:::onHover\n:set[hovered=true]\n:::\n:::\n'
         }
       ]
     }
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
     render(<Passage />)
     const select = await screen.findByTestId('select')
+    expect(useGameStore.getState().gameData.focused).toBeUndefined()
     act(() => {
       ;(select as HTMLSelectElement).focus()
     })
     expect(useGameStore.getState().gameData.focused).toBe(true)
+    act(() => {
+      ;(select as HTMLSelectElement).blur()
+    })
+    expect(useGameStore.getState().gameData.blurred).toBe(true)
     fireEvent.mouseEnter(select)
     expect(useGameStore.getState().gameData.hovered).toBe(true)
   })

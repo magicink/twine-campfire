@@ -1270,8 +1270,7 @@ export const useDirectiveHandlers = () => {
     const classAttr = typeof attrs.className === 'string' ? attrs.className : ''
     const styleAttr = typeof attrs.style === 'string' ? attrs.style : undefined
     const rawChildren = runDirectiveBlock(
-      expandIndentedCode(container.children as RootContent[]),
-      handlersRef.current
+      expandIndentedCode(container.children as RootContent[])
     )
     const { events, remaining } = extractEventProps(rawChildren)
     const options = remaining.filter(node => !isWhitespaceNode(node))
