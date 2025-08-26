@@ -99,33 +99,3 @@ Manage image and audio assets. Position images within slides and preload them or
   | `sfx`     | Sound effects volume from 0–1    |
 
 Wrap string values in matching quotes or backticks. Unquoted values are treated as state keys when applicable.
-
-## Loading screen
-
-Preload assets and show progress before the first passage renders.
-
-```tsx
-import { LoadingScreen } from '@campfire/components/LoadingScreen'
-
-const assets = [
-  { type: 'audio', id: 'click', src: 'audio/click.wav' },
-  { type: 'image', id: 'title', src: 'images/title.png' }
-]
-
-<LoadingScreen assets={assets} targetPassage='Intro' />
-```
-
-When all assets finish loading, the component advances to the given passage. Assets can also be preloaded manually in passages using `:preloadAudio` and `:preloadImage`.
-
-The main `Campfire` component can also accept an `assets` prop to show this loading screen automatically:
-
-```tsx
-import { Campfire } from '@campfire/components'
-
-const assets = [
-  { type: 'audio', id: 'click', src: 'audio/click.wav' },
-  { type: 'image', id: 'title', src: 'images/title.png' }
-]
-
-<Campfire assets={assets} />
-```

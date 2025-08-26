@@ -193,8 +193,6 @@ Control the flow between passages or how they reveal.
   | layerClassName | Classes applied to the Layer wrapper     |
   | from           | Name of a text preset to apply           |
 
-- Loading screen: Preload assets and show progress before the first passage renders. See [Asset management](asset-management.md#loading-screen).
-
 - `shape`: Draw basic shapes within a slide.
 
   ```md

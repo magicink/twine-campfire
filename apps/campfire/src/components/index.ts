@@ -10,7 +10,6 @@ export { Translate } from '@campfire/components/Passage/Translate'
 export { OnExit } from '@campfire/components/Passage/OnExit'
 export { DebugWindow } from '@campfire/components/DebugWindow'
 export { Deck } from '@campfire/components/Deck'
-export { LoadingScreen } from '@campfire/components/LoadingScreen'
 export {
   Slide,
   renderDirectiveMarkdown,
