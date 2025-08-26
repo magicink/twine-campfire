@@ -118,7 +118,9 @@ export const convertRanges = (obj: unknown): unknown => {
 }
 
 /**
- * Invokes a callback using either an id or a source URL from directive attributes.
+ * Invokes a callback using an id or source URL resolved from directive attributes.
+ * If both are provided, the id (or label) takes precedence and the src is passed
+ * through the options object.
  *
  * @param directive - Directive node being processed.
  * @param attrs - Attribute map containing optional id and src fields.

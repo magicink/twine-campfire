@@ -1587,7 +1587,7 @@ export const useDirectiveHandlers = () => {
     if (id && src) {
       audio.load(id, src)
     } else {
-      addError('preloadAudio directive requires id and src')
+      addError('preloadAudio directive requires an id/label and src')
     }
     return removeNode(parent, index)
   }

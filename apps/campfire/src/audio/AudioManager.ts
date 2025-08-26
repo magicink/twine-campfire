@@ -54,15 +54,15 @@ export class AudioManager {
     if (this.sfxMap.has(id)) return this.sfxMap.get(id)!
     const src = source ?? id
     if (!src) return undefined
+    let href: string
     try {
-      // Validate the URL to avoid creating Audio elements with invalid sources
-      // eslint-disable-next-line no-new
-      new URL(src, this.getBaseUrl())
+      // Resolve and validate the URL to avoid creating elements with invalid sources
+      href = new URL(src, this.getBaseUrl()).href
     } catch {
       console.error(`Invalid audio source: ${src}`)
       return undefined
     }
-    const audio = new Audio(src)
+    const audio = new Audio(href)
     audio.preload = 'auto'
     this.sfxMap.set(id, audio)
     return audio
