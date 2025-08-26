@@ -81,7 +81,7 @@ Collect data or trigger actions directly in the passage.
 
 ### Event directives
 
-Use event directives inside `input` or `trigger` blocks to run directives on interaction.
+Use event directives inside `input`, `select`, or `trigger` blocks to run directives on interaction.
 
 | Directive | Fires when the element... |
 | --------- | ------------------------- |
