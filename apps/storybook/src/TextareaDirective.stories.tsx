@@ -2,15 +2,15 @@ import type { Meta, StoryObj } from '@storybook/preact'
 import { Campfire } from '@campfire/components'
 
 const meta: Meta = {
-  title: 'Campfire/Directives/Trigger'
+  title: 'Campfire/Directives/Textarea'
 }
 
 export default meta
 
 /**
- * Demonstrates the `trigger` directive toggling state and cleaning up on exit.
+ * Demonstrates the `textarea` directive bound to game state.
  *
- * @returns Campfire story showcasing the `trigger` directive.
+ * @returns Campfire story showcasing the `textarea` directive.
  */
 export const Basic: StoryObj = {
   render: () => (
@@ -18,18 +18,9 @@ export const Basic: StoryObj = {
       <tw-storydata startnode='1' options='debug'>
         <tw-passagedata pid='1' name='Start'>
           {`
-:set[test=true]
-
-:::trigger{label="Click me"}
-  :set[test=false]
-:::
-
-:::if[!test]
-You clicked the button!
-:::
-
-:::onExit
-  :unset[test]
+:textarea[bio]{placeholder="Enter bio"}
+:::if[bio]
+You wrote: :show[bio]
 :::
 `}
         </tw-passagedata>
@@ -40,9 +31,9 @@ You clicked the button!
 }
 
 /**
- * Demonstrates trigger events such as hover.
+ * Demonstrates the `textarea` directive with event directives.
  *
- * @returns Campfire story showcasing trigger event directives.
+ * @returns Campfire story showcasing textarea events.
  */
 export const WithEvents: StoryObj = {
   render: () => (
@@ -50,16 +41,15 @@ export const WithEvents: StoryObj = {
       <tw-storydata startnode='1' options='debug'>
         <tw-passagedata pid='1' name='Start'>
           {`
-:set[hover=false]
-
-:::trigger{label="Hover"}
-:::onHover
-  :set[hover=true]
+:::textarea[bio]{placeholder="Hover or focus"}
+:::onFocus
+  :set[focused=true]
 :::
+:::onBlur
+  :unset[focused]
 :::
-
-:::if[hover]
-You hovered the button!
+:::if[focused]
+Focused!
 :::
           `}
         </tw-passagedata>

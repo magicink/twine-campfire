@@ -2,15 +2,15 @@ import type { Meta, StoryObj } from '@storybook/preact'
 import { Campfire } from '@campfire/components'
 
 const meta: Meta = {
-  title: 'Campfire/Directives/Trigger'
+  title: 'Campfire/Directives/Select'
 }
 
 export default meta
 
 /**
- * Demonstrates the `trigger` directive toggling state and cleaning up on exit.
+ * Demonstrates the `select` directive bound to game state.
  *
- * @returns Campfire story showcasing the `trigger` directive.
+ * @returns Campfire story showcasing the `select` directive.
  */
 export const Basic: StoryObj = {
   render: () => (
@@ -18,20 +18,14 @@ export const Basic: StoryObj = {
       <tw-storydata startnode='1' options='debug'>
         <tw-passagedata pid='1' name='Start'>
           {`
-:set[test=true]
-
-:::trigger{label="Click me"}
-  :set[test=false]
+:::select[color]
+:option{value="red" label="Red"}
+:option{value="blue" label="Blue"}
 :::
-
-:::if[!test]
-You clicked the button!
+:::if[color]
+You chose :show[color].
 :::
-
-:::onExit
-  :unset[test]
-:::
-`}
+          `}
         </tw-passagedata>
       </tw-storydata>
       <Campfire />
@@ -40,9 +34,9 @@ You clicked the button!
 }
 
 /**
- * Demonstrates trigger events such as hover.
+ * Demonstrates the `select` directive with event directives.
  *
- * @returns Campfire story showcasing trigger event directives.
+ * @returns Campfire story showcasing select events.
  */
 export const WithEvents: StoryObj = {
   render: () => (
@@ -50,16 +44,18 @@ export const WithEvents: StoryObj = {
       <tw-storydata startnode='1' options='debug'>
         <tw-passagedata pid='1' name='Start'>
           {`
-:set[hover=false]
-
-:::trigger{label="Hover"}
-:::onHover
-  :set[hover=true]
+:::select[color]
+:option{value="red" label="Red"}
+:option{value="blue" label="Blue"}
+:::onFocus
+  :set[focused=true]
 :::
+:::onBlur
+  :unset[focused]
 :::
-
-:::if[hover]
-You hovered the button!
+:::if[focused]
+Focused!
+:::
 :::
           `}
         </tw-passagedata>

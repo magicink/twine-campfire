@@ -1,5 +1,11 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { render, screen, waitFor, act } from '@testing-library/preact'
+import {
+  render,
+  screen,
+  waitFor,
+  act,
+  fireEvent
+} from '@testing-library/preact'
 import i18next from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import type { Element } from 'hast'
@@ -114,5 +120,53 @@ describe('Passage trigger directives', () => {
     const button = await screen.findByRole('button')
     expect(screen.queryByRole('button', { name: 'Fire' })).toBeNull()
     expect(button.textContent).toBe('')
+  })
+
+  it('runs event directives for trigger blocks', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            ':::trigger{label="Do"}\n:::onHover\n:set[hovered=true]\n:::\n:::onFocus\n:set[focused=true]\n:::\n:::onBlur\n:set[blurred=true]\n:::\n:set[clicked=true]\n:::\n'
+        }
+      ]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    const button = await screen.findByRole('button', { name: 'Do' })
+    fireEvent.mouseEnter(button)
+    expect(useGameStore.getState().gameData.hovered).toBe(true)
+    fireEvent.focus(button)
+    expect(useGameStore.getState().gameData.focused).toBe(true)
+    fireEvent.blur(button)
+    expect(useGameStore.getState().gameData.blurred).toBe(true)
+    act(() => {
+      button.click()
+    })
+    await waitFor(() => {
+      expect(useGameStore.getState().gameData.clicked).toBe(true)
+    })
+  })
+
+  it('removes directive markers after trigger blocks', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':::trigger{label="Fire"}\n:::set[fired=true]\n:::\n:::'
+        }
+      ]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    await screen.findByRole('button', { name: 'Fire' })
+    expect(document.body.textContent).not.toContain(':::')
   })
 })
