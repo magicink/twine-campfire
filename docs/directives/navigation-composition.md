@@ -193,7 +193,22 @@ Control the flow between passages or how they reveal.
   | layerClassName | Classes applied to the Layer wrapper     |
   | from           | Name of a text preset to apply           |
 
-- See [Asset management](asset-management.md) for positioning images and preloading assets.
+- Loading screen: Preload assets and show progress before the first passage renders.
+
+  ```tsx
+  import { LoadingScreen } from '@campfire/components/LoadingScreen'
+
+  const assets = [
+    { type: 'audio', id: 'click', src: 'audio/click.wav' },
+    { type: 'image', id: 'title', src: 'images/title.png' }
+  ]
+
+  <LoadingScreen assets={assets} targetPassage='Intro' />
+  ```
+
+  When all assets finish loading, the component advances to the given passage.
+
+  For directive syntax to preload assets manually, see [Asset management](asset-management.md).
 
 - `shape`: Draw basic shapes within a slide.
 
