@@ -1,4 +1,5 @@
 import type { JSX } from 'preact'
+import { useEffect } from 'preact/hooks'
 import rfdc from 'rfdc'
 import type { RootContent } from 'mdast'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
@@ -10,7 +11,13 @@ const clone = rfdc()
 interface SelectProps
   extends Omit<
     JSX.SelectHTMLAttributes<HTMLSelectElement>,
-    'className' | 'value' | 'onInput' | 'onFocus' | 'onBlur' | 'onMouseEnter'
+    | 'className'
+    | 'value'
+    | 'defaultValue'
+    | 'onInput'
+    | 'onFocus'
+    | 'onBlur'
+    | 'onMouseEnter'
   > {
   /** Key in game state to bind the select value to. */
   stateKey: string
@@ -24,6 +31,8 @@ interface SelectProps
   onBlur?: string
   /** Optional input event handler. */
   onInput?: JSX.SelectHTMLAttributes<HTMLSelectElement>['onInput']
+  /** Initial value if the state key is unset. */
+  initialValue?: string
 }
 
 /**
@@ -47,6 +56,7 @@ export const Select = ({
   onInput,
   style,
   children,
+  initialValue,
   ...rest
 }: SelectProps) => {
   const value = useGameStore(state => state.gameData[stateKey]) as
@@ -59,6 +69,11 @@ export const Select = ({
     : className
       ? [className]
       : []
+  useEffect(() => {
+    if (value === undefined) {
+      setGameData({ [stateKey]: initialValue ?? '' })
+    }
+  }, [value, stateKey, initialValue, setGameData])
   const mergedStyle =
     typeof style === 'string'
       ? `border:1px solid black;color:#000;background:#fff;${style}`

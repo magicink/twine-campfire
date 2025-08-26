@@ -3,6 +3,7 @@ import type { DirectiveHandler } from '@campfire/remark-campfire'
 import { LinkButton } from '@campfire/components/Passage/LinkButton'
 import { TriggerButton } from '@campfire/components/Passage/TriggerButton'
 import { Input } from '@campfire/components/Passage/Input'
+import { Textarea } from '@campfire/components/Passage/Textarea'
 import { Select } from '@campfire/components/Passage/Select'
 import { Option } from '@campfire/components/Passage/Option'
 import { If } from '@campfire/components/Passage/If'
@@ -32,6 +33,7 @@ export const renderDirectiveMarkdown = (
     button: LinkButton,
     trigger: TriggerButton,
     input: Input,
+    textarea: Textarea,
     select: Select,
     option: Option,
     if: If,

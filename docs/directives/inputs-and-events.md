@@ -6,58 +6,87 @@ Collect data from players or run directives on demand with interactive elements,
 
 Collect data or trigger actions directly in the passage.
 
-- `input`: Render a text input bound to a game state key. Use as a leaf or container. The container form can include event directives.
+- `input`: Render a text input bound to a game state key. Use as a leaf or container. The container form can include event directives. If the key already exists in game state, its value is used; otherwise, the optional `value` attribute sets the starting value.
 
-  Leaf form:
+Leaf form:
 
-  ```md
-  :input[name]{placeholder="Your name"}
-  ```
+```md
+:input[name]{placeholder="Your name"}
+```
 
-  Container form:
+Container form:
 
-  ```md
-  :::input[email]
-  :::onFocus
-  :set[focused=true]
-  :::
-  :::
-  ```
+```md
+:::input[email]
+:::onFocus
+:set[focused=true]
+:::
+:::
+```
 
-  | Input       | Description                                |
-  | ----------- | ------------------------------------------ |
-  | state_key   | Key in game state to store the input value |
-  | placeholder | Optional text shown when empty             |
-  | type        | Optional input `type` attribute            |
-  | className   | Optional space-separated classes           |
-  | style       | Optional inline style declarations         |
+| Input       | Description                                |
+| ----------- | ------------------------------------------ |
+| state_key   | Key in game state to store the input value |
+| placeholder | Optional text shown when empty             |
+| value       | Initial value when the state key is unset  |
+| type        | Optional input `type` attribute            |
+| className   | Optional space-separated classes           |
+| style       | Optional inline style declarations         |
 
-- `select`: Render a dropdown bound to a game state key. Must be used as a container with nested `option` directives. The container form can include event directives.
+- `textarea`: Render a multi-line text area bound to a game state key. Use as a leaf or container. The container form can include event directives. If the key already exists in game state, its value is used; otherwise, the optional `value` attribute sets the starting value.
 
-  ```md
-  :::select[color]
-  :option{value="red" label="Red"}
-  :option{value="blue" label="Blue"}
-  :::
-  ```
+Leaf form:
 
-  | Input     | Description                                 |
-  | --------- | ------------------------------------------- |
-  | state_key | Key in game state to store the select value |
-  | className | Optional space-separated classes            |
-  | style     | Optional inline style declarations          |
+```md
+:textarea[bio]{placeholder="Your bio"}
+```
 
-  Both the select and option elements include a visible black border,
-  black text, and a white background by default to ensure readability.
+Container form:
 
-  `option` directives accept the following inputs:
+```md
+:::textarea[bio]
+:::onFocus
+:set[focused=true]
+:::
+:::
+```
 
-  | Input     | Description                        |
-  | --------- | ---------------------------------- |
-  | value     | Value to store when selected       |
-  | label     | Text displayed for the option      |
-  | className | Optional space-separated classes   |
-  | style     | Optional inline style declarations |
+| Input       | Description                                   |
+| ----------- | --------------------------------------------- |
+| state_key   | Key in game state to store the textarea value |
+| placeholder | Optional text shown when empty                |
+| rows        | Optional number of visible text rows          |
+| value       | Initial value when the state key is unset     |
+| className   | Optional space-separated classes              |
+| style       | Optional inline style declarations            |
+
+- `select`: Render a dropdown bound to a game state key. Must be used as a container with nested `option` directives. The container form can include event directives. If the key already exists in game state, its value is used; otherwise, the optional `value` attribute sets the initial selection.
+
+```md
+:::select[color]
+:option{value="red" label="Red"}
+:option{value="blue" label="Blue"}
+:::
+```
+
+| Input     | Description                                  |
+| --------- | -------------------------------------------- |
+| state_key | Key in game state to store the select value  |
+| className | Optional space-separated classes             |
+| style     | Optional inline style declarations           |
+| value     | Initial selected value when the key is unset |
+
+Both the select and option elements include a visible black border,
+black text, and a white background by default to ensure readability.
+
+`option` directives accept the following inputs:
+
+| Input     | Description                        |
+| --------- | ---------------------------------- |
+| value     | Value to store when selected       |
+| label     | Text displayed for the option      |
+| className | Optional space-separated classes   |
+| style     | Optional inline style declarations |
 
 - `trigger`: Render a button that runs directives when clicked. Supports event directives inside the block.
 

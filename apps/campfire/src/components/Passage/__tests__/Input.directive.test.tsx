@@ -78,4 +78,47 @@ describe('Input directive', () => {
     await screen.findByTestId('input')
     expect(document.body.textContent).not.toContain(':::')
   })
+
+  it('initializes state from value attribute', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':input[name]{value="Sam"}\n'
+        }
+      ]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    const input = await screen.findByTestId('input')
+    expect((input as HTMLInputElement).value).toBe('Sam')
+    expect(
+      (useGameStore.getState().gameData as Record<string, unknown>).name
+    ).toBe('Sam')
+  })
+
+  it('uses existing state value when present', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':input[name]{value="Sam"}\n'
+        }
+      ]
+    }
+    useGameStore.setState({ gameData: { name: 'Existing' } })
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    const input = await screen.findByTestId('input')
+    expect((input as HTMLInputElement).value).toBe('Existing')
+    expect(
+      (useGameStore.getState().gameData as Record<string, unknown>).name
+    ).toBe('Existing')
+  })
 })

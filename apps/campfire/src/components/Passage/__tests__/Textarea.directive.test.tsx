@@ -7,15 +7,15 @@ import { useGameStore } from '@campfire/state/useGameStore'
 import { resetStores } from '@campfire/test-utils/helpers'
 
 /**
- * Tests for Select directive attributes.
+ * Tests for Textarea directive attributes.
  */
-describe('Select directive', () => {
+describe('Textarea directive', () => {
   beforeEach(() => {
     document.body.innerHTML = ''
     resetStores()
   })
 
-  it('passes className and style attributes', async () => {
+  it('passes placeholder and style attributes', async () => {
     const passage: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
@@ -23,25 +23,21 @@ describe('Select directive', () => {
       children: [
         {
           type: 'text',
-          value:
-            ':::select[color]{className="extra" style="color:blue"}\n:option{value="red" label="Red"}\n:option{value="blue" label="Blue"}\n:::\n'
+          value: ':textarea[bio]{placeholder="Your bio" style="color:blue"}\n'
         }
       ]
     }
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
     render(<Passage />)
-    const select = await screen.findByTestId('select')
-    expect((select as HTMLSelectElement).style.color).toBe('blue')
-    expect((select as HTMLSelectElement).style.border).toBe('1px solid black')
-    expect((select as HTMLSelectElement).style.backgroundColor).toBe('#fff')
-    expect(select.className.split(' ')).toContain('extra')
-    fireEvent.input(select, { target: { value: 'blue' } })
+    const textarea = await screen.findByPlaceholderText('Your bio')
+    expect((textarea as HTMLTextAreaElement).style.color).toBe('blue')
+    fireEvent.input(textarea, { target: { value: 'Hi' } })
     expect(
-      (useGameStore.getState().gameData as Record<string, unknown>).color
-    ).toBe('blue')
+      (useGameStore.getState().gameData as Record<string, unknown>).bio
+    ).toBe('Hi')
   })
 
-  it('runs event directives only on interaction', async () => {
+  it('runs event directives when used as a container', async () => {
     const passage: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
@@ -50,27 +46,22 @@ describe('Select directive', () => {
         {
           type: 'text',
           value:
-            ':::select[color]\n:option{value="red" label="Red"}\n:option{value="blue" label="Blue"}\n:::onFocus\n:set[focused=true]\n:::\n:::onBlur\n:set[blurred=true]\n:::\n:::onHover\n:set[hovered=true]\n:::\n:::\n'
+            ':::textarea[bio]\n:::onFocus\n:set[focused=true]\n:::\n:::onHover\n:set[hovered=true]\n:::\n:::\n'
         }
       ]
     }
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
     render(<Passage />)
-    const select = await screen.findByTestId('select')
-    expect(useGameStore.getState().gameData.focused).toBeUndefined()
+    const textarea = await screen.findByTestId('textarea')
     act(() => {
-      ;(select as HTMLSelectElement).focus()
+      ;(textarea as HTMLTextAreaElement).focus()
     })
     expect(useGameStore.getState().gameData.focused).toBe(true)
-    act(() => {
-      ;(select as HTMLSelectElement).blur()
-    })
-    expect(useGameStore.getState().gameData.blurred).toBe(true)
-    fireEvent.mouseEnter(select)
+    fireEvent.mouseEnter(textarea)
     expect(useGameStore.getState().gameData.hovered).toBe(true)
   })
 
-  it('removes directive markers for container selects', async () => {
+  it('removes directive markers for container textareas', async () => {
     const passage: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
@@ -78,13 +69,13 @@ describe('Select directive', () => {
       children: [
         {
           type: 'text',
-          value: ':::select[color]\n:option{value="red" label="Red"}\n:::\n'
+          value: ':::textarea[bio]\n:::\n'
         }
       ]
     }
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
     render(<Passage />)
-    await screen.findByTestId('select')
+    await screen.findByTestId('textarea')
     expect(document.body.textContent).not.toContain(':::')
   })
 
@@ -96,18 +87,17 @@ describe('Select directive', () => {
       children: [
         {
           type: 'text',
-          value:
-            ':::select[color]{value="blue"}\n:option{value="red" label="Red"}\n:option{value="blue" label="Blue"}\n:::\n'
+          value: ':textarea[bio]{value="Hello"}\n'
         }
       ]
     }
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
     render(<Passage />)
-    const select = await screen.findByTestId('select')
-    expect((select as HTMLSelectElement).value).toBe('blue')
+    const textarea = await screen.findByTestId('textarea')
+    expect((textarea as HTMLTextAreaElement).value).toBe('Hello')
     expect(
-      (useGameStore.getState().gameData as Record<string, unknown>).color
-    ).toBe('blue')
+      (useGameStore.getState().gameData as Record<string, unknown>).bio
+    ).toBe('Hello')
   })
 
   it('uses existing state value when present', async () => {
@@ -118,18 +108,17 @@ describe('Select directive', () => {
       children: [
         {
           type: 'text',
-          value:
-            ':::select[color]{value="blue"}\n:option{value="red" label="Red"}\n:option{value="blue" label="Blue"}\n:::\n'
+          value: ':textarea[bio]{value="Hello"}\n'
         }
       ]
     }
-    useGameStore.setState({ gameData: { color: 'red' } })
+    useGameStore.setState({ gameData: { bio: 'Existing' } })
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
     render(<Passage />)
-    const select = await screen.findByTestId('select')
-    expect((select as HTMLSelectElement).value).toBe('red')
+    const textarea = await screen.findByTestId('textarea')
+    expect((textarea as HTMLTextAreaElement).value).toBe('Existing')
     expect(
-      (useGameStore.getState().gameData as Record<string, unknown>).color
-    ).toBe('red')
+      (useGameStore.getState().gameData as Record<string, unknown>).bio
+    ).toBe('Existing')
   })
 })
