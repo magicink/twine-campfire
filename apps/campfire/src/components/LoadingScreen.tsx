@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'preact/hooks'
+import { useEffect, useRef, useState } from 'preact/hooks'
 import { AudioManager } from '@campfire/audio/AudioManager'
 import { ImageManager } from '@campfire/image/ImageManager'
 import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
@@ -25,9 +25,10 @@ export const LoadingScreen = ({
 }) => {
   const [progress, setProgress] = useState(0)
   const setCurrentPassage = useStoryDataStore(state => state.setCurrentPassage)
+  const loadedRef = useRef(0)
 
   useEffect(() => {
-    let loaded = 0
+    loadedRef.current = 0
     const total = assets.length
     const audio = AudioManager.getInstance()
     const images = ImageManager.getInstance()
@@ -44,8 +45,8 @@ export const LoadingScreen = ({
       loader
         .catch((err: unknown) => console.error('Failed to preload', id, err))
         .finally(() => {
-          loaded += 1
-          setProgress(Math.floor((loaded / total) * 100))
+          loadedRef.current += 1
+          setProgress(Math.floor((loadedRef.current / total) * 100))
         })
     })
   }, [assets])

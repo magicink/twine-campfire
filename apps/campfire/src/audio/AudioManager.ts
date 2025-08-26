@@ -81,7 +81,8 @@ export class AudioManager {
       console.error(`Failed to load audio: ${id}`)
       return Promise.reject(new Error(`Failed to load audio: ${id}`))
     }
-    if (audio.readyState >= 4) return Promise.resolve()
+    if (audio.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA)
+      return Promise.resolve()
     return new Promise((resolve, reject) => {
       const cleanup = () => {
         audio.removeEventListener('canplaythrough', handleLoad)

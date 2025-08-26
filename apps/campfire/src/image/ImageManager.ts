@@ -46,14 +46,23 @@ export class ImageManager {
     if (this.cache.has(id)) return Promise.resolve()
     return new Promise((resolve, reject) => {
       const img = new Image()
+      const cleanup = () => {
+        img.onload = null
+        img.onerror = null
+      }
       img.onload = () => {
+        cleanup()
         this.cache.set(id, img)
         resolve()
       }
-      img.onerror = err => reject(err)
+      img.onerror = err => {
+        cleanup()
+        reject(err)
+      }
       try {
         img.src = new URL(src, this.getBaseUrl()).href
       } catch (err) {
+        cleanup()
         console.error(`Invalid image source: ${src}`, err)
         reject(err as Error)
         return
