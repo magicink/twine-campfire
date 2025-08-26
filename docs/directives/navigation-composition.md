@@ -193,37 +193,9 @@ Control the flow between passages or how they reveal.
   | layerClassName | Classes applied to the Layer wrapper     |
   | from           | Name of a text preset to apply           |
 
-- `image`: Position an image within a slide.
+- See [Images](images.md) for positioning and preloading images.
 
-  ```md
-  :::deck
-  :::slide
-  :image{src='https://example.com/cat.png' x=10 y=20}
-  :::
-  :::
-  ```
-
-  Supports a `from` attribute to apply presets.
-
-  | Input          | Description                              |
-  | -------------- | ---------------------------------------- |
-  | x              | Horizontal position in pixels            |
-  | y              | Vertical position in pixels              |
-  | w              | Width in pixels                          |
-  | h              | Height in pixels                         |
-  | z              | z-index value                            |
-  | rotate         | Rotation in degrees                      |
-  | scale          | Scale multiplier                         |
-  | anchor         | Transform origin (`top-left` by default) |
-  | src            | Image source URL                         |
-  | alt            | Alternate text description               |
-  | style          | Inline styles applied to the `<img>`     |
-  | className      | Classes applied to the `<img>`           |
-  | layerClassName | Classes applied to the Layer wrapper     |
-  | from           | Name of an image preset to apply         |
-
-  Preload images ahead of time with `:preloadImage` to avoid display delays.
-  - `shape`: Draw basic shapes within a slide.
+- `shape`: Draw basic shapes within a slide.
 
   ```md
   :::deck
