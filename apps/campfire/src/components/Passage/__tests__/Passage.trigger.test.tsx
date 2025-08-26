@@ -151,4 +151,22 @@ describe('Passage trigger directives', () => {
       expect(useGameStore.getState().gameData.clicked).toBe(true)
     })
   })
+
+  it('removes directive markers after trigger blocks', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':::trigger{label="Fire"}\n:::set[fired=true]\n:::\n:::'
+        }
+      ]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    await screen.findByRole('button', { name: 'Fire' })
+    expect(document.body.textContent).not.toContain(':::')
+  })
 })

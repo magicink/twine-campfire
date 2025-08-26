@@ -60,4 +60,22 @@ describe('Input directive', () => {
     fireEvent.mouseEnter(input)
     expect(useGameStore.getState().gameData.hovered).toBe(true)
   })
+
+  it('removes directive markers for container inputs', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':::input[name]\n:::\n'
+        }
+      ]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    await screen.findByTestId('input')
+    expect(document.body.textContent).not.toContain(':::')
+  })
 })

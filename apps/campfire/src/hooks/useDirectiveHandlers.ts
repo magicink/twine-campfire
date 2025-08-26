@@ -1205,9 +1205,12 @@ export const useDirectiveHandlers = () => {
         children: [],
         data: { hName: 'input', hProperties: props as Properties }
       }
-      return replaceWithIndentation(directive, parent, index, [
+      const newIndex = replaceWithIndentation(directive, parent, index, [
         node as RootContent
       ])
+      const markerIndex = newIndex + 1
+      removeDirectiveMarker(parent, markerIndex)
+      return [SKIP, newIndex]
     }
     const msg = 'input can only be used as a leaf or container directive'
     console.error(msg)
@@ -1257,6 +1260,8 @@ export const useDirectiveHandlers = () => {
     const newIndex = replaceWithIndentation(directive, parent, index, [
       node as RootContent
     ])
+    const markerIndex = newIndex + 1
+    removeDirectiveMarker(parent, markerIndex)
     return [SKIP, newIndex]
   }
 
