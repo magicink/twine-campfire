@@ -59,14 +59,22 @@ export const LoadingScreen = ({
 
   return (
     <div className='campfire-loading-screen' data-testid='loading-screen'>
-      <div className='campfire-loading-bar'>
+      <div
+        className='campfire-loading-bar'
+        role='progressbar'
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={progress}
+        aria-labelledby='campfire-loading-label'
+        data-testid='loading-bar'
+      >
         <div
           className='campfire-loading-bar-fill'
           style={{ width: `${progress}%` }}
           data-testid='loading-bar-fill'
         />
       </div>
-      <p>{progress}%</p>
+      <p id='campfire-loading-label'>{progress}%</p>
     </div>
   )
 }

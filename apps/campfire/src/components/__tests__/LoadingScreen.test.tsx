@@ -43,9 +43,13 @@ describe('LoadingScreen', () => {
     )
 
     await new Promise(r => setTimeout(r, 0))
+    const bar = screen.getByTestId('loading-bar')
+    expect(bar.getAttribute('role')).toBe('progressbar')
+    expect(bar.getAttribute('aria-valuenow')).toBe('50')
     expect(screen.getByTestId('loading-bar-fill').style.width).toBe('50%')
     resolveImage()
     await new Promise(r => setTimeout(r, 0))
+    expect(bar.getAttribute('aria-valuenow')).toBe('100')
     expect(screen.getByTestId('loading-bar-fill').style.width).toBe('100%')
     expect(useStoryDataStore.getState().currentPassageId).toBe('Intro')
 
