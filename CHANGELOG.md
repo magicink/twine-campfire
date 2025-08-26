@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.88.0](https://github.com/magicink/twine-campfire/compare/v1.87.0...v1.88.0) (2025-08-26)
+
+
+### Features
+
+* add input directive ([#537](https://github.com/magicink/twine-campfire/issues/537)) ([7c37716](https://github.com/magicink/twine-campfire/commit/7c3771634eac6314e4d77b7bf17ee2409602ebc8))
+* add select and option directives ([#538](https://github.com/magicink/twine-campfire/issues/538)) ([3c42b02](https://github.com/magicink/twine-campfire/commit/3c42b0234687048706d37d93a766964cfc204e20))
+* add textarea directive and component ([#539](https://github.com/magicink/twine-campfire/issues/539)) ([af5e1b8](https://github.com/magicink/twine-campfire/commit/af5e1b89fa0e497e4eef08c40fb8d195b27fa8f0))
+
+
+### Bug Fixes
+
+* default to dark theme ([#536](https://github.com/magicink/twine-campfire/issues/536)) ([d7ab25a](https://github.com/magicink/twine-campfire/commit/d7ab25af2a29b5280d6ce50569c11e456da5b3a4))
+
 ## [1.87.0](https://github.com/magicink/twine-campfire/compare/v1.86.0...v1.87.0) (2025-08-26)
 
 
