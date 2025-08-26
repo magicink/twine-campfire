@@ -33,8 +33,18 @@ export class AudioManager {
     if (!src) return undefined
     try {
       // Validate the URL to avoid creating Audio elements with invalid sources
+      const baseUrl =
+        typeof window !== 'undefined' &&
+        window.location?.origin &&
+        window.location.origin !== 'null'
+          ? window.location.origin
+          : typeof document !== 'undefined' &&
+              document.baseURI &&
+              document.baseURI !== 'about:blank'
+            ? document.baseURI
+            : 'http://localhost'
       // eslint-disable-next-line no-new
-      new URL(src, 'http://localhost')
+      new URL(src, baseUrl)
     } catch {
       console.error(`Invalid audio source: ${src}`)
       return undefined
