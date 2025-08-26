@@ -10,20 +10,31 @@ interface OptionProps
  * Option element used within a select directive.
  *
  * @param className - Optional additional classes.
+ * @param style - Optional inline styles for the option element.
  * @param children - Display text for the option.
  * @param rest - Additional option element attributes.
  * @returns The rendered option element.
  */
-export const Option = ({ className, children, ...rest }: OptionProps) => {
+export const Option = ({
+  className,
+  style,
+  children,
+  ...rest
+}: OptionProps) => {
   const classes = Array.isArray(className)
     ? className
     : className
       ? [className]
       : []
+  const mergedStyle =
+    typeof style === 'string'
+      ? `color:#000;${style}`
+      : { color: '#000', ...(style ?? {}) }
   return (
     <option
       data-testid='option'
       className={['campfire-option', ...classes].join(' ')}
+      style={mergedStyle}
       {...rest}
     >
       {children}

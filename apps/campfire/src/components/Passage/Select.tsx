@@ -34,6 +34,7 @@ interface SelectProps
  * @param onHover - Serialized directives to run when hovered.
  * @param onFocus - Serialized directives to run on focus.
  * @param onBlur - Serialized directives to run on blur.
+ * @param style - Optional inline styles for the select element.
  * @param rest - Additional select element attributes.
  * @returns The rendered select element.
  */
@@ -44,6 +45,7 @@ export const Select = ({
   onFocus,
   onBlur,
   onInput,
+  style,
   children,
   ...rest
 }: SelectProps) => {
@@ -57,11 +59,16 @@ export const Select = ({
     : className
       ? [className]
       : []
+  const mergedStyle =
+    typeof style === 'string'
+      ? `border:1px solid black;color:#000;${style}`
+      : { border: '1px solid black', color: '#000', ...(style ?? {}) }
   return (
     <select
       data-testid='select'
       className={['campfire-select', ...classes].join(' ')}
       value={value ?? ''}
+      style={mergedStyle}
       {...rest}
       onMouseEnter={e => {
         if (onHover) {

@@ -34,4 +34,15 @@ describe('Select', () => {
     expect(field.className.split(' ')).toContain('extra')
     expect(field.style.color).toBe('red')
   })
+
+  it('renders with default border and text color', () => {
+    const { getByTestId } = render(
+      <Select stateKey='field'>
+        <Option value='a'>A</Option>
+      </Select>
+    )
+    const field = getByTestId('select') as HTMLSelectElement
+    expect(field.style.border).toBe('1px solid black')
+    expect(field.style.color).toBe('#000')
+  })
 })
