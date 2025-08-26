@@ -8,10 +8,16 @@ Collect data or trigger actions directly in the passage.
 
 - `input`: Render a text input bound to a game state key. Use as a leaf or container. The container form can include event directives.
 
+  Leaf form:
+
   ```md
   :input[name]{placeholder="Your name"}
+  ```
 
-  :::input[name]
+  Container form:
+
+  ```md
+  :::input[email]
   :::onFocus
   :set[focused=true]
   :::
