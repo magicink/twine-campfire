@@ -35,7 +35,8 @@ import {
   getLabel,
   isRange,
   removeNode,
-  stripLabel
+  stripLabel,
+  runWithIdOrSrc
 } from '@campfire/utils/directiveUtils'
 import {
   getRandomInt,
@@ -1592,33 +1593,6 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
-   * Invokes an audio callback using either an id or a source URL.
-   *
-   * @param directive - The directive node being processed.
-   * @param attrs - Attribute map containing optional id and src fields.
-   * @param fn - Callback to invoke with the resolved identifier.
-   * @param opts - Options to pass to the callback.
-   * @param err - Error message when neither id nor src is supplied.
-   */
-  const runWithIdOrSrc = <T extends Record<string, unknown>>(
-    directive: DirectiveNode,
-    attrs: { id?: string; src?: string },
-    fn: (id: string, opts: T & { src?: string }) => void,
-    opts: T,
-    err: string
-  ): void => {
-    const id = hasLabel(directive) ? directive.label : attrs.id
-    const { src } = attrs
-    if (id) {
-      fn(id, { ...opts, src })
-    } else if (src) {
-      fn(src, { ...opts })
-    } else {
-      addError(err)
-    }
-  }
-
-  /**
    * Plays a sound effect or preloaded audio track.
    *
    * @param directive - The directive node being processed.
@@ -1640,7 +1614,8 @@ export const useDirectiveHandlers = () => {
       attrs,
       (id, opts) => audio.playSfx(id, opts),
       { volume, delay },
-      'sound directive requires id or src'
+      'sound directive requires id or src',
+      addError
     )
     return removeNode(parent, index)
   }
@@ -1674,7 +1649,8 @@ export const useDirectiveHandlers = () => {
         attrs,
         (id, opts) => audio.playBgm(id, opts),
         { volume, loop, fade },
-        'bgm directive requires id or src'
+        'bgm directive requires id or src',
+        addError
       )
     }
     return removeNode(parent, index)

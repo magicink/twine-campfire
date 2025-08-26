@@ -8,6 +8,29 @@ export class AudioManager {
   private bgmBaseVolume = 1
 
   /**
+   * Determines the base URL for resolving relative audio paths.
+   *
+   * @returns The base URL string.
+   */
+  private getBaseUrl(): string {
+    if (
+      typeof window !== 'undefined' &&
+      window.location?.origin &&
+      window.location.origin !== 'null'
+    ) {
+      return window.location.origin
+    }
+    if (
+      typeof document !== 'undefined' &&
+      document.baseURI &&
+      document.baseURI !== 'about:blank'
+    ) {
+      return document.baseURI
+    }
+    return 'http://localhost'
+  }
+
+  /**
    * Retrieves the singleton instance of the AudioManager.
    *
    * @returns The AudioManager instance.
@@ -33,18 +56,8 @@ export class AudioManager {
     if (!src) return undefined
     try {
       // Validate the URL to avoid creating Audio elements with invalid sources
-      const baseUrl =
-        typeof window !== 'undefined' &&
-        window.location?.origin &&
-        window.location.origin !== 'null'
-          ? window.location.origin
-          : typeof document !== 'undefined' &&
-              document.baseURI &&
-              document.baseURI !== 'about:blank'
-            ? document.baseURI
-            : 'http://localhost'
       // eslint-disable-next-line no-new
-      new URL(src, baseUrl)
+      new URL(src, this.getBaseUrl())
     } catch {
       console.error(`Invalid audio source: ${src}`)
       return undefined

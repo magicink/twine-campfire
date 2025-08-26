@@ -118,6 +118,36 @@ export const convertRanges = (obj: unknown): unknown => {
 }
 
 /**
+ * Invokes a callback using either an id or a source URL from directive attributes.
+ *
+ * @param directive - Directive node being processed.
+ * @param attrs - Attribute map containing optional id and src fields.
+ * @param fn - Callback to invoke with the resolved identifier.
+ * @param opts - Options to pass to the callback.
+ * @param err - Error message when neither id nor src is supplied.
+ * @param onError - Callback for reporting errors.
+ */
+export const runWithIdOrSrc = <T extends Record<string, unknown>>(
+  directive: DirectiveNode,
+  attrs: { id?: string; src?: string },
+  fn: (id: string, opts: T & { src?: string }) => void,
+  opts: T,
+  err: string,
+  onError: (msg: string) => void = console.error
+): void => {
+  const label = (directive as { label?: unknown }).label
+  const id = typeof label === 'string' ? label : attrs.id
+  const { src } = attrs
+  if (id) {
+    fn(id, { ...opts, src })
+  } else if (src) {
+    fn(src, { ...opts })
+  } else {
+    onError(err)
+  }
+}
+
+/**
  * Removes a node from its parent at the specified index.
  *
  * @param parent - The parent node containing the children array.
