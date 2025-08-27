@@ -2,7 +2,7 @@
 
 Campfire's visual components expose unstyled classes prefixed with `campfire-`, letting you theme the interface without having to override defaults. Common selectors include:
 
-- `.campfire-campfire` – root story container
+- `.campfire-base` – root story container
 - `.campfire-passage` – wrapper around rendered passages; includes `h-full` for full height
 - `.campfire-link` – buttons generated from Twine `[[Link]]` syntax
 - `.campfire-trigger` – buttons created by the trigger directive
