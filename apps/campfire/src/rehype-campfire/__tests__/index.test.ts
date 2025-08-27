@@ -158,4 +158,68 @@ describe('rehypeCampfire', () => {
     expect(select.children[0].tagName).toBe('option')
     expect(select.children[1].tagName).toBe('option')
   })
+
+  it('unwraps paragraphs inside if directive content', () => {
+    const tree: Root = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tagName: 'if',
+          properties: {
+            test: 'true',
+            content: JSON.stringify([
+              {
+                type: 'paragraph',
+                children: [{ type: 'text', value: 'You chose' }]
+              }
+            ])
+          },
+          children: []
+        }
+      ]
+    }
+    rehypeCampfire()(tree)
+    const first = tree.children[0] as any
+    const content = JSON.parse(first.properties.content)
+    expect(content).toHaveLength(1)
+    expect(content[0].type).toBe('text')
+    expect(content[0].value).toBe('You chose')
+  })
+
+  it('processes directives within if content', () => {
+    const tree: Root = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tagName: 'if',
+          properties: {
+            test: 'x === 1',
+            content: JSON.stringify([
+              {
+                type: 'paragraph',
+                children: [
+                  {
+                    type: 'element',
+                    tagName: 'show',
+                    properties: { style: 'color:red' },
+                    children: [{ type: 'text', value: 'color' }]
+                  },
+                  { type: 'text', value: '.' }
+                ]
+              }
+            ])
+          },
+          children: []
+        }
+      ]
+    }
+    rehypeCampfire()(tree)
+    const first = tree.children[0] as any
+    const content = JSON.parse(first.properties.content)
+    expect(content).toHaveLength(2)
+    expect(content[0].tagName).toBe('show')
+    expect(content[1].value).toBe('.')
+  })
 })

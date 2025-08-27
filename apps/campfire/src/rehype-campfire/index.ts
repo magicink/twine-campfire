@@ -88,7 +88,7 @@ export default function rehypeCampfire(): (tree: Root) => void {
         node.tagName === 'show' ||
         node.tagName === 'option'))
 
-  return (tree: Root) => {
+  const transform = (tree: Root): void => {
     visit(tree, 'text', (node: any, index: number | undefined, parent: any) => {
       if (
         typeof node.value !== 'string' ||
@@ -140,6 +140,32 @@ export default function rehypeCampfire(): (tree: Root) => void {
       tree,
       'element',
       (node: any, index: number | undefined, parent: any) => {
+        const raw = node.properties?.content
+        if (Array.isArray(raw) || typeof raw === 'string') {
+          try {
+            const parsed = Array.isArray(raw) ? raw : JSON.parse(raw)
+            const flattened: any[] = []
+            for (const child of parsed) {
+              if (child.type === 'paragraph') {
+                flattened.push(
+                  ...child.children.filter(
+                    (c: any) => !(c.type === 'text' && !/\S/.test(c.value))
+                  )
+                )
+              } else {
+                flattened.push(child)
+              }
+            }
+            const inner: Root = { type: 'root', children: flattened }
+            transform(inner)
+            node.properties.content = Array.isArray(raw)
+              ? inner.children
+              : JSON.stringify(inner.children)
+          } catch {
+            /* ignore */
+          }
+        }
+
         if (node.tagName === 'select' && Array.isArray(node.children)) {
           const key =
             typeof node.properties?.stateKey === 'string'
@@ -182,4 +208,6 @@ export default function rehypeCampfire(): (tree: Root) => void {
       }
     )
   }
+
+  return transform
 }
