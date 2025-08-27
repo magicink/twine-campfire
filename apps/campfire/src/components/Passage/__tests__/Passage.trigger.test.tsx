@@ -187,4 +187,27 @@ describe('Passage trigger directives', () => {
     await screen.findByRole('button', { name: 'Fire' })
     expect(document.body.textContent).not.toContain(':::')
   })
+
+  it('stops click propagation', async () => {
+    let clicked = false
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':::trigger{label="Fire"}\n:::' }]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(
+      <div
+        onClick={() => {
+          clicked = true
+        }}
+      >
+        <Passage />
+      </div>
+    )
+    const button = await screen.findByRole('button', { name: 'Fire' })
+    fireEvent.click(button)
+    expect(clicked).toBe(false)
+  })
 })
