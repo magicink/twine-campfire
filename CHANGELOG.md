@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.89.0](https://github.com/magicink/twine-campfire/compare/v1.88.0...v1.89.0) (2025-08-27)
+
+
+### Features
+
+* support className and style on show and t directives ([#542](https://github.com/magicink/twine-campfire/issues/542)) ([3b3412d](https://github.com/magicink/twine-campfire/commit/3b3412d1c291d731cdf65f3b150bc8268efc219c))
+
+
+### Bug Fixes
+
+* unwrap if and show directives from paragraphs ([#543](https://github.com/magicink/twine-campfire/issues/543)) ([4b2a1b6](https://github.com/magicink/twine-campfire/commit/4b2a1b6e70f19f4010162b6012356b119d16a2c1))
+
 ## [1.88.0](https://github.com/magicink/twine-campfire/compare/v1.87.0...v1.88.0) (2025-08-26)
 
 
