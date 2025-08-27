@@ -84,7 +84,9 @@ export default function rehypeCampfire(): (tree: Root) => void {
   const isDirectiveElement = (node: any): node is ElementNode =>
     isLinkButton(node) ||
     (node.type === 'element' &&
-      (node.tagName === 'if' || node.tagName === 'show'))
+      (node.tagName === 'if' ||
+        node.tagName === 'show' ||
+        node.tagName === 'option'))
 
   return (tree: Root) => {
     visit(tree, 'text', (node: any, index: number | undefined, parent: any) => {
@@ -138,6 +140,32 @@ export default function rehypeCampfire(): (tree: Root) => void {
       tree,
       'element',
       (node: any, index: number | undefined, parent: any) => {
+        if (node.tagName === 'select' && Array.isArray(node.children)) {
+          const key =
+            typeof node.properties?.stateKey === 'string'
+              ? node.properties.stateKey
+              : ''
+          const rebuilt: any[] = []
+          for (const child of node.children) {
+            if (isWhitespace(child)) continue
+            if (child.type === 'element' && child.tagName === 'p') {
+              const inner = child.children.filter((c: any) => !isWhitespace(c))
+              if (
+                inner.length === 1 &&
+                inner[0].type === 'text' &&
+                inner[0].value.trim() === key
+              ) {
+                continue
+              }
+              rebuilt.push(...inner)
+              continue
+            }
+            rebuilt.push(child)
+          }
+          node.children = rebuilt
+          return
+        }
+
         if (
           node.tagName !== 'p' ||
           !parent ||

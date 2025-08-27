@@ -113,4 +113,49 @@ describe('rehypeCampfire', () => {
     const first = tree.children[0] as any
     expect(first.tagName).toBe('show')
   })
+
+  it('unwraps options within select directives', () => {
+    const tree: Root = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tagName: 'select',
+          properties: { stateKey: 'color' },
+          children: [
+            {
+              type: 'element',
+              tagName: 'p',
+              properties: {},
+              children: [{ type: 'text', value: 'color' }]
+            },
+            {
+              type: 'element',
+              tagName: 'p',
+              properties: {},
+              children: [
+                {
+                  type: 'element',
+                  tagName: 'option',
+                  properties: { value: 'red' },
+                  children: [{ type: 'text', value: 'Red' }]
+                },
+                {
+                  type: 'element',
+                  tagName: 'option',
+                  properties: { value: 'blue' },
+                  children: [{ type: 'text', value: 'Blue' }]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+    rehypeCampfire()(tree)
+    const select = tree.children[0] as any
+    expect(select.children).toHaveLength(2)
+    expect(select.children[0].tagName).toBe('option')
+    expect(select.children[1].tagName).toBe('option')
+  })
 })
