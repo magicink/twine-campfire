@@ -128,7 +128,7 @@ export const Campfire = ({
   return (
     <div
       className={
-        'campfire-campfire absolute inset-0 overflow-y-auto overflow-x-hidden'
+        'campfire-base absolute inset-0 overflow-y-auto overflow-x-hidden'
       }
       data-testid='campfire'
     >
