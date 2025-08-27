@@ -90,6 +90,37 @@ export default function rehypeCampfire(): (tree: Root) => void {
         node.tagName === 'option'))
 
   const transform = (tree: Root): void => {
+    /**
+     * Parses a directive property such as `content` or `fallback`, removes
+     * extraneous paragraph wrappers, and recursively transforms its children.
+     */
+    const processDirectiveProp = (node: any, key: string): void => {
+      const raw = node.properties?.[key]
+      if (Array.isArray(raw) || typeof raw === 'string') {
+        try {
+          const parsed = Array.isArray(raw) ? raw : JSON.parse(raw)
+          const flattened: any[] = []
+          for (const child of parsed) {
+            if (child.type === 'paragraph') {
+              flattened.push(
+                ...child.children.filter(
+                  (c: any) => !(c.type === 'text' && !/\S/.test(c.value))
+                )
+              )
+            } else {
+              flattened.push(child)
+            }
+          }
+          const inner: Root = { type: 'root', children: flattened }
+          transform(inner)
+          node.properties[key] = Array.isArray(raw)
+            ? inner.children
+            : JSON.stringify(inner.children)
+        } catch {
+          /* ignore */
+        }
+      }
+    }
     visit(tree, 'text', (node: any, index: number | undefined, parent: any) => {
       if (
         typeof node.value !== 'string' ||
@@ -141,31 +172,8 @@ export default function rehypeCampfire(): (tree: Root) => void {
       tree,
       'element',
       (node: any, index: number | undefined, parent: any) => {
-        const raw = node.properties?.content
-        if (Array.isArray(raw) || typeof raw === 'string') {
-          try {
-            const parsed = Array.isArray(raw) ? raw : JSON.parse(raw)
-            const flattened: any[] = []
-            for (const child of parsed) {
-              if (child.type === 'paragraph') {
-                flattened.push(
-                  ...child.children.filter(
-                    (c: any) => !(c.type === 'text' && !/\S/.test(c.value))
-                  )
-                )
-              } else {
-                flattened.push(child)
-              }
-            }
-            const inner: Root = { type: 'root', children: flattened }
-            transform(inner)
-            node.properties.content = Array.isArray(raw)
-              ? inner.children
-              : JSON.stringify(inner.children)
-          } catch {
-            /* ignore */
-          }
-        }
+        processDirectiveProp(node, 'content')
+        processDirectiveProp(node, 'fallback')
 
         if (node.tagName === 'select' && Array.isArray(node.children)) {
           const key =

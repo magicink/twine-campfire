@@ -246,4 +246,32 @@ describe('rehypeCampfire', () => {
     expect(content[0].tagName).toBe('show')
     expect(content[1].value).toBe('.')
   })
+
+  it('unwraps paragraphs inside if directive fallback', () => {
+    const tree: Root = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tagName: 'if',
+          properties: {
+            test: 'false',
+            fallback: JSON.stringify([
+              {
+                type: 'paragraph',
+                children: [{ type: 'text', value: 'Flag is false' }]
+              }
+            ])
+          },
+          children: []
+        }
+      ]
+    }
+    rehypeCampfire()(tree)
+    const first = tree.children[0] as any
+    const fallback = JSON.parse(first.properties.fallback)
+    expect(fallback).toHaveLength(1)
+    expect(fallback[0].type).toBe('text')
+    expect(fallback[0].value).toBe('Flag is false')
+  })
 })
