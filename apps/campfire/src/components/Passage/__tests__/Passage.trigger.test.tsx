@@ -53,6 +53,24 @@ describe('Passage trigger directives', () => {
     })
   })
 
+  it('passes style attribute to the component', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':::trigger{label="Styled" style="color:blue"}\n:::'
+        }
+      ]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    const button = await screen.findByRole('button', { name: 'Styled' })
+    expect((button as HTMLButtonElement).style.color).toBe('blue')
+  })
+
   it('does not run directives when trigger is disabled', async () => {
     const passage: Element = {
       type: 'element',
