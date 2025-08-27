@@ -49,4 +49,47 @@ describe('useStoryDataStore', () => {
       useStoryDataStore.getState().getCurrentPassage()?.properties?.name
     ).toBe('Start')
   })
+
+  it('returns undefined when passage does not exist', () => {
+    expect(
+      useStoryDataStore.getState().getPassageById('missing')
+    ).toBeUndefined()
+    expect(
+      useStoryDataStore.getState().getPassageByName('missing')
+    ).toBeUndefined()
+  })
+
+  it('gets current passage by name if ID lookup fails', () => {
+    const p: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: []
+    }
+
+    useStoryDataStore.getState().setPassages([p])
+    useStoryDataStore.getState().setCurrentPassage('Start')
+    expect(
+      useStoryDataStore.getState().getCurrentPassage()?.properties?.pid
+    ).toBe('1')
+  })
+
+  it('retrieves passages with numeric IDs', () => {
+    const p: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: 1, name: 'Numeric' },
+      children: []
+    }
+
+    useStoryDataStore.getState().setPassages([p])
+    expect(
+      useStoryDataStore.getState().getPassageById('1')?.properties?.name
+    ).toBe('Numeric')
+  })
+
+  it('persists story data', () => {
+    useStoryDataStore.getState().setStoryData({ foo: 'bar' })
+    expect(useStoryDataStore.getState().storyData).toEqual({ foo: 'bar' })
+  })
 })
