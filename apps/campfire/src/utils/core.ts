@@ -125,3 +125,26 @@ export const getTranslationOptions = (src: {
   }
   return options
 }
+
+/**
+ * Determines the base URL for resolving relative asset paths.
+ *
+ * @returns The base URL string.
+ */
+export const getBaseUrl = (): string => {
+  if (
+    typeof window !== 'undefined' &&
+    window.location?.origin &&
+    window.location.origin !== 'null'
+  ) {
+    return window.location.origin
+  }
+  if (
+    typeof document !== 'undefined' &&
+    document.baseURI &&
+    document.baseURI !== 'about:blank'
+  ) {
+    return document.baseURI
+  }
+  return 'http://localhost'
+}

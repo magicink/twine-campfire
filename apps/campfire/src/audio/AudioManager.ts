@@ -1,3 +1,5 @@
+import { getBaseUrl } from '@campfire/utils/core'
+
 export class AudioManager {
   private static instance: AudioManager
   private bgm?: HTMLAudioElement
@@ -6,29 +8,6 @@ export class AudioManager {
   private globalSfxVolume = 1
   private globalBgmVolume = 1
   private bgmBaseVolume = 1
-
-  /**
-   * Determines the base URL for resolving relative audio paths.
-   *
-   * @returns The base URL string.
-   */
-  private getBaseUrl(): string {
-    if (
-      typeof window !== 'undefined' &&
-      window.location?.origin &&
-      window.location.origin !== 'null'
-    ) {
-      return window.location.origin
-    }
-    if (
-      typeof document !== 'undefined' &&
-      document.baseURI &&
-      document.baseURI !== 'about:blank'
-    ) {
-      return document.baseURI
-    }
-    return 'http://localhost'
-  }
 
   /**
    * Retrieves the singleton instance of the AudioManager.
@@ -57,7 +36,7 @@ export class AudioManager {
     let href: string
     try {
       // Resolve and validate the URL to avoid creating elements with invalid sources
-      href = new URL(src, this.getBaseUrl()).href
+      href = new URL(src, getBaseUrl()).href
     } catch {
       console.error(`Invalid audio source: ${src}`)
       return undefined

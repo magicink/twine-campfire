@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'bun:test'
-import { extractQuoted } from '@campfire/utils/core'
+import { describe, it, expect, afterEach } from 'bun:test'
+import { extractQuoted, getBaseUrl } from '@campfire/utils/core'
 
 describe('extractQuoted', () => {
   it('unwraps single-quoted strings', () => {
@@ -18,5 +18,47 @@ describe('extractQuoted', () => {
     expect(extractQuoted('\'He said "hi"\'')).toBe('He said "hi"')
     expect(extractQuoted('"It\'s fine"')).toBe("It's fine")
     expect(extractQuoted('`mix "and" \'match\'`')).toBe('mix "and" \'match\'')
+  })
+})
+
+describe('getBaseUrl', () => {
+  const originalWindow = (globalThis as { window?: unknown }).window
+  const originalDocument = (globalThis as { document?: unknown }).document
+
+  afterEach(() => {
+    if (originalWindow === undefined) {
+      delete (globalThis as { window?: unknown }).window
+    } else {
+      ;(globalThis as { window?: unknown }).window = originalWindow
+    }
+    if (originalDocument === undefined) {
+      delete (globalThis as { document?: unknown }).document
+    } else {
+      ;(globalThis as { document?: unknown }).document = originalDocument
+    }
+  })
+
+  it('prefers window.location.origin', () => {
+    ;(globalThis as { window?: unknown }).window = {
+      location: { origin: 'https://example.com' }
+    }
+    ;(globalThis as { document?: unknown }).document = {
+      baseURI: 'https://other.test/'
+    }
+    expect(getBaseUrl()).toBe('https://example.com')
+  })
+
+  it('falls back to document.baseURI', () => {
+    delete (globalThis as { window?: unknown }).window
+    ;(globalThis as { document?: unknown }).document = {
+      baseURI: 'https://docs.example/'
+    }
+    expect(getBaseUrl()).toBe('https://docs.example/')
+  })
+
+  it('defaults to localhost', () => {
+    delete (globalThis as { window?: unknown }).window
+    delete (globalThis as { document?: unknown }).document
+    expect(getBaseUrl()).toBe('http://localhost')
   })
 })

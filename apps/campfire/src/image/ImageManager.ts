@@ -1,29 +1,8 @@
+import { getBaseUrl } from '@campfire/utils/core'
+
 export class ImageManager {
   private static instance: ImageManager
   private cache: Map<string, HTMLImageElement> = new Map()
-
-  /**
-   * Determines the base URL for resolving relative image paths.
-   *
-   * @returns The base URL string.
-   */
-  private getBaseUrl(): string {
-    if (
-      typeof window !== 'undefined' &&
-      window.location?.origin &&
-      window.location.origin !== 'null'
-    ) {
-      return window.location.origin
-    }
-    if (
-      typeof document !== 'undefined' &&
-      document.baseURI &&
-      document.baseURI !== 'about:blank'
-    ) {
-      return document.baseURI
-    }
-    return 'http://localhost'
-  }
 
   /**
    * Retrieves the singleton instance of the ImageManager.
@@ -60,7 +39,7 @@ export class ImageManager {
         reject(err)
       }
       try {
-        img.src = new URL(src, this.getBaseUrl()).href
+        img.src = new URL(src, getBaseUrl()).href
       } catch (err) {
         cleanup()
         console.error(`Invalid image source: ${src}`, err)
