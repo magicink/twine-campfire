@@ -35,11 +35,12 @@ export const Examples: StoryObj<typeof Translate> = {
     const player = useGameStore.getState().gameData.player as string
     return (
       <div className='flex flex-col gap-2'>
-        <Translate data-i18n-key='hello' />
-        <Translate data-i18n-expr='greet' />
+        <Translate data-i18n-key='hello' className='text-green-500' />
+        <Translate data-i18n-expr='greet' style={{ color: 'purple' }} />
         <Translate
           data-i18n-key='missing'
           data-i18n-fallback={`Hello, ${player}!`}
+          className='text-blue-500'
         />
       </div>
     )

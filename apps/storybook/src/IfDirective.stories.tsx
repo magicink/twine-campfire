@@ -21,9 +21,13 @@ export const Truthy: StoryObj = {
 :set[flag=true]
 
 :::if[flag]
+
 Flag is true
+
 :::else
+
 Flag is false
+
 :::
           `}
         </tw-passagedata>
@@ -47,9 +51,13 @@ export const Falsy: StoryObj = {
 :set[flag=false]
 
 :::if[flag]
+
 Flag is true
+
 :::else
+
 Flag is false
+
 :::
           `}
         </tw-passagedata>

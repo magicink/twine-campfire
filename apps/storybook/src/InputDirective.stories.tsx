@@ -20,7 +20,9 @@ export const Basic: StoryObj = {
           {`
 :input[name]{placeholder="Type your name"}
 :::if[name]
-Hello, :show[name]!
+
+Hello, :show[name]{className="text-green-600"}!
+
 :::
 `}
         </tw-passagedata>
@@ -49,7 +51,11 @@ export const WithEvents: StoryObj = {
   :unset[focused]
 :::
 :::if[focused]
+
 Focused!
+
+:::
+
 :::
           `}
         </tw-passagedata>

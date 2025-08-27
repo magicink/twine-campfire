@@ -14,9 +14,14 @@ Read or compute data without mutating state.
   Replace the content with a key, template string, or JavaScript expression to
   display.
 
-  | Input | Description          |
-  | ----- | -------------------- |
-  | key   | State key to display |
+  | Input     | Description                            |
+  | --------- | -------------------------------------- |
+  | key       | State key to display                   |
+  | className | Additional classes applied to the span |
+  | style     | Inline styles applied to the span      |
+
+  The directive also supports `className` and `style` attributes for styling
+  the rendered span.
 
   To read range data, access the range's properties with dot notation:
 

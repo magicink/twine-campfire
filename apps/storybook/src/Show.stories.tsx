@@ -21,10 +21,12 @@ export const Examples: StoryObj<typeof Show> = {
     return (
       <div className='flex flex-col gap-2'>
         <span>
-          HP: <Show data-key='hp' />
+          HP:
+          <Show data-key='hp' className='text-red-500' />
         </span>
         <span>
-          Expression: <Show data-expr='hp > 1 ? "X" : " "' />
+          Expression:
+          <Show data-expr='hp > 1 ? "High" : "Low"' style={{ color: 'blue' }} />
         </span>
       </div>
     )

@@ -1,3 +1,4 @@
+import type { JSX } from 'preact'
 import { useTranslation } from 'react-i18next'
 import i18next from 'i18next'
 import { useGameStore } from '@campfire/state/useGameStore'
@@ -16,13 +17,17 @@ interface TranslateProps {
   'data-i18n-vars'?: string
   /** Fallback text when translation key is missing */
   'data-i18n-fallback'?: string
+  /** Additional CSS classes for the span element. */
+  className?: string | string[]
+  /** Inline styles for the span element. */
+  style?: string | JSX.CSSProperties
 }
 
 /**
  * Renders a translated string using i18next.
  * Returns `null` when the key is missing.
  */
-export const Translate = (props: TranslateProps) => {
+export const Translate = ({ className, style, ...props }: TranslateProps) => {
   const addError = useGameStore(state => state.addError)
   const gameData = useGameStore(state => state.gameData)
   const { t } = useTranslation(undefined, { i18n: i18next })
@@ -30,6 +35,13 @@ export const Translate = (props: TranslateProps) => {
   let tKey = props['data-i18n-key']
   const expr = props['data-i18n-expr']
   const fallback = props['data-i18n-fallback']
+  const classes = Array.isArray(className)
+    ? className
+    : className
+      ? [className]
+      : []
+  const mergedStyle =
+    typeof style === 'string' ? style : style ? { ...style } : undefined
   if (!tKey && expr) {
     try {
       const result = evalExpression(expr, gameData)
@@ -47,7 +59,11 @@ export const Translate = (props: TranslateProps) => {
       console.error(msg, error)
       addError(msg)
       return fallback ? (
-        <span className='campfire-translate' data-testid='translate'>
+        <span
+          className={['campfire-translate', ...classes].join(' ')}
+          style={mergedStyle}
+          data-testid='translate'
+        >
           {fallback}
         </span>
       ) : null
@@ -55,7 +71,11 @@ export const Translate = (props: TranslateProps) => {
   }
   if (!tKey)
     return fallback ? (
-      <span className='campfire-translate' data-testid='translate'>
+      <span
+        className={['campfire-translate', ...classes].join(' ')}
+        style={mergedStyle}
+        data-testid='translate'
+      >
         {fallback}
       </span>
     ) : null
@@ -76,7 +96,11 @@ export const Translate = (props: TranslateProps) => {
     defaultValue: fallback
   }
   return (
-    <span className='campfire-translate' data-testid='translate'>
+    <span
+      className={['campfire-translate', ...classes].join(' ')}
+      style={mergedStyle}
+      data-testid='translate'
+    >
       {t(tKey, options)}
     </span>
   )
