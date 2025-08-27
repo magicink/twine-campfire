@@ -4,6 +4,7 @@ import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import rehypeStringify from 'rehype-stringify'
 import rehypeCampfire from '../index'
+import type { Root } from 'hast'
 
 describe('rehypeCampfire', () => {
   it('leaves text intact when no special syntax is present', async () => {
@@ -63,5 +64,53 @@ describe('rehypeCampfire', () => {
     const html = result.toString().replace(/\s+/g, ' ')
     expect(html.startsWith('<button')).toBe(true)
     expect(html).not.toContain('<p>')
+  })
+
+  it('unwraps if directives from paragraphs', () => {
+    const tree: Root = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tagName: 'p',
+          properties: {},
+          children: [
+            {
+              type: 'element',
+              tagName: 'if',
+              properties: { test: 'true', content: '[]' },
+              children: []
+            }
+          ]
+        }
+      ]
+    }
+    rehypeCampfire()(tree)
+    const first = tree.children[0] as any
+    expect(first.tagName).toBe('if')
+  })
+
+  it('unwraps show directives from paragraphs', () => {
+    const tree: Root = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tagName: 'p',
+          properties: {},
+          children: [
+            {
+              type: 'element',
+              tagName: 'show',
+              properties: { 'data-key': 'hp' },
+              children: []
+            }
+          ]
+        }
+      ]
+    }
+    rehypeCampfire()(tree)
+    const first = tree.children[0] as any
+    expect(first.tagName).toBe('show')
   })
 })

@@ -77,6 +77,15 @@ export default function rehypeCampfire(): (tree: Root) => void {
     Array.isArray(node.properties?.className) &&
     node.properties.className.includes('campfire-link')
 
+  /**
+   * Determines if a node is a directive element that should be unwrapped
+   * from surrounding paragraph tags.
+   */
+  const isDirectiveElement = (node: any): node is ElementNode =>
+    isLinkButton(node) ||
+    (node.type === 'element' &&
+      (node.tagName === 'if' || node.tagName === 'show'))
+
   return (tree: Root) => {
     visit(tree, 'text', (node: any, index: number | undefined, parent: any) => {
       if (
@@ -139,7 +148,7 @@ export default function rehypeCampfire(): (tree: Root) => void {
         const children = node.children.filter(
           (child: any) => !isWhitespace(child)
         )
-        if (children.length && children.every(isLinkButton)) {
+        if (children.length && children.every(isDirectiveElement)) {
           parent.children.splice(index, 1, ...children)
         }
       }
