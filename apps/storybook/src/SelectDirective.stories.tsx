@@ -28,20 +28,17 @@ export const Basic: StoryObj = {
 :::if[color]
 
 You chose
+:::
 
 :::if[color="red"]
 
-:show[color]{style="color:red"}
+:show[color]{style="color:red"}.
 
 :::
 
 :::if[color="blue"]
 
-:show[color]{style="color:blue"}
-
-:::
-
-.
+:show[color]{style="color:blue"}.
 
 :::
           `}
