@@ -25,7 +25,9 @@ export const Basic: StoryObj = {
 :::
 
 :::if[!test]
+
 You clicked the button!
+
 :::
 
 :::onExit
@@ -59,7 +61,9 @@ export const WithEvents: StoryObj = {
 :::
 
 :::if[hover]
+
 You hovered the button!
+
 :::
           `}
         </tw-passagedata>

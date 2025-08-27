@@ -77,9 +77,11 @@ export const WithEvents: StoryObj = {
 :::
 
 :::if[focused]
+
 Focused!
+
 :::
- 
+
 :::
           `}
         </tw-passagedata>

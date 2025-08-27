@@ -12,7 +12,9 @@ Run content only when conditions hold.
 
   ```md
   :::if[some_key]
+
   CONTENT WHEN `some_key` IS TRUTHY
+
   :::
   ```
 
@@ -20,7 +22,9 @@ Run content only when conditions hold.
 
   ```md
   :::if[!some_key]
+
   CONTENT WHEN `some_key` IS FALSY
+
   :::
   ```
 
@@ -28,7 +32,9 @@ Run content only when conditions hold.
 
   ```md
   :::if[!!some_key]
+
   CONTENT WHEN `some_key` COERCES TO TRUE
+
   :::
   ```
 
@@ -36,7 +42,9 @@ Run content only when conditions hold.
 
   ```md
   :::if[key_a < key_b]
+
   CONTENT WHEN `key_a` IS LESS THAN `key_b`
+
   :::
   ```
 
@@ -44,7 +52,9 @@ Run content only when conditions hold.
 
   ```md
   :::if[typeof key_a !== "string"]
+
   CONTENT WHEN `key_a` IS NOT A STRING
+
   :::
   ```
 
@@ -52,9 +62,13 @@ Run content only when conditions hold.
 
   ```md
   :::if[some_key]
+
   TRUTHY CONTENT
+
   :::else
+
   FALLBACK CONTENT
+
   :::
   ```
 
@@ -62,9 +76,13 @@ Run content only when conditions hold.
 
   ```md
   :::if[has_key]
+
   You unlock the door.
+
   :set[door_opened=true]
+
   [[Enter->Hallway]]
+
   :::
   ```
 
@@ -82,7 +100,9 @@ Repeat blocks for each item in a collection.
 
   ```md
   :::for[item in [1,2,3]]
+
   Item: :show[item]
+
   :::
   ```
 
@@ -90,8 +110,11 @@ Repeat blocks for each item in a collection.
 
   ```md
   :createRange[r=0]{min=1 max=3}
+
   :::for[x in r]
+
   Number: :show[x]
+
   :::
   ```
 
