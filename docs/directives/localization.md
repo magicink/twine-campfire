@@ -31,12 +31,17 @@ Change language and handle translations.
   quoted string or a template literal. For interpolation, use backticks without
   wrapping the value in quotes.
 
-  | Input    | Description                            |
-  | -------- | -------------------------------------- |
-  | ns:key   | Namespace and key of the translation   |
-  | ns       | Optional namespace for the translation |
-  | count    | Optional count for pluralization       |
-  | fallback | Fallback text when key is missing      |
+  The directive also accepts `className` and `style` attributes for styling the
+  output.
+
+  | Input     | Description                            |
+  | --------- | -------------------------------------- |
+  | ns:key    | Namespace and key of the translation   |
+  | ns        | Optional namespace for the translation |
+  | count     | Optional count for pluralization       |
+  | fallback  | Fallback text when key is missing      |
+  | className | Additional classes applied to the span |
+  | style     | Inline styles applied to the span      |
 
 - `translations`: Add a translation.
 

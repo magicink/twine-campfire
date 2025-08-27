@@ -1,3 +1,4 @@
+import type { JSX } from 'preact'
 import { useGameStore } from '@campfire/state/useGameStore'
 import { isRange } from '@campfire/utils/directiveUtils'
 import { evalExpression, interpolateString } from '@campfire/utils/core'
@@ -7,6 +8,10 @@ interface ShowProps {
   'data-key'?: string
   /** Expression to evaluate and display */
   'data-expr'?: string
+  /** Additional CSS classes for the span element. */
+  className?: string | string[]
+  /** Inline styles for the span element. */
+  style?: string | JSX.CSSProperties
 }
 
 /**
@@ -14,10 +19,17 @@ interface ShowProps {
  * Returns `null` when the referenced value is `null` or `undefined`.
  * Updates automatically when the underlying data changes.
  */
-export const Show = (props: ShowProps) => {
+export const Show = ({ className, style, ...props }: ShowProps) => {
   const addError = useGameStore(state => state.addError)
   const gameData = useGameStore(state => state.gameData)
   const expr = props['data-expr']
+  const classes = Array.isArray(className)
+    ? className
+    : className
+      ? [className]
+      : []
+  const mergedStyle =
+    typeof style === 'string' ? style : style ? { ...style } : undefined
   if (expr) {
     try {
       let result: unknown
@@ -29,7 +41,11 @@ export const Show = (props: ShowProps) => {
       if (result == null) return null
       const display = isRange(result) ? result.value : result
       return (
-        <span className='campfire-show' data-testid='show'>
+        <span
+          className={['campfire-show', ...classes].join(' ')}
+          style={mergedStyle}
+          data-testid='show'
+        >
           {String(display)}
         </span>
       )
@@ -47,7 +63,11 @@ export const Show = (props: ShowProps) => {
   if (value == null) return null
   const displayValue = isRange(value) ? value.value : value
   return (
-    <span className='campfire-show' data-testid='show'>
+    <span
+      className={['campfire-show', ...classes].join(' ')}
+      style={mergedStyle}
+      data-testid='show'
+    >
       {String(displayValue)}
     </span>
   )

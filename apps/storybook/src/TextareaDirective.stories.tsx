@@ -20,7 +20,9 @@ export const Basic: StoryObj = {
           {`
 :textarea[bio]{placeholder="Enter bio"}
 :::if[bio]
-You wrote: :show[bio]
+
+You wrote: :show[bio]{className="text-purple-600"}
+
 :::
 `}
         </tw-passagedata>
@@ -49,7 +51,11 @@ export const WithEvents: StoryObj = {
   :unset[focused]
 :::
 :::if[focused]
+
 Focused!
+
+:::
+
 :::
           `}
         </tw-passagedata>

@@ -60,6 +60,32 @@ describe('Passage i18n directives', () => {
     expect(text).toBeInTheDocument()
   })
 
+  it('applies className and style attributes to t directive', async () => {
+    i18next.addResource('en-US', 'translation', 'hello', 'Hello')
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':t[hello]{className="greet" style="color:blue"}'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    const span = await screen.findByText('Hello')
+    expect(span.className).toContain('greet')
+    expect(span).toHaveStyle('color: blue')
+  })
+
   it('evaluates expressions for translation keys', async () => {
     i18next.addResource('en-US', 'translation', 'hello', 'Hello')
     const passage: Element = {

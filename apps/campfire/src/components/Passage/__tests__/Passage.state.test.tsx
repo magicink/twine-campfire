@@ -1041,6 +1041,32 @@ describe('Passage game state directives', () => {
     })
   })
 
+  it('applies className and style attributes to show directive', async () => {
+    useGameStore.setState(state => ({
+      ...state,
+      gameData: { hp: 7 }
+    }))
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: 'HP: :show[hp]{className="stat" style="color:blue"}'
+        }
+      ]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    await waitFor(() => {
+      const span = screen.getByText('7')
+      expect(span.className).toContain('stat')
+      expect(span).toHaveStyle('color: blue')
+      expect(span.closest('p')?.textContent?.replace(/\s+/g, '')).toBe('HP:7')
+    })
+  })
+
   it('unsets game data with the unset directive', async () => {
     useGameStore.setState(state => ({
       ...state,
