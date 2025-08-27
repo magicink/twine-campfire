@@ -809,7 +809,7 @@ export const useDirectiveHandlers = () => {
             /^-?\d+(?:\.\d+)?$/.test(valStr)
               ? valStr
               : JSON.stringify(valStr)
-          expr = `${firstKey}==${valueExpr}`
+          expr = `${firstKey} === ${valueExpr}`
         }
       }
     }
@@ -847,7 +847,18 @@ export const useDirectiveHandlers = () => {
     const processNodes = (nodes: RootContent[]): RootContent[] => {
       const cloned = nodes.map(node => structuredClone(node))
       const processed = runDirectiveBlock(expandIndentedCode(cloned))
-      const stripped = stripLabel(processed)
+      const stripped = stripLabel(processed).map(node => {
+        if (node.type === 'paragraph' && node.children.length === 1) {
+          const child = node.children[0] as any
+          if (
+            child.type === 'containerDirective' &&
+            (child as ContainerDirective).name === 'if'
+          ) {
+            return child
+          }
+        }
+        return node
+      })
       return stripped.filter(
         node => !(isTextNode(node) && node.value.trim() === '')
       )
