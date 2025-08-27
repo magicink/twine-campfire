@@ -77,7 +77,50 @@ export default function rehypeCampfire(): (tree: Root) => void {
     Array.isArray(node.properties?.className) &&
     node.properties.className.includes('campfire-link')
 
-  return (tree: Root) => {
+  /**
+   * Determines if a node is a directive element that should be unwrapped
+   * from surrounding paragraph tags.
+   */
+  const isDirectiveElement = (node: any): node is ElementNode =>
+    isLinkButton(node) ||
+    (node.type === 'element' &&
+      (node.tagName === 'if' ||
+        node.tagName === 'else' ||
+        node.tagName === 'show' ||
+        node.tagName === 'option'))
+
+  const transform = (tree: Root): void => {
+    /**
+     * Parses a directive property such as `content` or `fallback`, removes
+     * extraneous paragraph wrappers, and recursively transforms its children.
+     */
+    const processDirectiveProp = (node: any, key: string): void => {
+      const raw = node.properties?.[key]
+      if (Array.isArray(raw) || typeof raw === 'string') {
+        try {
+          const parsed = Array.isArray(raw) ? raw : JSON.parse(raw)
+          const flattened: any[] = []
+          for (const child of parsed) {
+            if (child.type === 'paragraph') {
+              flattened.push(
+                ...child.children.filter(
+                  (c: any) => !(c.type === 'text' && !/\S/.test(c.value))
+                )
+              )
+            } else {
+              flattened.push(child)
+            }
+          }
+          const inner: Root = { type: 'root', children: flattened }
+          transform(inner)
+          node.properties[key] = Array.isArray(raw)
+            ? inner.children
+            : JSON.stringify(inner.children)
+        } catch {
+          /* ignore */
+        }
+      }
+    }
     visit(tree, 'text', (node: any, index: number | undefined, parent: any) => {
       if (
         typeof node.value !== 'string' ||
@@ -129,6 +172,35 @@ export default function rehypeCampfire(): (tree: Root) => void {
       tree,
       'element',
       (node: any, index: number | undefined, parent: any) => {
+        processDirectiveProp(node, 'content')
+        processDirectiveProp(node, 'fallback')
+
+        if (node.tagName === 'select' && Array.isArray(node.children)) {
+          const key =
+            typeof node.properties?.stateKey === 'string'
+              ? node.properties.stateKey
+              : ''
+          const rebuilt: any[] = []
+          for (const child of node.children) {
+            if (isWhitespace(child)) continue
+            if (child.type === 'element' && child.tagName === 'p') {
+              const inner = child.children.filter((c: any) => !isWhitespace(c))
+              if (
+                inner.length === 1 &&
+                inner[0].type === 'text' &&
+                inner[0].value.trim() === key
+              ) {
+                continue
+              }
+              rebuilt.push(...inner)
+              continue
+            }
+            rebuilt.push(child)
+          }
+          node.children = rebuilt
+          return
+        }
+
         if (
           node.tagName !== 'p' ||
           !parent ||
@@ -139,10 +211,12 @@ export default function rehypeCampfire(): (tree: Root) => void {
         const children = node.children.filter(
           (child: any) => !isWhitespace(child)
         )
-        if (children.length && children.every(isLinkButton)) {
+        if (children.length && children.every(isDirectiveElement)) {
           parent.children.splice(index, 1, ...children)
         }
       }
     )
   }
+
+  return transform
 }
