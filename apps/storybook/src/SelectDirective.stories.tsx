@@ -19,18 +19,30 @@ export const Basic: StoryObj = {
         <tw-passagedata pid='1' name='Start'>
           {`
 :::select[color]
+
 :option{value="red" label="Red"}
 :option{value="blue" label="Blue"}
+
 :::
+
 :::if[color]
+
 You chose
+
 :::if[color="red"]
+
 :show[color]{style="color:red"}
+
 :::
+
 :::if[color="blue"]
+
 :show[color]{style="color:blue"}
+
 :::
+
 .
+
 :::
           `}
         </tw-passagedata>
@@ -52,17 +64,22 @@ export const WithEvents: StoryObj = {
         <tw-passagedata pid='1' name='Start'>
           {`
 :::select[color]
+
 :option{value="red" label="Red"}
 :option{value="blue" label="Blue"}
+
 :::onFocus
   :set[focused=true]
 :::
+
 :::onBlur
   :unset[focused]
 :::
+
 :::if[focused]
 Focused!
 :::
+ 
 :::
           `}
         </tw-passagedata>
