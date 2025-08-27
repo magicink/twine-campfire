@@ -50,7 +50,7 @@ describe('Story', () => {
     const text = await screen.findByText(/Hello/)
     expect(text).toBeInTheDocument()
     const container = screen.getByTestId('campfire')
-    expect(container.className).toContain('campfire-campfire')
+    expect(container.className).toContain('campfire-base')
   })
 
   it('initializes the story on mount', () => {

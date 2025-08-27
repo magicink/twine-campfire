@@ -38,3 +38,26 @@ export const resetStores = () => {
  */
 export const getSvgClassName = (svg: SVGElement) =>
   typeof svg.className === 'object' ? svg.className.baseVal : svg.className
+
+/**
+ * Installs a minimal `ResizeObserver` mock and returns a trigger function.
+ *
+ * @returns A function that invokes the stored resize callback.
+ */
+export const setupResizeObserver = () => {
+  let callback: ResizeObserverCallback = () => {}
+  class MockResizeObserver {
+    constructor(cb: ResizeObserverCallback) {
+      callback = cb
+    }
+    observe = () => {}
+    unobserve = () => {}
+    disconnect = () => {}
+  }
+  globalThis.ResizeObserver =
+    MockResizeObserver as unknown as typeof ResizeObserver
+  return (
+    entries: ResizeObserverEntry[] = [],
+    observer: ResizeObserver = {} as ResizeObserver
+  ) => callback(entries, observer)
+}

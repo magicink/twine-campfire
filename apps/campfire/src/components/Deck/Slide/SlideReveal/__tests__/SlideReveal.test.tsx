@@ -5,6 +5,7 @@ import { Slide } from '@campfire/components/Deck/Slide'
 import { SlideReveal } from '@campfire/components/Deck/Slide'
 import { useDeckStore } from '@campfire/state/useDeckStore'
 import { StubAnimation } from '@campfire/test-utils/stub-animation'
+import { setupResizeObserver } from '@campfire/test-utils/helpers'
 
 /**
  * Resets the deck store to a clean initial state.
@@ -13,15 +14,8 @@ const resetStore = () => {
   useDeckStore.getState().reset()
 }
 
-// Minimal ResizeObserver stub for the tests
-class StubResizeObserver {
-  observe() {}
-  disconnect() {}
-}
-
 beforeEach(() => {
-  // @ts-expect-error override for tests
-  globalThis.ResizeObserver = StubResizeObserver
+  setupResizeObserver()
   resetStore()
   document.body.innerHTML = ''
 })

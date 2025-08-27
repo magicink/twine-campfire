@@ -2,7 +2,7 @@ import { compile } from 'expression-eval'
 import type { JSX } from 'preact'
 
 /** Pattern matching a string enclosed in matching quotes or backticks. */
-export const QUOTE_PATTERN = /^(['"`])(.*)\1$/
+export const QUOTE_PATTERN = /^(['"`])(.*?)\1$/
 
 /**
  * Extracts the inner content from a string wrapped in matching quotes or
@@ -124,4 +124,27 @@ export const getTranslationOptions = (src: {
     if (!Number.isNaN(n)) options.count = n
   }
   return options
+}
+
+/**
+ * Determines the base URL for resolving relative asset paths.
+ *
+ * @returns The base URL string.
+ */
+export const getBaseUrl = (): string => {
+  if (
+    typeof window !== 'undefined' &&
+    window.location?.origin &&
+    window.location.origin !== 'null'
+  ) {
+    return window.location.origin
+  }
+  if (
+    typeof document !== 'undefined' &&
+    document.baseURI &&
+    document.baseURI !== 'about:blank'
+  ) {
+    return document.baseURI
+  }
+  return 'http://localhost'
 }

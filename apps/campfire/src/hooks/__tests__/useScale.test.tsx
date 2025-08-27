@@ -1,26 +1,7 @@
 import { render, act } from '@testing-library/preact'
 import { describe, it, expect } from 'bun:test'
 import { useScale, MIN_SCALE } from '@campfire/hooks/useScale'
-
-/**
- * Replaces the global ResizeObserver with a mock that allows manual
- * triggering of resize callbacks.
- *
- * @returns A function that invokes the stored resize callback.
- */
-const setupResizeObserver = () => {
-  let callback: ResizeObserverCallback = () => {}
-  class MockResizeObserver {
-    constructor(cb: ResizeObserverCallback) {
-      callback = cb
-    }
-    observe() {}
-    disconnect() {}
-  }
-  // @ts-expect-error override for tests
-  globalThis.ResizeObserver = MockResizeObserver
-  return () => callback([], {} as ResizeObserver)
-}
+import { setupResizeObserver } from '@campfire/test-utils/helpers'
 
 describe('useScale', () => {
   it('updates scale when container size changes', () => {

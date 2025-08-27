@@ -3,7 +3,7 @@ import { render, act, fireEvent } from '@testing-library/preact'
 import { Deck, Slide, TriggerButton } from '@campfire/components'
 import { useDeckStore } from '@campfire/state/useDeckStore'
 import { useGameStore } from '@campfire/state/useGameStore'
-import { resetStores } from '@campfire/test-utils/helpers'
+import { resetStores, setupResizeObserver } from '@campfire/test-utils/helpers'
 import { StubAnimation } from '@campfire/test-utils/stub-animation'
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
@@ -24,16 +24,8 @@ const resetDeckStore = () => {
   useDeckStore.getState().reset()
 }
 
-// Minimal ResizeObserver stub for the tests
-class StubResizeObserver {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
-}
-
 beforeEach(() => {
-  globalThis.ResizeObserver =
-    StubResizeObserver as unknown as typeof ResizeObserver
+  setupResizeObserver()
   // @ts-expect-error override animate
   HTMLElement.prototype.animate = () => new StubAnimation()
   resetDeckStore()
