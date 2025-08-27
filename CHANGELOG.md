@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.90.0](https://github.com/magicink/twine-campfire/compare/v1.89.0...v1.90.0) (2025-08-27)
+
+
+### Features
+
+* add shared base URL helper ([#548](https://github.com/magicink/twine-campfire/issues/548)) ([0c63f7e](https://github.com/magicink/twine-campfire/commit/0c63f7ef586606eefbc38f67cd090c0ba4224b0f))
+
+
+### Bug Fixes
+
+* apply Libertinus font to select elements ([#550](https://github.com/magicink/twine-campfire/issues/550)) ([0f3c1a7](https://github.com/magicink/twine-campfire/commit/0f3c1a7ec4b66bdcb829744b893e321980dcec14))
+
 ## [1.89.0](https://github.com/magicink/twine-campfire/compare/v1.88.0...v1.89.0) (2025-08-27)
 
 
