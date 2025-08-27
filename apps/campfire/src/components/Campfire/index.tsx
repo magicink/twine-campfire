@@ -5,6 +5,7 @@ import {
   type StoryDataState,
   useStoryDataStore
 } from '@campfire/state/useStoryDataStore'
+import { useGameStore } from '@campfire/state/useGameStore'
 import { Passage } from '@campfire/components/Passage/Passage'
 import { DebugWindow } from '@campfire/components/DebugWindow'
 import { LoadingScreen } from '@campfire/components/LoadingScreen'
@@ -118,6 +119,8 @@ export const Campfire = ({
       setI18nInitialized(true)
     }
   }, [])
+
+  useEffect(() => useGameStore.getState().reset, [])
 
   if (!i18nInitialized) return null
   if (!passage) {

@@ -75,6 +75,14 @@ describe('Story', () => {
     expect(i18next.options.debug).toBe(true)
   })
 
+  it('resets game state on unmount', () => {
+    useGameStore.getState().init({ hp: 10 })
+    useGameStore.getState().setGameData({ hp: 5 })
+    const { unmount } = render(<Campfire />)
+    unmount()
+    expect(useGameStore.getState().gameData).toEqual({ hp: 10 })
+  })
+
   it('renders content based on if directives', async () => {
     document.body.innerHTML = `
 <tw-storydata name="Story" startnode="1">
