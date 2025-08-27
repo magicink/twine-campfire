@@ -2,7 +2,7 @@ import { compile } from 'expression-eval'
 import type { JSX } from 'preact'
 
 /** Pattern matching a string enclosed in matching quotes or backticks. */
-export const QUOTE_PATTERN = /^(['"`])(.*)\1$/
+export const QUOTE_PATTERN = /^(['"`])(.*?)\1$/
 
 /**
  * Extracts the inner content from a string wrapped in matching quotes or
