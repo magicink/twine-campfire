@@ -85,6 +85,7 @@ export default function rehypeCampfire(): (tree: Root) => void {
     isLinkButton(node) ||
     (node.type === 'element' &&
       (node.tagName === 'if' ||
+        node.tagName === 'else' ||
         node.tagName === 'show' ||
         node.tagName === 'option'))
 

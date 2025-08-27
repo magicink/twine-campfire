@@ -114,6 +114,30 @@ describe('rehypeCampfire', () => {
     expect(first.tagName).toBe('show')
   })
 
+  it('unwraps else directives from paragraphs', () => {
+    const tree: Root = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tagName: 'p',
+          properties: {},
+          children: [
+            {
+              type: 'element',
+              tagName: 'else',
+              properties: { content: '[]' },
+              children: []
+            }
+          ]
+        }
+      ]
+    }
+    rehypeCampfire()(tree)
+    const first = tree.children[0] as any
+    expect(first.tagName).toBe('else')
+  })
+
   it('unwraps options within select directives', () => {
     const tree: Root = {
       type: 'root',
