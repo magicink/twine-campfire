@@ -311,6 +311,31 @@ describe('Deck', () => {
     expect(enterCall).toBeTruthy()
   })
 
+  it('advances without extra interaction for slides without steps', async () => {
+    HTMLElement.prototype.animate = () =>
+      new StubAnimation() as unknown as Animation
+    const { unmount } = render(
+      <Deck>
+        <Slide steps={1}>One</Slide>
+        <Slide transition={{ type: 'slide' }}>Two</Slide>
+        <Slide>Three</Slide>
+      </Deck>
+    )
+    await act(async () => {
+      useDeckStore.getState().next()
+    })
+    await act(async () => {
+      useDeckStore.getState().next()
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    await act(async () => {
+      useDeckStore.getState().next()
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    expect(useDeckStore.getState().currentSlide).toBe(2)
+    unmount()
+  })
+
   it('hides slide counter by default', () => {
     render(
       <Deck>
