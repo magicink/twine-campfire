@@ -1,6 +1,5 @@
 import { create } from 'zustand'
 import type { ComponentChild } from 'preact'
-import { setImmer } from '@campfire/state/utils'
 
 export interface OverlayItem {
   /** Unique name for the overlay passage */
@@ -33,36 +32,31 @@ export interface OverlayState {
 /**
  * Global store holding processed overlay components.
  */
-export const useOverlayStore = create<OverlayState>(set => {
-  const immer = setImmer<OverlayState>(set)
-  return {
-    overlays: [],
-    setOverlays: items =>
-      immer(state => {
-        state.overlays = items
-      }),
-    showOverlay: name =>
-      immer(state => {
-        const item = state.overlays.find(o => o.name === name)
-        if (item) item.visible = true
-      }),
-    hideOverlay: name =>
-      immer(state => {
-        const item = state.overlays.find(o => o.name === name)
-        if (item) item.visible = false
-      }),
-    toggleOverlay: name =>
-      immer(state => {
-        const item = state.overlays.find(o => o.name === name)
-        if (item) item.visible = !item.visible
-      }),
-    toggleGroup: group =>
-      immer(state => {
-        state.overlays
-          .filter(o => o.group === group)
-          .forEach(o => {
-            o.visible = !o.visible
-          })
-      })
-  }
-})
+export const useOverlayStore = create<OverlayState>(set => ({
+  overlays: [],
+  setOverlays: items => set({ overlays: items }),
+  showOverlay: name =>
+    set(state => ({
+      overlays: state.overlays.map(o =>
+        o.name === name ? { ...o, visible: true } : o
+      )
+    })),
+  hideOverlay: name =>
+    set(state => ({
+      overlays: state.overlays.map(o =>
+        o.name === name ? { ...o, visible: false } : o
+      )
+    })),
+  toggleOverlay: name =>
+    set(state => ({
+      overlays: state.overlays.map(o =>
+        o.name === name ? { ...o, visible: !o.visible } : o
+      )
+    })),
+  toggleGroup: group =>
+    set(state => ({
+      overlays: state.overlays.map(o =>
+        o.group === group ? { ...o, visible: !o.visible } : o
+      )
+    }))
+}))
