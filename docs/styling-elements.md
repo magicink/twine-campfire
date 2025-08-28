@@ -17,7 +17,7 @@ Campfire's visual components expose hook classes prefixed with `campfire-`, lett
 - `.campfire-show` – value display from the `show` directive
 - `.campfire-translate` – translated string from the `translate` directive
 
-Most classes ship with no associated styles. The exceptions are `.campfire-link` and `.campfire-trigger`, which provide a shared button style set for convenience.
+Most classes ship with no associated styles. `.campfire-passage` includes `h-full` to stretch passages to full height, and `.campfire-link` and `.campfire-trigger` share a button style set for convenience.
 
 ## Default color ranges
 
