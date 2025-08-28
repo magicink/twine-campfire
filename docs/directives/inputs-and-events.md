@@ -77,7 +77,7 @@ Container form:
 | value     | Initial selected value when the key is unset |
 | label     | Text displayed when no option is selected    |
 
-The select button uses the same default styling as trigger and link buttons and includes a downward caret on the right.
+The select button uses the same default styling as trigger and link buttons and includes a downward caret on the right. The menu closes when clicking outside the button or pressing Escape.
 
 `option` directives accept the following inputs:
 

@@ -110,4 +110,18 @@ describe('Select', () => {
     await new Promise(r => setTimeout(r, 0))
     expect(queryByRole('listbox')).toBeNull()
   })
+
+  it('closes when pressing Escape', async () => {
+    useGameStore.setState({ gameData: {} })
+    const { getByTestId, queryByRole } = render(
+      <Select stateKey='field'>
+        <Option value='a'>A</Option>
+      </Select>
+    )
+    fireEvent.click(getByTestId('select'))
+    expect(queryByRole('listbox')).not.toBeNull()
+    fireEvent.keyDown(document, { key: 'Escape' })
+    await new Promise(r => setTimeout(r, 0))
+    expect(queryByRole('listbox')).toBeNull()
+  })
 })
