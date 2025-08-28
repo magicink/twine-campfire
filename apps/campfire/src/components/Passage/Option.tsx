@@ -35,17 +35,21 @@ export const Option = ({
       : []
   const mergedStyle =
     typeof style === 'string'
-      ? `color:oklch(0 0 0);background:oklch(1 0 0);${style}`
+      ? `color:oklch(0 0 0);background:oklch(0.98 0 0);${style}`
       : {
           color: 'oklch(0 0 0)',
-          background: 'oklch(1 0 0)',
+          background: 'oklch(0.98 0 0)',
           ...(style ?? {})
         }
   return (
     <button
       type='button'
       data-testid='option'
-      className={['campfire-option', ...classes].join(' ')}
+      className={[
+        'campfire-option',
+        'w-full text-left px-3 py-2 transition-colors hover:bg-[oklch(0.9_0_0)]',
+        ...classes
+      ].join(' ')}
       style={mergedStyle}
       onClick={() => onSelectOption?.(value)}
       {...rest}

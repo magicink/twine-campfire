@@ -9,6 +9,8 @@ import { useGameStore } from '@campfire/state/useGameStore'
 import type { OptionProps } from './Option'
 
 const clone = rfdc()
+const selectStyles =
+  'file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive'
 
 interface SelectProps
   extends Omit<
@@ -88,7 +90,8 @@ export const Select = ({
         data-testid='select'
         className={[
           'campfire-select',
-          "inline-flex items-center justify-between gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 h-9 px-4 py-2 has-[>svg]:px-3",
+          selectStyles,
+          'items-center justify-between cursor-pointer px-0',
           ...classes
         ].join(' ')}
         style={style}
@@ -120,22 +123,28 @@ export const Select = ({
         }}
         onClick={() => setOpen(prev => !prev)}
       >
-        {selected ? selected.props.children : (label ?? '')}
-        <svg
-          aria-hidden='true'
-          className='ml-2'
-          viewBox='0 0 24 24'
-          fill='none'
-          stroke='currentColor'
-          stroke-width='2'
-          stroke-linecap='round'
-          stroke-linejoin='round'
-        >
-          <path d='m6 9 6 6 6-6' />
-        </svg>
+        <span className='flex-1 truncate text-left pl-3'>
+          {selected ? selected.props.children : (label ?? '')}
+        </span>
+        <span className='flex items-center border-l border-input px-3'>
+          <svg
+            aria-hidden='true'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+            stroke-width='2'
+            stroke-linecap='round'
+            stroke-linejoin='round'
+          >
+            <path d='m6 9 6 6 6-6' />
+          </svg>
+        </span>
       </button>
       {open && (
-        <div role='listbox'>
+        <div
+          role='listbox'
+          className='mt-1 flex w-full flex-col divide-y divide-input rounded-md border border-input bg-[oklch(0.98_0_0)] shadow-md overflow-hidden'
+        >
           {optionNodes.map(opt =>
             cloneElement(opt, {
               onSelectOption: handleSelect
