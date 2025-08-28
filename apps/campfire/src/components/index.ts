@@ -23,3 +23,4 @@ export {
   SlideImage,
   SlideShape
 } from '@campfire/components/Deck/Slide'
+export { Overlay } from '@campfire/components/Overlay'

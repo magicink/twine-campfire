@@ -6,6 +6,7 @@ beforeEach(() => {
   useStoryDataStore.setState({
     storyData: {},
     passages: [],
+    overlayPassages: [],
     currentPassageId: undefined
   })
 })
@@ -35,6 +36,21 @@ describe('useStoryDataStore', () => {
     expect(store.getCurrentPassage()?.properties?.pid).toBe('1')
   })
 
+  it('stores overlay passages separately', () => {
+    const overlay: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '3', name: 'Overlay', tags: 'overlay' },
+      children: []
+    }
+
+    useStoryDataStore.getState().setOverlayPassages([overlay])
+
+    const store = useStoryDataStore.getState()
+    expect(store.overlayPassages.length).toBe(1)
+    expect(store.overlayPassages[0].properties?.name).toBe('Overlay')
+  })
+
   it('updates the current passage manually', () => {
     const p1: Element = {
       type: 'element',
@@ -48,5 +64,48 @@ describe('useStoryDataStore', () => {
     expect(
       useStoryDataStore.getState().getCurrentPassage()?.properties?.name
     ).toBe('Start')
+  })
+
+  it('returns undefined when passage does not exist', () => {
+    expect(
+      useStoryDataStore.getState().getPassageById('missing')
+    ).toBeUndefined()
+    expect(
+      useStoryDataStore.getState().getPassageByName('missing')
+    ).toBeUndefined()
+  })
+
+  it('gets current passage by name if ID lookup fails', () => {
+    const p: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: []
+    }
+
+    useStoryDataStore.getState().setPassages([p])
+    useStoryDataStore.getState().setCurrentPassage('Start')
+    expect(
+      useStoryDataStore.getState().getCurrentPassage()?.properties?.pid
+    ).toBe('1')
+  })
+
+  it('retrieves passages with numeric IDs', () => {
+    const p: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: 1, name: 'Numeric' },
+      children: []
+    }
+
+    useStoryDataStore.getState().setPassages([p])
+    expect(
+      useStoryDataStore.getState().getPassageById('1')?.properties?.name
+    ).toBe('Numeric')
+  })
+
+  it('persists story data', () => {
+    useStoryDataStore.getState().setStoryData({ foo: 'bar' })
+    expect(useStoryDataStore.getState().storyData).toEqual({ foo: 'bar' })
   })
 })

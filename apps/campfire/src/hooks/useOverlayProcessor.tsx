@@ -1,0 +1,154 @@
+import { useEffect, useMemo } from 'preact/hooks'
+import type { ComponentChild } from 'preact'
+import type { Content, Text as HastText } from 'hast'
+import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
+import { createMarkdownProcessor } from '@campfire/utils/createMarkdownProcessor'
+import {
+  useStoryDataStore,
+  type StoryDataState
+} from '@campfire/state/useStoryDataStore'
+import { useOverlayStore } from '@campfire/state/useOverlayStore'
+import { LinkButton } from '@campfire/components/Passage/LinkButton'
+import { TriggerButton } from '@campfire/components/Passage/TriggerButton'
+import { Input } from '@campfire/components/Passage/Input'
+import { Textarea } from '@campfire/components/Passage/Textarea'
+import { Select } from '@campfire/components/Passage/Select'
+import { Option } from '@campfire/components/Passage/Option'
+import { If } from '@campfire/components/Passage/If'
+import { Show } from '@campfire/components/Passage/Show'
+import { Translate } from '@campfire/components/Passage/Translate'
+import { OnExit } from '@campfire/components/Passage/OnExit'
+import { Deck, type DeckProps } from '@campfire/components/Deck/Deck'
+import {
+  Slide,
+  SlideText,
+  SlideImage,
+  SlideShape,
+  Layer
+} from '@campfire/components/Deck/Slide'
+import {
+  SlideReveal,
+  type SlideRevealProps
+} from '@campfire/components/Deck/Slide/SlideReveal'
+import { useOverlayDeckStore } from '@campfire/state/useOverlayDeckStore'
+
+const DIRECTIVE_MARKER_PATTERN = '(:::[^\\n]*|:[^\\n]*|<<)'
+
+/**
+ * Normalizes directive indentation to ensure consistent parsing.
+ *
+ * @param input - Raw overlay passage text.
+ * @returns The normalized text.
+ */
+const normalizeDirectiveIndentation = (input: string): string =>
+  input
+    .replace(new RegExp(`^\\t+(?=(${DIRECTIVE_MARKER_PATTERN}))`, 'gm'), '')
+    .replace(new RegExp(`^[ ]{4,}(?=(${DIRECTIVE_MARKER_PATTERN}))`, 'gm'), '')
+
+/**
+ * Processes overlay passages into persistent components rendered above passages.
+ */
+export const useOverlayProcessor = (): void => {
+  const handlers = useDirectiveHandlers()
+  const overlays = useStoryDataStore(
+    (state: StoryDataState) => state.overlayPassages
+  )
+  const setOverlays = useOverlayStore(state => state.setOverlays)
+
+  /**
+   * Deck component bound to the overlay deck store.
+   *
+   * @param props - Standard deck properties.
+   * @returns The overlay deck element.
+   */
+  const OverlayDeck = (props: DeckProps) => (
+    <Deck {...props} store={useOverlayDeckStore} />
+  )
+  /**
+   * SlideReveal component bound to the overlay deck store.
+   *
+   * @param props - Standard slide reveal properties.
+   * @returns The overlay slide reveal element.
+   */
+  const OverlayReveal = (props: SlideRevealProps) => (
+    <SlideReveal {...props} store={useOverlayDeckStore} />
+  )
+  const processor = useMemo(
+    () =>
+      createMarkdownProcessor(handlers, {
+        button: LinkButton,
+        trigger: TriggerButton,
+        input: Input,
+        textarea: Textarea,
+        select: Select,
+        option: Option,
+        if: If,
+        show: Show,
+        translate: Translate,
+        onExit: OnExit,
+        deck: OverlayDeck,
+        slide: Slide,
+        reveal: OverlayReveal,
+        layer: Layer,
+        slideText: SlideText,
+        slideImage: SlideImage,
+        slideShape: SlideShape
+      }),
+    [handlers]
+  )
+
+  useEffect(() => {
+    const controller = new AbortController()
+    ;(async () => {
+      const items = [] as {
+        name: string
+        component: ComponentChild
+        visible: boolean
+        zIndex: number
+        group?: string
+      }[]
+      for (const passage of overlays) {
+        const text = passage.children
+          .map((child: Content) =>
+            child.type === 'text' && typeof child.value === 'string'
+              ? (child as HastText).value
+              : ''
+          )
+          .join('')
+        const normalized = normalizeDirectiveIndentation(text)
+        if (controller.signal.aborted) return
+        const file = await processor.process(normalized)
+        if (controller.signal.aborted) return
+        const name =
+          typeof passage.properties?.name === 'string'
+            ? passage.properties.name
+            : String(passage.properties?.pid)
+        const tags =
+          typeof passage.properties?.tags === 'string'
+            ? passage.properties.tags.toLowerCase().split(/\s+/)
+            : []
+        let zIndex = 0
+        let group: string | undefined
+        for (const tag of tags) {
+          if (tag.startsWith('overlay-z')) {
+            const z = parseInt(tag.replace('overlay-z', ''), 10)
+            if (!Number.isNaN(z)) zIndex = z
+          } else if (tag.startsWith('overlay-group-')) {
+            group = tag.replace('overlay-group-', '')
+          }
+        }
+        items.push({
+          name,
+          component: file.result as ComponentChild,
+          visible: true,
+          zIndex,
+          group
+        })
+      }
+      if (!controller.signal.aborted) {
+        setOverlays(items.sort((a, b) => a.zIndex - b.zIndex))
+      }
+    })()
+    return () => controller.abort()
+  }, [overlays, processor, setOverlays])
+}

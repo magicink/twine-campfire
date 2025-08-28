@@ -2,6 +2,7 @@ import { render, screen, act, waitFor } from '@testing-library/preact'
 import { Campfire } from '@campfire/components/Campfire'
 import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
 import { useGameStore } from '@campfire/state/useGameStore'
+import { useOverlayStore } from '@campfire/state/useOverlayStore'
 import { samplePassage } from '@campfire/test-utils/helpers'
 import { describe, it, expect, beforeEach } from 'bun:test'
 import i18next from 'i18next'
@@ -12,8 +13,10 @@ describe('Story', () => {
     useStoryDataStore.setState({
       storyData: {},
       passages: [],
+      overlayPassages: [],
       currentPassageId: undefined
     })
+    useOverlayStore.setState({ overlays: [] })
     useGameStore.setState({
       gameData: {},
       _initialGameData: {},
@@ -73,6 +76,14 @@ describe('Story', () => {
     render(<Campfire />)
 
     expect(i18next.options.debug).toBe(true)
+  })
+
+  it('resets game state on unmount', () => {
+    useGameStore.getState().init({ hp: 10 })
+    useGameStore.getState().setGameData({ hp: 5 })
+    const { unmount } = render(<Campfire />)
+    unmount()
+    expect(useGameStore.getState().gameData).toEqual({ hp: 10 })
   })
 
   it('renders content based on if directives', async () => {

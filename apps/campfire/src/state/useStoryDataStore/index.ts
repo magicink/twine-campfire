@@ -5,9 +5,11 @@ import type { Element } from 'hast'
 export interface StoryDataState {
   storyData: Record<string, unknown>
   passages: Element[]
+  overlayPassages: Element[]
   currentPassageId?: string
   setStoryData: (data: Record<string, unknown>) => void
   setPassages: (passages: Element[]) => void
+  setOverlayPassages: (passages: Element[]) => void
   setCurrentPassage: (id: string | undefined) => void
   getCurrentPassage: () => Element | undefined
   getPassageById: (id: string) => Element | undefined
@@ -19,6 +21,7 @@ export const useStoryDataStore = create<StoryDataState>((set, get) => {
   return {
     storyData: {},
     passages: [],
+    overlayPassages: [],
     currentPassageId: undefined,
     setStoryData: data =>
       immer(state => {
@@ -27,6 +30,10 @@ export const useStoryDataStore = create<StoryDataState>((set, get) => {
     setPassages: passages =>
       immer(state => {
         state.passages = passages
+      }),
+    setOverlayPassages: passages =>
+      immer(state => {
+        state.overlayPassages = passages
       }),
     setCurrentPassage: id =>
       immer(state => {
