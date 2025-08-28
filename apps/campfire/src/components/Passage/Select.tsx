@@ -1,23 +1,21 @@
-import type { JSX } from 'preact'
-import { useEffect } from 'preact/hooks'
+import type { JSX, VNode } from 'preact'
+import { cloneElement, toChildArray } from 'preact'
+import { useEffect, useRef, useState } from 'preact/hooks'
 import rfdc from 'rfdc'
 import type { RootContent } from 'mdast'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { runDirectiveBlock } from '@campfire/utils/directiveUtils'
 import { useGameStore } from '@campfire/state/useGameStore'
+import type { OptionProps } from './Option'
 
 const clone = rfdc()
+const selectStyles =
+  'file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-2 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive'
 
 interface SelectProps
   extends Omit<
-    JSX.SelectHTMLAttributes<HTMLSelectElement>,
-    | 'className'
-    | 'value'
-    | 'defaultValue'
-    | 'onInput'
-    | 'onFocus'
-    | 'onBlur'
-    | 'onMouseEnter'
+    JSX.HTMLAttributes<HTMLButtonElement>,
+    'className' | 'onInput' | 'onFocus' | 'onBlur' | 'onMouseEnter'
   > {
   /** Key in game state to bind the select value to. */
   stateKey: string
@@ -30,9 +28,11 @@ interface SelectProps
   /** Serialized directives to run on blur. */
   onBlur?: string
   /** Optional input event handler. */
-  onInput?: JSX.SelectHTMLAttributes<HTMLSelectElement>['onInput']
+  onInput?: JSX.HTMLAttributes<HTMLButtonElement>['onInput']
   /** Initial value if the state key is unset. */
   initialValue?: string
+  /** Text shown when no option is selected. */
+  label?: string
 }
 
 /**
@@ -44,6 +44,7 @@ interface SelectProps
  * @param onFocus - Serialized directives to run on focus.
  * @param onBlur - Serialized directives to run on blur.
  * @param style - Optional inline styles for the select element.
+ * @param label - Text shown when no option is selected.
  * @param rest - Additional select element attributes.
  * @returns The rendered select element.
  */
@@ -57,6 +58,7 @@ export const Select = ({
   style,
   children,
   initialValue,
+  label,
   ...rest
 }: SelectProps) => {
   const value = useGameStore(state => state.gameData[stateKey]) as
@@ -69,60 +71,111 @@ export const Select = ({
     : className
       ? [className]
       : []
+  const [open, setOpen] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (value === undefined) {
       setGameData({ [stateKey]: initialValue ?? '' })
     }
   }, [value, stateKey, initialValue, setGameData])
-  const mergedStyle =
-    typeof style === 'string'
-      ? `border:1px solid black;color:#000;background:#fff;${style}`
-      : {
-          border: '1px solid black',
-          color: '#000',
-          background: '#fff',
-          ...(style ?? {})
-        }
+  const optionNodes = toChildArray(children) as VNode<OptionProps>[]
+  const selected = optionNodes.find(opt => opt.props.value === value)
+  const handleSelect = (val: string) => {
+    setGameData({ [stateKey]: val })
+    onInput?.({} as any)
+    setOpen(false)
+  }
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('keydown', handleKey)
+    return () => document.removeEventListener('keydown', handleKey)
+  }, [])
   return (
-    <select
-      data-testid='select'
-      className={['campfire-select', ...classes].join(' ')}
-      value={value ?? ''}
-      style={mergedStyle}
-      {...rest}
-      onMouseEnter={e => {
-        if (onHover) {
-          runDirectiveBlock(
-            clone(JSON.parse(onHover)) as RootContent[],
-            handlers
-          )
-        }
-      }}
-      onFocus={e => {
-        if (onFocus) {
-          runDirectiveBlock(
-            clone(JSON.parse(onFocus)) as RootContent[],
-            handlers
-          )
-        }
-      }}
-      onBlur={e => {
-        if (onBlur) {
-          runDirectiveBlock(
-            clone(JSON.parse(onBlur)) as RootContent[],
-            handlers
-          )
-        }
-      }}
-      onInput={e => {
-        onInput?.(e)
-        if (e.defaultPrevented) return
-        const target = e.currentTarget as HTMLSelectElement
-        setGameData({ [stateKey]: target.value })
-      }}
-    >
-      {children}
-    </select>
+    <div ref={containerRef} className='inline-block relative'>
+      <button
+        data-testid='select'
+        className={[
+          'campfire-select',
+          selectStyles,
+          'items-center justify-between cursor-pointer',
+          ...classes
+        ].join(' ')}
+        style={style}
+        value={value ?? ''}
+        {...rest}
+        onMouseEnter={e => {
+          if (onHover) {
+            runDirectiveBlock(
+              clone(JSON.parse(onHover)) as RootContent[],
+              handlers
+            )
+          }
+        }}
+        onFocus={e => {
+          if (onFocus) {
+            runDirectiveBlock(
+              clone(JSON.parse(onFocus)) as RootContent[],
+              handlers
+            )
+          }
+        }}
+        onBlur={e => {
+          if (onBlur) {
+            runDirectiveBlock(
+              clone(JSON.parse(onBlur)) as RootContent[],
+              handlers
+            )
+          }
+        }}
+        onClick={() => setOpen(prev => !prev)}
+      >
+        <span className='flex-1 truncate text-left pr-2'>
+          {selected ? selected.props.children : (label ?? '')}
+        </span>
+        <span className='flex items-center shrink-0 border-l border-input pl-2'>
+          <svg
+            aria-hidden='true'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+            stroke-width='2'
+            stroke-linecap='round'
+            stroke-linejoin='round'
+            className='h-4 w-4'
+          >
+            <path d='m6 9 6 6 6-6' />
+          </svg>
+        </span>
+      </button>
+      {open && (
+        <div
+          role='listbox'
+          className='absolute left-0 top-full z-50 mt-1 flex w-full flex-col divide-y divide-input rounded-md border border-input bg-[oklch(0.98_0_0)] shadow-md overflow-hidden'
+        >
+          {optionNodes.map(opt =>
+            cloneElement(opt, {
+              onSelectOption: handleSelect
+            })
+          )}
+        </div>
+      )}
+    </div>
   )
 }
 
