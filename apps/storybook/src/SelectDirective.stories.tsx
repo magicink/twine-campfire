@@ -18,12 +18,14 @@ export const Basic: StoryObj = {
       <tw-storydata startnode='1' options='debug'>
         <tw-passagedata pid='1' name='Start'>
           {`
-:::select[color]
+:::select[color]{label="Choose a color"}
 
 :option{value="red" label="Red"}
 :option{value="blue" label="Blue"}
 
 :::
+
+This text follows the select.
 
 :::if[color]
 
@@ -60,7 +62,7 @@ export const WithEvents: StoryObj = {
       <tw-storydata startnode='1' options='debug'>
         <tw-passagedata pid='1' name='Start'>
           {`
-:::select[color]
+:::select[color]{label="Choose a color"}
 
 :option{value="red" label="Red"}
 :option{value="blue" label="Blue"}

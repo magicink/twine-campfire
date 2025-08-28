@@ -31,3 +31,12 @@ export const Types: StoryObj<typeof Input> = {
     </div>
   )
 }
+
+/**
+ * Demonstrates a file Input.
+ *
+ * @returns File upload Input example.
+ */
+export const File: StoryObj<typeof Input> = {
+  render: () => <Input stateKey='upload' type='file' />
+}

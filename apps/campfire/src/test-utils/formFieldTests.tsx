@@ -11,6 +11,7 @@ interface FormFieldTestConfig {
   existingValue: string
   children?: ComponentChildren
   initialState?: Record<string, unknown>
+  triggerInput?: (utils: ReturnType<typeof render>) => void | Promise<void>
 }
 
 /**
@@ -25,18 +26,22 @@ export const runFormFieldTests = ({
   updateValue,
   existingValue,
   children,
-  initialState = {}
+  initialState = {},
+  triggerInput
 }: FormFieldTestConfig) => {
-  it('updates game state on input', () => {
+  it('updates game state on input', async () => {
     useGameStore.setState({ gameData: initialState })
-    const { getByTestId } = render(
-      <Component stateKey='field'>{children}</Component>
-    )
-    const field = getByTestId(testId) as
+    const utils = render(<Component stateKey='field'>{children}</Component>)
+    const field = utils.getByTestId(testId) as
       | HTMLInputElement
       | HTMLTextAreaElement
       | HTMLSelectElement
-    fireEvent.input(field, { target: { value: updateValue } })
+      | HTMLButtonElement
+    if (triggerInput) {
+      await triggerInput(utils)
+    } else {
+      fireEvent.input(field, { target: { value: updateValue } })
+    }
     expect(
       (useGameStore.getState().gameData as Record<string, unknown>).field
     ).toBe(updateValue)
@@ -63,6 +68,7 @@ export const runFormFieldTests = ({
       | HTMLInputElement
       | HTMLTextAreaElement
       | HTMLSelectElement
+      | HTMLButtonElement
     expect(field.value).toBe(existingValue)
   })
 
