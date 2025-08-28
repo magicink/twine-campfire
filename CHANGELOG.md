@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.92.0](https://github.com/magicink/twine-campfire/compare/v1.91.0...v1.92.0) (2025-08-28)
+
+
+### Features
+
+* add input base styles ([#564](https://github.com/magicink/twine-campfire/issues/564)) ([80f3827](https://github.com/magicink/twine-campfire/commit/80f3827a0d51d3b6558e817fc3a60f3b550d6987))
+* replace native select with popover menu ([#565](https://github.com/magicink/twine-campfire/issues/565)) ([e6a7045](https://github.com/magicink/twine-campfire/commit/e6a70452873108f0433dfc18843634f1122320c9))
+* restyle buttons ([#563](https://github.com/magicink/twine-campfire/issues/563)) ([a4c3232](https://github.com/magicink/twine-campfire/commit/a4c3232bf936d5aafcd5edc17a17a215a98b6a6f))
+
 ## [1.91.0](https://github.com/magicink/twine-campfire/compare/v1.90.0...v1.91.0) (2025-08-28)
 
 
