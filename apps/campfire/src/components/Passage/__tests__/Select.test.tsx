@@ -36,6 +36,17 @@ describe('Select', () => {
     expect(field.style.color).toBe('red')
   })
 
+  it('displays label when no value is selected', () => {
+    useGameStore.setState({ gameData: {} })
+    const { getByTestId } = render(
+      <Select stateKey='field' label='Pick one'>
+        <Option value='a'>A</Option>
+      </Select>
+    )
+    const field = getByTestId('select') as HTMLButtonElement
+    expect(field.textContent).toBe('Pick one')
+  })
+
   it('uses existing state value when present', () => {
     useGameStore.setState({ gameData: { field: 'blue' } })
     const { getByTestId } = render(

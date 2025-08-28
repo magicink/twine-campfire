@@ -60,10 +60,10 @@ Container form:
 | className   | Optional space-separated classes              |
 | style       | Optional inline style declarations            |
 
-- `select`: Render a dropdown bound to a game state key. Must be used as a container with nested `option` directives. The container form can include event directives. If the key already exists in game state, its value is used; otherwise, the optional `value` attribute sets the initial selection.
+- `select`: Render a dropdown bound to a game state key. Must be used as a container with nested `option` directives. The container form can include event directives. If the key already exists in game state, its value is used; otherwise, the optional `value` attribute sets the initial selection. The optional `label` attribute provides placeholder text when no option is chosen.
 
 ```md
-:::select[color]
+:::select[color]{label="Choose a color"}
 :option{value="red" label="Red"}
 :option{value="blue" label="Blue"}
 :::
@@ -75,9 +75,9 @@ Container form:
 | className | Optional space-separated classes             |
 | style     | Optional inline style declarations           |
 | value     | Initial selected value when the key is unset |
+| label     | Text displayed when no option is selected    |
 
-Both the select and option elements include a visible black border,
-black text, and a white background by default to ensure readability.
+The select button uses the same default styling as trigger and link buttons and includes a downward caret on the right.
 
 `option` directives accept the following inputs:
 

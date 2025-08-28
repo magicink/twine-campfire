@@ -15,6 +15,43 @@ describe('Select directive', () => {
     resetStores()
   })
 
+  it('displays label when no option is selected', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            ':::select[color]{label="Choose"}\n:option{value="red" label="Red"}\n:::\n'
+        }
+      ]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    const select = await screen.findByTestId('select')
+    expect(select.textContent).toBe('Choose')
+  })
+
+  it('displays label when no options are available', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':::select[color]{label="Choose"}\n:::\n'
+        }
+      ]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    const select = await screen.findByTestId('select')
+    expect(select.textContent).toBe('Choose')
+  })
+
   it('passes className and style attributes', async () => {
     const passage: Element = {
       type: 'element',

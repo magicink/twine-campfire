@@ -29,6 +29,8 @@ interface SelectProps
   onInput?: JSX.HTMLAttributes<HTMLButtonElement>['onInput']
   /** Initial value if the state key is unset. */
   initialValue?: string
+  /** Text shown when no option is selected. */
+  label?: string
 }
 
 /**
@@ -40,6 +42,7 @@ interface SelectProps
  * @param onFocus - Serialized directives to run on focus.
  * @param onBlur - Serialized directives to run on blur.
  * @param style - Optional inline styles for the select element.
+ * @param label - Text shown when no option is selected.
  * @param rest - Additional select element attributes.
  * @returns The rendered select element.
  */
@@ -53,6 +56,7 @@ export const Select = ({
   style,
   children,
   initialValue,
+  label,
   ...rest
 }: SelectProps) => {
   const value = useGameStore(state => state.gameData[stateKey]) as
@@ -71,15 +75,6 @@ export const Select = ({
       setGameData({ [stateKey]: initialValue ?? '' })
     }
   }, [value, stateKey, initialValue, setGameData])
-  const mergedStyle =
-    typeof style === 'string'
-      ? `border:1px solid oklch(0 0 0);color:oklch(0 0 0);background:oklch(1 0 0);${style}`
-      : {
-          border: '1px solid oklch(0 0 0)',
-          color: 'oklch(0 0 0)',
-          background: 'oklch(1 0 0)',
-          ...(style ?? {})
-        }
   const optionNodes = toChildArray(children) as VNode<OptionProps>[]
   const selected = optionNodes.find(opt => opt.props.value === value)
   const handleSelect = (val: string) => {
@@ -91,8 +86,12 @@ export const Select = ({
     <div style={{ display: 'inline-block' }}>
       <button
         data-testid='select'
-        className={['campfire-select', ...classes].join(' ')}
-        style={mergedStyle}
+        className={[
+          'campfire-select',
+          "inline-flex items-center justify-between gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 h-9 px-4 py-2 has-[>svg]:px-3",
+          ...classes
+        ].join(' ')}
+        style={style}
         value={value ?? ''}
         {...rest}
         onMouseEnter={e => {
@@ -121,7 +120,19 @@ export const Select = ({
         }}
         onClick={() => setOpen(prev => !prev)}
       >
-        {selected ? selected.props.children : ''}
+        {selected ? selected.props.children : (label ?? '')}
+        <svg
+          aria-hidden='true'
+          className='ml-2'
+          viewBox='0 0 24 24'
+          fill='none'
+          stroke='currentColor'
+          stroke-width='2'
+          stroke-linecap='round'
+          stroke-linejoin='round'
+        >
+          <path d='m6 9 6 6 6-6' />
+        </svg>
       </button>
       {open && (
         <div role='listbox'>
