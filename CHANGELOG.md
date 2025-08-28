@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.91.0](https://github.com/magicink/twine-campfire/compare/v1.90.0...v1.91.0) (2025-08-28)
+
+
+### Features
+
+* add overlay passage support ([#560](https://github.com/magicink/twine-campfire/issues/560)) ([ab308af](https://github.com/magicink/twine-campfire/commit/ab308afa30865749046a0ef5892bc7ca4c6e54f5))
+
 ## [1.90.0](https://github.com/magicink/twine-campfire/compare/v1.89.0...v1.90.0) (2025-08-27)
 
 
