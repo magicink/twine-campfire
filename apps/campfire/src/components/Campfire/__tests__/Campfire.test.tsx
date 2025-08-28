@@ -2,6 +2,7 @@ import { render, screen, act, waitFor } from '@testing-library/preact'
 import { Campfire } from '@campfire/components/Campfire'
 import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
 import { useGameStore } from '@campfire/state/useGameStore'
+import { useOverlayStore } from '@campfire/state/useOverlayStore'
 import { samplePassage } from '@campfire/test-utils/helpers'
 import { describe, it, expect, beforeEach } from 'bun:test'
 import i18next from 'i18next'
@@ -15,6 +16,7 @@ describe('Story', () => {
       overlayPassages: [],
       currentPassageId: undefined
     })
+    useOverlayStore.setState({ overlays: [] })
     useGameStore.setState({
       gameData: {},
       _initialGameData: {},

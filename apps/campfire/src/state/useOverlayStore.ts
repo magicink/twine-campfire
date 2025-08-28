@@ -7,6 +7,12 @@ export interface OverlayItem {
   name: string
   /** Renderable component generated from overlay content */
   component: ComponentChild
+  /** Whether the overlay is currently visible */
+  visible: boolean
+  /** Stacking order; higher values render above lower ones */
+  zIndex: number
+  /** Optional grouping tag for bulk toggling */
+  group?: string
 }
 
 export interface OverlayState {
@@ -14,6 +20,14 @@ export interface OverlayState {
   overlays: OverlayItem[]
   /** Replace the current list of overlays */
   setOverlays: (items: OverlayItem[]) => void
+  /** Show the overlay with the given name */
+  showOverlay: (name: string) => void
+  /** Hide the overlay with the given name */
+  hideOverlay: (name: string) => void
+  /** Toggle the visibility of the overlay with the given name */
+  toggleOverlay: (name: string) => void
+  /** Toggle all overlays within a group */
+  toggleGroup: (group: string) => void
 }
 
 /**
@@ -26,6 +40,29 @@ export const useOverlayStore = create<OverlayState>(set => {
     setOverlays: items =>
       immer(state => {
         state.overlays = items
+      }),
+    showOverlay: name =>
+      immer(state => {
+        const item = state.overlays.find(o => o.name === name)
+        if (item) item.visible = true
+      }),
+    hideOverlay: name =>
+      immer(state => {
+        const item = state.overlays.find(o => o.name === name)
+        if (item) item.visible = false
+      }),
+    toggleOverlay: name =>
+      immer(state => {
+        const item = state.overlays.find(o => o.name === name)
+        if (item) item.visible = !item.visible
+      }),
+    toggleGroup: group =>
+      immer(state => {
+        state.overlays
+          .filter(o => o.group === group)
+          .forEach(o => {
+            o.visible = !o.visible
+          })
       })
   }
 })

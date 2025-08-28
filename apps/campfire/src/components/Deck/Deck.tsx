@@ -59,6 +59,8 @@ export interface DeckProps {
   /** Whether to hide navigation controls. */
   hideNavigation?: boolean
   children?: ComponentChildren
+  /** Optional custom deck store. */
+  store?: typeof useDeckStore
 }
 
 /** Styles used to visually hide elements while remaining accessible. */
@@ -90,7 +92,8 @@ export const Deck = ({
   a11y,
   showSlideCount = false,
   hideNavigation = false,
-  children
+  children,
+  store = useDeckStore
 }: DeckProps) => {
   /**
    * Type guard to determine whether a child is a valid {@link VNode}.
@@ -119,14 +122,14 @@ export const Deck = ({
     })
     return { slides: cloned, slideSteps: steps }
   }, [children])
-  const currentSlide = useDeckStore(state => state.currentSlide)
-  const currentStep = useDeckStore(state => state.currentStep)
-  const next = useDeckStore(state => state.next)
-  const prev = useDeckStore(state => state.prev)
-  const goTo = useDeckStore(state => state.goTo)
-  const setSlidesCount = useDeckStore(state => state.setSlidesCount)
-  const setStepsForSlide = useDeckStore(state => state.setStepsForSlide)
-  const reset = useDeckStore(state => state.reset)
+  const currentSlide = store(state => state.currentSlide)
+  const currentStep = store(state => state.currentStep)
+  const next = store(state => state.next)
+  const prev = store(state => state.prev)
+  const goTo = store(state => state.goTo)
+  const setSlidesCount = store(state => state.setSlidesCount)
+  const setStepsForSlide = store(state => state.setStepsForSlide)
+  const reset = store(state => state.reset)
 
   const atStart = currentSlide === 0 && currentStep === 0
   const finalSlideIndex = slides.length - 1

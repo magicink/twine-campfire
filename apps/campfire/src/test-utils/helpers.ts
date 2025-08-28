@@ -2,6 +2,8 @@ import type { Element } from 'hast'
 import { useGameStore } from '@campfire/state/useGameStore'
 import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
 import { useDeckStore } from '@campfire/state/useDeckStore'
+import { useOverlayDeckStore } from '@campfire/state/useOverlayDeckStore'
+import { useOverlayStore } from '@campfire/state/useOverlayStore'
 
 export const samplePassage: Element = {
   type: 'element',
@@ -15,6 +17,8 @@ export const samplePassage: Element = {
  */
 export const resetStores = () => {
   useDeckStore.getState().reset()
+  useOverlayDeckStore.getState().reset()
+  useOverlayStore.setState({ overlays: [] })
   useStoryDataStore.setState({
     storyData: {},
     passages: [],

@@ -13,11 +13,17 @@ export const Overlay = () => {
       className='campfire-overlay absolute inset-0 pointer-events-none'
       data-testid='overlay'
     >
-      {overlays.map(item => (
-        <div key={item.name} className='pointer-events-auto'>
-          {item.component}
-        </div>
-      ))}
+      {overlays
+        .filter(o => o.visible)
+        .map(item => (
+          <div
+            key={item.name}
+            className='pointer-events-auto'
+            style={{ zIndex: item.zIndex }}
+          >
+            {item.component}
+          </div>
+        ))}
     </div>
   )
 }

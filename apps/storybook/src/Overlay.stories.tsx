@@ -15,9 +15,14 @@ export default meta
  */
 export const Default: StoryObj<typeof Overlay> = {
   render: () => {
-    useOverlayStore
-      .getState()
-      .setOverlays([{ name: 'sample', component: <div>Sample Overlay</div> }])
+    useOverlayStore.getState().setOverlays([
+      {
+        name: 'sample',
+        component: <div>Sample Overlay</div>,
+        visible: true,
+        zIndex: 0
+      }
+    ])
     return <Overlay />
   }
 }
