@@ -69,4 +69,28 @@ describe('Select', () => {
       (useGameStore.getState().gameData as Record<string, unknown>).field
     ).toBe('')
   })
+
+  it('positions options absolutely', () => {
+    useGameStore.setState({ gameData: {} })
+    const { getByTestId, getByRole } = render(
+      <Select stateKey='field'>
+        <Option value='a'>A</Option>
+      </Select>
+    )
+    fireEvent.click(getByTestId('select'))
+    const listbox = getByRole('listbox') as HTMLDivElement
+    expect(listbox.className.split(' ')).toContain('absolute')
+  })
+
+  it('renders caret icon', () => {
+    const { getByTestId } = render(
+      <Select stateKey='field'>
+        <Option value='a'>A</Option>
+      </Select>
+    )
+    const caret = getByTestId('select').querySelector('svg') as SVGElement
+    expect(caret.getAttribute('class')?.split(' ')).toEqual(
+      expect.arrayContaining(['h-4', 'w-4'])
+    )
+  })
 })

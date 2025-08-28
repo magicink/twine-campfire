@@ -85,7 +85,7 @@ export const Select = ({
     setOpen(false)
   }
   return (
-    <div style={{ display: 'inline-block' }}>
+    <div className='inline-block relative'>
       <button
         data-testid='select'
         className={[
@@ -126,7 +126,7 @@ export const Select = ({
         <span className='flex-1 truncate text-left pl-3'>
           {selected ? selected.props.children : (label ?? '')}
         </span>
-        <span className='flex items-center border-l border-input px-3'>
+        <span className='flex items-center shrink-0 border-l border-input px-3'>
           <svg
             aria-hidden='true'
             viewBox='0 0 24 24'
@@ -135,6 +135,7 @@ export const Select = ({
             stroke-width='2'
             stroke-linecap='round'
             stroke-linejoin='round'
+            className='h-4 w-4'
           >
             <path d='m6 9 6 6 6-6' />
           </svg>
@@ -143,7 +144,7 @@ export const Select = ({
       {open && (
         <div
           role='listbox'
-          className='mt-1 flex w-full flex-col divide-y divide-input rounded-md border border-input bg-[oklch(0.98_0_0)] shadow-md overflow-hidden'
+          className='absolute left-0 top-full z-50 mt-1 flex w-full flex-col divide-y divide-input rounded-md border border-input bg-[oklch(0.98_0_0)] shadow-md overflow-hidden'
         >
           {optionNodes.map(opt =>
             cloneElement(opt, {

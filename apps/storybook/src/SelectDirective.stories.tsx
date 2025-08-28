@@ -25,6 +25,8 @@ export const Basic: StoryObj = {
 
 :::
 
+This text follows the select.
+
 :::if[color]
 
 You chose
