@@ -8,6 +8,7 @@
 - Always add `data-testid` attributes to visual components.
 - Ensure every visual component includes a default `campfire-{name}` class with no associated styles.
 - Use Conventional Commits for all commit messages.
+- Define colors using `oklch()` notation instead of hex or other color formats.
 - If this `AGENTS.md` file is updated, also update `.github/copilot-instructions.md` to reflect the changes.
 - If you update the `template.ejs` file, also update the Storybook preview template to keep them in sync.
 - If you update React components, add or update corresponding Storybook stories to reflect the changes.
