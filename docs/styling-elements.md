@@ -19,21 +19,13 @@ Campfire's visual components expose hook classes prefixed with `campfire-`, lett
 
 Most classes ship with no associated styles. The exceptions are `.campfire-link` and `.campfire-trigger`, which provide a shared button style set for convenience.
 
-## Predefined button styles
+## Default color ranges
 
-`campfire-link` and `campfire-trigger` both apply the following Tailwind utilities:
+The template exposes several CSS variables that map to Tailwind color scales:
 
-```
-inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 h-9 px-4 py-2 has-[>svg]:px-3
-```
+- `--color-gray-50` through `--color-gray-950` define a neutral gray range.
+- `--color-primary-50` through `--color-primary-950` alias the indigo palette. `--color-primary` defaults to `--color-primary-700`, and `--color-primary-foreground` uses `--color-gray-950`.
+- `--color-destructive-50` through `--color-destructive-950` alias the red palette. `--color-destructive` defaults to `--color-destructive-500`.
+- `--color-ring` derives from `--color-primary-500` and is used for focus indicators.
 
-These utilities provide:
-
-- flexbox alignment and spacing for text and icons
-- default sizing for nested SVG icons
-- disabled and invalid state feedback
-- focus indicators drawn from the `ring` theme token
-- foreground/background colors sourced from the `primary` token
-- a subtle `shadow-xs` elevation and hover feedback
-
-You can override or extend the styles by targeting the `campfire-link` or `campfire-trigger` classes.
+All values are expressed in `oklch()` notation and can be overridden to suit your theme.
