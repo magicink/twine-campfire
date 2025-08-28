@@ -47,7 +47,7 @@ export const Option = ({
       data-testid='option'
       className={[
         'campfire-option',
-        'w-full text-left px-3 py-2 transition-colors hover:bg-[oklch(0.9_0_0)]',
+        'w-full text-left px-2 py-2 transition-colors hover:bg-[oklch(0.9_0_0)]',
         ...classes
       ].join(' ')}
       style={mergedStyle}

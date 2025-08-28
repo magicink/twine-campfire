@@ -1,6 +1,6 @@
 import type { JSX, VNode } from 'preact'
 import { cloneElement, toChildArray } from 'preact'
-import { useEffect, useState } from 'preact/hooks'
+import { useEffect, useRef, useState } from 'preact/hooks'
 import rfdc from 'rfdc'
 import type { RootContent } from 'mdast'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
@@ -10,7 +10,7 @@ import type { OptionProps } from './Option'
 
 const clone = rfdc()
 const selectStyles =
-  'file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive'
+  'file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-2 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive'
 
 interface SelectProps
   extends Omit<
@@ -72,6 +72,7 @@ export const Select = ({
       ? [className]
       : []
   const [open, setOpen] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (value === undefined) {
       setGameData({ [stateKey]: initialValue ?? '' })
@@ -84,14 +85,26 @@ export const Select = ({
     onInput?.({} as any)
     setOpen(false)
   }
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
   return (
-    <div className='inline-block relative'>
+    <div ref={containerRef} className='inline-block relative'>
       <button
         data-testid='select'
         className={[
           'campfire-select',
           selectStyles,
-          'items-center justify-between cursor-pointer px-0',
+          'items-center justify-between cursor-pointer',
           ...classes
         ].join(' ')}
         style={style}
@@ -123,10 +136,10 @@ export const Select = ({
         }}
         onClick={() => setOpen(prev => !prev)}
       >
-        <span className='flex-1 truncate text-left pl-3'>
+        <span className='flex-1 truncate text-left pr-2'>
           {selected ? selected.props.children : (label ?? '')}
         </span>
-        <span className='flex items-center shrink-0 border-l border-input px-3'>
+        <span className='flex items-center shrink-0 border-l border-input pl-2'>
           <svg
             aria-hidden='true'
             viewBox='0 0 24 24'

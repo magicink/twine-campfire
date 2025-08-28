@@ -93,4 +93,21 @@ describe('Select', () => {
       expect.arrayContaining(['h-4', 'w-4'])
     )
   })
+
+  it('closes when clicking outside', async () => {
+    useGameStore.setState({ gameData: {} })
+    const { getByTestId, queryByRole } = render(
+      <div>
+        <Select stateKey='field'>
+          <Option value='a'>A</Option>
+        </Select>
+        <div data-testid='outside'>outside</div>
+      </div>
+    )
+    fireEvent.click(getByTestId('select'))
+    expect(queryByRole('listbox')).not.toBeNull()
+    fireEvent.mouseDown(getByTestId('outside'))
+    await new Promise(r => setTimeout(r, 0))
+    expect(queryByRole('listbox')).toBeNull()
+  })
 })
