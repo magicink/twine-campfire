@@ -9,11 +9,13 @@ import { useGameStore } from '@campfire/state/useGameStore'
 import { Passage } from '@campfire/components/Passage/Passage'
 import { DebugWindow } from '@campfire/components/DebugWindow'
 import { LoadingScreen } from '@campfire/components/LoadingScreen'
+import { Overlay } from '@campfire/components/Overlay'
 import { fromDom } from 'hast-util-from-dom'
 import type { Element, Root } from 'hast'
 import { EXIT, visit } from 'unist-util-visit'
 import { applyUserStyles } from '@campfire/components/Campfire/applyUserStyles'
 import { evaluateUserScript } from '@campfire/components/Campfire/evaluateUserScript'
+import { useOverlayProcessor } from '@campfire/hooks/useOverlayProcessor'
 
 /**
  * React component that renders the main story interface.
@@ -37,9 +39,14 @@ export const Campfire = ({
   const setPassages = useStoryDataStore(
     (state: StoryDataState) => state.setPassages
   )
+  const setOverlayPassages = useStoryDataStore(
+    (state: StoryDataState) => state.setOverlayPassages
+  )
   const setStoryData = useStoryDataStore(
     (state: StoryDataState) => state.setStoryData
   )
+
+  useOverlayProcessor()
 
   /**
    * Extracts the <tw-storydata> element from the given HAST tree and updates the story data store with its properties.
@@ -63,18 +70,29 @@ export const Campfire = ({
 
   /**
    * Extracts all <tw-passagedata> elements from the given HAST tree and updates the story data store.
+   * Passages tagged with "overlay" are stored separately from regular passages.
    *
    * @param {Root} tree - The HAST tree to search for passage elements.
-   * @returns {Element[]} An array of passage elements found in the tree.
+   * @returns {Element[]} An array of non-overlay passage elements found in the tree.
    */
   const extractPassages = (tree: Root): Element[] => {
     const passages: Element[] = []
+    const overlays: Element[] = []
     visit(tree, 'element', node => {
       if (node.tagName === 'tw-passagedata') {
-        passages.push(node as Element)
+        const tags =
+          typeof node.properties?.tags === 'string'
+            ? node.properties.tags.toLowerCase().split(/\s+/)
+            : []
+        if (tags.includes('overlay')) {
+          overlays.push(node as Element)
+        } else {
+          passages.push(node as Element)
+        }
       }
     })
     setPassages(passages)
+    setOverlayPassages(overlays)
     return passages
   }
 
@@ -135,6 +153,7 @@ export const Campfire = ({
       }
       data-testid='campfire'
     >
+      <Overlay />
       <Passage />
       <DebugWindow />
     </div>

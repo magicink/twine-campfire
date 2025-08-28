@@ -22,6 +22,8 @@ export interface SlideRevealProps {
   exit?: Transition
   interruptBehavior?: 'jumpToEnd' | 'cancel'
   children: ComponentChildren
+  /** Optional custom deck store. */
+  store?: typeof useDeckStore
 }
 
 /**
@@ -36,10 +38,11 @@ export const SlideReveal = ({
   enter,
   exit,
   interruptBehavior = 'jumpToEnd',
-  children
+  children,
+  store = useDeckStore
 }: SlideRevealProps): JSX.Element | null => {
-  const currentStep = useDeckStore(state => state.currentStep)
-  const currentSlide = useDeckStore(state => state.currentSlide)
+  const currentStep = store(state => state.currentStep)
+  const currentSlide = store(state => state.currentSlide)
   const slideTransition = useContext(SlideTransitionContext)
   const [present, setPresent] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
