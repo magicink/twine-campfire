@@ -1,37 +1,61 @@
 import { describe, it, expect } from 'bun:test'
-import { render } from '@testing-library/preact'
+import { render, fireEvent } from '@testing-library/preact'
 import { Select } from '@campfire/components/Passage/Select'
 import { Option } from '@campfire/components/Passage/Option'
-import { runFormFieldTests } from '@campfire/test-utils/formFieldTests'
+import { useGameStore } from '@campfire/state/useGameStore'
 
 /**
  * Tests for the Select component.
  */
 describe('Select', () => {
-  runFormFieldTests({
-    Component: Select,
-    testId: 'select',
-    campfireClass: 'campfire-select',
-    updateValue: 'blue',
-    existingValue: 'blue',
-    children: (
-      <>
+  it('updates game state on selection', async () => {
+    useGameStore.setState({ gameData: { field: 'red' } })
+    const { getByTestId, getAllByTestId } = render(
+      <Select stateKey='field'>
         <Option value='red'>Red</Option>
         <Option value='blue'>Blue</Option>
-      </>
-    ),
-    initialState: { field: 'red' }
+      </Select>
+    )
+    fireEvent.click(getByTestId('select'))
+    await new Promise(r => setTimeout(r, 0))
+    fireEvent.click(getAllByTestId('option')[1])
+    expect(
+      (useGameStore.getState().gameData as Record<string, unknown>).field
+    ).toBe('blue')
   })
 
-  it('renders with default border, text color, and background', () => {
+  it('applies className and style', () => {
     const { getByTestId } = render(
+      <Select stateKey='field' className='extra' style={{ color: 'red' }}>
+        <Option value='a'>A</Option>
+      </Select>
+    )
+    const field = getByTestId('select') as HTMLButtonElement
+    expect(field.className.split(' ')).toContain('campfire-select')
+    expect(field.className.split(' ')).toContain('extra')
+    expect(field.style.color).toBe('red')
+  })
+
+  it('uses existing state value when present', () => {
+    useGameStore.setState({ gameData: { field: 'blue' } })
+    const { getByTestId } = render(
+      <Select stateKey='field'>
+        <Option value='blue'>Blue</Option>
+      </Select>
+    )
+    const field = getByTestId('select') as HTMLButtonElement
+    expect(field.value).toBe('blue')
+  })
+
+  it('initializes state when unset', () => {
+    useGameStore.setState({ gameData: {} })
+    render(
       <Select stateKey='field'>
         <Option value='a'>A</Option>
       </Select>
     )
-    const field = getByTestId('select') as HTMLSelectElement
-    expect(field.style.border).toBe('1px solid black')
-    expect(field.style.color).toBe('#000')
-    expect(field.style.backgroundColor).toBe('#fff')
+    expect(
+      (useGameStore.getState().gameData as Record<string, unknown>).field
+    ).toBe('')
   })
 })

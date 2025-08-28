@@ -1,9 +1,13 @@
 import type { JSX } from 'preact'
 
-interface OptionProps
-  extends Omit<JSX.OptionHTMLAttributes<HTMLOptionElement>, 'className'> {
+export interface OptionProps
+  extends Omit<JSX.HTMLAttributes<HTMLButtonElement>, 'className'> {
+  /** Value represented by this option. */
+  value: string
   /** Additional CSS classes for the option element. */
   className?: string | string[]
+  /** Callback fired when this option is selected. */
+  onSelectOption?: (value: string) => void
 }
 
 /**
@@ -12,6 +16,7 @@ interface OptionProps
  * @param className - Optional additional classes.
  * @param style - Optional inline styles for the option element.
  * @param children - Display text for the option.
+ * @param onSelectOption - Callback fired when this option is chosen.
  * @param rest - Additional option element attributes.
  * @returns The rendered option element.
  */
@@ -19,6 +24,8 @@ export const Option = ({
   className,
   style,
   children,
+  onSelectOption,
+  value,
   ...rest
 }: OptionProps) => {
   const classes = Array.isArray(className)
@@ -28,17 +35,23 @@ export const Option = ({
       : []
   const mergedStyle =
     typeof style === 'string'
-      ? `color:#000;background:#fff;${style}`
-      : { color: '#000', background: '#fff', ...(style ?? {}) }
+      ? `color:oklch(0 0 0);background:oklch(1 0 0);${style}`
+      : {
+          color: 'oklch(0 0 0)',
+          background: 'oklch(1 0 0)',
+          ...(style ?? {})
+        }
   return (
-    <option
+    <button
+      type='button'
       data-testid='option'
       className={['campfire-option', ...classes].join(' ')}
       style={mergedStyle}
+      onClick={() => onSelectOption?.(value)}
       {...rest}
     >
       {children}
-    </option>
+    </button>
   )
 }
 

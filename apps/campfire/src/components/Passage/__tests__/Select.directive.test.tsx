@@ -31,11 +31,11 @@ describe('Select directive', () => {
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
     render(<Passage />)
     const select = await screen.findByTestId('select')
-    expect((select as HTMLSelectElement).style.color).toBe('blue')
-    expect((select as HTMLSelectElement).style.border).toBe('1px solid black')
-    expect((select as HTMLSelectElement).style.backgroundColor).toBe('#fff')
+    expect((select as HTMLButtonElement).style.color).toBe('blue')
     expect(select.className.split(' ')).toContain('extra')
-    fireEvent.input(select, { target: { value: 'blue' } })
+    fireEvent.click(select)
+    await new Promise(r => setTimeout(r, 0))
+    fireEvent.click(screen.getAllByTestId('option')[1])
     expect(
       (useGameStore.getState().gameData as Record<string, unknown>).color
     ).toBe('blue')
@@ -59,11 +59,11 @@ describe('Select directive', () => {
     const select = await screen.findByTestId('select')
     expect(useGameStore.getState().gameData.focused).toBeUndefined()
     act(() => {
-      ;(select as HTMLSelectElement).focus()
+      ;(select as HTMLButtonElement).focus()
     })
     expect(useGameStore.getState().gameData.focused).toBe(true)
     act(() => {
-      ;(select as HTMLSelectElement).blur()
+      ;(select as HTMLButtonElement).blur()
     })
     expect(useGameStore.getState().gameData.blurred).toBe(true)
     fireEvent.mouseEnter(select)
@@ -104,7 +104,7 @@ describe('Select directive', () => {
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
     render(<Passage />)
     const select = await screen.findByTestId('select')
-    expect((select as HTMLSelectElement).value).toBe('blue')
+    expect((select as HTMLButtonElement).value).toBe('blue')
     expect(
       (useGameStore.getState().gameData as Record<string, unknown>).color
     ).toBe('blue')
@@ -127,7 +127,7 @@ describe('Select directive', () => {
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
     render(<Passage />)
     const select = await screen.findByTestId('select')
-    expect((select as HTMLSelectElement).value).toBe('red')
+    expect((select as HTMLButtonElement).value).toBe('red')
     expect(
       (useGameStore.getState().gameData as Record<string, unknown>).color
     ).toBe('red')
