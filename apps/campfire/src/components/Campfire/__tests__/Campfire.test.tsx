@@ -12,6 +12,7 @@ describe('Story', () => {
     useStoryDataStore.setState({
       storyData: {},
       passages: [],
+      overlayPassages: [],
       currentPassageId: undefined
     })
     useGameStore.setState({

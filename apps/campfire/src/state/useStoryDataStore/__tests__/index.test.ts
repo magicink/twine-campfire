@@ -6,6 +6,7 @@ beforeEach(() => {
   useStoryDataStore.setState({
     storyData: {},
     passages: [],
+    overlayPassages: [],
     currentPassageId: undefined
   })
 })
@@ -33,6 +34,21 @@ describe('useStoryDataStore', () => {
     expect(store.getPassageById('1')?.properties?.name).toBe('Start')
     expect(store.getPassageByName('Second')?.properties?.pid).toBe('2')
     expect(store.getCurrentPassage()?.properties?.pid).toBe('1')
+  })
+
+  it('stores overlay passages separately', () => {
+    const overlay: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '3', name: 'Overlay', tags: 'overlay' },
+      children: []
+    }
+
+    useStoryDataStore.getState().setOverlayPassages([overlay])
+
+    const store = useStoryDataStore.getState()
+    expect(store.overlayPassages.length).toBe(1)
+    expect(store.overlayPassages[0].properties?.name).toBe('Overlay')
   })
 
   it('updates the current passage manually', () => {
