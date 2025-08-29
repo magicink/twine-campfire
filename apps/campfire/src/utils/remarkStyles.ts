@@ -10,6 +10,12 @@ export const checkboxStyles =
 export const checkboxIndicatorStyles =
   'flex items-center justify-center text-current transition-none pointer-events-none'
 
+export const radioStyles =
+  'border-input text-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 aspect-square size-4 shrink-0 rounded-full border shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50'
+
+export const radioIndicatorStyles =
+  'relative flex items-center justify-center pointer-events-none'
+
 /**
  * Appends one or more class names to a node's `hProperties.className`,
  * preserving any existing classes.
@@ -287,6 +293,87 @@ export const rehypeChecklistButtons =
               children: rest
             })
           }
+        }
+      }
+    )
+  }
+
+/**
+ * Replaces `<input type="radio">` elements with styled button elements
+ * matching checkbox appearance. The buttons are disabled to prevent user
+ * interaction in static content.
+ *
+ * @returns Rehype transformer converting radio inputs to buttons.
+ */
+export const rehypeRadioButtons =
+  () =>
+  (tree: HastRoot): void => {
+    visit(
+      tree,
+      'element',
+      (node: any, index: number | undefined, parent: any) => {
+        if (
+          node.tagName === 'input' &&
+          (node.properties as any)?.type === 'radio' &&
+          parent &&
+          typeof index === 'number'
+        ) {
+          const checked = Boolean((node.properties as any).checked)
+          const button = {
+            type: 'element',
+            tagName: 'button',
+            properties: {
+              type: 'button',
+              role: 'radio',
+              disabled: true,
+              'aria-checked': checked ? 'true' : 'false',
+              'data-state': checked ? 'checked' : 'unchecked',
+              'data-testid': 'radio',
+              className: ['campfire-radio', radioStyles]
+            },
+            children: [
+              {
+                type: 'element',
+                tagName: 'span',
+                properties: {
+                  'data-state': checked ? 'checked' : 'unchecked',
+                  'data-slot': 'radio-indicator',
+                  className: radioIndicatorStyles
+                },
+                children: checked
+                  ? [
+                      {
+                        type: 'element',
+                        tagName: 'svg',
+                        properties: {
+                          xmlns: 'http://www.w3.org/2000/svg',
+                          width: 24,
+                          height: 24,
+                          viewBox: '0 0 24 24',
+                          fill: 'none',
+                          stroke: 'currentColor',
+                          'stroke-width': 2,
+                          'stroke-linecap': 'round',
+                          'stroke-linejoin': 'round',
+                          className:
+                            'lucide lucide-circle fill-primary absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2'
+                        },
+                        children: [
+                          {
+                            type: 'element',
+                            tagName: 'circle',
+                            properties: { cx: 12, cy: 12, r: 10 },
+                            children: []
+                          }
+                        ]
+                      }
+                    ]
+                  : []
+              }
+            ]
+          }
+
+          parent.children.splice(index, 1, button)
         }
       }
     )

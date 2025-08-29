@@ -7,9 +7,9 @@ import { useGameStore } from '@campfire/state/useGameStore'
 import { resetStores } from '@campfire/test-utils/helpers'
 
 /**
- * Tests for Checkbox directive attributes.
+ * Tests for Radio directive attributes.
  */
-describe('Checkbox directive', () => {
+describe('Radio directive', () => {
   beforeEach(() => {
     document.body.innerHTML = ''
     resetStores()
@@ -23,14 +23,15 @@ describe('Checkbox directive', () => {
       children: [
         {
           type: 'text',
-          value: ':checkbox[agree]{style="color:blue"}\n'
+          value:
+            ':radio[choice]{value="a" style="color:blue"}\n:radio[choice]{value="b"}\n'
         }
       ]
     }
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
     render(<Passage />)
-    const button = await screen.findByTestId('checkbox')
-    expect((button as HTMLButtonElement).style.color).toBe('blue')
+    const buttons = await screen.findAllByTestId('radio')
+    expect((buttons[0] as HTMLButtonElement).style.color).toBe('blue')
   })
 
   it('runs event directives when used as a container', async () => {
@@ -42,22 +43,22 @@ describe('Checkbox directive', () => {
         {
           type: 'text',
           value:
-            ':::checkbox[agree]\n:::onFocus\n:set[focused=true]\n:::\n:::onHover\n:set[hovered=true]\n:::\n:::\n'
+            ':::radio[choice]{value="a"}\n:::onFocus\n:set[focused=true]\n:::\n:::onHover\n:set[hovered=true]\n:::\n:::\n:radio[choice]{value="b"}\n'
         }
       ]
     }
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
     render(<Passage />)
-    const button = await screen.findByTestId('checkbox')
+    const buttons = await screen.findAllByTestId('radio')
     act(() => {
-      ;(button as HTMLButtonElement).focus()
+      ;(buttons[0] as HTMLButtonElement).focus()
     })
     expect(useGameStore.getState().gameData.focused).toBe(true)
-    fireEvent.mouseEnter(button)
+    fireEvent.mouseEnter(buttons[0])
     expect(useGameStore.getState().gameData.hovered).toBe(true)
   })
 
-  it('removes directive markers for container checkboxes', async () => {
+  it('removes directive markers for container radios', async () => {
     const passage: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
@@ -65,17 +66,17 @@ describe('Checkbox directive', () => {
       children: [
         {
           type: 'text',
-          value: ':::checkbox[agree]\n:::\n'
+          value: ':::radio[choice]{value="a"}\n:::\n:radio[choice]{value="b"}\n'
         }
       ]
     }
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
     render(<Passage />)
-    await screen.findByTestId('checkbox')
+    await screen.findAllByTestId('radio')
     expect(document.body.textContent).not.toContain(':::')
   })
 
-  it('initializes state from value attribute', async () => {
+  it('initializes state from checked attribute', async () => {
     const passage: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
@@ -83,15 +84,16 @@ describe('Checkbox directive', () => {
       children: [
         {
           type: 'text',
-          value: ':checkbox[agree]{value=true}\n'
+          value:
+            ':radio[choice]{value="a" checked}\n:radio[choice]{value="b"}\n'
         }
       ]
     }
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
     render(<Passage />)
-    const button = await screen.findByTestId('checkbox')
-    expect(button.getAttribute('aria-checked')).toBe('true')
-    expect((useGameStore.getState().gameData as any).agree).toBe(true)
+    const buttons = await screen.findAllByTestId('radio')
+    expect(buttons[0].getAttribute('aria-checked')).toBe('true')
+    expect((useGameStore.getState().gameData as any).choice).toBe('a')
   })
 
   it('uses existing state value when present', async () => {
@@ -102,29 +104,36 @@ describe('Checkbox directive', () => {
       children: [
         {
           type: 'text',
-          value: ':checkbox[agree]{value=true}\n'
+          value:
+            ':radio[choice]{value="a" checked}\n:radio[choice]{value="b"}\n'
         }
       ]
     }
-    useGameStore.setState({ gameData: { agree: false } })
+    useGameStore.setState({ gameData: { choice: 'b' } })
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
     render(<Passage />)
-    const button = await screen.findByTestId('checkbox')
-    expect(button.getAttribute('aria-checked')).toBe('false')
-    expect((useGameStore.getState().gameData as any).agree).toBe(false)
+    const buttons = await screen.findAllByTestId('radio')
+    expect(buttons[0].getAttribute('aria-checked')).toBe('false')
+    expect((useGameStore.getState().gameData as any).choice).toBe('b')
   })
 
-  it('treats input type checkbox as a checkbox directive', async () => {
+  it('treats input type radio as a radio directive', async () => {
     const passage: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ":input[agree]{type='checkbox'}\n" }]
+      children: [
+        {
+          type: 'text',
+          value:
+            ":input[choice]{type='radio' value='a'}\n:input[choice]{type='radio' value='b' checked}\n"
+        }
+      ]
     }
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
     render(<Passage />)
-    const button = await screen.findByTestId('checkbox')
-    fireEvent.click(button)
-    expect((useGameStore.getState().gameData as any).agree).toBe(true)
+    const buttons = await screen.findAllByTestId('radio')
+    expect(buttons[1].getAttribute('aria-checked')).toBe('true')
+    expect((useGameStore.getState().gameData as any).choice).toBe('b')
   })
 })
