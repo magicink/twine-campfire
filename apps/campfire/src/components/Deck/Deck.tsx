@@ -507,6 +507,7 @@ export const Deck = ({
               toggleAutoplay()
             }}
             data-testid='deck-autoplay-toggle'
+            data-state={paused ? 'paused' : 'playing'}
           >
             {paused ? '▶' : '⏸'}
           </button>

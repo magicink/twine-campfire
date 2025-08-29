@@ -316,6 +316,7 @@ describe('Deck', () => {
     )
     const toggle = screen.getByTestId('deck-autoplay-toggle')
     expect(toggle.textContent).toBe('▶')
+    expect(toggle).toHaveAttribute('data-state', 'paused')
     await act(async () => {
       await new Promise(resolve => setTimeout(resolve, 20))
     })
@@ -324,6 +325,7 @@ describe('Deck', () => {
       fireEvent.click(toggle)
     })
     expect(toggle.textContent).toBe('⏸')
+    expect(toggle).toHaveAttribute('data-state', 'playing')
     await act(async () => {
       await new Promise(resolve => setTimeout(resolve, 15))
     })
@@ -332,6 +334,7 @@ describe('Deck', () => {
       fireEvent.click(toggle)
     })
     expect(toggle.textContent).toBe('▶')
+    expect(toggle).toHaveAttribute('data-state', 'paused')
     await act(async () => {
       await new Promise(resolve => setTimeout(resolve, 15))
     })

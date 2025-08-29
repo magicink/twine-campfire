@@ -218,6 +218,7 @@ export const WithAutoplayPaused: StoryObj<typeof Deck> = {
       className='w-[800px] h-[600px]'
       autoAdvanceMs={1000}
       autoAdvancePaused
+      playButtonClassName='data-[state=paused]:bg-[var(--color-indigo-600)] data-[state=playing]:bg-[var(--color-red-600)]'
     >
       <Slide>
         <SlideText as='h2' x={200} y={200} size={36}>

@@ -86,6 +86,10 @@ Control the flow between passages or how they reveal.
   | fastForwardButtonClassName | Additional classes applied to the fast-forward navigation button           |
   | slideHudClassName          | Additional classes applied to the slide count element within the HUD       |
 
+  The autoplay toggle button also exposes a `data-state` attribute set to
+  `playing` or `paused` for targeting styles based on the current autoplay
+  state.
+
 - `slide`: Customize an individual slide.
 
   ```md
