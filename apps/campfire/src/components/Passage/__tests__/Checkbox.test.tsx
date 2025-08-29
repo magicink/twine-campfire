@@ -39,4 +39,13 @@ describe('Checkbox', () => {
     render(<Checkbox stateKey='flag' />)
     expect(useGameStore.getState().gameData.flag).toBe(false)
   })
+
+  it('renders checkmark only when checked', () => {
+    useGameStore.setState({ gameData: {} })
+    const { getByTestId } = render(<Checkbox stateKey='flag' />)
+    const button = getByTestId('checkbox') as HTMLButtonElement
+    expect(button.querySelector('svg')).toBeNull()
+    fireEvent.click(button)
+    expect(button.querySelector('svg')).not.toBeNull()
+  })
 })

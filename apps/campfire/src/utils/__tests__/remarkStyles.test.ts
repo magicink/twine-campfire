@@ -198,5 +198,45 @@ describe('rehypeChecklistButtons', () => {
     expect(btn.properties['data-state']).toBe('checked')
     expect(btn.properties.disabled).toBe(true)
     expect(btn.children[0].tagName).toBe('span')
+    expect(btn.children[0].children[0].tagName).toBe('svg')
+  })
+
+  it('omits checkmark when unchecked', () => {
+    const tree: HastRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tagName: 'input',
+          properties: { type: 'checkbox' },
+          children: []
+        } as any
+      ]
+    }
+    rehypeChecklistButtons()(tree)
+    const btn = tree.children[0] as any
+    expect(btn.children[0].children).toEqual([])
+  })
+
+  it('styles task list containers', () => {
+    const tree: HastRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tagName: 'ul',
+          properties: { className: ['contains-task-list'] },
+          children: []
+        } as any
+      ]
+    }
+    rehypeChecklistButtons()(tree)
+    const ul = tree.children[0] as any
+    expect(ul.properties.className).toEqual([
+      'contains-task-list',
+      'flex',
+      'flex-col',
+      'gap-[var(--size-xs)]'
+    ])
   })
 })

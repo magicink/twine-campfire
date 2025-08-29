@@ -166,10 +166,11 @@ export const rehypeTableStyles =
 
 /**
  * Replaces `<input type="checkbox">` elements produced by Markdown checklists
- * with styled button elements. The buttons are disabled so the user cannot
- * interact with static checklist items.
+ * with styled button elements and applies flex column layout and spacing to the
+ * task list container. The buttons are disabled so the user cannot interact
+ * with static checklist items.
  *
- * @returns Rehype transformer converting checklist inputs to buttons.
+ * @returns Rehype transformer converting checklist inputs to buttons and styling lists.
  */
 export const rehypeChecklistButtons =
   () =>
@@ -178,6 +179,22 @@ export const rehypeChecklistButtons =
       tree,
       'element',
       (node: any, index: number | undefined, parent: any) => {
+        if (node.tagName === 'ul') {
+          const props = (node.properties ??= {}) as Record<string, unknown>
+          const className = props.className
+          const classes = Array.isArray(className)
+            ? className
+            : typeof className === 'string'
+              ? [className]
+              : []
+          if (classes.includes('contains-task-list')) {
+            appendElementClassNames(props, [
+              'flex',
+              'flex-col',
+              'gap-[var(--size-xs)]'
+            ])
+          }
+        }
         if (
           node.tagName === 'input' &&
           (node.properties as any)?.type === 'checkbox' &&
@@ -207,32 +224,34 @@ export const rehypeChecklistButtons =
                   className: checkboxIndicatorStyles,
                   style: 'pointer-events:none'
                 },
-                children: [
-                  {
-                    type: 'element',
-                    tagName: 'svg',
-                    properties: {
-                      xmlns: 'http://www.w3.org/2000/svg',
-                      width: 24,
-                      height: 24,
-                      viewBox: '0 0 24 24',
-                      fill: 'none',
-                      stroke: 'currentColor',
-                      'stroke-width': 2,
-                      'stroke-linecap': 'round',
-                      'stroke-linejoin': 'round',
-                      className: 'lucide lucide-check size-3.5'
-                    },
-                    children: [
+                children: checked
+                  ? [
                       {
                         type: 'element',
-                        tagName: 'path',
-                        properties: { d: 'M20 6 9 17l-5-5' },
-                        children: []
+                        tagName: 'svg',
+                        properties: {
+                          xmlns: 'http://www.w3.org/2000/svg',
+                          width: 24,
+                          height: 24,
+                          viewBox: '0 0 24 24',
+                          fill: 'none',
+                          stroke: 'currentColor',
+                          'stroke-width': 2,
+                          'stroke-linecap': 'round',
+                          'stroke-linejoin': 'round',
+                          className: 'lucide lucide-check size-3.5'
+                        },
+                        children: [
+                          {
+                            type: 'element',
+                            tagName: 'path',
+                            properties: { d: 'M20 6 9 17l-5-5' },
+                            children: []
+                          }
+                        ]
                       }
                     ]
-                  }
-                ]
+                  : []
               }
             ]
           }
