@@ -4,6 +4,8 @@ export { evaluateUserScript } from '@campfire/components/Campfire/evaluateUserSc
 export { Passage } from '@campfire/components/Passage/Passage'
 export { LinkButton } from '@campfire/components/Passage/LinkButton'
 export { Input } from '@campfire/components/Passage/Input'
+export { Checkbox } from '@campfire/components/Passage/Checkbox'
+export { Radio } from '@campfire/components/Passage/Radio'
 export { Textarea } from '@campfire/components/Passage/Textarea'
 export { Select } from '@campfire/components/Passage/Select'
 export { Option } from '@campfire/components/Passage/Option'

@@ -87,7 +87,10 @@ export default function rehypeCampfire(): (tree: Root) => void {
       (node.tagName === 'if' ||
         node.tagName === 'else' ||
         node.tagName === 'show' ||
-        node.tagName === 'option'))
+        node.tagName === 'option' ||
+        node.tagName === 'input' ||
+        node.tagName === 'checkbox' ||
+        node.tagName === 'radio'))
 
   const transform = (tree: Root): void => {
     /**

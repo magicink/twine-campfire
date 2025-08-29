@@ -4,6 +4,18 @@ import type { Root as HastRoot } from 'hast'
 import type { Data } from 'unist'
 import type { Properties } from 'hast'
 
+export const checkboxStyles =
+  'peer border-input dark:bg-input/30 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:data-[state=checked]:bg-primary data-[state=checked]:border-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive size-4 shrink-0 rounded-[4px] border shadow-xs transition-shadow outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50'
+
+export const checkboxIndicatorStyles =
+  'flex items-center justify-center text-current transition-none pointer-events-none'
+
+export const radioStyles =
+  'border-input text-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 aspect-square size-4 shrink-0 rounded-full border shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50'
+
+export const radioIndicatorStyles =
+  'relative flex items-center justify-center pointer-events-none'
+
 /**
  * Appends one or more class names to a node's `hProperties.className`,
  * preserving any existing classes.
@@ -156,4 +168,213 @@ export const rehypeTableStyles =
           break
       }
     })
+  }
+
+/**
+ * Replaces `<input type="checkbox">` elements produced by Markdown checklists
+ * with styled button elements and applies flex column layout and spacing to the
+ * task list container. The buttons are disabled so the user cannot interact
+ * with static checklist items.
+ *
+ * @returns Rehype transformer converting checklist inputs to buttons and styling lists.
+ */
+export const rehypeChecklistButtons =
+  () =>
+  (tree: HastRoot): void => {
+    visit(
+      tree,
+      'element',
+      (node: any, index: number | undefined, parent: any) => {
+        if (node.tagName === 'ul') {
+          const props = (node.properties ??= {}) as Record<string, unknown>
+          const className = props.className
+          const classes = Array.isArray(className)
+            ? className
+            : typeof className === 'string'
+              ? [className]
+              : []
+          if (classes.includes('contains-task-list')) {
+            appendElementClassNames(props, [
+              'flex',
+              'flex-col',
+              'gap-[var(--size-xs)]'
+            ])
+          }
+        }
+        if (
+          node.tagName === 'input' &&
+          (node.properties as any)?.type === 'checkbox' &&
+          parent &&
+          typeof index === 'number'
+        ) {
+          const checked = Boolean((node.properties as any).checked)
+          const button = {
+            type: 'element',
+            tagName: 'button',
+            properties: {
+              type: 'button',
+              role: 'checkbox',
+              disabled: true,
+              'aria-checked': checked ? 'true' : 'false',
+              'data-state': checked ? 'checked' : 'unchecked',
+              'data-testid': 'checkbox',
+              className: ['campfire-checkbox', checkboxStyles]
+            },
+            children: [
+              {
+                type: 'element',
+                tagName: 'span',
+                properties: {
+                  'data-state': checked ? 'checked' : 'unchecked',
+                  'data-slot': 'checkbox-indicator',
+                  className: checkboxIndicatorStyles,
+                  style: 'pointer-events:none'
+                },
+                children: checked
+                  ? [
+                      {
+                        type: 'element',
+                        tagName: 'svg',
+                        properties: {
+                          xmlns: 'http://www.w3.org/2000/svg',
+                          width: 24,
+                          height: 24,
+                          viewBox: '0 0 24 24',
+                          fill: 'none',
+                          stroke: 'currentColor',
+                          'stroke-width': 2,
+                          'stroke-linecap': 'round',
+                          'stroke-linejoin': 'round',
+                          className: 'lucide lucide-check size-3.5'
+                        },
+                        children: [
+                          {
+                            type: 'element',
+                            tagName: 'path',
+                            properties: { d: 'M20 6 9 17l-5-5' },
+                            children: []
+                          }
+                        ]
+                      }
+                    ]
+                  : []
+              }
+            ]
+          }
+
+          parent.children.splice(index, 1, button)
+
+          const parentProps = (parent.properties ??= {}) as Record<
+            string,
+            unknown
+          >
+          appendElementClassNames(parentProps, [
+            'flex',
+            'items-center',
+            'gap-[var(--size-xs)]'
+          ])
+
+          const rest = parent.children.splice(index + 1)
+          if (
+            rest.length &&
+            rest[0].type === 'text' &&
+            typeof (rest[0] as any).value === 'string' &&
+            !(rest[0] as any).value.trim()
+          ) {
+            rest.shift()
+          }
+          if (rest.length) {
+            parent.children.splice(index + 1, 0, {
+              type: 'element',
+              tagName: 'span',
+              properties: {
+                className: ['peer-data-[state=checked]:line-through']
+              },
+              children: rest
+            })
+          }
+        }
+      }
+    )
+  }
+
+/**
+ * Replaces `<input type="radio">` elements with styled button elements
+ * matching checkbox appearance. The buttons are disabled to prevent user
+ * interaction in static content.
+ *
+ * @returns Rehype transformer converting radio inputs to buttons.
+ */
+export const rehypeRadioButtons =
+  () =>
+  (tree: HastRoot): void => {
+    visit(
+      tree,
+      'element',
+      (node: any, index: number | undefined, parent: any) => {
+        if (
+          node.tagName === 'input' &&
+          (node.properties as any)?.type === 'radio' &&
+          parent &&
+          typeof index === 'number'
+        ) {
+          const checked = Boolean((node.properties as any).checked)
+          const button = {
+            type: 'element',
+            tagName: 'button',
+            properties: {
+              type: 'button',
+              role: 'radio',
+              disabled: true,
+              'aria-checked': checked ? 'true' : 'false',
+              'data-state': checked ? 'checked' : 'unchecked',
+              'data-testid': 'radio',
+              className: ['campfire-radio', radioStyles]
+            },
+            children: [
+              {
+                type: 'element',
+                tagName: 'span',
+                properties: {
+                  'data-state': checked ? 'checked' : 'unchecked',
+                  'data-slot': 'radio-indicator',
+                  className: radioIndicatorStyles
+                },
+                children: checked
+                  ? [
+                      {
+                        type: 'element',
+                        tagName: 'svg',
+                        properties: {
+                          xmlns: 'http://www.w3.org/2000/svg',
+                          width: 24,
+                          height: 24,
+                          viewBox: '0 0 24 24',
+                          fill: 'none',
+                          stroke: 'currentColor',
+                          'stroke-width': 2,
+                          'stroke-linecap': 'round',
+                          'stroke-linejoin': 'round',
+                          className:
+                            'lucide lucide-circle fill-primary absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2'
+                        },
+                        children: [
+                          {
+                            type: 'element',
+                            tagName: 'circle',
+                            properties: { cx: 12, cy: 12, r: 10 },
+                            children: []
+                          }
+                        ]
+                      }
+                    ]
+                  : []
+              }
+            ]
+          }
+
+          parent.children.splice(index, 1, button)
+        }
+      }
+    )
   }
