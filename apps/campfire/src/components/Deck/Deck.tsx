@@ -53,6 +53,22 @@ export interface DeckProps {
   /** Whether autoplay should start in a paused state. */
   autoAdvancePaused?: boolean
   className?: string
+  /** Class applied to the slide group container. */
+  groupClassName?: string
+  /** Class applied to the navigation wrapper. */
+  navClassName?: string
+  /** Class applied to the slide counter HUD wrapper. */
+  hudClassName?: string
+  /** Class applied to each navigation button. */
+  navButtonClassName?: string
+  /** Class applied to the rewind navigation button. */
+  rewindButtonClassName?: string
+  /** Class applied to the autoplay toggle button. */
+  playButtonClassName?: string
+  /** Class applied to the fast-forward navigation button. */
+  fastForwardButtonClassName?: string
+  /** Class applied to the slide counter within the HUD. */
+  slideHudClassName?: string
   a11y?: Partial<A11yLabels>
   /** Whether to display the slide counter HUD. */
   showSlideCount?: boolean
@@ -89,6 +105,14 @@ export const Deck = ({
   autoAdvanceMs,
   autoAdvancePaused = false,
   className,
+  groupClassName,
+  navClassName,
+  hudClassName,
+  navButtonClassName,
+  rewindButtonClassName,
+  playButtonClassName,
+  fastForwardButtonClassName,
+  slideHudClassName,
   a11y,
   showSlideCount = false,
   hideNavigation = false,
@@ -379,10 +403,14 @@ export const Deck = ({
   return (
     <div
       ref={hostRef}
-      className={`campfire-deck relative w-full h-full overflow-hidden bg-[var(--deck-bg,#0b0b0c)] ${
+      className={`campfire-deck relative w-full h-full overflow-hidden ${
         className ?? ''
       }`}
-      style={themeStyle}
+      style={{
+        background:
+          'var(--deck-bg,linear-gradient(to bottom,var(--color-gray-900),var(--color-gray-950)))',
+        ...themeStyle
+      }}
       role='region'
       aria-roledescription='deck'
       aria-label={labels.deck}
@@ -391,21 +419,21 @@ export const Deck = ({
     >
       <div
         ref={slideRef}
-        className='absolute left-1/2 top-1/2'
+        className={[
+          'campfire-deck-group absolute left-1/2 top-1/2 origin-center rounded-2xl overflow-hidden shadow-[0_10px_30px_oklch(0_0_0_/_0.35)] bg-[var(--slide-bg,var(--color-gray-50))] text-[var(--slide-fg,var(--color-gray-950))]',
+          groupClassName
+        ]
+          .filter(c => c != null && c !== '')
+          .join(' ')}
         style={{
           width: size.width,
           height: size.height,
-          transform: `translate(-50%, -50%) scale(${scale})`,
-          transformOrigin: 'center center',
-          boxShadow: '0 10px 30px rgba(0,0,0,0.35)',
-          background: 'var(--slide-bg, #111)',
-          color: 'var(--slide-fg, #fff)',
-          borderRadius: 16,
-          overflow: 'hidden'
+          transform: `translate(-50%, -50%) scale(${scale})`
         }}
         role='group'
         aria-roledescription='slide'
         aria-label={labels.slide(currentSlide + 1, slides.length)}
+        data-testid='deck-group'
       >
         {prevVNode}
         {currentVNode}
@@ -415,24 +443,44 @@ export const Deck = ({
       </div>
       {showSlideCount && (
         <div
-          className='absolute top-3 right-3 text-sm px-2 py-1 rounded bg-black/50 text-white/80 text-right'
+          className={[
+            'campfire-deck-hud absolute top-3 right-3 text-sm px-2 py-1 rounded bg-black/50 text-white/80 text-right',
+            hudClassName
+          ]
+            .filter(c => c != null && c !== '')
+            .join(' ')}
           aria-hidden='true'
           data-testid='deck-hud'
         >
-          <div data-testid='deck-slide-hud'>
+          <div
+            className={['campfire-deck-slide-hud', slideHudClassName]
+              .filter(c => c != null && c !== '')
+              .join(' ')}
+            data-testid='deck-slide-hud'
+          >
             Slide {currentSlide + 1} / {slides.length}
           </div>
         </div>
       )}
       {!hideNavigation && (
         <div
-          className='absolute inset-x-0 bottom-2 flex items-center justify-center px-2 pointer-events-none'
-          style={{ gap: 8 }}
+          className={[
+            'campfire-deck-nav absolute inset-x-0 bottom-2 flex items-center justify-center px-2 pointer-events-none gap-[8px]',
+            navClassName
+          ]
+            .filter(c => c != null && c !== '')
+            .join(' ')}
           data-testid='deck-nav'
         >
           <button
             type='button'
-            className='pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring disabled:opacity-50'
+            className={[
+              'campfire-deck-prev campfire-deck-nav-button pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring disabled:opacity-50',
+              navButtonClassName,
+              rewindButtonClassName
+            ]
+              .filter(c => c != null && c !== '')
+              .join(' ')}
             aria-label={labels.prev}
             onClick={e => {
               e.stopPropagation()
@@ -445,19 +493,32 @@ export const Deck = ({
           </button>
           <button
             type='button'
-            className='pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring disabled:opacity-50'
+            className={[
+              'campfire-deck-autoplay-toggle campfire-deck-nav-button pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring disabled:opacity-50',
+              navButtonClassName,
+              playButtonClassName
+            ]
+              .filter(c => c != null && c !== '')
+              .join(' ')}
             aria-label={paused ? labels.play : labels.pause}
             onClick={e => {
               e.stopPropagation()
               toggleAutoplay()
             }}
             data-testid='deck-autoplay-toggle'
+            data-state={paused ? 'paused' : 'playing'}
           >
             {paused ? '▶' : '⏸'}
           </button>
           <button
             type='button'
-            className='pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring disabled:opacity-50'
+            className={[
+              'campfire-deck-next campfire-deck-nav-button pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring disabled:opacity-50',
+              navButtonClassName,
+              fastForwardButtonClassName
+            ]
+              .filter(c => c != null && c !== '')
+              .join(' ')}
             aria-label={labels.next}
             onClick={e => {
               e.stopPropagation()

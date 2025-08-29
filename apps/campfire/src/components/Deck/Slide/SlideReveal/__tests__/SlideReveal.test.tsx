@@ -33,6 +33,28 @@ describe('SlideReveal', () => {
     expect(reveal.className).toContain('campfire-slide-reveal')
   })
 
+  it('toggles hidden class based on visible state', async () => {
+    render(
+      <Deck>
+        <Slide>
+          <SlideReveal at={1}>HiddenTest</SlideReveal>
+        </Slide>
+      </Deck>
+    )
+    // Initially hidden (step 0)
+    const reveal = screen.queryByTestId('slide-reveal')
+    expect(reveal).toBeNull()
+    act(() => {
+      useDeckStore.getState().next()
+    })
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    const visibleReveal = screen.getByTestId('slide-reveal')
+    expect(visibleReveal.className).toContain('campfire-slide-reveal')
+    expect(visibleReveal.className).not.toContain('hidden')
+  })
+
   it.skip('toggles visibility at the configured steps', async () => {
     // @ts-expect-error override animate
     HTMLElement.prototype.animate = () => new StubAnimation()

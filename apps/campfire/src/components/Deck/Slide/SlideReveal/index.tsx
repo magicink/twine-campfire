@@ -161,8 +161,7 @@ export const SlideReveal = ({
   return (
     <div
       ref={ref}
-      style={{ display: visible ? '' : 'none' }}
-      className='campfire-slide-reveal'
+      className={`campfire-slide-reveal${!visible ? ' hidden' : ''}`}
       data-testid='slide-reveal'
     >
       {children}
