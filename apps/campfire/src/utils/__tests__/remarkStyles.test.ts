@@ -5,7 +5,8 @@ import {
   remarkHeadingStyles,
   remarkParagraphStyles,
   rehypeTableStyles,
-  rehypeChecklistButtons
+  rehypeChecklistButtons,
+  rehypeRadioButtons
 } from '@campfire/utils/remarkStyles'
 
 describe('remarkHeadingStyles', () => {
@@ -304,5 +305,46 @@ describe('rehypeChecklistButtons', () => {
       'peer-data-[state=checked]:line-through'
     ])
     expect(checked.children[1].children[0].value).toBe('done')
+  })
+})
+
+describe('rehypeRadioButtons', () => {
+  it('converts radios to buttons', () => {
+    const tree: HastRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tagName: 'input',
+          properties: { type: 'radio', checked: true },
+          children: []
+        } as any
+      ]
+    }
+
+    rehypeRadioButtons()(tree)
+    const btn = tree.children[0] as any
+    expect(btn.tagName).toBe('button')
+    expect(btn.properties['data-state']).toBe('checked')
+    expect(btn.children[0].tagName).toBe('span')
+    expect(btn.children[0].children[0].tagName).toBe('svg')
+  })
+
+  it('omits indicator when unchecked', () => {
+    const tree: HastRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tagName: 'input',
+          properties: { type: 'radio' },
+          children: []
+        } as any
+      ]
+    }
+
+    rehypeRadioButtons()(tree)
+    const btn = tree.children[0] as any
+    expect(btn.children[0].children).toEqual([])
   })
 })
