@@ -271,7 +271,7 @@ export const WithGroupClassName: StoryObj<typeof Deck> = {
 }
 
 /**
- * Demonstrates overriding navigation button and HUD classes.
+ * Demonstrates overriding navigation button classes individually and HUD classes.
  *
  * @returns The rendered Deck element with custom navigation and HUD styling.
  */
@@ -281,7 +281,9 @@ export const WithNavAndHudClassNames: StoryObj<typeof Deck> = {
       className='w-[800px] h-[600px]'
       navClassName='justify-between'
       hudClassName='left-3 right-auto'
-      navButtonClassName='bg-[var(--color-indigo-600)]'
+      rewindButtonClassName='bg-[var(--color-indigo-600)]'
+      playButtonClassName='bg-[var(--color-red-600)]'
+      fastForwardButtonClassName='bg-[var(--color-indigo-600)]'
       slideHudClassName='font-bold'
       showSlideCount
     >

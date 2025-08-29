@@ -20,7 +20,7 @@ export const Basic: StoryObj = {
           {`
 :preset{type="text" name="title" x=80 y=80 as="p" size=36}
 
-:::deck{size='800x600' groupClassName='rounded-none shadow-none' navClassName='justify-between' hudClassName='left-3 right-auto' navButtonClassName='bg-[var(--color-indigo-600)]' slideHudClassName='font-bold' showSlideCount}
+:::deck{size='800x600' groupClassName='rounded-none shadow-none' navClassName='justify-between' hudClassName='left-3 right-auto' rewindButtonClassName='bg-[var(--color-indigo-600)]' playButtonClassName='bg-[var(--color-red-600)]' fastForwardButtonClassName='bg-[var(--color-indigo-600)]' slideHudClassName='font-bold' showSlideCount}
   :::slide{transition='fade'}
     :::reveal{at=0}
       :::text{from="title"}

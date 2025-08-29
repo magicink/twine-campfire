@@ -102,6 +102,51 @@ describe('Deck', () => {
     expect(screen.getByTestId('deck-next').className).toContain(custom)
   })
 
+  it('applies custom rewindButtonClassName only to the rewind button', () => {
+    const custom = 'text-[var(--color-red-500)]'
+    render(
+      <Deck rewindButtonClassName={custom}>
+        <div>Slide 1</div>
+        <div>Slide 2</div>
+      </Deck>
+    )
+    expect(screen.getByTestId('deck-prev').className).toContain(custom)
+    expect(screen.getByTestId('deck-autoplay-toggle').className).not.toContain(
+      custom
+    )
+    expect(screen.getByTestId('deck-next').className).not.toContain(custom)
+  })
+
+  it('applies custom playButtonClassName only to the autoplay button', () => {
+    const custom = 'text-[var(--color-red-500)]'
+    render(
+      <Deck playButtonClassName={custom}>
+        <div>Slide 1</div>
+        <div>Slide 2</div>
+      </Deck>
+    )
+    expect(screen.getByTestId('deck-autoplay-toggle').className).toContain(
+      custom
+    )
+    expect(screen.getByTestId('deck-prev').className).not.toContain(custom)
+    expect(screen.getByTestId('deck-next').className).not.toContain(custom)
+  })
+
+  it('applies custom fastForwardButtonClassName only to the fast-forward button', () => {
+    const custom = 'text-[var(--color-red-500)]'
+    render(
+      <Deck fastForwardButtonClassName={custom}>
+        <div>Slide 1</div>
+        <div>Slide 2</div>
+      </Deck>
+    )
+    expect(screen.getByTestId('deck-next').className).toContain(custom)
+    expect(screen.getByTestId('deck-prev').className).not.toContain(custom)
+    expect(screen.getByTestId('deck-autoplay-toggle').className).not.toContain(
+      custom
+    )
+  })
+
   it('applies custom slideHudClassName to the slide count element', () => {
     const custom = 'font-bold'
     render(

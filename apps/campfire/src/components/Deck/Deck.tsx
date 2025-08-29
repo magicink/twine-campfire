@@ -61,6 +61,12 @@ export interface DeckProps {
   hudClassName?: string
   /** Class applied to each navigation button. */
   navButtonClassName?: string
+  /** Class applied to the rewind navigation button. */
+  rewindButtonClassName?: string
+  /** Class applied to the autoplay toggle button. */
+  playButtonClassName?: string
+  /** Class applied to the fast-forward navigation button. */
+  fastForwardButtonClassName?: string
   /** Class applied to the slide counter within the HUD. */
   slideHudClassName?: string
   a11y?: Partial<A11yLabels>
@@ -103,6 +109,9 @@ export const Deck = ({
   navClassName,
   hudClassName,
   navButtonClassName,
+  rewindButtonClassName,
+  playButtonClassName,
+  fastForwardButtonClassName,
   slideHudClassName,
   a11y,
   showSlideCount = false,
@@ -468,7 +477,8 @@ export const Deck = ({
             type='button'
             className={[
               'campfire-deck-prev campfire-deck-nav-button pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring disabled:opacity-50',
-              navButtonClassName
+              navButtonClassName,
+              rewindButtonClassName
             ]
               .filter(c => c != null && c !== '')
               .join(' ')}
@@ -486,7 +496,8 @@ export const Deck = ({
             type='button'
             className={[
               'campfire-deck-autoplay-toggle campfire-deck-nav-button pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring disabled:opacity-50',
-              navButtonClassName
+              navButtonClassName,
+              playButtonClassName
             ]
               .filter(c => c != null && c !== '')
               .join(' ')}
@@ -503,7 +514,8 @@ export const Deck = ({
             type='button'
             className={[
               'campfire-deck-next campfire-deck-nav-button pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring disabled:opacity-50',
-              navButtonClassName
+              navButtonClassName,
+              fastForwardButtonClassName
             ]
               .filter(c => c != null && c !== '')
               .join(' ')}
