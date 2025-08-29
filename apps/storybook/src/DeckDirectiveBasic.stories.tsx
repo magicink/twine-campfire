@@ -28,7 +28,7 @@ export const Basic: StoryObj = {
       :::
     :::
       :::reveal{at=1}
-        :shape{x=150 y=150 w=100 h=50 type='rect' stroke='var(--color-primary-500)' fill='var(--color-primary-100)' radius=8 shadow=true className='opacity-25'}
+      :shape{x=150 y=150 w=100 h=50 type='rect' stroke='blue' fill='#ddf' radius=8 shadow=true className='opacity-25'}
       :::
     :::reveal{at=2}
       :::text{from="title" x=100 y=100}

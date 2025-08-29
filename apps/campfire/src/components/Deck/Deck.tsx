@@ -379,10 +379,14 @@ export const Deck = ({
   return (
     <div
       ref={hostRef}
-      className={`campfire-deck relative w-full h-full overflow-hidden bg-[var(--deck-bg,var(--color-gray-50))] ${
+      className={`campfire-deck relative w-full h-full overflow-hidden ${
         className ?? ''
       }`}
-      style={themeStyle}
+      style={{
+        ...themeStyle,
+        background:
+          'var(--deck-bg,linear-gradient(to bottom,var(--color-gray-900),var(--color-gray-950)))'
+      }}
       role='region'
       aria-roledescription='deck'
       aria-label={labels.deck}

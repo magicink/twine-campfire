@@ -26,8 +26,8 @@ export const Basic: StoryObj<typeof SlideShape> = {
           w={100}
           h={100}
           points='50,0 61,35 98,35 68,57 79,91 50,70 21,91 32,57 2,35 39,35'
-          fill='var(--color-primary-200)'
-          stroke='var(--color-destructive-700)'
+          fill='#fde68a'
+          stroke='#b45309'
           shadow
         />
         <SlideShape
@@ -36,8 +36,8 @@ export const Basic: StoryObj<typeof SlideShape> = {
           y={240}
           w={100}
           h={100}
-          fill='var(--color-primary-300)'
-          stroke='var(--color-primary-100)'
+          fill='#a3e635'
+          stroke='#365314'
         />
         <SlideShape
           className={'animate-pulse'}
@@ -47,8 +47,8 @@ export const Basic: StoryObj<typeof SlideShape> = {
           w={120}
           h={120}
           points='0,120 60,0 120,120'
-          fill='var(--color-destructive-200)'
-          stroke='var(--color-destructive-700)'
+          fill='#fca5a5'
+          stroke='#b91c1c'
         />
         <SlideShape
           type='rect'
@@ -56,8 +56,8 @@ export const Basic: StoryObj<typeof SlideShape> = {
           y={360}
           w={150}
           h={100}
-          fill='var(--color-primary-300)'
-          stroke='var(--color-primary-100)'
+          fill='#93c5fd'
+          stroke='#1e3a8a'
           radius={8}
           shadow
         />
@@ -72,7 +72,7 @@ export const Basic: StoryObj<typeof SlideShape> = {
           y1={25}
           x2={200}
           y2={25}
-          stroke='var(--color-gray-950)'
+          stroke='#fff'
           strokeWidth={10}
         />
       </Slide>
