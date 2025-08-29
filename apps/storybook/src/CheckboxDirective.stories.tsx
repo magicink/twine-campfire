@@ -26,3 +26,23 @@ export const Basic: StoryObj = {
     </>
   )
 }
+
+/**
+ * Demonstrates using the `input` directive with `type="checkbox"`.
+ *
+ * @returns Campfire story showcasing checkbox inputs via the `input` directive.
+ */
+export const AsInput: StoryObj = {
+  render: () => (
+    <>
+      <tw-storydata startnode='1' options='debug'>
+        <tw-passagedata pid='1' name='Start'>
+          {`
+:input[agree]{type='checkbox'}
+`}
+        </tw-passagedata>
+      </tw-storydata>
+      <Campfire />
+    </>
+  )
+}

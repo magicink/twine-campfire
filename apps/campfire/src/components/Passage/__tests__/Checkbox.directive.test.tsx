@@ -113,4 +113,18 @@ describe('Checkbox directive', () => {
     expect(button.getAttribute('aria-checked')).toBe('false')
     expect((useGameStore.getState().gameData as any).agree).toBe(false)
   })
+
+  it('treats input type checkbox as a checkbox directive', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ":input[agree]{type='checkbox'}\n" }]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    const button = await screen.findByTestId('checkbox')
+    fireEvent.click(button)
+    expect((useGameStore.getState().gameData as any).agree).toBe(true)
+  })
 })

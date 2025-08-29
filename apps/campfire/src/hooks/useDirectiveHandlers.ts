@@ -1141,6 +1141,8 @@ export const useDirectiveHandlers = () => {
 
   /**
    * Converts an `:input` directive into an Input component bound to game state.
+   * When a `type` attribute of `checkbox` or `radio` is provided, delegates to
+   * the corresponding directive handler.
    *
    * @param directive - The input directive node.
    * @param parent - Parent node containing the directive.
@@ -1149,11 +1151,20 @@ export const useDirectiveHandlers = () => {
    */
   const handleInput: DirectiveHandler = (directive, parent, index) => {
     if (!parent || typeof index !== 'number') return
+    const attrs = (directive.attributes || {}) as Record<string, unknown>
+    const typeAttr = typeof attrs.type === 'string' ? attrs.type : undefined
+    if (typeAttr === 'checkbox') {
+      delete attrs.type
+      return handleCheckbox(directive, parent, index)
+    }
+    if (typeAttr === 'radio') {
+      delete attrs.type
+      return handleRadio(directive, parent, index)
+    }
     if (directive.type === 'textDirective') {
       const label = hasLabel(directive) ? directive.label : toString(directive)
       const key = ensureKey(label.trim(), parent, index)
       if (!key) return index
-      const attrs = (directive.attributes || {}) as Record<string, unknown>
       if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
         const msg = 'class is a reserved attribute. Use className instead.'
         console.error(msg)
@@ -1165,7 +1176,6 @@ export const useDirectiveHandlers = () => {
         typeof attrs.style === 'string' ? attrs.style : undefined
       const placeholder =
         typeof attrs.placeholder === 'string' ? attrs.placeholder : undefined
-      const typeAttr = typeof attrs.type === 'string' ? attrs.type : undefined
       const initialValue =
         typeof attrs.value === 'string'
           ? attrs.value
@@ -1176,7 +1186,6 @@ export const useDirectiveHandlers = () => {
       if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
       if (styleAttr) props.style = styleAttr
       if (placeholder) props.placeholder = placeholder
-      if (typeAttr) props.type = typeAttr
       if (initialValue) props.initialValue = initialValue
       applyAdditionalAttributes(attrs, props, [
         'className',
@@ -1200,7 +1209,6 @@ export const useDirectiveHandlers = () => {
       const label = getLabel(container)
       const key = ensureKey(label.trim(), parent, index)
       if (!key) return index
-      const attrs = (container.attributes || {}) as Record<string, unknown>
       if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
         const msg = 'class is a reserved attribute. Use className instead.'
         console.error(msg)
@@ -1212,7 +1220,6 @@ export const useDirectiveHandlers = () => {
         typeof attrs.style === 'string' ? attrs.style : undefined
       const placeholder =
         typeof attrs.placeholder === 'string' ? attrs.placeholder : undefined
-      const typeAttr = typeof attrs.type === 'string' ? attrs.type : undefined
       const initialValue =
         typeof attrs.value === 'string'
           ? attrs.value
@@ -1227,7 +1234,6 @@ export const useDirectiveHandlers = () => {
       if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
       if (styleAttr) props.style = styleAttr
       if (placeholder) props.placeholder = placeholder
-      if (typeAttr) props.type = typeAttr
       if (initialValue) props.initialValue = initialValue
       if (events.onHover) props.onHover = events.onHover
       if (events.onFocus) props.onFocus = events.onFocus

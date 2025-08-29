@@ -27,3 +27,24 @@ export const Basic: StoryObj = {
     </>
   )
 }
+
+/**
+ * Demonstrates using the `input` directive with `type="radio"`.
+ *
+ * @returns Campfire story showcasing radio inputs via the `input` directive.
+ */
+export const AsInput: StoryObj = {
+  render: () => (
+    <>
+      <tw-storydata startnode='1' options='debug'>
+        <tw-passagedata pid='1' name='Start'>
+          {`
+:input[choice]{type='radio' value='a'}
+:input[choice]{type='radio' value='b' checked}
+`}
+        </tw-passagedata>
+      </tw-storydata>
+      <Campfire />
+    </>
+  )
+}

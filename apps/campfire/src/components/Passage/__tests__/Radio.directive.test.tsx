@@ -116,4 +116,24 @@ describe('Radio directive', () => {
     expect(buttons[0].getAttribute('aria-checked')).toBe('false')
     expect((useGameStore.getState().gameData as any).choice).toBe('b')
   })
+
+  it('treats input type radio as a radio directive', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            ":input[choice]{type='radio' value='a'}\n:input[choice]{type='radio' value='b' checked}\n"
+        }
+      ]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    const buttons = await screen.findAllByTestId('radio')
+    expect(buttons[1].getAttribute('aria-checked')).toBe('true')
+    expect((useGameStore.getState().gameData as any).choice).toBe('b')
+  })
 })
