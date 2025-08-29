@@ -59,6 +59,10 @@ export interface DeckProps {
   navClassName?: string
   /** Class applied to the slide counter HUD wrapper. */
   hudClassName?: string
+  /** Class applied to each navigation button. */
+  navButtonClassName?: string
+  /** Class applied to the slide counter within the HUD. */
+  slideHudClassName?: string
   a11y?: Partial<A11yLabels>
   /** Whether to display the slide counter HUD. */
   showSlideCount?: boolean
@@ -98,6 +102,8 @@ export const Deck = ({
   groupClassName,
   navClassName,
   hudClassName,
+  navButtonClassName,
+  slideHudClassName,
   a11y,
   showSlideCount = false,
   hideNavigation = false,
@@ -437,7 +443,12 @@ export const Deck = ({
           aria-hidden='true'
           data-testid='deck-hud'
         >
-          <div data-testid='deck-slide-hud'>
+          <div
+            className={['campfire-deck-slide-hud', slideHudClassName]
+              .filter(c => c != null && c !== '')
+              .join(' ')}
+            data-testid='deck-slide-hud'
+          >
             Slide {currentSlide + 1} / {slides.length}
           </div>
         </div>
@@ -455,7 +466,12 @@ export const Deck = ({
         >
           <button
             type='button'
-            className='pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring disabled:opacity-50'
+            className={[
+              'campfire-deck-prev campfire-deck-nav-button pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring disabled:opacity-50',
+              navButtonClassName
+            ]
+              .filter(c => c != null && c !== '')
+              .join(' ')}
             aria-label={labels.prev}
             onClick={e => {
               e.stopPropagation()
@@ -468,7 +484,12 @@ export const Deck = ({
           </button>
           <button
             type='button'
-            className='pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring disabled:opacity-50'
+            className={[
+              'campfire-deck-autoplay-toggle campfire-deck-nav-button pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring disabled:opacity-50',
+              navButtonClassName
+            ]
+              .filter(c => c != null && c !== '')
+              .join(' ')}
             aria-label={paused ? labels.play : labels.pause}
             onClick={e => {
               e.stopPropagation()
@@ -480,7 +501,12 @@ export const Deck = ({
           </button>
           <button
             type='button'
-            className='pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring disabled:opacity-50'
+            className={[
+              'campfire-deck-next campfire-deck-nav-button pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring disabled:opacity-50',
+              navButtonClassName
+            ]
+              .filter(c => c != null && c !== '')
+              .join(' ')}
             aria-label={labels.next}
             onClick={e => {
               e.stopPropagation()

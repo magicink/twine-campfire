@@ -87,6 +87,32 @@ describe('Deck', () => {
     expect(hud.className).toContain('right-auto')
   })
 
+  it('applies custom navButtonClassName to all navigation buttons', () => {
+    const custom = 'text-[var(--color-indigo-500)]'
+    render(
+      <Deck navButtonClassName={custom}>
+        <div>Slide 1</div>
+        <div>Slide 2</div>
+      </Deck>
+    )
+    expect(screen.getByTestId('deck-prev').className).toContain(custom)
+    expect(screen.getByTestId('deck-autoplay-toggle').className).toContain(
+      custom
+    )
+    expect(screen.getByTestId('deck-next').className).toContain(custom)
+  })
+
+  it('applies custom slideHudClassName to the slide count element', () => {
+    const custom = 'font-bold'
+    render(
+      <Deck showSlideCount slideHudClassName={custom}>
+        <div>Slide 1</div>
+      </Deck>
+    )
+    const hud = screen.getByTestId('deck-slide-hud')
+    expect(hud.className).toContain('font-bold')
+  })
+
   it('advances and reverses slides via keyboard', () => {
     render(
       <Deck>
