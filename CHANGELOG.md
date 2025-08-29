@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.93.0](https://github.com/magicink/twine-campfire/compare/v1.92.0...v1.93.0) (2025-08-29)
+
+
+### Features
+
+* style gfm tables ([#568](https://github.com/magicink/twine-campfire/issues/568)) ([48e902b](https://github.com/magicink/twine-campfire/commit/48e902b5f1af32151330662d5a9a440f0672c0cd))
+* style gfm tables ([#568](https://github.com/magicink/twine-campfire/issues/568)) ([6cfe1fc](https://github.com/magicink/twine-campfire/commit/6cfe1fc8a18a4456badbb3f095f48c368533acf3))
+
 ## [1.92.0](https://github.com/magicink/twine-campfire/compare/v1.91.0...v1.92.0) (2025-08-28)
 
 
