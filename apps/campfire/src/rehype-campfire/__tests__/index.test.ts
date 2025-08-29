@@ -138,6 +138,68 @@ describe('rehypeCampfire', () => {
     expect(first.tagName).toBe('else')
   })
 
+  it('unwraps input directives from paragraphs', () => {
+    const tree: Root = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tagName: 'p',
+          properties: {},
+          children: [
+            { type: 'element', tagName: 'input', properties: {}, children: [] }
+          ]
+        }
+      ]
+    }
+    rehypeCampfire()(tree)
+    const first = tree.children[0] as any
+    expect(first.tagName).toBe('input')
+  })
+
+  it('unwraps checkbox directives from paragraphs', () => {
+    const tree: Root = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tagName: 'p',
+          properties: {},
+          children: [
+            {
+              type: 'element',
+              tagName: 'checkbox',
+              properties: {},
+              children: []
+            }
+          ]
+        }
+      ]
+    }
+    rehypeCampfire()(tree)
+    const first = tree.children[0] as any
+    expect(first.tagName).toBe('checkbox')
+  })
+
+  it('unwraps radio directives from paragraphs', () => {
+    const tree: Root = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tagName: 'p',
+          properties: {},
+          children: [
+            { type: 'element', tagName: 'radio', properties: {}, children: [] }
+          ]
+        }
+      ]
+    }
+    rehypeCampfire()(tree)
+    const first = tree.children[0] as any
+    expect(first.tagName).toBe('radio')
+  })
+
   it('unwraps options within select directives', () => {
     const tree: Root = {
       type: 'root',
