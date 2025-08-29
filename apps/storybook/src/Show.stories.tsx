@@ -22,11 +22,14 @@ export const Examples: StoryObj<typeof Show> = {
       <div className='flex flex-col gap-2'>
         <span>
           HP:
-          <Show data-key='hp' className='text-red-500' />
+          <Show data-key='hp' className='text-[var(--color-destructive-500)]' />
         </span>
         <span>
           Expression:
-          <Show data-expr='hp > 1 ? "High" : "Low"' style={{ color: 'blue' }} />
+          <Show
+            data-expr='hp > 1 ? "High" : "Low"'
+            style={{ color: 'var(--color-primary-500)' }}
+          />
         </span>
       </div>
     )

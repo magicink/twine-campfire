@@ -34,7 +34,10 @@ export const Styled: StoryObj<typeof TriggerButton> = {
   render: () => (
     <TriggerButton
       content='[]'
-      style={{ backgroundColor: '#2563eb', color: '#fff' }}
+      style={{
+        backgroundColor: 'var(--color-primary-500)',
+        color: 'var(--color-primary-foreground)'
+      }}
     >
       Styled
     </TriggerButton>

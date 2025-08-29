@@ -379,7 +379,7 @@ export const Deck = ({
   return (
     <div
       ref={hostRef}
-      className={`campfire-deck relative w-full h-full overflow-hidden bg-[var(--deck-bg,#0b0b0c)] ${
+      className={`campfire-deck relative w-full h-full overflow-hidden bg-[var(--deck-bg,var(--color-gray-50))] ${
         className ?? ''
       }`}
       style={themeStyle}
@@ -398,8 +398,8 @@ export const Deck = ({
           transform: `translate(-50%, -50%) scale(${scale})`,
           transformOrigin: 'center center',
           boxShadow: '0 10px 30px rgba(0,0,0,0.35)',
-          background: 'var(--slide-bg, #111)',
-          color: 'var(--slide-fg, #fff)',
+          background: 'var(--slide-bg, var(--color-gray-50))',
+          color: 'var(--slide-fg, var(--color-gray-950))',
           borderRadius: 16,
           overflow: 'hidden'
         }}

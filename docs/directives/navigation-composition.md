@@ -141,7 +141,7 @@ Control the flow between passages or how they reveal.
   ```md
   :::deck
   :::slide
-  :::layer{x=10 y=20 w=100 h=50 className="bg-blue-500"}
+  :::layer{x=10 y=20 w=100 h=50 className="bg-[var(--color-primary-500)]"}
   Content
   :::
   :::
@@ -165,7 +165,7 @@ Control the flow between passages or how they reveal.
   ```md
   :::deck
   :::slide
-  :::text{x=100 y=50 align=center size=32 style="color: blue"}
+  :::text{x=100 y=50 align=center size=32 style="color: var(--color-primary-500)"}
   Hello
   :::
   :::
@@ -233,7 +233,7 @@ Control the flow between passages or how they reveal.
 
   ```md
   :preset{type="deck" name="wide" size="16x9"}
-  :preset{type="text" name="title" x=100 y=50 size=32 color="#333"}
+  :preset{type="text" name="title" x=100 y=50 size=32 color="var(--color-gray-200)"}
 
   :::deck{from="wide"}
   :::slide

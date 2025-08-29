@@ -20,8 +20,8 @@ export const Basic: StoryObj = {
           {`
 :::deck{size="800x600"}
   :::slide
-    :shape{type='rect' x=120 y=120 w=120 h=80 fill='#60a5fa' stroke='#1e3a8a'}
-    :shape{type='ellipse' x=400 y=160 w=100 h=100 fill='#facc15' stroke='#92400e' className='opacity-75'}
+    :shape{type='rect' x=120 y=120 w=120 h=80 fill='var(--color-primary-400)' stroke='var(--color-primary-100)'}
+    :shape{type='ellipse' x=400 y=160 w=100 h=100 fill='var(--color-destructive-300)' stroke='var(--color-destructive-700)' className='opacity-75'}
   :::
 :::
           `}
