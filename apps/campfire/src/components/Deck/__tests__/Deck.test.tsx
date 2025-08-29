@@ -52,6 +52,18 @@ describe('Deck', () => {
     )
   })
 
+  it('applies custom groupClassName to the slide wrapper', () => {
+    const custom = 'rounded-none shadow-none'
+    render(
+      <Deck groupClassName={custom}>
+        <div>Slide 1</div>
+      </Deck>
+    )
+    const group = screen.getByTestId('deck-group')
+    expect(group.className).toContain('rounded-none')
+    expect(group.className).toContain('shadow-none')
+  })
+
   it('advances and reverses slides via keyboard', () => {
     render(
       <Deck>

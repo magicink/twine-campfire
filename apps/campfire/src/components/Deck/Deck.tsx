@@ -53,6 +53,8 @@ export interface DeckProps {
   /** Whether autoplay should start in a paused state. */
   autoAdvancePaused?: boolean
   className?: string
+  /** Class applied to the slide group container. */
+  groupClassName?: string
   a11y?: Partial<A11yLabels>
   /** Whether to display the slide counter HUD. */
   showSlideCount?: boolean
@@ -89,6 +91,7 @@ export const Deck = ({
   autoAdvanceMs,
   autoAdvancePaused = false,
   className,
+  groupClassName,
   a11y,
   showSlideCount = false,
   hideNavigation = false,
@@ -395,21 +398,21 @@ export const Deck = ({
     >
       <div
         ref={slideRef}
-        className='absolute left-1/2 top-1/2'
+        className={[
+          'campfire-deck-group absolute left-1/2 top-1/2 origin-center rounded-2xl overflow-hidden shadow-[0_10px_30px_oklch(0_0_0_/_0.35)] bg-[var(--slide-bg,var(--color-gray-50))] text-[var(--slide-fg,var(--color-gray-950))]',
+          groupClassName
+        ]
+          .filter(c => c != null && c !== '')
+          .join(' ')}
         style={{
           width: size.width,
           height: size.height,
-          transform: `translate(-50%, -50%) scale(${scale})`,
-          transformOrigin: 'center center',
-          boxShadow: '0 10px 30px rgba(0,0,0,0.35)',
-          background: 'var(--slide-bg, var(--color-gray-50))',
-          color: 'var(--slide-fg, var(--color-gray-950))',
-          borderRadius: 16,
-          overflow: 'hidden'
+          transform: `translate(-50%, -50%) scale(${scale})`
         }}
         role='group'
         aria-roledescription='slide'
         aria-label={labels.slide(currentSlide + 1, slides.length)}
+        data-testid='deck-group'
       >
         {prevVNode}
         {currentVNode}

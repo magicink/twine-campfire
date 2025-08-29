@@ -249,3 +249,23 @@ export const WithHiddenNavigation: StoryObj<typeof Deck> = {
     </Deck>
   )
 }
+
+/**
+ * Demonstrates overriding slide group classes using the groupClassName prop.
+ *
+ * @returns The rendered Deck element with custom group styling.
+ */
+export const WithGroupClassName: StoryObj<typeof Deck> = {
+  render: () => (
+    <Deck
+      className='w-[800px] h-[600px]'
+      groupClassName='rounded-none shadow-none'
+    >
+      <Slide>
+        <SlideText as='h2' x={200} y={200} size={36}>
+          Custom Group
+        </SlideText>
+      </Slide>
+    </Deck>
+  )
+}
