@@ -1369,6 +1369,109 @@ export const useDirectiveHandlers = () => {
     return removeNode(parent, index)
   }
 
+  const handleRadio: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    if (directive.type === 'textDirective') {
+      const label = hasLabel(directive) ? directive.label : toString(directive)
+      const key = ensureKey(label.trim(), parent, index)
+      if (!key) return index
+      const attrs = (directive.attributes || {}) as Record<string, unknown>
+      if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
+        const msg = 'class is a reserved attribute. Use className instead.'
+        console.error(msg)
+        addError(msg)
+      }
+      const classAttr =
+        typeof attrs.className === 'string' ? attrs.className : ''
+      const styleAttr =
+        typeof attrs.style === 'string' ? attrs.style : undefined
+      const valueAttr = typeof attrs.value === 'string' ? attrs.value : ''
+      const initialValue =
+        typeof attrs.defaultValue === 'string'
+          ? attrs.defaultValue
+          : attrs.checked !== undefined
+            ? valueAttr
+            : undefined
+      const props: Record<string, unknown> = {
+        stateKey: key,
+        value: valueAttr
+      }
+      if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
+      if (styleAttr) props.style = styleAttr
+      if (initialValue) props.initialValue = initialValue
+      applyAdditionalAttributes(attrs, props, [
+        'className',
+        'style',
+        'value',
+        'defaultValue',
+        'checked'
+      ])
+      const node: Parent = {
+        type: 'paragraph',
+        children: [],
+        data: { hName: 'radio', hProperties: props as Properties }
+      }
+      return replaceWithIndentation(directive, parent, index, [
+        node as RootContent
+      ])
+    }
+    if (directive.type === 'containerDirective') {
+      const container = directive as ContainerDirective
+      const label = getLabel(container)
+      const key = ensureKey(label.trim(), parent, index)
+      if (!key) return index
+      const attrs = (container.attributes || {}) as Record<string, unknown>
+      if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
+        const msg = 'class is a reserved attribute. Use className instead.'
+        console.error(msg)
+        addError(msg)
+      }
+      const classAttr =
+        typeof attrs.className === 'string' ? attrs.className : ''
+      const styleAttr =
+        typeof attrs.style === 'string' ? attrs.style : undefined
+      const valueAttr = typeof attrs.value === 'string' ? attrs.value : ''
+      const initialValue =
+        typeof attrs.defaultValue === 'string'
+          ? attrs.defaultValue
+          : attrs.checked !== undefined
+            ? valueAttr
+            : undefined
+      const rawChildren = runDirectiveBlock(
+        expandIndentedCode(container.children as RootContent[])
+      )
+      const { events } = extractEventProps(rawChildren)
+      const props: Record<string, unknown> = {
+        stateKey: key,
+        value: valueAttr
+      }
+      if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
+      if (styleAttr) props.style = styleAttr
+      if (initialValue) props.initialValue = initialValue
+      if (events.onHover) props.onHover = events.onHover
+      if (events.onFocus) props.onFocus = events.onFocus
+      if (events.onBlur) props.onBlur = events.onBlur
+      applyAdditionalAttributes(attrs, props, [
+        'className',
+        'style',
+        'value',
+        'defaultValue',
+        'checked'
+      ])
+      const node: Parent = {
+        type: 'paragraph',
+        children: [],
+        data: { hName: 'radio', hProperties: props as Properties }
+      }
+      const newIndex = replaceWithIndentation(directive, parent, index, [
+        node as RootContent
+      ])
+      const markerIndex = newIndex + 1
+      removeDirectiveMarker(parent, markerIndex)
+      return [SKIP, newIndex]
+    }
+  }
+
   /**
    * Converts a `:textarea` directive into a Textarea component bound to game state.
    *
@@ -3628,6 +3731,7 @@ export const useDirectiveHandlers = () => {
       trigger: handleTrigger,
       input: handleInput,
       checkbox: handleCheckbox,
+      radio: handleRadio,
       textarea: handleTextarea,
       onExit: handleOnExit,
       reveal: handleReveal,

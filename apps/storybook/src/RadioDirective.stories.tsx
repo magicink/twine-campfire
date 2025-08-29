@@ -1,0 +1,29 @@
+import type { Meta, StoryObj } from '@storybook/preact'
+import { Campfire } from '@campfire/components'
+
+const meta: Meta = {
+  title: 'Campfire/Directives/Radio'
+}
+
+export default meta
+
+/**
+ * Demonstrates the `radio` directive bound to game state.
+ *
+ * @returns Campfire story showcasing the `radio` directive.
+ */
+export const Basic: StoryObj = {
+  render: () => (
+    <>
+      <tw-storydata startnode='1' options='debug'>
+        <tw-passagedata pid='1' name='Start'>
+          {`
+:radio[choice]{value="a"}
+:radio[choice]{value="b" checked}
+`}
+        </tw-passagedata>
+      </tw-storydata>
+      <Campfire />
+    </>
+  )
+}
