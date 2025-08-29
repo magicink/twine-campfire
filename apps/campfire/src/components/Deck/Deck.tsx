@@ -407,9 +407,9 @@ export const Deck = ({
         className ?? ''
       }`}
       style={{
-        ...themeStyle,
         background:
-          'var(--deck-bg,linear-gradient(to bottom,var(--color-gray-900),var(--color-gray-950)))'
+          'var(--deck-bg,linear-gradient(to bottom,var(--color-gray-900),var(--color-gray-950)))',
+        ...themeStyle
       }}
       role='region'
       aria-roledescription='deck'
@@ -465,12 +465,11 @@ export const Deck = ({
       {!hideNavigation && (
         <div
           className={[
-            'campfire-deck-nav absolute inset-x-0 bottom-2 flex items-center justify-center px-2 pointer-events-none',
+            'campfire-deck-nav absolute inset-x-0 bottom-2 flex items-center justify-center px-2 pointer-events-none gap-[8px]',
             navClassName
           ]
             .filter(c => c != null && c !== '')
             .join(' ')}
-          style={{ gap: 8 }}
           data-testid='deck-nav'
         >
           <button
