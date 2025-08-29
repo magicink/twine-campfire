@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.93.1](https://github.com/magicink/twine-campfire/compare/v1.93.0...v1.93.1) (2025-08-29)
+
+
+### Bug Fixes
+
+* define theme colors ([#573](https://github.com/magicink/twine-campfire/issues/573)) ([24a29b7](https://github.com/magicink/twine-campfire/commit/24a29b71dde187f2f6cc8384759146cf42145e16))
+
 ## [1.93.0](https://github.com/magicink/twine-campfire/compare/v1.92.0...v1.93.0) (2025-08-29)
 
 
