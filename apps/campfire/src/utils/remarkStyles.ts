@@ -4,6 +4,12 @@ import type { Root as HastRoot } from 'hast'
 import type { Data } from 'unist'
 import type { Properties } from 'hast'
 
+export const checkboxStyles =
+  'peer border-input dark:bg-input/30 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:data-[state=checked]:bg-primary data-[state=checked]:border-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive size-4 shrink-0 rounded-[4px] border shadow-xs transition-shadow outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50'
+
+export const checkboxIndicatorStyles =
+  'flex items-center justify-center text-current transition-none pointer-events-none'
+
 /**
  * Appends one or more class names to a node's `hProperties.className`,
  * preserving any existing classes.
@@ -156,4 +162,82 @@ export const rehypeTableStyles =
           break
       }
     })
+  }
+
+/**
+ * Replaces `<input type="checkbox">` elements produced by Markdown checklists
+ * with styled button elements. The buttons are disabled so the user cannot
+ * interact with static checklist items.
+ *
+ * @returns Rehype transformer converting checklist inputs to buttons.
+ */
+export const rehypeChecklistButtons =
+  () =>
+  (tree: HastRoot): void => {
+    visit(
+      tree,
+      'element',
+      (node: any, index: number | undefined, parent: any) => {
+        if (
+          node.tagName === 'input' &&
+          (node.properties as any)?.type === 'checkbox' &&
+          parent &&
+          typeof index === 'number'
+        ) {
+          const checked = Boolean((node.properties as any).checked)
+          const button = {
+            type: 'element',
+            tagName: 'button',
+            properties: {
+              type: 'button',
+              role: 'checkbox',
+              disabled: true,
+              'aria-checked': checked ? 'true' : 'false',
+              'data-state': checked ? 'checked' : 'unchecked',
+              'data-testid': 'checkbox',
+              className: ['campfire-checkbox', checkboxStyles]
+            },
+            children: [
+              {
+                type: 'element',
+                tagName: 'span',
+                properties: {
+                  'data-state': checked ? 'checked' : 'unchecked',
+                  'data-slot': 'checkbox-indicator',
+                  className: checkboxIndicatorStyles,
+                  style: 'pointer-events:none'
+                },
+                children: [
+                  {
+                    type: 'element',
+                    tagName: 'svg',
+                    properties: {
+                      xmlns: 'http://www.w3.org/2000/svg',
+                      width: 24,
+                      height: 24,
+                      viewBox: '0 0 24 24',
+                      fill: 'none',
+                      stroke: 'currentColor',
+                      'stroke-width': 2,
+                      'stroke-linecap': 'round',
+                      'stroke-linejoin': 'round',
+                      className: 'lucide lucide-check size-3.5'
+                    },
+                    children: [
+                      {
+                        type: 'element',
+                        tagName: 'path',
+                        properties: { d: 'M20 6 9 17l-5-5' },
+                        children: []
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+          parent.children.splice(index, 1, button)
+        }
+      }
+    )
   }

@@ -6,7 +6,10 @@ import remarkCampfire from '@campfire/remark-campfire'
 import remarkRehype from 'remark-rehype'
 import rehypeCampfire from '@campfire/rehype-campfire'
 import rehypeSlideText from '@campfire/utils/rehypeSlideText'
-import { rehypeTableStyles } from '@campfire/utils/remarkStyles'
+import {
+  rehypeTableStyles,
+  rehypeChecklistButtons
+} from '@campfire/utils/remarkStyles'
 import rehypeReact from 'rehype-react'
 import { Fragment, jsx, jsxs } from 'preact/jsx-runtime'
 import type { ComponentType } from 'preact'
@@ -36,5 +39,6 @@ export const createMarkdownProcessor = (
     .use(remarkRehype)
     .use(rehypeCampfire)
     .use(rehypeSlideText)
+    .use(rehypeChecklistButtons)
     .use(rehypeTableStyles)
     .use(rehypeReact, { Fragment, jsx, jsxs, components })

@@ -1222,7 +1222,7 @@ export const useDirectiveHandlers = () => {
       const rawChildren = runDirectiveBlock(
         expandIndentedCode(container.children as RootContent[])
       )
-      const { events, remaining } = extractEventProps(rawChildren)
+      const { events } = extractEventProps(rawChildren)
       const props: Record<string, unknown> = { stateKey: key }
       if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
       if (styleAttr) props.style = styleAttr
@@ -1253,6 +1253,117 @@ export const useDirectiveHandlers = () => {
       return [SKIP, newIndex]
     }
     const msg = 'input can only be used as a leaf or container directive'
+    console.error(msg)
+    addError(msg)
+    return removeNode(parent, index)
+  }
+
+  /**
+   * Converts a `:checkbox` directive into a Checkbox component bound to game state.
+   *
+   * @param directive - The checkbox directive node.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within its parent.
+   * @returns The index of the inserted node.
+   */
+  const handleCheckbox: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    if (directive.type === 'textDirective') {
+      const label = hasLabel(directive) ? directive.label : toString(directive)
+      const key = ensureKey(label.trim(), parent, index)
+      if (!key) return index
+      const attrs = (directive.attributes || {}) as Record<string, unknown>
+      if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
+        const msg = 'class is a reserved attribute. Use className instead.'
+        console.error(msg)
+        addError(msg)
+      }
+      const classAttr =
+        typeof attrs.className === 'string' ? attrs.className : ''
+      const styleAttr =
+        typeof attrs.style === 'string' ? attrs.style : undefined
+      const initialValue =
+        typeof attrs.value === 'string'
+          ? attrs.value
+          : typeof attrs.defaultValue === 'string'
+            ? attrs.defaultValue
+            : typeof attrs.checked === 'string'
+              ? attrs.checked
+              : undefined
+      const props: Record<string, unknown> = { stateKey: key }
+      if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
+      if (styleAttr) props.style = styleAttr
+      if (initialValue) props.initialValue = initialValue
+      applyAdditionalAttributes(attrs, props, [
+        'className',
+        'style',
+        'value',
+        'defaultValue',
+        'checked'
+      ])
+      const node: Parent = {
+        type: 'paragraph',
+        children: [],
+        data: { hName: 'checkbox', hProperties: props as Properties }
+      }
+      return replaceWithIndentation(directive, parent, index, [
+        node as RootContent
+      ])
+    }
+    if (directive.type === 'containerDirective') {
+      const container = directive as ContainerDirective
+      const label = getLabel(container)
+      const key = ensureKey(label.trim(), parent, index)
+      if (!key) return index
+      const attrs = (container.attributes || {}) as Record<string, unknown>
+      if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
+        const msg = 'class is a reserved attribute. Use className instead.'
+        console.error(msg)
+        addError(msg)
+      }
+      const classAttr =
+        typeof attrs.className === 'string' ? attrs.className : ''
+      const styleAttr =
+        typeof attrs.style === 'string' ? attrs.style : undefined
+      const initialValue =
+        typeof attrs.value === 'string'
+          ? attrs.value
+          : typeof attrs.defaultValue === 'string'
+            ? attrs.defaultValue
+            : typeof attrs.checked === 'string'
+              ? attrs.checked
+              : undefined
+      const rawChildren = runDirectiveBlock(
+        expandIndentedCode(container.children as RootContent[])
+      )
+      const { events } = extractEventProps(rawChildren)
+      const props: Record<string, unknown> = { stateKey: key }
+      if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
+      if (styleAttr) props.style = styleAttr
+      if (initialValue) props.initialValue = initialValue
+      if (events.onHover) props.onHover = events.onHover
+      if (events.onFocus) props.onFocus = events.onFocus
+      if (events.onBlur) props.onBlur = events.onBlur
+      applyAdditionalAttributes(attrs, props, [
+        'className',
+        'style',
+        'value',
+        'defaultValue',
+        'checked'
+      ])
+      const node: Parent = {
+        type: 'paragraph',
+        children: [],
+        data: { hName: 'checkbox', hProperties: props as Properties }
+      }
+      const newIndex = replaceWithIndentation(directive, parent, index, [
+        node as RootContent
+      ])
+      const markerIndex = newIndex + 1
+      removeDirectiveMarker(parent, markerIndex)
+      return [SKIP, newIndex]
+    }
+    const msg = 'checkbox can only be used as a leaf or container directive'
     console.error(msg)
     addError(msg)
     return removeNode(parent, index)
@@ -3516,6 +3627,7 @@ export const useDirectiveHandlers = () => {
       select: handleSelect,
       trigger: handleTrigger,
       input: handleInput,
+      checkbox: handleCheckbox,
       textarea: handleTextarea,
       onExit: handleOnExit,
       reveal: handleReveal,

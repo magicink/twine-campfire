@@ -4,7 +4,8 @@ import type { Root as HastRoot } from 'hast'
 import {
   remarkHeadingStyles,
   remarkParagraphStyles,
-  rehypeTableStyles
+  rehypeTableStyles,
+  rehypeChecklistButtons
 } from '@campfire/utils/remarkStyles'
 
 describe('remarkHeadingStyles', () => {
@@ -175,5 +176,27 @@ describe('rehypeTableStyles', () => {
       'mt-4',
       'text-sm'
     ])
+  })
+})
+
+describe('rehypeChecklistButtons', () => {
+  it('converts checklist inputs to buttons', () => {
+    const tree: HastRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tagName: 'input',
+          properties: { type: 'checkbox', checked: true },
+          children: []
+        } as any
+      ]
+    }
+    rehypeChecklistButtons()(tree)
+    const btn = tree.children[0] as any
+    expect(btn.tagName).toBe('button')
+    expect(btn.properties['data-state']).toBe('checked')
+    expect(btn.properties.disabled).toBe(true)
+    expect(btn.children[0].tagName).toBe('span')
   })
 })
