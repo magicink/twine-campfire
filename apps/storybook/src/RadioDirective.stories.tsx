@@ -18,8 +18,11 @@ export const Basic: StoryObj = {
       <tw-storydata startnode='1' options='debug'>
         <tw-passagedata pid='1' name='Start'>
           {`
-:radio[choice]{value="a"}
-:radio[choice]{value="b" checked}
+  :::layer{className="flex gap-[4px] items-center justify-center"}
+    :radio[choice]{value="a"}
+    :radio[choice]{value="b" checked}
+    :radio[choice]{value="c" disabled="true"}
+  :::
 `}
         </tw-passagedata>
       </tw-storydata>
@@ -39,8 +42,11 @@ export const AsInput: StoryObj = {
       <tw-storydata startnode='1' options='debug'>
         <tw-passagedata pid='1' name='Start'>
           {`
-:input[choice]{type='radio' value='a'}
-:input[choice]{type='radio' value='b' checked}
+  :::layer{className="flex gap-[4px] items-center justify-center"}
+    :input[choice]{type='radio' value='a'}
+    :input[choice]{type='radio' value='b' checked}
+    :input[choice]{type='radio' value='c' disabled='true'}
+  :::
 `}
         </tw-passagedata>
       </tw-storydata>
