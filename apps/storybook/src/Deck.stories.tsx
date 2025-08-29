@@ -269,3 +269,25 @@ export const WithGroupClassName: StoryObj<typeof Deck> = {
     </Deck>
   )
 }
+
+/**
+ * Demonstrates overriding navigation and HUD classes.
+ *
+ * @returns The rendered Deck element with custom navigation and HUD styling.
+ */
+export const WithNavAndHudClassNames: StoryObj<typeof Deck> = {
+  render: () => (
+    <Deck
+      className='w-[800px] h-[600px]'
+      navClassName='justify-between'
+      hudClassName='left-3 right-auto'
+      showSlideCount
+    >
+      <Slide>
+        <SlideText as='h2' x={200} y={200} size={36}>
+          Custom Nav & HUD
+        </SlideText>
+      </Slide>
+    </Deck>
+  )
+}

@@ -64,6 +64,29 @@ describe('Deck', () => {
     expect(group.className).toContain('shadow-none')
   })
 
+  it('applies custom navClassName to the navigation wrapper', () => {
+    const custom = 'bottom-0'
+    render(
+      <Deck navClassName={custom}>
+        <div>Slide 1</div>
+      </Deck>
+    )
+    const nav = screen.getByTestId('deck-nav')
+    expect(nav.className).toContain('bottom-0')
+  })
+
+  it('applies custom hudClassName to the slide counter', () => {
+    const custom = 'left-3 right-auto'
+    render(
+      <Deck showSlideCount hudClassName={custom}>
+        <div>Slide 1</div>
+      </Deck>
+    )
+    const hud = screen.getByTestId('deck-hud')
+    expect(hud.className).toContain('left-3')
+    expect(hud.className).toContain('right-auto')
+  })
+
   it('advances and reverses slides via keyboard', () => {
     render(
       <Deck>

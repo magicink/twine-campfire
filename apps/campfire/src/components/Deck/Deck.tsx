@@ -55,6 +55,10 @@ export interface DeckProps {
   className?: string
   /** Class applied to the slide group container. */
   groupClassName?: string
+  /** Class applied to the navigation wrapper. */
+  navClassName?: string
+  /** Class applied to the slide counter HUD wrapper. */
+  hudClassName?: string
   a11y?: Partial<A11yLabels>
   /** Whether to display the slide counter HUD. */
   showSlideCount?: boolean
@@ -92,6 +96,8 @@ export const Deck = ({
   autoAdvancePaused = false,
   className,
   groupClassName,
+  navClassName,
+  hudClassName,
   a11y,
   showSlideCount = false,
   hideNavigation = false,
@@ -422,7 +428,12 @@ export const Deck = ({
       </div>
       {showSlideCount && (
         <div
-          className='absolute top-3 right-3 text-sm px-2 py-1 rounded bg-black/50 text-white/80 text-right'
+          className={[
+            'campfire-deck-hud absolute top-3 right-3 text-sm px-2 py-1 rounded bg-black/50 text-white/80 text-right',
+            hudClassName
+          ]
+            .filter(c => c != null && c !== '')
+            .join(' ')}
           aria-hidden='true'
           data-testid='deck-hud'
         >
@@ -433,7 +444,12 @@ export const Deck = ({
       )}
       {!hideNavigation && (
         <div
-          className='absolute inset-x-0 bottom-2 flex items-center justify-center px-2 pointer-events-none'
+          className={[
+            'campfire-deck-nav absolute inset-x-0 bottom-2 flex items-center justify-center px-2 pointer-events-none',
+            navClassName
+          ]
+            .filter(c => c != null && c !== '')
+            .join(' ')}
           style={{ gap: 8 }}
           data-testid='deck-nav'
         >

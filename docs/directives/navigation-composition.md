@@ -78,6 +78,8 @@ Control the flow between passages or how they reveal.
   | autoplayDelay  | Milliseconds between automatic slide advances (defaults to 3000)           |
   | pause          | Start autoplay paused and display a play button                            |
   | groupClassName | Additional classes applied to the slide group wrapper                      |
+  | navClassName   | Additional classes applied to the navigation wrapper                       |
+  | hudClassName   | Additional classes applied to the slide counter HUD wrapper                |
 
 - `slide`: Customize an individual slide.
 
