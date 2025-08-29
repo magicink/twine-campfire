@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.94.0](https://github.com/magicink/twine-campfire/compare/v1.93.1...v1.94.0) (2025-08-29)
+
+
+### Features
+
+* **radio:** add radio input button styles ([#577](https://github.com/magicink/twine-campfire/issues/577)) ([13bfb52](https://github.com/magicink/twine-campfire/commit/13bfb52f52a76f31c8edd6dcc955263aff262a83))
+* style checkboxes as buttons ([#576](https://github.com/magicink/twine-campfire/issues/576)) ([f47f6dc](https://github.com/magicink/twine-campfire/commit/f47f6dc5d46e62ed57306af4c6d63d1456144888))
+
 ## [1.93.1](https://github.com/magicink/twine-campfire/compare/v1.93.0...v1.93.1) (2025-08-29)
 
 
