@@ -218,6 +218,7 @@ export const WithAutoplayPaused: StoryObj<typeof Deck> = {
       className='w-[800px] h-[600px]'
       autoAdvanceMs={1000}
       autoAdvancePaused
+      playButtonClassName='data-[state=paused]:bg-[var(--color-indigo-600)] data-[state=playing]:bg-[var(--color-red-600)]'
     >
       <Slide>
         <SlideText as='h2' x={200} y={200} size={36}>
@@ -244,6 +245,52 @@ export const WithHiddenNavigation: StoryObj<typeof Deck> = {
       <Slide>
         <SlideText as='h2' x={200} y={200} size={36}>
           Hidden Nav
+        </SlideText>
+      </Slide>
+    </Deck>
+  )
+}
+
+/**
+ * Demonstrates overriding slide group classes using the groupClassName prop.
+ *
+ * @returns The rendered Deck element with custom group styling.
+ */
+export const WithGroupClassName: StoryObj<typeof Deck> = {
+  render: () => (
+    <Deck
+      className='w-[800px] h-[600px]'
+      groupClassName='rounded-none shadow-none'
+    >
+      <Slide>
+        <SlideText as='h2' x={200} y={200} size={36}>
+          Custom Group
+        </SlideText>
+      </Slide>
+    </Deck>
+  )
+}
+
+/**
+ * Demonstrates overriding navigation button classes individually and HUD classes.
+ *
+ * @returns The rendered Deck element with custom navigation and HUD styling.
+ */
+export const WithNavAndHudClassNames: StoryObj<typeof Deck> = {
+  render: () => (
+    <Deck
+      className='w-[800px] h-[600px]'
+      navClassName='justify-between'
+      hudClassName='left-3 right-auto'
+      rewindButtonClassName='bg-[var(--color-indigo-600)]'
+      playButtonClassName='bg-[var(--color-red-600)]'
+      fastForwardButtonClassName='bg-[var(--color-indigo-600)]'
+      slideHudClassName='font-bold'
+      showSlideCount
+    >
+      <Slide>
+        <SlideText as='h2' x={200} y={200} size={36}>
+          Custom Nav & HUD
         </SlideText>
       </Slide>
     </Deck>

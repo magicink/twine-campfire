@@ -20,7 +20,7 @@ export const Basic: StoryObj = {
           {`
 :::deck{size="800x600"}
   :::slide
-    :::layer{x=120 y=160 w=200 h=100 className="bg-blue-500 text-white flex items-center justify-center"}
+      :::layer{x=120 y=160 w=200 h=100 className="bg-[var(--color-primary-500)] text-[var(--color-gray-950)] flex items-center justify-center"}
       Inside Layer
     :::
   :::

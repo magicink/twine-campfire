@@ -52,6 +52,112 @@ describe('Deck', () => {
     )
   })
 
+  it('applies custom groupClassName to the slide wrapper', () => {
+    const custom = 'rounded-none shadow-none'
+    render(
+      <Deck groupClassName={custom}>
+        <div>Slide 1</div>
+      </Deck>
+    )
+    const group = screen.getByTestId('deck-group')
+    expect(group.className).toContain('rounded-none')
+    expect(group.className).toContain('shadow-none')
+  })
+
+  it('applies custom navClassName to the navigation wrapper', () => {
+    const custom = 'bottom-0'
+    render(
+      <Deck navClassName={custom}>
+        <div>Slide 1</div>
+      </Deck>
+    )
+    const nav = screen.getByTestId('deck-nav')
+    expect(nav.className).toContain('bottom-0')
+  })
+
+  it('applies custom hudClassName to the slide counter', () => {
+    const custom = 'left-3 right-auto'
+    render(
+      <Deck showSlideCount hudClassName={custom}>
+        <div>Slide 1</div>
+      </Deck>
+    )
+    const hud = screen.getByTestId('deck-hud')
+    expect(hud.className).toContain('left-3')
+    expect(hud.className).toContain('right-auto')
+  })
+
+  it('applies custom navButtonClassName to all navigation buttons', () => {
+    const custom = 'text-[var(--color-indigo-500)]'
+    render(
+      <Deck navButtonClassName={custom}>
+        <div>Slide 1</div>
+        <div>Slide 2</div>
+      </Deck>
+    )
+    expect(screen.getByTestId('deck-prev').className).toContain(custom)
+    expect(screen.getByTestId('deck-autoplay-toggle').className).toContain(
+      custom
+    )
+    expect(screen.getByTestId('deck-next').className).toContain(custom)
+  })
+
+  it('applies custom rewindButtonClassName only to the rewind button', () => {
+    const custom = 'text-[var(--color-red-500)]'
+    render(
+      <Deck rewindButtonClassName={custom}>
+        <div>Slide 1</div>
+        <div>Slide 2</div>
+      </Deck>
+    )
+    expect(screen.getByTestId('deck-prev').className).toContain(custom)
+    expect(screen.getByTestId('deck-autoplay-toggle').className).not.toContain(
+      custom
+    )
+    expect(screen.getByTestId('deck-next').className).not.toContain(custom)
+  })
+
+  it('applies custom playButtonClassName only to the autoplay button', () => {
+    const custom = 'text-[var(--color-red-500)]'
+    render(
+      <Deck playButtonClassName={custom}>
+        <div>Slide 1</div>
+        <div>Slide 2</div>
+      </Deck>
+    )
+    expect(screen.getByTestId('deck-autoplay-toggle').className).toContain(
+      custom
+    )
+    expect(screen.getByTestId('deck-prev').className).not.toContain(custom)
+    expect(screen.getByTestId('deck-next').className).not.toContain(custom)
+  })
+
+  it('applies custom fastForwardButtonClassName only to the fast-forward button', () => {
+    const custom = 'text-[var(--color-red-500)]'
+    render(
+      <Deck fastForwardButtonClassName={custom}>
+        <div>Slide 1</div>
+        <div>Slide 2</div>
+      </Deck>
+    )
+    expect(screen.getByTestId('deck-next').className).toContain(custom)
+    expect(screen.getByTestId('deck-prev').className).not.toContain(custom)
+    expect(screen.getByTestId('deck-autoplay-toggle').className).not.toContain(
+      custom
+    )
+  })
+
+  it('applies custom slideHudClassName to the slide count element', () => {
+    const custom = 'font-bold'
+    render(
+      <Deck showSlideCount slideHudClassName={custom}>
+        <div>Slide 1</div>
+      </Deck>
+    )
+    const hud = screen.getByTestId('deck-slide-hud')
+    expect(hud.className).toContain('font-bold')
+  })
+
   it('advances and reverses slides via keyboard', () => {
     render(
       <Deck>
@@ -210,6 +316,7 @@ describe('Deck', () => {
     )
     const toggle = screen.getByTestId('deck-autoplay-toggle')
     expect(toggle.textContent).toBe('▶')
+    expect(toggle).toHaveAttribute('data-state', 'paused')
     await act(async () => {
       await new Promise(resolve => setTimeout(resolve, 20))
     })
@@ -218,6 +325,7 @@ describe('Deck', () => {
       fireEvent.click(toggle)
     })
     expect(toggle.textContent).toBe('⏸')
+    expect(toggle).toHaveAttribute('data-state', 'playing')
     await act(async () => {
       await new Promise(resolve => setTimeout(resolve, 15))
     })
@@ -226,6 +334,7 @@ describe('Deck', () => {
       fireEvent.click(toggle)
     })
     expect(toggle.textContent).toBe('▶')
+    expect(toggle).toHaveAttribute('data-state', 'paused')
     await act(async () => {
       await new Promise(resolve => setTimeout(resolve, 15))
     })

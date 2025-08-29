@@ -69,14 +69,26 @@ Control the flow between passages or how they reveal.
   Each `:::slide` starts a new slide. Plain Markdown inside the deck becomes
   its own slide if not preceded by a slide directive.
 
-  | Input         | Description                                                                |
-  | ------------- | -------------------------------------------------------------------------- |
-  | size          | Slide size as `WIDTHxHEIGHT` in pixels or aspect ratio like `16x9`         |
-  | theme         | Optional JSON object or string of CSS properties applied to the deck theme |
-  | from          | Name of a deck preset to apply before other attributes                     |
-  | autoplay      | Whether to automatically advance through slides                            |
-  | autoplayDelay | Milliseconds between automatic slide advances (defaults to 3000)           |
-  | pause         | Start autoplay paused and display a play button                            |
+  | Input                      | Description                                                                |
+  | -------------------------- | -------------------------------------------------------------------------- |
+  | size                       | Slide size as `WIDTHxHEIGHT` in pixels or aspect ratio like `16x9`         |
+  | theme                      | Optional JSON object or string of CSS properties applied to the deck theme |
+  | from                       | Name of a deck preset to apply before other attributes                     |
+  | autoplay                   | Whether to automatically advance through slides                            |
+  | autoplayDelay              | Milliseconds between automatic slide advances (defaults to 3000)           |
+  | pause                      | Start autoplay paused and display a play button                            |
+  | groupClassName             | Additional classes applied to the slide group wrapper                      |
+  | navClassName               | Additional classes applied to the navigation wrapper                       |
+  | hudClassName               | Additional classes applied to the slide counter HUD wrapper                |
+  | navButtonClassName         | Additional classes applied to each navigation button                       |
+  | rewindButtonClassName      | Additional classes applied to the rewind navigation button                 |
+  | playButtonClassName        | Additional classes applied to the autoplay toggle button                   |
+  | fastForwardButtonClassName | Additional classes applied to the fast-forward navigation button           |
+  | slideHudClassName          | Additional classes applied to the slide count element within the HUD       |
+
+  The autoplay toggle button also exposes a `data-state` attribute set to
+  `playing` or `paused` for targeting styles based on the current autoplay
+  state.
 
 - `slide`: Customize an individual slide.
 
@@ -141,7 +153,7 @@ Control the flow between passages or how they reveal.
   ```md
   :::deck
   :::slide
-  :::layer{x=10 y=20 w=100 h=50 className="bg-blue-500"}
+  :::layer{x=10 y=20 w=100 h=50 className="bg-[var(--color-primary-500)]"}
   Content
   :::
   :::
@@ -165,7 +177,7 @@ Control the flow between passages or how they reveal.
   ```md
   :::deck
   :::slide
-  :::text{x=100 y=50 align=center size=32 style="color: blue"}
+  :::text{x=100 y=50 align=center size=32 style="color: var(--color-primary-500)"}
   Hello
   :::
   :::
@@ -233,7 +245,7 @@ Control the flow between passages or how they reveal.
 
   ```md
   :preset{type="deck" name="wide" size="16x9"}
-  :preset{type="text" name="title" x=100 y=50 size=32 color="#333"}
+  :preset{type="text" name="title" x=100 y=50 size=32 color="var(--color-gray-200)"}
 
   :::deck{from="wide"}
   :::slide

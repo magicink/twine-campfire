@@ -32,15 +32,15 @@ This text follows the select.
 You chose
 :::
 
-:::if[color === "red"]
+  :::if[color === "red"]
 
-:show[color]{style="color:red"}.
+  :show[color]{style="color: var(--color-destructive-500)"}.
 
 :::
 
-:::if[color === "blue"]
+  :::if[color === "blue"]
 
-:show[color]{style="color:blue"}.
+  :show[color]{style="color: var(--color-primary-500)"}.
 
 :::
           `}
