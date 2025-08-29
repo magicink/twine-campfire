@@ -1,5 +1,99 @@
 # Changelog
 
+## [1.93.0](https://github.com/magicink/twine-campfire/compare/v1.92.0...v1.93.0) (2025-08-29)
+
+
+### Features
+
+* style gfm tables ([#568](https://github.com/magicink/twine-campfire/issues/568)) ([48e902b](https://github.com/magicink/twine-campfire/commit/48e902b5f1af32151330662d5a9a440f0672c0cd))
+* style gfm tables ([#568](https://github.com/magicink/twine-campfire/issues/568)) ([6cfe1fc](https://github.com/magicink/twine-campfire/commit/6cfe1fc8a18a4456badbb3f095f48c368533acf3))
+
+## [1.92.0](https://github.com/magicink/twine-campfire/compare/v1.91.0...v1.92.0) (2025-08-28)
+
+
+### Features
+
+* add input base styles ([#564](https://github.com/magicink/twine-campfire/issues/564)) ([80f3827](https://github.com/magicink/twine-campfire/commit/80f3827a0d51d3b6558e817fc3a60f3b550d6987))
+* replace native select with popover menu ([#565](https://github.com/magicink/twine-campfire/issues/565)) ([e6a7045](https://github.com/magicink/twine-campfire/commit/e6a70452873108f0433dfc18843634f1122320c9))
+* restyle buttons ([#563](https://github.com/magicink/twine-campfire/issues/563)) ([a4c3232](https://github.com/magicink/twine-campfire/commit/a4c3232bf936d5aafcd5edc17a17a215a98b6a6f))
+
+## [1.91.0](https://github.com/magicink/twine-campfire/compare/v1.90.0...v1.91.0) (2025-08-28)
+
+
+### Features
+
+* add overlay passage support ([#560](https://github.com/magicink/twine-campfire/issues/560)) ([ab308af](https://github.com/magicink/twine-campfire/commit/ab308afa30865749046a0ef5892bc7ca4c6e54f5))
+
+## [1.90.0](https://github.com/magicink/twine-campfire/compare/v1.89.0...v1.90.0) (2025-08-27)
+
+
+### Features
+
+* add shared base URL helper ([#548](https://github.com/magicink/twine-campfire/issues/548)) ([0c63f7e](https://github.com/magicink/twine-campfire/commit/0c63f7ef586606eefbc38f67cd090c0ba4224b0f))
+
+
+### Bug Fixes
+
+* apply Libertinus font to select elements ([#550](https://github.com/magicink/twine-campfire/issues/550)) ([0f3c1a7](https://github.com/magicink/twine-campfire/commit/0f3c1a7ec4b66bdcb829744b893e321980dcec14))
+
+## [1.89.0](https://github.com/magicink/twine-campfire/compare/v1.88.0...v1.89.0) (2025-08-27)
+
+
+### Features
+
+* support className and style on show and t directives ([#542](https://github.com/magicink/twine-campfire/issues/542)) ([3b3412d](https://github.com/magicink/twine-campfire/commit/3b3412d1c291d731cdf65f3b150bc8268efc219c))
+
+
+### Bug Fixes
+
+* unwrap if and show directives from paragraphs ([#543](https://github.com/magicink/twine-campfire/issues/543)) ([4b2a1b6](https://github.com/magicink/twine-campfire/commit/4b2a1b6e70f19f4010162b6012356b119d16a2c1))
+
+## [1.88.0](https://github.com/magicink/twine-campfire/compare/v1.87.0...v1.88.0) (2025-08-26)
+
+
+### Features
+
+* add input directive ([#537](https://github.com/magicink/twine-campfire/issues/537)) ([7c37716](https://github.com/magicink/twine-campfire/commit/7c3771634eac6314e4d77b7bf17ee2409602ebc8))
+* add select and option directives ([#538](https://github.com/magicink/twine-campfire/issues/538)) ([3c42b02](https://github.com/magicink/twine-campfire/commit/3c42b0234687048706d37d93a766964cfc204e20))
+* add textarea directive and component ([#539](https://github.com/magicink/twine-campfire/issues/539)) ([af5e1b8](https://github.com/magicink/twine-campfire/commit/af5e1b89fa0e497e4eef08c40fb8d195b27fa8f0))
+
+
+### Bug Fixes
+
+* default to dark theme ([#536](https://github.com/magicink/twine-campfire/issues/536)) ([d7ab25a](https://github.com/magicink/twine-campfire/commit/d7ab25af2a29b5280d6ce50569c11e456da5b3a4))
+
+## [1.87.0](https://github.com/magicink/twine-campfire/compare/v1.86.0...v1.87.0) (2025-08-26)
+
+
+### Features
+
+* add image preloading and loading screen ([#533](https://github.com/magicink/twine-campfire/issues/533)) ([aa9870a](https://github.com/magicink/twine-campfire/commit/aa9870a878efb8fb265bb23e87c83aec38eed39f))
+* add image preloading and loading screen ([#533](https://github.com/magicink/twine-campfire/issues/533)) ([b11f219](https://github.com/magicink/twine-campfire/commit/b11f21997e026ad21f60a16dd0feefe18f201a0c))
+
+## [1.86.0](https://github.com/magicink/twine-campfire/compare/v1.85.0...v1.86.0) (2025-08-26)
+
+
+### Features
+
+* add audio directives and manager ([#530](https://github.com/magicink/twine-campfire/issues/530)) ([5700c45](https://github.com/magicink/twine-campfire/commit/5700c45e4f8f499e9b87de4669d0be494793c05f))
+* add audio directives and manager ([#530](https://github.com/magicink/twine-campfire/issues/530)) ([426b69a](https://github.com/magicink/twine-campfire/commit/426b69a222a3bb221c6d17cb31812d0286e6a418))
+
+## [1.85.0](https://github.com/magicink/twine-campfire/compare/v1.84.2...v1.85.0) (2025-08-25)
+
+
+### Features
+
+* add namespace attribute to t directive ([#525](https://github.com/magicink/twine-campfire/issues/525)) ([84b5f35](https://github.com/magicink/twine-campfire/commit/84b5f350edf30dcd346fcab86e4f8a47e444e8b2))
+* **directives:** expose className on layer directive ([#519](https://github.com/magicink/twine-campfire/issues/519)) ([92bd269](https://github.com/magicink/twine-campfire/commit/92bd269c5c2ede5ead09a424825e3ad4acea5a86))
+* **shape:** expose shape directive class attributes ([#523](https://github.com/magicink/twine-campfire/issues/523)) ([3ba03ff](https://github.com/magicink/twine-campfire/commit/3ba03ff62c170d5e9b54b0a5c8d3b7830592ea55))
+* **text:** expose style attribute on directive ([#526](https://github.com/magicink/twine-campfire/issues/526)) ([560a970](https://github.com/magicink/twine-campfire/commit/560a970bbd5463a719c9b2d435b6dc30523be69c))
+
+
+### Bug Fixes
+
+* expose image class attributes ([#524](https://github.com/magicink/twine-campfire/issues/524)) ([d9d6a01](https://github.com/magicink/twine-campfire/commit/d9d6a01210ab5f4d83ae03db3c9f3b30e8abd9d6))
+* **trigger:** cover style attribute ([#522](https://github.com/magicink/twine-campfire/issues/522)) ([bd39d84](https://github.com/magicink/twine-campfire/commit/bd39d842df806716d9c0808438f3c78c2083d1fa))
+
 ## [1.84.2](https://github.com/magicink/twine-campfire/compare/v1.84.1...v1.84.2) (2025-08-24)
 
 
