@@ -239,4 +239,70 @@ describe('rehypeChecklistButtons', () => {
       'gap-[var(--size-xs)]'
     ])
   })
+
+  it('aligns items and strikes through completed text', () => {
+    const tree: HastRoot = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tagName: 'ul',
+          properties: { className: ['contains-task-list'] },
+          children: [
+            {
+              type: 'element',
+              tagName: 'li',
+              properties: { className: ['task-list-item'] },
+              children: [
+                {
+                  type: 'element',
+                  tagName: 'input',
+                  properties: { type: 'checkbox' },
+                  children: []
+                },
+                { type: 'text', value: ' ' },
+                { type: 'text', value: 'todo' }
+              ]
+            } as any,
+            {
+              type: 'element',
+              tagName: 'li',
+              properties: { className: ['task-list-item'] },
+              children: [
+                {
+                  type: 'element',
+                  tagName: 'input',
+                  properties: { type: 'checkbox', checked: true },
+                  children: []
+                },
+                { type: 'text', value: ' ' },
+                { type: 'text', value: 'done' }
+              ]
+            } as any
+          ]
+        } as any
+      ]
+    }
+    rehypeChecklistButtons()(tree)
+    const ul = tree.children[0] as any
+    const unchecked = ul.children[0] as any
+    const checked = ul.children[1] as any
+
+    expect(unchecked.properties.className).toEqual([
+      'task-list-item',
+      'flex',
+      'items-center',
+      'gap-[var(--size-xs)]'
+    ])
+    expect(unchecked.children[1].properties.className).toEqual([
+      'peer-data-[state=checked]:line-through'
+    ])
+    expect(unchecked.children[1].children[0].value).toBe('todo')
+
+    expect(checked.children[0].properties['data-state']).toBe('checked')
+    expect(checked.children[1].properties.className).toEqual([
+      'peer-data-[state=checked]:line-through'
+    ])
+    expect(checked.children[1].children[0].value).toBe('done')
+  })
 })

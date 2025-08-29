@@ -255,7 +255,38 @@ export const rehypeChecklistButtons =
               }
             ]
           }
+
           parent.children.splice(index, 1, button)
+
+          const parentProps = (parent.properties ??= {}) as Record<
+            string,
+            unknown
+          >
+          appendElementClassNames(parentProps, [
+            'flex',
+            'items-center',
+            'gap-[var(--size-xs)]'
+          ])
+
+          const rest = parent.children.splice(index + 1)
+          if (
+            rest.length &&
+            rest[0].type === 'text' &&
+            typeof (rest[0] as any).value === 'string' &&
+            !(rest[0] as any).value.trim()
+          ) {
+            rest.shift()
+          }
+          if (rest.length) {
+            parent.children.splice(index + 1, 0, {
+              type: 'element',
+              tagName: 'span',
+              properties: {
+                className: ['peer-data-[state=checked]:line-through']
+              },
+              children: rest
+            })
+          }
         }
       }
     )
