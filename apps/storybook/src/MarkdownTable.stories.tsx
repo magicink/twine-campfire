@@ -10,7 +10,7 @@ export default meta
 
 const markdown = `
 | Planet | Diameter (km) |
-| ------ | ------------- |
+| ------ | :-------------: |
 | Mercury | 4,879 |
 | Venus | 12,104 |
 | Earth | 12,742 |
@@ -23,8 +23,14 @@ const markdown = `
  */
 export const Basic: StoryObj = {
   render: () => (
-    <Deck className='w-[800px] h-[600px]'>
-      <Slide>{renderDirectiveMarkdown(markdown, {})}</Slide>
+    <Deck className='w-[800px] h-[600px]' hideNavigation>
+      <Slide
+        className={
+          'absolute bottom-0 !w-1/2 -translate-x-[50%] -translate-y-[10%] top-[50%] left-[50%]'
+        }
+      >
+        {renderDirectiveMarkdown(markdown, {})}
+      </Slide>
     </Deck>
   )
 }
