@@ -2812,6 +2812,14 @@ export const useDirectiveHandlers = () => {
     'anchor'
   ] as const
 
+  /** Schema describing supported wrapper directive attributes. */
+  const wrapperSchema = {
+    as: { type: 'string' }
+  } as const
+
+  type WrapperSchema = typeof wrapperSchema
+  type WrapperAttrs = ExtractedAttrs<WrapperSchema>
+
   /** Schema describing supported text directive attributes. */
   const textSchema = {
     x: { type: 'number' },
@@ -2997,6 +3005,41 @@ export const useDirectiveHandlers = () => {
         'from',
         'layerClassName'
       ])
+      return props
+    },
+    undefined,
+    (parent, markerIndex) => {
+      let prev = -1
+      while (prev !== parent.children.length) {
+        prev = parent.children.length
+        removeDirectiveMarker(parent, markerIndex)
+      }
+    }
+  )
+
+  /**
+   * Converts a `:::wrapper` directive into a basic HTML element.
+   *
+   * @param directive - The wrapper directive node.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within its parent.
+   * @returns Visitor instructions after replacement.
+   */
+  const handleWrapper = createContainerHandler(
+    (attrs: WrapperAttrs) => {
+      const tag = typeof attrs.as === 'string' ? attrs.as : 'div'
+      return ['span', 'div', 'p', 'section'].includes(tag) ? tag : 'div'
+    },
+    wrapperSchema,
+    (_attrs, raw) => {
+      const props: Record<string, unknown> = {}
+      props['data-testid'] = 'wrapper'
+      const classAttr =
+        typeof raw.className === 'string' ? raw.className : undefined
+      props.className = ['campfire-wrapper', classAttr]
+        .filter(Boolean)
+        .join(' ')
+      applyAdditionalAttributes(raw, props, ['as', 'className'])
       return props
     }
   )
@@ -3742,6 +3785,7 @@ export const useDirectiveHandlers = () => {
       onExit: handleOnExit,
       reveal: handleReveal,
       layer: handleLayer,
+      wrapper: handleWrapper,
       text: handleText,
       image: handleImage,
       shape: handleShape,
