@@ -53,4 +53,19 @@ describe('layer directive', () => {
     expect(el.style.top).toBe('10px')
     expect(el.style.zIndex).toBe('2')
   })
+
+  it('handles nested container directives without stray markers', () => {
+    const md =
+      ':::layer{className="flex gap-[4px] items-center justify-center"}\n' +
+      ':::wrapper{as="div"}\n' +
+      ':radio[choice]{value="a"}\n' +
+      ':::\n' +
+      ':radio[choice]{value="b" checked}\n' +
+      ':radio[choice]{value="c" disabled="true"}\n' +
+      ':::\n'
+    render(<MarkdownRunner markdown={md} />)
+    const layer = document.querySelector('[data-testid="layer"]') as HTMLElement
+    expect(layer.nextElementSibling).toBeNull()
+    expect(document.body.innerHTML).not.toContain(':::')
+  })
 })

@@ -3010,10 +3010,42 @@ export const useDirectiveHandlers = () => {
     },
     undefined,
     (parent, markerIndex) => {
+      const layerNode = parent.children[markerIndex - 1] as Parent
+      let idx = markerIndex
+      const pending: RootContent[] = []
+      while (idx < parent.children.length) {
+        const node = parent.children[idx] as RootContent
+        if (isMarkerParagraph(node)) {
+          parent.children.splice(idx, 1)
+          break
+        }
+        pending.push(node)
+        parent.children.splice(idx, 1)
+      }
+      if (pending.length) {
+        const processed = runDirectiveBlock(pending, handlersRef.current)
+        if (processed.length) {
+          const last = processed[processed.length - 1]
+          if (last.type === 'paragraph') {
+            const idxText = last.children.findIndex(
+              child =>
+                isTextNode(child as RootContent) &&
+                (child as MdText).value.includes(DIRECTIVE_MARKER)
+            )
+            if (idxText !== -1) last.children.splice(idxText, 1)
+            if (
+              last.children.length === 0 ||
+              last.children.every(isWhitespaceNode)
+            )
+              processed.pop()
+          }
+        }
+        layerNode.children.push(...processed)
+      }
       let prev = -1
       while (prev !== parent.children.length) {
         prev = parent.children.length
-        removeDirectiveMarker(parent, markerIndex)
+        removeDirectiveMarker(parent, idx)
       }
     }
   )
