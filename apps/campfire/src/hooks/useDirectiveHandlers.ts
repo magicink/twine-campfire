@@ -1413,12 +1413,12 @@ export const useDirectiveHandlers = () => {
         'checked'
       ])
       const node: Parent = {
-        type: 'paragraph',
+        type: 'emphasis',
         children: [],
         data: { hName: 'radio', hProperties: props as Properties }
       }
       return replaceWithIndentation(directive, parent, index, [
-        node as RootContent
+        node as unknown as RootContent
       ])
     }
     if (directive.type === 'containerDirective') {
