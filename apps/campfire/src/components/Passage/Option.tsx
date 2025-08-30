@@ -1,4 +1,5 @@
 import type { JSX } from 'preact'
+import { mergeClasses } from '@campfire/utils/core'
 
 export interface OptionProps
   extends Omit<JSX.HTMLAttributes<HTMLButtonElement>, 'className'> {
@@ -28,11 +29,6 @@ export const Option = ({
   value,
   ...rest
 }: OptionProps) => {
-  const classes = Array.isArray(className)
-    ? className
-    : className
-      ? [className]
-      : []
   const mergedStyle =
     typeof style === 'string'
       ? `color:oklch(0 0 0);background:oklch(0.98 0 0);${style}`
@@ -45,11 +41,11 @@ export const Option = ({
     <button
       type='button'
       data-testid='option'
-      className={[
+      className={mergeClasses(
         'campfire-option',
         'w-full text-left px-2 py-2 transition-colors hover:bg-[oklch(0.9_0_0)]',
-        ...classes
-      ].join(' ')}
+        className
+      )}
       style={mergedStyle}
       onClick={() => onSelectOption?.(value)}
       {...rest}

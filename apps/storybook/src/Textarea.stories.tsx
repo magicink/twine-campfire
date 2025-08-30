@@ -15,7 +15,9 @@ export default meta
  * @returns A Textarea example.
  */
 export const Basic: StoryObj<typeof Textarea> = {
-  render: () => <Textarea stateKey='bio' placeholder='Your bio' />
+  render: () => (
+    <Textarea stateKey='bio' className={['p-2']} placeholder='Your bio' />
+  )
 }
 
 /**

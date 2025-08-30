@@ -1,7 +1,11 @@
 import type { JSX } from 'preact'
 import { useGameStore } from '@campfire/state/useGameStore'
 import { isRange } from '@campfire/utils/directiveUtils'
-import { evalExpression, interpolateString } from '@campfire/utils/core'
+import {
+  evalExpression,
+  interpolateString,
+  mergeClasses
+} from '@campfire/utils/core'
 
 interface ShowProps {
   /** Game data key to display */
@@ -23,11 +27,7 @@ export const Show = ({ className, style, ...props }: ShowProps) => {
   const addError = useGameStore(state => state.addError)
   const gameData = useGameStore(state => state.gameData)
   const expr = props['data-expr']
-  const classes = Array.isArray(className)
-    ? className
-    : className
-      ? [className]
-      : []
+
   const mergedStyle =
     typeof style === 'string' ? style : style ? { ...style } : undefined
   if (expr) {
@@ -42,7 +42,7 @@ export const Show = ({ className, style, ...props }: ShowProps) => {
       const display = isRange(result) ? result.value : result
       return (
         <span
-          className={['campfire-show', ...classes].join(' ')}
+          className={mergeClasses('campfire-show', className)}
           style={mergedStyle}
           data-testid='show'
         >
@@ -64,7 +64,7 @@ export const Show = ({ className, style, ...props }: ShowProps) => {
   const displayValue = isRange(value) ? value.value : value
   return (
     <span
-      className={['campfire-show', ...classes].join(' ')}
+      className={mergeClasses('campfire-show', className)}
       style={mergedStyle}
       data-testid='show'
     >

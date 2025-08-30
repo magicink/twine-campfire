@@ -1,12 +1,8 @@
 import type { JSX } from 'preact'
 import { useEffect } from 'preact/hooks'
-import rfdc from 'rfdc'
-import type { RootContent } from 'mdast'
-import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
-import { runDirectiveBlock } from '@campfire/utils/directiveUtils'
+import { useDirectiveEvents } from '@campfire/hooks/useDirectiveEvents'
+import { mergeClasses } from '@campfire/utils/core'
 import { useGameStore } from '@campfire/state/useGameStore'
-
-const clone = rfdc()
 
 const textareaStyles =
   'border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 flex field-sizing-content min-h-16 w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm'
@@ -59,50 +55,20 @@ export const Textarea = ({
   const value = useGameStore(state => state.gameData[stateKey]) as
     | string
     | undefined
-  const handlers = useDirectiveHandlers()
+  const directiveEvents = useDirectiveEvents(onHover, onFocus, onBlur)
   const setGameData = useGameStore(state => state.setGameData)
   useEffect(() => {
     if (value === undefined) {
       setGameData({ [stateKey]: initialValue ?? '' })
     }
   }, [value, stateKey, initialValue, setGameData])
-  const classes = Array.isArray(className)
-    ? className
-    : className
-      ? [className]
-      : []
   return (
     <textarea
       data-testid='textarea'
-      className={['campfire-textarea', textareaStyles, ...classes]
-        .filter((c, i, arr) => c && arr.indexOf(c) === i)
-        .join(' ')}
+      className={mergeClasses('campfire-textarea', textareaStyles, className)}
       value={value ?? ''}
       {...rest}
-      onMouseEnter={e => {
-        if (onHover) {
-          runDirectiveBlock(
-            clone(JSON.parse(onHover)) as RootContent[],
-            handlers
-          )
-        }
-      }}
-      onFocus={e => {
-        if (onFocus) {
-          runDirectiveBlock(
-            clone(JSON.parse(onFocus)) as RootContent[],
-            handlers
-          )
-        }
-      }}
-      onBlur={e => {
-        if (onBlur) {
-          runDirectiveBlock(
-            clone(JSON.parse(onBlur)) as RootContent[],
-            handlers
-          )
-        }
-      }}
+      {...directiveEvents}
       onInput={e => {
         onInput?.(e)
         if (e.defaultPrevented) return

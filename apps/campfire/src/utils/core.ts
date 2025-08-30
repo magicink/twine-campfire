@@ -107,6 +107,23 @@ export const parseInlineStyle = (
     : { ...style }
 
 /**
+ * Merges multiple class name inputs into a deduplicated string.
+ *
+ * Accepts strings or arrays of strings and filters out falsy values and
+ * duplicates.
+ *
+ * @param classes - Class name values to merge.
+ * @returns A space-separated string of unique class names.
+ */
+export const mergeClasses = (
+  ...classes: Array<string | string[] | undefined | null | false>
+): string =>
+  classes
+    .flatMap(cls => (Array.isArray(cls) ? cls : cls ? [cls] : []))
+    .filter((c, i, arr) => c && arr.indexOf(c) === i)
+    .join(' ')
+
+/**
  * Extracts translation options from directive attributes or component props.
  *
  * @param src - Source object that may contain `ns` and `count` values.
