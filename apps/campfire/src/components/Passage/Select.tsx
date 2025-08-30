@@ -5,6 +5,7 @@ import rfdc from 'rfdc'
 import type { RootContent } from 'mdast'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { runDirectiveBlock } from '@campfire/utils/directiveUtils'
+import { mergeClasses } from '@campfire/utils/core'
 import { useGameStore } from '@campfire/state/useGameStore'
 import type { OptionProps } from './Option'
 
@@ -66,11 +67,6 @@ export const Select = ({
     | undefined
   const setGameData = useGameStore(state => state.setGameData)
   const handlers = useDirectiveHandlers()
-  const classes = Array.isArray(className)
-    ? className
-    : className
-      ? [className]
-      : []
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
@@ -110,12 +106,12 @@ export const Select = ({
     <div ref={containerRef} className='inline-block relative'>
       <button
         data-testid='select'
-        className={[
+        className={mergeClasses(
           'campfire-select',
           selectStyles,
           'items-center justify-between cursor-pointer',
-          ...classes
-        ].join(' ')}
+          className
+        )}
         style={style}
         value={value ?? ''}
         {...rest}

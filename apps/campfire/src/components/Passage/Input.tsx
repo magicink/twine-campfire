@@ -4,6 +4,7 @@ import rfdc from 'rfdc'
 import type { RootContent } from 'mdast'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { runDirectiveBlock } from '@campfire/utils/directiveUtils'
+import { mergeClasses } from '@campfire/utils/core'
 import { useGameStore } from '@campfire/state/useGameStore'
 
 const clone = rfdc()
@@ -66,17 +67,10 @@ export const Input = ({
       setGameData({ [stateKey]: initialValue ?? '' })
     }
   }, [value, stateKey, initialValue, setGameData])
-  const classes = Array.isArray(className)
-    ? className
-    : className
-      ? [className]
-      : []
   return (
     <input
       data-testid='input'
-      className={['campfire-input', inputStyles, ...classes]
-        .filter((c, i, arr) => c && arr.indexOf(c) === i)
-        .join(' ')}
+      className={mergeClasses('campfire-input', inputStyles, className)}
       value={value ?? ''}
       {...rest}
       onMouseEnter={e => {

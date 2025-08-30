@@ -4,6 +4,7 @@ import rfdc from 'rfdc'
 import type { RootContent } from 'mdast'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { runDirectiveBlock } from '@campfire/utils/directiveUtils'
+import { mergeClasses } from '@campfire/utils/core'
 import { useGameStore } from '@campfire/state/useGameStore'
 import { radioStyles, radioIndicatorStyles } from '@campfire/utils/remarkStyles'
 
@@ -68,20 +69,13 @@ export const Radio = ({
       setGameData({ [stateKey]: initialValue })
     }
   }, [value, stateKey, initialValue, setGameData])
-  const classes = Array.isArray(className)
-    ? className
-    : className
-      ? [className]
-      : []
   const checked = value === optionValue
   return (
     <button
       type='button'
       role='radio'
       data-testid='radio'
-      className={['campfire-radio', radioStyles, ...classes]
-        .filter((c, i, arr) => c && arr.indexOf(c) === i)
-        .join(' ')}
+      className={mergeClasses('campfire-radio', radioStyles, className)}
       aria-checked={checked}
       data-state={checked ? 'checked' : 'unchecked'}
       {...rest}

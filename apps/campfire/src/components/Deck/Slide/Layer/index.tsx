@@ -1,4 +1,5 @@
 import { type ComponentChildren, type JSX } from 'preact'
+import { mergeClasses } from '@campfire/utils/core'
 
 export interface LayerProps {
   x?: number
@@ -72,9 +73,7 @@ export const Layer = ({
   }
   return (
     <div
-      className={['campfire-layer', className]
-        .filter(c => c != null && c !== '')
-        .join(' ')}
+      className={mergeClasses('campfire-layer', className)}
       style={style}
       {...rest}
     >

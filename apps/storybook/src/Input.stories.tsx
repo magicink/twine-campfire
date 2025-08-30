@@ -15,7 +15,9 @@ export default meta
  * @returns An Input example.
  */
 export const Basic: StoryObj<typeof Input> = {
-  render: () => <Input stateKey='name' placeholder='Your name' /> // simple example
+  render: () => (
+    <Input stateKey='name' className={['p-2']} placeholder='Your name' />
+  ) // simple example
 }
 
 /**

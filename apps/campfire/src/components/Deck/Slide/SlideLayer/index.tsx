@@ -1,6 +1,6 @@
 import { type ComponentChildren, type ComponentType, type JSX } from 'preact'
 import { Layer, type LayerProps } from '../Layer'
-import { parseInlineStyle } from '@campfire/utils/core'
+import { mergeClasses, parseInlineStyle } from '@campfire/utils/core'
 
 export interface SlideLayerProps
   extends Omit<LayerProps, 'children' | 'className'> {
@@ -44,9 +44,7 @@ export const SlideLayer = ({
   return (
     <Layer
       data-testid={testId}
-      className={['campfire-slide-layer', layerClassName]
-        .filter(c => c != null && c !== '')
-        .join(' ')}
+      className={mergeClasses('campfire-slide-layer', layerClassName)}
       {...layerProps}
     >
       <Tag className={className} style={finalStyle} {...elementProps}>

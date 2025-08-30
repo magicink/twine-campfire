@@ -2,7 +2,11 @@ import type { JSX } from 'preact'
 import { useTranslation } from 'react-i18next'
 import i18next from 'i18next'
 import { useGameStore } from '@campfire/state/useGameStore'
-import { evalExpression, getTranslationOptions } from '@campfire/utils/core'
+import {
+  evalExpression,
+  getTranslationOptions,
+  mergeClasses
+} from '@campfire/utils/core'
 
 interface TranslateProps {
   /** Translation key to display */
@@ -35,11 +39,6 @@ export const Translate = ({ className, style, ...props }: TranslateProps) => {
   let tKey = props['data-i18n-key']
   const expr = props['data-i18n-expr']
   const fallback = props['data-i18n-fallback']
-  const classes = Array.isArray(className)
-    ? className
-    : className
-      ? [className]
-      : []
   const mergedStyle =
     typeof style === 'string' ? style : style ? { ...style } : undefined
   if (!tKey && expr) {
@@ -60,7 +59,7 @@ export const Translate = ({ className, style, ...props }: TranslateProps) => {
       addError(msg)
       return fallback ? (
         <span
-          className={['campfire-translate', ...classes].join(' ')}
+          className={mergeClasses('campfire-translate', className)}
           style={mergedStyle}
           data-testid='translate'
         >
@@ -72,7 +71,7 @@ export const Translate = ({ className, style, ...props }: TranslateProps) => {
   if (!tKey)
     return fallback ? (
       <span
-        className={['campfire-translate', ...classes].join(' ')}
+        className={mergeClasses('campfire-translate', className)}
         style={mergedStyle}
         data-testid='translate'
       >
@@ -97,7 +96,7 @@ export const Translate = ({ className, style, ...props }: TranslateProps) => {
   }
   return (
     <span
-      className={['campfire-translate', ...classes].join(' ')}
+      className={mergeClasses('campfire-translate', className)}
       style={mergedStyle}
       data-testid='translate'
     >

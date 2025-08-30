@@ -4,6 +4,7 @@ import rfdc from 'rfdc'
 import type { RootContent } from 'mdast'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { runDirectiveBlock } from '@campfire/utils/directiveUtils'
+import { mergeClasses } from '@campfire/utils/core'
 import { useGameStore } from '@campfire/state/useGameStore'
 import {
   checkboxStyles,
@@ -72,20 +73,13 @@ export const Checkbox = ({
       setGameData({ [stateKey]: init })
     }
   }, [value, stateKey, initialValue, setGameData])
-  const classes = Array.isArray(className)
-    ? className
-    : className
-      ? [className]
-      : []
   const checked = typeof value === 'string' ? value === 'true' : Boolean(value)
   return (
     <button
       type='button'
       role='checkbox'
       data-testid='checkbox'
-      className={['campfire-checkbox', checkboxStyles, ...classes]
-        .filter((c, i, arr) => c && arr.indexOf(c) === i)
-        .join(' ')}
+      className={mergeClasses('campfire-checkbox', checkboxStyles, className)}
       aria-checked={checked}
       data-state={checked ? 'checked' : 'unchecked'}
       {...rest}
