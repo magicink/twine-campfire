@@ -2956,7 +2956,7 @@ export const useDirectiveHandlers = () => {
    * @param index - Index of the directive within its parent.
    * @returns Visitor instructions after replacement.
    */
-  const handleLayer = createContainerHandler(
+  const baseLayerHandler = createContainerHandler(
     'layer',
     layerSchema,
     (attrs, raw) => {
@@ -2998,8 +2998,33 @@ export const useDirectiveHandlers = () => {
         'layerClassName'
       ])
       return props
-    }
+    },
+    children => children.filter(child => !isWhitespaceNode(child))
   )
+
+  const handleLayer: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    if (directive.type !== 'containerDirective') {
+      const msg = 'layer can only be used as a container directive'
+      console.error(msg)
+      addError(msg)
+      return removeNode(parent, index)
+    }
+    const container = directive as ContainerDirective
+    const extra: RootContent[] = []
+    let markerPos = index + 1
+    while (
+      markerPos < parent.children.length &&
+      !isMarkerParagraph(parent.children[markerPos] as RootContent)
+    ) {
+      extra.push(parent.children[markerPos] as RootContent)
+      markerPos++
+    }
+    if (extra.length > 0) parent.children.splice(index + 1, extra.length)
+    const children = container.children as unknown as RootContent[]
+    children.push(...extra)
+    return baseLayerHandler(directive, parent, index)
+  }
 
   /**
    * Converts a `:text` directive into a SlideText element.

@@ -53,4 +53,11 @@ describe('layer directive', () => {
     expect(el.style.top).toBe('10px')
     expect(el.style.zIndex).toBe('2')
   })
+
+  it('removes stray markers from nested directives', () => {
+    const md =
+      ':::layer{className="wrapper"}\n:::text{x=0 y=0}\nOne\n:::\n:::text{x=0 y=0}\nTwo\n:::\n:::'
+    render(<MarkdownRunner markdown={md} />)
+    expect(document.body.textContent).not.toContain(':::')
+  })
 })
