@@ -330,7 +330,7 @@ describe('rehypeRadioButtons', () => {
     expect(btn.children[0].children[0].tagName).toBe('svg')
   })
 
-  it('omits indicator when unchecked', () => {
+  it('renders transparent indicator when unchecked', () => {
     const tree: HastRoot = {
       type: 'root',
       children: [
@@ -345,6 +345,9 @@ describe('rehypeRadioButtons', () => {
 
     rehypeRadioButtons()(tree)
     const btn = tree.children[0] as any
-    expect(btn.children[0].children).toEqual([])
+    const svg = btn.children[0].children[0] as any
+    expect(svg.tagName).toBe('svg')
+    expect(svg.properties.fill).toBe('transparent')
+    expect(svg.properties.stroke).toBe('transparent')
   })
 })

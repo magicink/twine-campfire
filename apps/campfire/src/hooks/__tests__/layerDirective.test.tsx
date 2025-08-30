@@ -53,4 +53,54 @@ describe('layer directive', () => {
     expect(el.style.top).toBe('10px')
     expect(el.style.zIndex).toBe('2')
   })
+
+  it('handles nested container directives without stray markers', () => {
+    const md =
+      ':::layer{className="flex gap-[4px] items-center justify-center"}\n' +
+      ':::wrapper{as="div"}\n' +
+      ':radio[choice]{value="a"}\n' +
+      ':::\n' +
+      ':radio[choice]{value="b" checked}\n' +
+      ':radio[choice]{value="c" disabled="true"}\n' +
+      ':::\n'
+    render(<MarkdownRunner markdown={md} />)
+    const layer = document.querySelector('[data-testid="layer"]') as HTMLElement
+    expect(
+      document.querySelector(
+        '[data-testid="layer"] + [data-testid="wrapper"]'
+      ) === null
+    ).toBe(true)
+    expect(document.body.innerHTML).not.toContain(':::')
+  })
+
+  it('renders siblings after wrappers with nested containers', () => {
+    const md =
+      ':set[show=true]\n' +
+      ':::layer{className="flex gap-[4px] items-center justify-center"}\n' +
+      ':::wrapper{as="div"}\n' +
+      ':radio[choice]{value="a"}\n' +
+      ':::\n' +
+      ':::wrapper{as="div"}\n' +
+      ':radio[choice]{value="b" checked}\n' +
+      ':::if[show]\n' +
+      'Hello\n' +
+      ':::\n' +
+      ':::\n' +
+      ':::wrapper{as="div"}\n' +
+      ':radio[choice]{value="c" disabled="true"}\n' +
+      ':::\n' +
+      ':::\n'
+    render(<MarkdownRunner markdown={md} />)
+    const layer = document.querySelector('[data-testid="layer"]') as HTMLElement
+    const wrappers = layer.querySelectorAll('[data-testid="wrapper"]')
+    expect(wrappers.length).toBe(3)
+    const radios = layer.querySelectorAll('[data-testid="radio"]')
+    expect(radios.length).toBe(3)
+    expect(radios[2].hasAttribute('disabled')).toBe(true)
+    expect(
+      document.querySelector(
+        '[data-testid="layer"] + [data-testid="wrapper"]'
+      ) === null
+    ).toBe(true)
+  })
 })

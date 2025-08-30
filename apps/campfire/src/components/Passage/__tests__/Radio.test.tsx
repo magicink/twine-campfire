@@ -45,12 +45,17 @@ describe('Radio', () => {
     expect(useGameStore.getState().gameData.choice).toBeUndefined()
   })
 
-  it('renders indicator only when checked', () => {
+  it('renders transparent indicator when unchecked', () => {
     useGameStore.setState({ gameData: {} })
     const { getByTestId } = render(<Radio stateKey='choice' value='a' />)
     const button = getByTestId('radio') as HTMLButtonElement
-    expect(button.querySelector('svg')).toBeNull()
+    const svg = button.querySelector('svg') as SVGSVGElement
+    expect(svg).not.toBeNull()
+    expect(svg.getAttribute('fill')).toBe('transparent')
+    expect(svg.getAttribute('stroke')).toBe('transparent')
     fireEvent.click(button)
-    expect(button.querySelector('svg')).not.toBeNull()
+    const svgChecked = button.querySelector('svg') as SVGSVGElement
+    expect(svgChecked.getAttribute('fill')).toBe('currentColor')
+    expect(svgChecked.getAttribute('stroke')).toBe('currentColor')
   })
 })
