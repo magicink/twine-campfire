@@ -89,4 +89,32 @@ describe('wrapper directive', () => {
     expect(el.getAttribute('data-test')).toBe('ok')
     expect(el.textContent).toBe('Content')
   })
+
+  it('does not wrap inline radio content in paragraphs', () => {
+    const md =
+      ':preset{type="wrapper" name="radioLabel" as="div" className="flex items-center gap-2"}\n' +
+      ':set[choice="b"]\n' +
+      ':::layer{className="flex gap-[12px] items-center justify-center"}\n' +
+      '  :::wrapper{from="radioLabel"}\n' +
+      '    :radio[choice]{value="a"}\n' +
+      '    Hi\n' +
+      '  :::\n' +
+      '  :::wrapper{from="radioLabel"}\n' +
+      '    :radio[choice]{value="b"}\n' +
+      '    Hello\n' +
+      '  :::\n' +
+      '  :::wrapper{from="radioLabel"}\n' +
+      '    :radio[choice]{value="c" disabled="true"}\n' +
+      '    Goodbye\n' +
+      '  :::\n' +
+      ':::'
+    render(<MarkdownRunner markdown={md} />)
+    const layer = document.querySelector('[data-testid="layer"]') as HTMLElement
+    expect(layer.querySelectorAll('p').length).toBe(0)
+    const wrappers = layer.querySelectorAll('[data-testid="wrapper"]')
+    expect(wrappers).toHaveLength(3)
+    expect(wrappers[0].textContent?.trim()).toBe('Hi')
+    expect(wrappers[1].textContent?.trim()).toBe('Hello')
+    expect(wrappers[2].textContent?.trim()).toBe('Goodbye')
+  })
 })

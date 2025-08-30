@@ -3109,20 +3109,14 @@ export const useDirectiveHandlers = () => {
       applyAdditionalAttributes(mergedRaw, props, ['as', 'className', 'from'])
       return props
     },
-    (children, attrs) => {
-      const tag = resolveWrapperTag(attrs)
-      if (
-        (tag === 'span' || tag === 'p') &&
-        children.length === 1 &&
-        children[0].type === 'paragraph'
-      ) {
-        const paragraph = children[0] as Parent
-        return paragraph.children.filter(
-          child => !isWhitespaceNode(child as RootContent)
-        )
-      }
-      return children
-    }
+    children =>
+      children
+        .flatMap(child => {
+          if (child.type !== 'paragraph') return child
+          const paragraph = child as Parent
+          return paragraph.children
+        })
+        .filter(child => !isWhitespaceNode(child as RootContent))
   )
 
   /**
