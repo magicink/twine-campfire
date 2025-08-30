@@ -2814,7 +2814,8 @@ export const useDirectiveHandlers = () => {
 
   /** Schema describing supported wrapper directive attributes. */
   const wrapperSchema = {
-    as: { type: 'string' }
+    as: { type: 'string' },
+    from: { type: 'string', expression: false }
   } as const
 
   type WrapperSchema = typeof wrapperSchema
@@ -3027,19 +3028,34 @@ export const useDirectiveHandlers = () => {
    */
   const handleWrapper = createContainerHandler(
     (attrs: WrapperAttrs) => {
-      const tag = typeof attrs.as === 'string' ? attrs.as : 'div'
+      let tag = typeof attrs.as === 'string' ? attrs.as : undefined
+      if (!tag && attrs.from) {
+        const preset = presetsRef.current['wrapper']?.[String(attrs.from)] as
+          | Record<string, unknown>
+          | undefined
+        if (typeof preset?.as === 'string') tag = preset.as
+      }
+      tag = typeof tag === 'string' ? tag : 'div'
       return ['span', 'div', 'p', 'section'].includes(tag) ? tag : 'div'
     },
     wrapperSchema,
-    (_attrs, raw) => {
+    (attrs, raw) => {
       const props: Record<string, unknown> = {}
+      const preset = attrs.from
+        ? (presetsRef.current['wrapper']?.[String(attrs.from)] as
+            | Record<string, unknown>
+            | undefined)
+        : undefined
+      const mergedRaw = mergeAttrs(preset, raw)
       props['data-testid'] = 'wrapper'
       const classAttr =
-        typeof raw.className === 'string' ? raw.className : undefined
+        typeof mergedRaw.className === 'string'
+          ? mergedRaw.className
+          : undefined
       props.className = ['campfire-wrapper', classAttr]
         .filter(Boolean)
         .join(' ')
-      applyAdditionalAttributes(raw, props, ['as', 'className'])
+      applyAdditionalAttributes(mergedRaw, props, ['as', 'className', 'from'])
       return props
     }
   )

@@ -53,4 +53,18 @@ describe('wrapper directive', () => {
     expect(layer.innerHTML).not.toContain(':::')
     expect(layer.textContent).toBe('Hi')
   })
+
+  it('applies wrapper presets with overrides', () => {
+    const md =
+      ':preset{type="wrapper" name="box" as="section" className="one" data-test="ok"}\n' +
+      ':::wrapper{from="box" as="p" className="two"}\nContent\n:::'
+    render(<MarkdownRunner markdown={md} />)
+    const el = document.querySelector('[data-testid="wrapper"]') as HTMLElement
+    expect(el.tagName).toBe('P')
+    expect(el.className).toContain('campfire-wrapper')
+    expect(el.className).toContain('two')
+    expect(el.className).not.toContain('one')
+    expect(el.getAttribute('data-test')).toBe('ok')
+    expect(el.textContent).toBe('Content')
+  })
 })
