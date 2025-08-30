@@ -15,6 +15,19 @@ describe('Radio directive', () => {
     resetStores()
   })
 
+  it('does not wrap radios in paragraphs', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':radio[choice]{value="a"}\n' }]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    await screen.findByTestId('radio')
+    expect(document.querySelector('p')).toBeNull()
+  })
+
   it('passes style attribute', async () => {
     const passage: Element = {
       type: 'element',

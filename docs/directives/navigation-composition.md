@@ -241,7 +241,27 @@ Control the flow between passages or how they reveal.
   | style          | Inline styles applied to the `<svg>` element      |
   | from           | Name of a shape preset to apply                   |
 
-- `preset`: Define reusable attribute sets that can be applied via the `from` attribute on `deck`, `reveal`, `image`, `shape`, and `text` directives.
+- `wrapper`: Wrap content in a basic HTML element.
+
+  ```md
+  :::deck
+  :::slide
+  :::layer{x=10 y=20}
+  :::wrapper{as="p" className="note"}
+  Text
+  :::
+  :::
+  :::
+  :::
+  ```
+
+  | Input     | Description                                                       |
+  | --------- | ----------------------------------------------------------------- |
+  | as        | Element tag (`div`, `span`, `p`, or `section`, defaults to `div`) |
+  | className | Additional classes applied to the element                         |
+  | from      | Name of a wrapper preset to apply                                 |
+
+- `preset`: Define reusable attribute sets that can be applied via the `from` attribute on `deck`, `reveal`, `image`, `shape`, `text`, and `wrapper` directives.
 
   ```md
   :preset{type="deck" name="wide" size="16x9"}

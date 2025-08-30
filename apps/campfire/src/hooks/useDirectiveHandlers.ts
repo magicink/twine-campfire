@@ -1413,12 +1413,12 @@ export const useDirectiveHandlers = () => {
         'checked'
       ])
       const node: Parent = {
-        type: 'paragraph',
+        type: 'emphasis',
         children: [],
         data: { hName: 'radio', hProperties: props as Properties }
       }
       return replaceWithIndentation(directive, parent, index, [
-        node as RootContent
+        node as unknown as RootContent
       ])
     }
     if (directive.type === 'containerDirective') {
@@ -2812,6 +2812,15 @@ export const useDirectiveHandlers = () => {
     'anchor'
   ] as const
 
+  /** Schema describing supported wrapper directive attributes. */
+  const wrapperSchema = {
+    as: { type: 'string' },
+    from: { type: 'string', expression: false }
+  } as const
+
+  type WrapperSchema = typeof wrapperSchema
+  type WrapperAttrs = ExtractedAttrs<WrapperSchema>
+
   /** Schema describing supported text directive attributes. */
   const textSchema = {
     x: { type: 'number' },
@@ -2998,7 +3007,116 @@ export const useDirectiveHandlers = () => {
         'layerClassName'
       ])
       return props
+    },
+    undefined,
+    (parent, markerIndex) => {
+      const layerNode = parent.children[markerIndex - 1] as Parent
+      let idx = markerIndex
+      let end = idx
+      while (
+        end < parent.children.length &&
+        !isMarkerParagraph(parent.children[end] as RootContent)
+      )
+        end++
+      const pending = parent.children.splice(idx, end - idx) as RootContent[]
+      if (end < parent.children.length) parent.children.splice(idx, 1)
+      while (idx < parent.children.length) {
+        const node = parent.children[idx] as RootContent
+        if (isMarkerParagraph(node)) {
+          parent.children.splice(idx, 1)
+          continue
+        }
+        if (node.type === 'containerDirective' || isWhitespaceNode(node)) {
+          pending.push(node)
+          parent.children.splice(idx, 1)
+          continue
+        }
+        break
+      }
+      if (pending.length) {
+        const processed = runDirectiveBlock(pending, handlersRef.current)
+        if (processed.length) {
+          const last = processed[processed.length - 1]
+          if (last.type === 'paragraph') {
+            const idxText = last.children.findIndex(
+              child =>
+                isTextNode(child as RootContent) &&
+                (child as MdText).value.includes(DIRECTIVE_MARKER)
+            )
+            if (idxText !== -1) last.children.splice(idxText, 1)
+            if (
+              last.children.length === 0 ||
+              last.children.every(isWhitespaceNode)
+            )
+              processed.pop()
+          }
+        }
+        layerNode.children.push(...processed)
+      }
+      let prev = -1
+      while (prev !== parent.children.length) {
+        prev = parent.children.length
+        removeDirectiveMarker(parent, idx)
+      }
     }
+  )
+
+  /**
+   * Converts a `:::wrapper` directive into a basic HTML element.
+   *
+   * @param directive - The wrapper directive node.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within its parent.
+   * @returns Visitor instructions after replacement.
+   */
+  /**
+   * Determines which HTML tag to use for a wrapper directive.
+   *
+   * @param attrs - Wrapper directive attributes.
+   * @returns The tag name to render.
+   */
+  const resolveWrapperTag = (attrs: WrapperAttrs): string => {
+    let tag = typeof attrs.as === 'string' ? attrs.as : undefined
+    if (!tag && attrs.from) {
+      const preset = presetsRef.current['wrapper']?.[String(attrs.from)] as
+        | Record<string, unknown>
+        | undefined
+      if (typeof preset?.as === 'string') tag = preset.as
+    }
+    tag = typeof tag === 'string' ? tag : 'div'
+    return ['span', 'div', 'p', 'section'].includes(tag) ? tag : 'div'
+  }
+
+  const handleWrapper = createContainerHandler(
+    resolveWrapperTag,
+    wrapperSchema,
+    (attrs, raw) => {
+      const props: Record<string, unknown> = {}
+      const preset = attrs.from
+        ? (presetsRef.current['wrapper']?.[String(attrs.from)] as
+            | Record<string, unknown>
+            | undefined)
+        : undefined
+      const mergedRaw = mergeAttrs(preset, raw)
+      props['data-testid'] = 'wrapper'
+      const classAttr =
+        typeof mergedRaw.className === 'string'
+          ? mergedRaw.className
+          : undefined
+      props.className = ['campfire-wrapper', classAttr]
+        .filter(Boolean)
+        .join(' ')
+      applyAdditionalAttributes(mergedRaw, props, ['as', 'className', 'from'])
+      return props
+    },
+    children =>
+      children
+        .flatMap(child => {
+          if (child.type !== 'paragraph') return child
+          const paragraph = child as Parent
+          return paragraph.children
+        })
+        .filter(child => !isWhitespaceNode(child as RootContent))
   )
 
   /**
@@ -3742,6 +3860,7 @@ export const useDirectiveHandlers = () => {
       onExit: handleOnExit,
       reveal: handleReveal,
       layer: handleLayer,
+      wrapper: handleWrapper,
       text: handleText,
       image: handleImage,
       shape: handleShape,

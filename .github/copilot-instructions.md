@@ -42,6 +42,7 @@
 - Use helpers like `stripLabel`, `removeDirectiveMarker`, and `runBlock` to handle labels and markers.
 - Add regression tests for new container directives to prevent splitting issues.
 - Keep any blank lines between the opening tag and content and between content and the closing tag to avoid breaking grouping.
+- Recursion: After a container directive performs its own processing (such as parsing attributes, filtering nodes, or handling labels), its handler must recursively process any nested container directives in its children. This is accomplished by passing the container’s child nodes back through the directive-processing pipeline (for example, by calling `runDirectiveBlock(expandIndentedCode(children))` in the handler). This ensures that container directives embedded within other container directives are executed just like top‑level directives. Only skip this recursive processing when a directive’s specification explicitly forbids nested container directives (for instance, batch directives disallow other batch directives inside them).
 
 ### Attributes
 
