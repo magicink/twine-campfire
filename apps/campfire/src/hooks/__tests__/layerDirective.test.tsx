@@ -68,9 +68,11 @@ describe('layer directive', () => {
     const layers = document.querySelectorAll('[data-testid="layer"]')
     expect(layers.length).toBe(2)
     const [outer, inner] = Array.from(layers) as HTMLElement[]
+    expect(outer.tagName).toBe('DIV')
+    expect(inner.tagName).toBe('DIV')
+    expect(inner.parentElement).toBe(outer)
     expect(outer.className).toContain('outer')
     expect(inner.className).toContain('inner')
-    expect(outer.contains(inner)).toBe(true)
     expect(document.body.textContent).not.toContain(':::')
   })
 })
