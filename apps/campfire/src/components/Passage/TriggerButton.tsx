@@ -4,6 +4,7 @@ import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { runDirectiveBlock } from '@campfire/utils/directiveUtils'
 import { mergeClasses } from '@campfire/utils/core'
 import type { JSX } from 'preact'
+import { useDirectiveEvents } from '@campfire/hooks/useDirectiveEvents'
 
 const clone = rfdc()
 
@@ -49,6 +50,7 @@ export const TriggerButton = ({
   ...rest
 }: TriggerButtonProps) => {
   const handlers = useDirectiveHandlers()
+  const directiveEvents = useDirectiveEvents(onHover, onFocus, onBlur)
   return (
     <button
       type='button'
@@ -61,30 +63,7 @@ export const TriggerButton = ({
       disabled={disabled}
       style={style}
       {...rest}
-      onMouseEnter={e => {
-        if (onHover) {
-          runDirectiveBlock(
-            clone(JSON.parse(onHover)) as RootContent[],
-            handlers
-          )
-        }
-      }}
-      onFocus={e => {
-        if (onFocus) {
-          runDirectiveBlock(
-            clone(JSON.parse(onFocus)) as RootContent[],
-            handlers
-          )
-        }
-      }}
-      onBlur={e => {
-        if (onBlur) {
-          runDirectiveBlock(
-            clone(JSON.parse(onBlur)) as RootContent[],
-            handlers
-          )
-        }
-      }}
+      {...directiveEvents}
       onClick={e => {
         e.stopPropagation()
         onClick?.(e)
