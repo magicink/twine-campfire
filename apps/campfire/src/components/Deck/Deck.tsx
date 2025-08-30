@@ -21,6 +21,7 @@ import {
   prefersReducedMotion,
   runAnimation
 } from '@campfire/components/transition'
+import { mergeClasses } from '@campfire/utils/core'
 import { getRevealMax } from './Slide/utils'
 import type { Transition, SlideTransition } from './Slide/types'
 
@@ -403,9 +404,10 @@ export const Deck = ({
   return (
     <div
       ref={hostRef}
-      className={`campfire-deck relative w-full h-full overflow-hidden ${
-        className ?? ''
-      }`}
+      className={mergeClasses(
+        'campfire-deck relative w-full h-full overflow-hidden',
+        className
+      )}
       style={{
         background:
           'var(--deck-bg,linear-gradient(to bottom,var(--color-gray-900),var(--color-gray-950)))',
@@ -419,12 +421,10 @@ export const Deck = ({
     >
       <div
         ref={slideRef}
-        className={[
+        className={mergeClasses(
           'campfire-deck-group absolute left-1/2 top-1/2 origin-center rounded-2xl overflow-hidden shadow-[0_10px_30px_oklch(0_0_0_/_0.35)] bg-[var(--slide-bg,var(--color-gray-50))] text-[var(--slide-fg,var(--color-gray-950))]',
           groupClassName
-        ]
-          .filter(c => c != null && c !== '')
-          .join(' ')}
+        )}
         style={{
           width: size.width,
           height: size.height,
@@ -443,19 +443,18 @@ export const Deck = ({
       </div>
       {showSlideCount && (
         <div
-          className={[
+          className={mergeClasses(
             'campfire-deck-hud absolute top-3 right-3 text-sm px-2 py-1 rounded bg-black/50 text-white/80 text-right',
             hudClassName
-          ]
-            .filter(c => c != null && c !== '')
-            .join(' ')}
+          )}
           aria-hidden='true'
           data-testid='deck-hud'
         >
           <div
-            className={['campfire-deck-slide-hud', slideHudClassName]
-              .filter(c => c != null && c !== '')
-              .join(' ')}
+            className={mergeClasses(
+              'campfire-deck-slide-hud',
+              slideHudClassName
+            )}
             data-testid='deck-slide-hud'
           >
             Slide {currentSlide + 1} / {slides.length}
@@ -464,23 +463,19 @@ export const Deck = ({
       )}
       {!hideNavigation && (
         <div
-          className={[
+          className={mergeClasses(
             'campfire-deck-nav absolute inset-x-0 bottom-2 flex items-center justify-center px-2 pointer-events-none gap-[8px]',
             navClassName
-          ]
-            .filter(c => c != null && c !== '')
-            .join(' ')}
+          )}
           data-testid='deck-nav'
         >
           <button
             type='button'
-            className={[
+            className={mergeClasses(
               'campfire-deck-prev campfire-deck-nav-button pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring disabled:opacity-50',
               navButtonClassName,
               rewindButtonClassName
-            ]
-              .filter(c => c != null && c !== '')
-              .join(' ')}
+            )}
             aria-label={labels.prev}
             onClick={e => {
               e.stopPropagation()
@@ -493,13 +488,11 @@ export const Deck = ({
           </button>
           <button
             type='button'
-            className={[
+            className={mergeClasses(
               'campfire-deck-autoplay-toggle campfire-deck-nav-button pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring disabled:opacity-50',
               navButtonClassName,
               playButtonClassName
-            ]
-              .filter(c => c != null && c !== '')
-              .join(' ')}
+            )}
             aria-label={paused ? labels.play : labels.pause}
             onClick={e => {
               e.stopPropagation()
@@ -512,13 +505,11 @@ export const Deck = ({
           </button>
           <button
             type='button'
-            className={[
+            className={mergeClasses(
               'campfire-deck-next campfire-deck-nav-button pointer-events-auto px-3 py-1 rounded bg-black/60 text-white/90 focus:outline-none focus:ring disabled:opacity-50',
               navButtonClassName,
               fastForwardButtonClassName
-            ]
-              .filter(c => c != null && c !== '')
-              .join(' ')}
+            )}
             aria-label={labels.next}
             onClick={e => {
               e.stopPropagation()

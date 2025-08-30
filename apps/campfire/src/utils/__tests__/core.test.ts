@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from 'bun:test'
-import { extractQuoted, getBaseUrl } from '@campfire/utils/core'
+import { extractQuoted, getBaseUrl, mergeClasses } from '@campfire/utils/core'
 
 describe('extractQuoted', () => {
   it('unwraps single-quoted strings', () => {
@@ -18,6 +18,18 @@ describe('extractQuoted', () => {
     expect(extractQuoted('\'He said "hi"\'')).toBe('He said "hi"')
     expect(extractQuoted('"It\'s fine"')).toBe("It's fine")
     expect(extractQuoted('`mix "and" \'match\'`')).toBe('mix "and" \'match\'')
+  })
+})
+
+describe('mergeClasses', () => {
+  it('combines strings and arrays', () => {
+    expect(mergeClasses('a', ['b', 'c'], 'd')).toBe('a b c d')
+  })
+
+  it('deduplicates and filters falsy values', () => {
+    expect(mergeClasses('a', undefined, 'a', ['b', '', 'c'], false)).toBe(
+      'a b c'
+    )
   })
 })
 
