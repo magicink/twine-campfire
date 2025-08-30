@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.95.0](https://github.com/magicink/twine-campfire/compare/v1.94.0...v1.95.0) (2025-08-30)
+
+
+### Features
+
+* add wrapper directive ([#582](https://github.com/magicink/twine-campfire/issues/582)) ([e75f286](https://github.com/magicink/twine-campfire/commit/e75f28693d10c49c24eadec6c48cae223e75fafd))
+* add wrapper directive ([#582](https://github.com/magicink/twine-campfire/issues/582)) ([54fd5fe](https://github.com/magicink/twine-campfire/commit/54fd5febd2914aec3c6fded5ad319d532357d6d8))
+
 ## [1.94.0](https://github.com/magicink/twine-campfire/compare/v1.93.1...v1.94.0) (2025-08-29)
 
 
