@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.96.0](https://github.com/magicink/twine-campfire/compare/v1.95.0...v1.96.0) (2025-08-30)
+
+
+### Features
+
+* introduce useDirectiveEvents hook ([#586](https://github.com/magicink/twine-campfire/issues/586)) ([37e766e](https://github.com/magicink/twine-campfire/commit/37e766e0f323a4ee1ace0eb7b12d88fe557cf1a2))
+
 ## [1.95.0](https://github.com/magicink/twine-campfire/compare/v1.94.0...v1.95.0) (2025-08-30)
 
 
