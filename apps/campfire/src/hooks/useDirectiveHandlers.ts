@@ -3012,15 +3012,26 @@ export const useDirectiveHandlers = () => {
     (parent, markerIndex) => {
       const layerNode = parent.children[markerIndex - 1] as Parent
       let idx = markerIndex
-      const pending: RootContent[] = []
+      let end = idx
+      while (
+        end < parent.children.length &&
+        !isMarkerParagraph(parent.children[end] as RootContent)
+      )
+        end++
+      const pending = parent.children.splice(idx, end - idx) as RootContent[]
+      if (end < parent.children.length) parent.children.splice(idx, 1)
       while (idx < parent.children.length) {
         const node = parent.children[idx] as RootContent
         if (isMarkerParagraph(node)) {
           parent.children.splice(idx, 1)
-          break
+          continue
         }
-        pending.push(node)
-        parent.children.splice(idx, 1)
+        if (node.type === 'containerDirective' || isWhitespaceNode(node)) {
+          pending.push(node)
+          parent.children.splice(idx, 1)
+          continue
+        }
+        break
       }
       if (pending.length) {
         const processed = runDirectiveBlock(pending, handlersRef.current)
