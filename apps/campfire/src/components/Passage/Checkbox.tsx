@@ -1,17 +1,12 @@
 import type { JSX } from 'preact'
 import { useEffect } from 'preact/hooks'
-import rfdc from 'rfdc'
-import type { RootContent } from 'mdast'
-import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
-import { runDirectiveBlock } from '@campfire/utils/directiveUtils'
+import { useDirectiveEvents } from '@campfire/hooks/useDirectiveEvents'
 import { mergeClasses } from '@campfire/utils/core'
 import { useGameStore } from '@campfire/state/useGameStore'
 import {
   checkboxStyles,
   checkboxIndicatorStyles
 } from '@campfire/utils/remarkStyles'
-
-const clone = rfdc()
 
 interface CheckboxProps
   extends Omit<
@@ -62,7 +57,7 @@ export const Checkbox = ({
     | boolean
     | string
     | undefined
-  const handlers = useDirectiveHandlers()
+  const directiveEvents = useDirectiveEvents(onHover, onFocus, onBlur)
   const setGameData = useGameStore(state => state.setGameData)
   useEffect(() => {
     if (value === undefined) {
@@ -83,30 +78,7 @@ export const Checkbox = ({
       aria-checked={checked}
       data-state={checked ? 'checked' : 'unchecked'}
       {...rest}
-      onMouseEnter={e => {
-        if (onHover) {
-          runDirectiveBlock(
-            clone(JSON.parse(onHover)) as RootContent[],
-            handlers
-          )
-        }
-      }}
-      onFocus={e => {
-        if (onFocus) {
-          runDirectiveBlock(
-            clone(JSON.parse(onFocus)) as RootContent[],
-            handlers
-          )
-        }
-      }}
-      onBlur={e => {
-        if (onBlur) {
-          runDirectiveBlock(
-            clone(JSON.parse(onBlur)) as RootContent[],
-            handlers
-          )
-        }
-      }}
+      {...directiveEvents}
       onClick={e => {
         onClick?.(e)
         if (e.defaultPrevented) return
