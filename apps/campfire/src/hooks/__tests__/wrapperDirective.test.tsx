@@ -46,6 +46,28 @@ describe('wrapper directive', () => {
     expect(el.tagName).toBe('DIV')
   })
 
+  it('avoids nested paragraphs when rendering a p tag', () => {
+    const md = ':::wrapper{as="p"}\nWrapped content\n:::'
+    render(<MarkdownRunner markdown={md} />)
+    const wrapper = document.querySelector(
+      '[data-testid="wrapper"]'
+    ) as HTMLElement
+    expect(wrapper.tagName).toBe('P')
+    expect(wrapper.querySelector('p')).toBeNull()
+    expect(wrapper.textContent).toBe('Wrapped content')
+  })
+
+  it('unwraps paragraphs when rendering a span tag', () => {
+    const md = ':::wrapper{as="span"}\nWrapped content\n:::'
+    render(<MarkdownRunner markdown={md} />)
+    const wrapper = document.querySelector(
+      '[data-testid="wrapper"]'
+    ) as HTMLElement
+    expect(wrapper.tagName).toBe('SPAN')
+    expect(wrapper.querySelector('p')).toBeNull()
+    expect(wrapper.textContent).toBe('Wrapped content')
+  })
+
   it('does not leave stray markers inside layer', () => {
     const md = ':::layer\n:::wrapper{as="p"}\nHi\n:::\n:::\n'
     render(<MarkdownRunner markdown={md} />)

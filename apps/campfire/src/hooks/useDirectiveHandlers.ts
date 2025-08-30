@@ -3026,18 +3026,26 @@ export const useDirectiveHandlers = () => {
    * @param index - Index of the directive within its parent.
    * @returns Visitor instructions after replacement.
    */
+  /**
+   * Determines which HTML tag to use for a wrapper directive.
+   *
+   * @param attrs - Wrapper directive attributes.
+   * @returns The tag name to render.
+   */
+  const resolveWrapperTag = (attrs: WrapperAttrs): string => {
+    let tag = typeof attrs.as === 'string' ? attrs.as : undefined
+    if (!tag && attrs.from) {
+      const preset = presetsRef.current['wrapper']?.[String(attrs.from)] as
+        | Record<string, unknown>
+        | undefined
+      if (typeof preset?.as === 'string') tag = preset.as
+    }
+    tag = typeof tag === 'string' ? tag : 'div'
+    return ['span', 'div', 'p', 'section'].includes(tag) ? tag : 'div'
+  }
+
   const handleWrapper = createContainerHandler(
-    (attrs: WrapperAttrs) => {
-      let tag = typeof attrs.as === 'string' ? attrs.as : undefined
-      if (!tag && attrs.from) {
-        const preset = presetsRef.current['wrapper']?.[String(attrs.from)] as
-          | Record<string, unknown>
-          | undefined
-        if (typeof preset?.as === 'string') tag = preset.as
-      }
-      tag = typeof tag === 'string' ? tag : 'div'
-      return ['span', 'div', 'p', 'section'].includes(tag) ? tag : 'div'
-    },
+    resolveWrapperTag,
     wrapperSchema,
     (attrs, raw) => {
       const props: Record<string, unknown> = {}
@@ -3057,6 +3065,20 @@ export const useDirectiveHandlers = () => {
         .join(' ')
       applyAdditionalAttributes(mergedRaw, props, ['as', 'className', 'from'])
       return props
+    },
+    (children, attrs) => {
+      const tag = resolveWrapperTag(attrs)
+      if (
+        (tag === 'span' || tag === 'p') &&
+        children.length === 1 &&
+        children[0].type === 'paragraph'
+      ) {
+        const paragraph = children[0] as Parent
+        return paragraph.children.filter(
+          child => !isWhitespaceNode(child as RootContent)
+        )
+      }
+      return children
     }
   )
 
