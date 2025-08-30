@@ -3013,11 +3013,18 @@ export const useDirectiveHandlers = () => {
     const container = directive as ContainerDirective
     const extra: RootContent[] = []
     let markerPos = index + 1
-    while (
-      markerPos < parent.children.length &&
-      !isMarkerParagraph(parent.children[markerPos] as RootContent)
-    ) {
-      extra.push(parent.children[markerPos] as RootContent)
+    let depth = 0
+    while (markerPos < parent.children.length) {
+      const node = parent.children[markerPos] as RootContent
+      if (isMarkerParagraph(node)) {
+        if (depth === 0) break
+        depth--
+        extra.push(node)
+        markerPos++
+        continue
+      }
+      extra.push(node)
+      if ((node as DirectiveNode).type === 'containerDirective') depth++
       markerPos++
     }
     if (extra.length > 0) parent.children.splice(index + 1, extra.length)

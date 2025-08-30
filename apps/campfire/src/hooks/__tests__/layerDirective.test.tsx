@@ -60,4 +60,17 @@ describe('layer directive', () => {
     render(<MarkdownRunner markdown={md} />)
     expect(document.body.textContent).not.toContain(':::')
   })
+
+  it('allows layers to be nested', () => {
+    const md =
+      ':::layer{className="outer"}\nOuter\n:::layer{className="inner"}\nInner\n:::\n:::\n'
+    render(<MarkdownRunner markdown={md} />)
+    const layers = document.querySelectorAll('[data-testid="layer"]')
+    expect(layers.length).toBe(2)
+    const [outer, inner] = Array.from(layers) as HTMLElement[]
+    expect(outer.className).toContain('outer')
+    expect(inner.className).toContain('inner')
+    expect(outer.contains(inner)).toBe(true)
+    expect(document.body.textContent).not.toContain(':::')
+  })
 })
