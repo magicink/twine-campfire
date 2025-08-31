@@ -131,4 +131,16 @@ describe('wrapper directive', () => {
     fireEvent.mouseLeave(el)
     expect(useGameStore.getState().gameData.exit).toBe(true)
   })
+
+  it('handles multiple event directives without content', () => {
+    const md =
+      ':::wrapper{as="div"}\n:::onMouseEnter\n:set[enter=true]\n:::\n:::onMouseExit\n:set[exit=true]\n:::\n:::'
+    render(<MarkdownRunner markdown={md} />)
+    const el = document.querySelector('[data-testid="wrapper"]') as HTMLElement
+    fireEvent.mouseEnter(el)
+    expect(useGameStore.getState().gameData.enter).toBe(true)
+    fireEvent.mouseLeave(el)
+    expect(useGameStore.getState().gameData.exit).toBe(true)
+    expect(document.body.innerHTML).not.toContain(':::')
+  })
 })

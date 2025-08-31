@@ -176,6 +176,29 @@ describe('Passage trigger directives', () => {
     })
   })
 
+  it('handles multiple event directives without content', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            ':::trigger{label="Hover"}\n:::onMouseEnter\n:set[enter=true]\n:::\n:::onMouseExit\n:set[exit=true]\n:::\n:::'
+        }
+      ]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    const button = await screen.findByRole('button', { name: 'Hover' })
+    fireEvent.mouseEnter(button)
+    expect(useGameStore.getState().gameData.enter).toBe(true)
+    fireEvent.mouseLeave(button)
+    expect(useGameStore.getState().gameData.exit).toBe(true)
+    expect(document.body.textContent).not.toContain(':::')
+  })
+
   it('removes directive markers after trigger blocks', async () => {
     const passage: Element = {
       type: 'element',

@@ -766,6 +766,34 @@ export const useDirectiveHandlers = () => {
       (toString(node).trim() === '' || isMarkerParagraph(node)))
 
   /**
+   * Collects a container directive's child nodes, including any following
+   * sibling nodes up to the next directive marker. This groups sequential
+   * container directives under their parent so stray markers do not render.
+   *
+   * @param container - Container directive to gather children for.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within its parent.
+   * @returns Array of nodes representing the directive's children.
+   */
+  const collectDirectiveChildren = (
+    container: ContainerDirective,
+    parent: Parent,
+    index: number
+  ): RootContent[] => {
+    let end = -1
+    for (let i = index + 1; i < parent.children.length; i++) {
+      if (isMarkerParagraph(parent.children[i] as RootContent)) {
+        end = i
+        break
+      }
+    }
+    if (end === -1) return container.children as RootContent[]
+    const following = parent.children.slice(index + 1, end)
+    if (end > index + 1) parent.children.splice(index + 1, end - (index + 1))
+    return [...((container.children as RootContent[]) || []), ...following]
+  }
+
+  /**
    * Extracts event directives from a list of child nodes.
    *
    * @param nodes - Nodes to inspect.
@@ -800,7 +828,7 @@ export const useDirectiveHandlers = () => {
   const handleIf: DirectiveHandler = (directive, parent, index) => {
     if (!parent || typeof index !== 'number') return
     const container = directive as ContainerDirective
-    const children = container.children as RootContent[]
+    const children = collectDirectiveChildren(container, parent, index)
     let expr = getLabel(container) || ''
     if (!expr) {
       const attrs = container.attributes || {}
@@ -1106,7 +1134,7 @@ export const useDirectiveHandlers = () => {
     const container = directive as ContainerDirective
     const allowed = ALLOWED_BATCH_DIRECTIVES
     const rawChildren = runDirectiveBlock(
-      expandIndentedCode(container.children as RootContent[])
+      expandIndentedCode(collectDirectiveChildren(container, parent, index))
     )
     const processedChildren = stripLabel(rawChildren)
     const [filtered, invalid, nested] = filterDirectiveChildren(
@@ -1234,7 +1262,7 @@ export const useDirectiveHandlers = () => {
             ? attrs.defaultValue
             : undefined
       const rawChildren = runDirectiveBlock(
-        expandIndentedCode(container.children as RootContent[])
+        expandIndentedCode(collectDirectiveChildren(container, parent, index))
       )
       const { events } = extractEventProps(rawChildren)
       const props: Record<string, unknown> = { stateKey: key }
@@ -1350,7 +1378,7 @@ export const useDirectiveHandlers = () => {
               ? attrs.checked
               : undefined
       const rawChildren = runDirectiveBlock(
-        expandIndentedCode(container.children as RootContent[])
+        expandIndentedCode(collectDirectiveChildren(container, parent, index))
       )
       const { events } = extractEventProps(rawChildren)
       const props: Record<string, unknown> = { stateKey: key }
@@ -1457,7 +1485,7 @@ export const useDirectiveHandlers = () => {
             ? valueAttr
             : undefined
       const rawChildren = runDirectiveBlock(
-        expandIndentedCode(container.children as RootContent[])
+        expandIndentedCode(collectDirectiveChildren(container, parent, index))
       )
       const { events } = extractEventProps(rawChildren)
       const props: Record<string, unknown> = {
@@ -1571,7 +1599,7 @@ export const useDirectiveHandlers = () => {
             ? attrs.defaultValue
             : undefined
       const rawChildren = runDirectiveBlock(
-        expandIndentedCode(container.children as RootContent[])
+        expandIndentedCode(collectDirectiveChildren(container, parent, index))
       )
       const { events } = extractEventProps(rawChildren)
       const props: Record<string, unknown> = { stateKey: key }
@@ -1674,7 +1702,7 @@ export const useDirectiveHandlers = () => {
           ? attrs.defaultValue
           : undefined
     const rawChildren = runDirectiveBlock(
-      expandIndentedCode(container.children as RootContent[])
+      expandIndentedCode(collectDirectiveChildren(container, parent, index))
     )
     const { events, remaining } = extractEventProps(rawChildren)
     const options = remaining.filter(node => !isWhitespaceNode(node))
@@ -1725,7 +1753,7 @@ export const useDirectiveHandlers = () => {
         : Boolean(attrs.disabled)
     const styleAttr = typeof attrs.style === 'string' ? attrs.style : undefined
     const rawChildren = runDirectiveBlock(
-      expandIndentedCode(container.children as RootContent[])
+      expandIndentedCode(collectDirectiveChildren(container, parent, index))
     )
     const { events, remaining } = extractEventProps(rawChildren)
     const content = JSON.stringify(stripLabel(remaining))
@@ -1856,7 +1884,7 @@ export const useDirectiveHandlers = () => {
     const container = directive as ContainerDirective
     const allowed = ALLOWED_ONEXIT_DIRECTIVES
     const rawChildren = runDirectiveBlock(
-      expandIndentedCode(container.children as RootContent[])
+      expandIndentedCode(collectDirectiveChildren(container, parent, index))
     )
     const processedChildren = stripLabel(rawChildren)
     const [filtered, invalid] = filterDirectiveChildren(
@@ -2690,8 +2718,9 @@ export const useDirectiveHandlers = () => {
       const container = directive as ContainerDirective
       const { attrs } = extractAttributes<S>(directive, parent, index, schema)
       const rawAttrs = (directive.attributes || {}) as Record<string, unknown>
+      const combined = collectDirectiveChildren(container, parent, index)
       const processed = runDirectiveBlock(
-        expandIndentedCode(container.children as RootContent[]),
+        expandIndentedCode(combined),
         handlersRef.current
       )
       const stripped = stripLabel(processed)
@@ -3286,7 +3315,7 @@ export const useDirectiveHandlers = () => {
       'from'
     ])
     const processed = runDirectiveBlock(
-      expandIndentedCode(container.children as RootContent[]),
+      expandIndentedCode(collectDirectiveChildren(container, parent, index)),
       handlersRef.current
     )
     const stripped = stripLabel(processed)
