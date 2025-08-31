@@ -1,66 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/preact'
 import { Campfire } from '@campfire/components'
 
-/**
- * Arguments for the {@link MultiPassage} story.
- */
-interface MultiPassageArgs {
-  firstDeckFirstX: number
-  firstDeckFirstY: number
-  firstDeckFirstW: number
-  firstDeckFirstSize: number
-  firstDeckSecondX: number
-  firstDeckSecondY: number
-  firstDeckSecondW: number
-  firstDeckSecondSize: number
-  secondDeckFirstX: number
-  secondDeckFirstY: number
-  secondDeckFirstW: number
-  secondDeckFirstSize: number
-  secondDeckSecondX: number
-  secondDeckSecondY: number
-  secondDeckSecondW: number
-  secondDeckSecondSize: number
-}
-
-const meta: Meta<MultiPassageArgs> = {
-  title: 'Campfire/Directives/Deck',
-  argTypes: {
-    firstDeckFirstX: { control: { type: 'number' } },
-    firstDeckFirstY: { control: { type: 'number' } },
-    firstDeckFirstW: { control: { type: 'number' } },
-    firstDeckFirstSize: { control: { type: 'number' } },
-    firstDeckSecondX: { control: { type: 'number' } },
-    firstDeckSecondY: { control: { type: 'number' } },
-    firstDeckSecondW: { control: { type: 'number' } },
-    firstDeckSecondSize: { control: { type: 'number' } },
-    secondDeckFirstX: { control: { type: 'number' } },
-    secondDeckFirstY: { control: { type: 'number' } },
-    secondDeckFirstW: { control: { type: 'number' } },
-    secondDeckFirstSize: { control: { type: 'number' } },
-    secondDeckSecondX: { control: { type: 'number' } },
-    secondDeckSecondY: { control: { type: 'number' } },
-    secondDeckSecondW: { control: { type: 'number' } },
-    secondDeckSecondSize: { control: { type: 'number' } }
-  },
-  args: {
-    firstDeckFirstX: 20,
-    firstDeckFirstY: 20,
-    firstDeckFirstW: 100,
-    firstDeckFirstSize: 24,
-    firstDeckSecondX: 20,
-    firstDeckSecondY: 60,
-    firstDeckSecondW: 100,
-    firstDeckSecondSize: 24,
-    secondDeckFirstX: 20,
-    secondDeckFirstY: 20,
-    secondDeckFirstW: 100,
-    secondDeckFirstSize: 24,
-    secondDeckSecondX: 20,
-    secondDeckSecondY: 40,
-    secondDeckSecondW: 100,
-    secondDeckSecondSize: 24
-  }
+const meta: Meta = {
+  title: 'Campfire/Directives/Deck'
 }
 
 export default meta
@@ -70,42 +12,27 @@ export default meta
  *
  * @returns Campfire story showcasing decks across multiple passages.
  */
-export const MultiPassage: StoryObj<MultiPassageArgs> = {
-  render: ({
-    firstDeckFirstX,
-    firstDeckFirstY,
-    firstDeckFirstW,
-    firstDeckFirstSize,
-    firstDeckSecondX,
-    firstDeckSecondY,
-    firstDeckSecondW,
-    firstDeckSecondSize,
-    secondDeckFirstX,
-    secondDeckFirstY,
-    secondDeckFirstW,
-    secondDeckFirstSize,
-    secondDeckSecondX,
-    secondDeckSecondY,
-    secondDeckSecondW,
-    secondDeckSecondSize
-  }) => (
+export const MultiPassage: StoryObj = {
+  render: () => (
     <>
       <tw-storydata startnode='1' options='debug'>
         <tw-passagedata pid='1' name='Start'>
           {`
-:::deck{size='400x300'}
+:::deck{size='1280x720'}
   :::slide
 
+    :::layer{x=40 y=250 w=100 h=100}
     [[Next->Second]]
+    :::
 
     :::reveal{at=0}
-      :::text{x=${firstDeckFirstX} y=${firstDeckFirstY} w=${firstDeckFirstW} size=${firstDeckFirstSize}}
+      :::text{x=20 y=20 w=200 size=24}
       First deck 1
       :::
     :::
 
     :::reveal{at=1}
-      :::text{x=${firstDeckSecondX} y=${firstDeckSecondY} w=${firstDeckSecondW} size=${firstDeckSecondSize}}
+      :::text{x=20 y=60 w=200 size=24}
       First deck 2
       :::
     :::
@@ -115,19 +42,21 @@ export const MultiPassage: StoryObj<MultiPassageArgs> = {
         </tw-passagedata>
         <tw-passagedata pid='2' name='Second'>
           {`
-:::deck{size='400x300'}
+:::deck{size='1280x720'}
   :::slide
 
+    :::layer{x=40 y=250 w=100 h=100}
     [[Back->Start]]
+    :::
 
     :::reveal{at=0}
-      :::text{x=${secondDeckFirstX} y=${secondDeckFirstY} w=${secondDeckFirstW} size=${secondDeckFirstSize}}
+      :::text{x=20 y=20 w=200 size=24}
       Second deck 1
       :::
     :::
 
     :::reveal{at=1}
-      :::text{x=${secondDeckSecondX} y=${secondDeckSecondY} w=${secondDeckSecondW} size=${secondDeckSecondSize}}
+      :::text{x=20 y=60 w=200 size=24}
       Second deck 2
       :::
     :::

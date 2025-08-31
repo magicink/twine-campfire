@@ -1,19 +1,9 @@
-import { getBaseUrl } from '@campfire/utils/core'
+import { AssetManager } from '@campfire/utils/AssetManager'
 
-export class ImageManager {
-  private static instance: ImageManager
-  private cache: Map<string, HTMLImageElement> = new Map()
-
-  /**
-   * Retrieves the singleton instance of the ImageManager.
-   *
-   * @returns The ImageManager instance.
-   */
-  static getInstance(): ImageManager {
-    if (!this.instance) this.instance = new ImageManager()
-    return this.instance
-  }
-
+/**
+ * Manages image asset loading and caching.
+ */
+export class ImageManager extends AssetManager<HTMLImageElement> {
   /**
    * Preloads an image and caches it by id.
    *
@@ -39,7 +29,7 @@ export class ImageManager {
         reject(err)
       }
       try {
-        img.src = new URL(src, getBaseUrl()).href
+        img.src = this.resolve(src)
       } catch (err) {
         cleanup()
         console.error(`Invalid image source: ${src}`, err)

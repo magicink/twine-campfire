@@ -1,23 +1,14 @@
-import { getBaseUrl } from '@campfire/utils/core'
+import { AssetManager } from '@campfire/utils/AssetManager'
 
-export class AudioManager {
-  private static instance: AudioManager
+/**
+ * Manages loading and playback of audio assets.
+ */
+export class AudioManager extends AssetManager<HTMLAudioElement> {
   private bgm?: HTMLAudioElement
   private bgmName?: string
-  private sfxMap: Map<string, HTMLAudioElement> = new Map()
   private globalSfxVolume = 1
   private globalBgmVolume = 1
   private bgmBaseVolume = 1
-
-  /**
-   * Retrieves the singleton instance of the AudioManager.
-   *
-   * @returns The AudioManager instance.
-   */
-  static getInstance(): AudioManager {
-    if (!this.instance) this.instance = new AudioManager()
-    return this.instance
-  }
 
   /**
    * Retrieves a cached audio element or creates one from the given source.
@@ -30,21 +21,11 @@ export class AudioManager {
     id: string,
     source?: string
   ): HTMLAudioElement | undefined {
-    if (this.sfxMap.has(id)) return this.sfxMap.get(id)!
-    const src = source ?? id
-    if (!src) return undefined
-    let href: string
-    try {
-      // Resolve and validate the URL to avoid creating elements with invalid sources
-      href = new URL(src, getBaseUrl()).href
-    } catch {
-      console.error(`Invalid audio source: ${src}`)
-      return undefined
-    }
-    const audio = new Audio(href)
-    audio.preload = 'auto'
-    this.sfxMap.set(id, audio)
-    return audio
+    return this.getOrCreate(id, source, href => {
+      const audio = new Audio(href)
+      audio.preload = 'auto'
+      return audio
+    })
   }
 
   /**

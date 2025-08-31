@@ -2,68 +2,72 @@
 
 Change language and handle translations.
 
-- `lang`: Switch the active locale.
+### `lang`
 
-  ```md
-  :lang[lang]
-  ```
+Switch the active locale.
 
-  Replace `lang` with a locale like `fr`.
+```md
+:lang[lang]
+```
 
-  | Input  | Description             |
-  | ------ | ----------------------- |
-  | locale | Locale code to activate |
+Replace `lang` with a locale like `fr`.
 
-- `t`: Output a translated string or expression. Use the optional `count`
-  attribute for pluralization and `fallback` for default text when the
-  translation is missing.
+| Input  | Description             |
+| ------ | ----------------------- |
+| locale | Locale code to activate |
 
-  ```md
-  :t[ui:apple]{count=2}
-  :t[apple]{ns="ui"}
-  :t[favoriteFruit]
-  :t[missing]{fallback=`Hello ${player}`}
-  ```
+### `t`
 
-  Replace `apple` and `ui` with your key and namespace. You can also provide the
-  namespace via the `ns` attribute or supply a JavaScript expression that
-  resolves to the key. The `fallback` attribute accepts either a
-  quoted string or a template literal. For interpolation, use backticks without
-  wrapping the value in quotes.
+Output a translated string or expression. Use the optional `count` attribute for pluralization and `fallback` for default text when the translation is missing.
 
-  The directive also accepts `className` and `style` attributes for styling the
-  output.
+```md
+:t[ui:apple]{count=2}
+:t[apple]{ns="ui"}
+:t[favoriteFruit]
+:t[missing]{fallback=`Hello ${player}`}
+```
 
-  | Input     | Description                            |
-  | --------- | -------------------------------------- |
-  | ns:key    | Namespace and key of the translation   |
-  | ns        | Optional namespace for the translation |
-  | count     | Optional count for pluralization       |
-  | fallback  | Fallback text when key is missing      |
-  | className | Additional classes applied to the span |
-  | style     | Inline styles applied to the span      |
+Replace `apple` and `ui` with your key and namespace. You can also provide the
+namespace via the `ns` attribute or supply a JavaScript expression that
+resolves to the key. The `fallback` attribute accepts either a
+quoted string or a template literal. For interpolation, use backticks without
+wrapping the value in quotes.
 
-- `translations`: Add a translation.
+The directive also accepts `className` and `style` attributes for styling the
+output.
 
-  ```md
-  :translations[lang]{ui:hello="BONJOUR"}
-  ```
+| Input     | Description                            |
+| --------- | -------------------------------------- |
+| ns:key    | Namespace and key of the translation   |
+| ns        | Optional namespace for the translation |
+| count     | Optional count for pluralization       |
+| fallback  | Fallback text when key is missing      |
+| className | Additional classes applied to the span |
+| style     | Inline styles applied to the span      |
 
-  Replace `lang` with the locale and `ui` with the namespace. Only one
-  `namespace:key="value"` pair is allowed per directive. Repeat the directive
-  for additional translations.
+### `translations`
 
-  ```md
-  :translations[en]{ui:greeting="Hello, {{name}}!"}
-  :t[greeting]{ns="ui" name="Aiden"}
-  ```
+Add a translation.
 
-  Attributes on `:t` become interpolation variables for i18next.
+```md
+:translations[lang]{ui:hello="BONJOUR"}
+```
 
-  | Input  | Description                     |
-  | ------ | ------------------------------- |
-  | locale | Locale code for the translation |
-  | ns:key | Namespace and key to translate  |
-  | value  | Translated string               |
+Replace `lang` with the locale and `ui` with the namespace. Only one
+`namespace:key="value"` pair is allowed per directive. Repeat the directive
+for additional translations.
+
+```md
+:translations[en]{ui:greeting="Hello, {{name}}!"}
+:t[greeting]{ns="ui" name="Aiden"}
+```
+
+Attributes on `:t` become interpolation variables for i18next.
+
+| Input  | Description                     |
+| ------ | ------------------------------- |
+| locale | Locale code for the translation |
+| ns:key | Namespace and key to translate  |
+| value  | Translated string               |
 
 Campfire prints descriptive error messages to the browser console when it encounters invalid markup.
