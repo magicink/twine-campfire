@@ -38,7 +38,13 @@ export const useScale = (size: DeckSize) => {
       const sx = cw / size.width
       const sy = ch / size.height
       const sRaw = Math.min(sx, sy)
-      const s = Math.max(MIN_SCALE, sRaw < 1 ? Math.sqrt(sRaw) : sRaw)
+      /**
+       * Skip easing when the container is taller than it is wide to prevent
+       * excessive scaling and horizontal clipping. Otherwise, ease the scale
+       * using a square root to avoid overly shrinking content.
+       */
+      const eased = sRaw < 1 && sy <= sx ? Math.sqrt(sRaw) : sRaw
+      const s = Math.max(MIN_SCALE, eased)
       if (s !== scaleRef.current) {
         scaleRef.current = s
         setScale(s)

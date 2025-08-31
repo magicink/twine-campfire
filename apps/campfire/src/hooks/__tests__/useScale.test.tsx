@@ -34,6 +34,31 @@ describe('useScale', () => {
     expect(currentScale).toBe(2)
   })
 
+  it('skips easing when container is taller than wide', () => {
+    const trigger = setupResizeObserver()
+    let currentScale = 0
+
+    /**
+     * Test component that exposes the scale computed by the hook.
+     */
+    const TestComponent = () => {
+      const { ref, scale } = useScale({ width: 100, height: 100 })
+      currentScale = scale
+      return <div ref={ref} />
+    }
+
+    const { container } = render(<TestComponent />)
+    const el = container.firstElementChild as HTMLDivElement
+
+    Object.defineProperty(el, 'clientWidth', { value: 80, configurable: true })
+    Object.defineProperty(el, 'clientHeight', {
+      value: 200,
+      configurable: true
+    })
+    act(() => trigger())
+    expect(currentScale).toBe(0.8)
+  })
+
   it('prevents scale from dropping below the minimum', () => {
     const trigger = setupResizeObserver()
     let currentScale = 1
