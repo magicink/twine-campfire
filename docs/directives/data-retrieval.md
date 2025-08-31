@@ -2,33 +2,32 @@
 
 Read or compute data without mutating state.
 
-- `show`: Display a key's value, the result of an expression, or an
-  interpolated string.
+### `show`
 
-  ```md
-  :show[hp]
-  :show[`Hello ${name}`]
-  :show[some_key > 1 ? "X" : " "]
-  ```
+Display a key's value, the result of an expression, or an interpolated string.
 
-  Replace the content with a key, template string, or JavaScript expression to
-  display.
+```md
+:show[hp]
+:show[`Hello ${name}`]
+:show[some_key > 1 ? "X" : " "]
+```
 
-  | Input     | Description                            |
-  | --------- | -------------------------------------- |
-  | key       | State key to display                   |
-  | className | Additional classes applied to the span |
-  | style     | Inline styles applied to the span      |
+Replace the content with a key, template string, or JavaScript expression to display.
 
-  The directive also supports `className` and `style` attributes for styling
-  the rendered span.
+| Input     | Description                            |
+| --------- | -------------------------------------- |
+| key       | State key to display                   |
+| className | Additional classes applied to the span |
+| style     | Inline styles applied to the span      |
 
-  To read range data, access the range's properties with dot notation:
+The directive also supports `className` and `style` attributes for styling the rendered span.
 
-  ```md
-  :show[score.value]
-  :show[score.min]
-  :show[score.max]
-  ```
+To read range data, access the range's properties with dot notation:
 
-  Range objects expose `value`, `min`, and `max` fields.
+```md
+:show[score.value]
+:show[score.min]
+:show[score.max]
+```
+
+Range objects expose `value`, `min`, and `max` fields.
