@@ -4,84 +4,96 @@ Save and load progress or store data in the browser.
 
 ## Checkpoints
 
-- `checkpoint`: Save the current game state.
+### `checkpoint`
 
-  ```md
-  :checkpoint{id="SAVE-ID" label="LABEL"}
-  ```
+Save the current game state.
 
-  Replace `SAVE-ID` with a key and `LABEL` with a description. Wrap the `id`
-  value in quotes or backticks unless referencing a state key. Saving a new
-  checkpoint replaces any existing checkpoint.
+```md
+:checkpoint{id="SAVE-ID" label="LABEL"}
+```
 
-  | Input | Description                          |
-  | ----- | ------------------------------------ |
-  | id    | Key used to store the checkpoint     |
-  | label | Description shown for the checkpoint |
+Replace `SAVE-ID` with a key and `LABEL` with a description. Wrap the `id`
+value in quotes or backticks unless referencing a state key. Saving a new
+checkpoint replaces any existing checkpoint.
 
-- `clearCheckpoint`: Remove the saved checkpoint.
+| Input | Description                          |
+| ----- | ------------------------------------ |
+| id    | Key used to store the checkpoint     |
+| label | Description shown for the checkpoint |
 
-  ```md
-  :clearCheckpoint
-  ```
+### `clearCheckpoint`
 
-  Removes the currently stored checkpoint. Only one checkpoint can exist at a
-  time, so this directive has no attributes.
+Remove the saved checkpoint.
 
-  | Input    | Description                  |
-  | -------- | ---------------------------- |
-  | _(none)_ | This directive has no inputs |
+```md
+:clearCheckpoint
+```
 
-- `loadCheckpoint`: Load a saved checkpoint.
+Removes the currently stored checkpoint. Only one checkpoint can exist at a
+time, so this directive has no attributes.
 
-  ```md
-  :loadCheckpoint
-  ```
+| Input    | Description                  |
+| -------- | ---------------------------- |
+| _(none)_ | This directive has no inputs |
 
-  Loads the currently stored checkpoint. Only one checkpoint can exist at a
-  time, so this directive has no attributes.
+### `loadCheckpoint`
 
-  | Input    | Description                  |
-  | -------- | ---------------------------- |
-  | _(none)_ | This directive has no inputs |
+Load a saved checkpoint.
+
+```md
+:loadCheckpoint
+```
+
+Loads the currently stored checkpoint. Only one checkpoint can exist at a
+time, so this directive has no attributes.
+
+| Input    | Description                  |
+| -------- | ---------------------------- |
+| _(none)_ | This directive has no inputs |
 
 ## Saves
 
-- `save`: Write the current state to local storage.
+### `save`
 
-  ```md
-  :save{id="SLOT"}
-  ```
+Write the current state to local storage.
 
-  Replace `SLOT` with the storage id. Wrap the `id` value in quotes or
-  backticks unless referencing a state key.
+```md
+:save{id="SLOT"}
+```
 
-  | Input | Description                   |
-  | ----- | ----------------------------- |
-  | id    | Storage key for the save slot |
+Replace `SLOT` with the storage id. Wrap the `id` value in quotes or
+backticks unless referencing a state key.
 
-- `load`: Load state from local storage.
+| Input | Description                   |
+| ----- | ----------------------------- |
+| id    | Storage key for the save slot |
 
-  ```md
-  :load{id="SLOT"}
-  ```
+### `load`
 
-  Replace `SLOT` with the storage id. Wrap the `id` value in quotes or
-  backticks unless referencing a state key.
+Load state from local storage.
 
-  | Input | Description              |
-  | ----- | ------------------------ |
-  | id    | Storage key to load from |
+```md
+:load{id="SLOT"}
+```
 
-- `clearSave`: Remove a stored game state.
+Replace `SLOT` with the storage id. Wrap the `id` value in quotes or
+backticks unless referencing a state key.
 
-  ```md
-  :clearSave{id="SLOT"}
-  ```
+| Input | Description              |
+| ----- | ------------------------ |
+| id    | Storage key to load from |
 
-  Replace `SLOT` with the storage id. Wrap the `id` value in quotes or
-  backticks unless referencing a state key.
+### `clearSave`
 
-  | Input | Description           |
-  | ----- | --------------------- |
-  | id    | Storage key to remove |
+Remove a stored game state.
+
+```md
+:clearSave{id="SLOT"}
+```
+
+Replace `SLOT` with the storage id. Wrap the `id` value in quotes or
+backticks unless referencing a state key.
+
+| Input | Description           |
+| ----- | --------------------- |
+| id    | Storage key to remove |

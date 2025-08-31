@@ -6,7 +6,9 @@ Collect data from players or run directives on demand with interactive elements,
 
 Collect data or trigger actions directly in the passage.
 
-- `input`: Render a text input bound to a game state key. Use as a leaf or container. The container form can include event directives. If the key already exists in game state, its value is used; otherwise, the optional `value` attribute sets the starting value.
+### `input`
+
+Render a text input bound to a game state key. Use as a leaf or container. The container form can include event directives. If the key already exists in game state, its value is used; otherwise, the optional `value` attribute sets the starting value.
 
 Leaf form:
 
@@ -33,7 +35,9 @@ Container form:
 | className   | Optional space-separated classes           |
 | style       | Optional inline style declarations         |
 
-- `textarea`: Render a multi-line text area bound to a game state key. Use as a leaf or container. The container form can include event directives. If the key already exists in game state, its value is used; otherwise, the optional `value` attribute sets the starting value.
+### `textarea`
+
+Render a multi-line text area bound to a game state key. Use as a leaf or container. The container form can include event directives. If the key already exists in game state, its value is used; otherwise, the optional `value` attribute sets the starting value.
 
 Leaf form:
 
@@ -60,7 +64,9 @@ Container form:
 | className   | Optional space-separated classes              |
 | style       | Optional inline style declarations            |
 
-- `select`: Render a dropdown bound to a game state key. Must be used as a container with nested `option` directives. The container form can include event directives. If the key already exists in game state, its value is used; otherwise, the optional `value` attribute sets the initial selection. The optional `label` attribute provides placeholder text when no option is chosen.
+### `select`
+
+Render a dropdown bound to a game state key. Must be used as a container with nested `option` directives. The container form can include event directives. If the key already exists in game state, its value is used; otherwise, the optional `value` attribute sets the initial selection. The optional `label` attribute provides placeholder text when no option is chosen.
 
 ```md
 :::select[color]{label="Choose a color"}
@@ -88,25 +94,27 @@ The select button uses the same default styling as trigger and link buttons and 
 | className | Optional space-separated classes   |
 | style     | Optional inline style declarations |
 
-- `trigger`: Render a button that runs directives when clicked. Supports event directives inside the block.
+### `trigger`
 
-  ```md
-  :::trigger{label="Do it" className="primary"}
-  :::onHover
-  :set[hovered=true]
-  :::
-  :set[key=value]
-  :::
-  ```
+Render a button that runs directives when clicked. Supports event directives inside the block.
 
-  The `label` attribute must be a quoted string using matching single-, double-, or backtick quotes. Replace the label, class name, disabled state, and directives as needed.
+```md
+:::trigger{label="Do it" className="primary"}
+:::onHover
+:set[hovered=true]
+:::
+:set[key=value]
+:::
+```
 
-  | Input     | Description                            |
-  | --------- | -------------------------------------- |
-  | label     | Text displayed on the button           |
-  | className | Optional space-separated classes       |
-  | disabled  | Optional boolean to disable the button |
-  | style     | Optional inline style declarations     |
+The `label` attribute must be a quoted string using matching single-, double-, or backtick quotes. Replace the label, class name, disabled state, and directives as needed.
+
+| Input     | Description                            |
+| --------- | -------------------------------------- |
+| label     | Text displayed on the button           |
+| className | Optional space-separated classes       |
+| disabled  | Optional boolean to disable the button |
+| style     | Optional inline style declarations     |
 
 ### Event directives
 
@@ -122,32 +130,36 @@ Use event directives inside `input`, `select`, or `trigger` blocks to run direct
 
 Run directives on specific passage events or group actions.
 
-- `batch`: Apply multiple directives as a single update.
+### `batch`
 
-  ```md
-  :::batch
-  :set[hp=value]
-  :push{key=items value=sword}
-  :unset{key=old}
-  :::
-  ```
+Apply multiple directives as a single update.
 
-  Supports only the following directives: `if`, `set`, `setOnce`, `array`, `arrayOnce`, `unset`, `random`, and `randomOnce`. Nested `batch` directives are not allowed.
+```md
+:::batch
+:set[hp=value]
+:push{key=items value=sword}
+:unset{key=old}
+:::
+```
 
-  | Input    | Description                  |
-  | -------- | ---------------------------- |
-  | _(none)_ | This directive has no inputs |
+Supports only the following directives: `if`, `set`, `setOnce`, `array`, `arrayOnce`, `unset`, `random`, and `randomOnce`. Nested `batch` directives are not allowed.
 
-- `onExit`: Run data directives once when leaving the passage.
+| Input    | Description                  |
+| -------- | ---------------------------- |
+| _(none)_ | This directive has no inputs |
 
-  ```md
-  :::onExit
-  :set[key=value]
-  :::
-  ```
+### `onExit`
 
-  Only one `onExit` block is allowed per passage. Its contents are hidden, and it supports only the following directives: `if`, `set`, `setOnce`, `array`, `arrayOnce`, `unset`, `random`, `randomOnce`, and `batch`.
+Run data directives once when leaving the passage.
 
-  | Input    | Description                  |
-  | -------- | ---------------------------- |
-  | _(none)_ | This directive has no inputs |
+```md
+:::onExit
+:set[key=value]
+:::
+```
+
+Only one `onExit` block is allowed per passage. Its contents are hidden, and it supports only the following directives: `if`, `set`, `setOnce`, `array`, `arrayOnce`, `unset`, `random`, `randomOnce`, and `batch`.
+
+| Input    | Description                  |
+| -------- | ---------------------------- |
+| _(none)_ | This directive has no inputs |
