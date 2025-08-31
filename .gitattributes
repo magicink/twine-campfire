@@ -1,0 +1,59 @@
+#
+# Normalize line endings across platforms and file types.
+#
+
+# Default: treat files as text and enforce LF in the working tree
+* text=auto eol=lf
+
+# Shell / scripts
+*.sh   text eol=lf
+*.bash text eol=lf
+
+# JavaScript / TypeScript / Config
+*.js    text eol=lf
+*.cjs   text eol=lf
+*.mjs   text eol=lf
+*.jsx   text eol=lf
+*.ts    text eol=lf
+*.tsx   text eol=lf
+*.d.ts  text eol=lf
+*.json  text eol=lf
+*.jsonc text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.md    text eol=lf
+*.html  text eol=lf
+*.htm   text eol=lf
+*.css   text eol=lf
+*.scss  text eol=lf
+*.ejs   text eol=lf
+
+# Windows scripts prefer CRLF when checked out
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Treat common binary assets as binary to avoid CRLF transforms
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.webp binary
+*.ico  binary
+*.bmp  binary
+*.mp3  binary
+*.wav  binary
+*.ogg  binary
+*.mp4  binary
+*.mov  binary
+*.webm binary
+*.pdf  binary
+*.zip  binary
+*.gz   binary
+*.bz2  binary
+*.7z   binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.eot   binary
+
