@@ -1,10 +1,5 @@
 import type { JSX } from 'preact'
-import type { RootContent } from 'mdast'
-import rfdc from 'rfdc'
-import { runDirectiveBlock } from '@campfire/utils/directiveUtils'
-import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
-
-const clone = rfdc()
+import { useSerializedDirectiveRunner } from '@campfire/hooks/useSerializedDirectiveRunner'
 
 /**
  * Generates directive event handlers from serialized directive strings.
@@ -33,23 +28,27 @@ export const useDirectiveEvents = (
   | 'onFocus'
   | 'onBlur'
 > => {
-  const handlers = useDirectiveHandlers()
-
-  const createHandler = (content?: string) =>
-    content
-      ? () =>
-          runDirectiveBlock(
-            clone(JSON.parse(content)) as RootContent[],
-            handlers
-          )
-      : undefined
+  const runMouseEnter = onMouseEnter
+    ? useSerializedDirectiveRunner(onMouseEnter)
+    : undefined
+  const runMouseExit = onMouseExit
+    ? useSerializedDirectiveRunner(onMouseExit)
+    : undefined
+  const runMouseDown = onMouseDown
+    ? useSerializedDirectiveRunner(onMouseDown)
+    : undefined
+  const runMouseUp = onMouseUp
+    ? useSerializedDirectiveRunner(onMouseUp)
+    : undefined
+  const runFocus = onFocus ? useSerializedDirectiveRunner(onFocus) : undefined
+  const runBlur = onBlur ? useSerializedDirectiveRunner(onBlur) : undefined
 
   return {
-    onMouseEnter: createHandler(onMouseEnter),
-    onMouseLeave: createHandler(onMouseExit),
-    onMouseDown: createHandler(onMouseDown),
-    onMouseUp: createHandler(onMouseUp),
-    onFocus: createHandler(onFocus),
-    onBlur: createHandler(onBlur)
+    onMouseEnter: runMouseEnter,
+    onMouseLeave: runMouseExit,
+    onMouseDown: runMouseDown,
+    onMouseUp: runMouseUp,
+    onFocus: runFocus,
+    onBlur: runBlur
   }
 }
