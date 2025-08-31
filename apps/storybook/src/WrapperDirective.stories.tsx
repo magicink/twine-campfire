@@ -49,18 +49,24 @@ export const WithEvents: StoryObj = {
 :set[enter=false]
 :set[exit=false]
 
-:::wrapper{as="button" className="bg-[var(--color-primary-500)] text-[var(--color-gray-950)] p-4"}
-:::onMouseEnter
-  :set[enter=true]
-  :set[exit=false]
-:::
-:::onMouseExit
-  :set[enter=false]
-  :set[exit=true]
-:::
+:::deck{size="800x600"}
+  :::slide
+    :::layer{x=200 y=240 w=400 h=120}
+      :::wrapper{as="div" className="bg-[var(--color-primary-500)] text-[var(--color-gray-950)] flex items-center justify-center p-4 cursor-pointer"}
+      :::onMouseEnter
+        :set[enter=true]
+        :set[exit=false]
+      :::
+      :::onMouseExit
+        :set[enter=false]
+        :set[exit=true]
+      :::
 
-Hover me
+      Hover me
 
+      :::
+    :::
+  :::
 :::
 
 :::if[enter]
