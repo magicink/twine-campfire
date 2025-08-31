@@ -42,7 +42,7 @@ You clicked the button!
 }
 
 /**
- * Demonstrates trigger events such as hover.
+ * Demonstrates trigger events such as mouse enter.
  *
  * @returns Campfire story showcasing trigger event directives.
  */
@@ -55,7 +55,7 @@ export const WithEvents: StoryObj = {
 :set[hover=false]
 
 :::trigger{label="Hover"}
-:::onHover
+:::onMouseEnter
   :set[hover=true]
 :::
 :::
