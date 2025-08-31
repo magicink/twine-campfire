@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.97.0](https://github.com/magicink/twine-campfire/compare/v1.96.0...v1.97.0) (2025-08-31)
+
+
+### Features
+
+* **utils:** introduce generic AssetManager ([ada96bf](https://github.com/magicink/twine-campfire/commit/ada96bfc6468b5a2a70f2519316d7bfcfdc124cc))
+
 ## [1.96.0](https://github.com/magicink/twine-campfire/compare/v1.95.0...v1.96.0) (2025-08-30)
 
 
