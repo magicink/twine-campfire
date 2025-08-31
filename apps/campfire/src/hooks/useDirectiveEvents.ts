@@ -9,18 +9,20 @@ const clone = rfdc()
 /**
  * Generates directive event handlers from serialized directive strings.
  *
- * @param onHover - Serialized directives to run when hovered.
+ * @param onMouseEnter - Serialized directives to run on mouse enter.
+ * @param onMouseLeave - Serialized directives to run on mouse leave.
  * @param onFocus - Serialized directives to run on focus.
  * @param onBlur - Serialized directives to run on blur.
- * @returns Object containing `onMouseEnter`, `onFocus`, and `onBlur` handlers.
+ * @returns Object containing `onMouseEnter`, `onMouseLeave`, `onFocus`, and `onBlur` handlers.
  */
 export const useDirectiveEvents = (
-  onHover?: string,
+  onMouseEnter?: string,
+  onMouseLeave?: string,
   onFocus?: string,
   onBlur?: string
 ): Pick<
   JSX.HTMLAttributes<HTMLElement>,
-  'onMouseEnter' | 'onFocus' | 'onBlur'
+  'onMouseEnter' | 'onMouseLeave' | 'onFocus' | 'onBlur'
 > => {
   const handlers = useDirectiveHandlers()
 
@@ -34,7 +36,8 @@ export const useDirectiveEvents = (
       : undefined
 
   return {
-    onMouseEnter: createHandler(onHover),
+    onMouseEnter: createHandler(onMouseEnter),
+    onMouseLeave: createHandler(onMouseLeave),
     onFocus: createHandler(onFocus),
     onBlur: createHandler(onBlur)
   }

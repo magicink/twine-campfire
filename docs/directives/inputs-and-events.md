@@ -100,7 +100,7 @@ Render a button that runs directives when clicked. Supports event directives ins
 
 ```md
 :::trigger{label="Do it" className="primary"}
-:::onHover
+:::onMouseEnter
 :set[hovered=true]
 :::
 :set[key=value]
@@ -120,11 +120,12 @@ The `label` attribute must be a quoted string using matching single-, double-, o
 
 Use event directives inside `input`, `select`, or `trigger` blocks to run directives on interaction.
 
-| Directive | Fires when the element... |
-| --------- | ------------------------- |
-| `onHover` | is hovered by the pointer |
-| `onFocus` | receives focus            |
-| `onBlur`  | loses focus               |
+| Directive      | Fires when the element... |
+| -------------- | ------------------------- |
+| `onMouseEnter` | is hovered by the pointer |
+| `onMouseLeave` | is no longer hovered      |
+| `onFocus`      | receives focus            |
+| `onBlur`       | loses focus               |
 
 ## Passage event blocks
 

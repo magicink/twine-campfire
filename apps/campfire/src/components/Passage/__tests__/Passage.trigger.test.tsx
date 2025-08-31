@@ -149,7 +149,7 @@ describe('Passage trigger directives', () => {
         {
           type: 'text',
           value:
-            ':::trigger{label="Do"}\n:::onHover\n:set[hovered=true]\n:::\n:::onFocus\n:set[focused=true]\n:::\n:::onBlur\n:set[blurred=true]\n:::\n:set[clicked=true]\n:::\n'
+            ':::trigger{label="Do"}\n:::onMouseEnter\n:set[hovered=true]\n:::\n:::onFocus\n:set[focused=true]\n:::\n:::onBlur\n:set[blurred=true]\n:::\n:set[clicked=true]\n:::\n'
         }
       ]
     }
