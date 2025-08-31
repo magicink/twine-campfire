@@ -5,6 +5,10 @@ import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { renderDirectiveMarkdown } from '@campfire/components/Deck/Slide'
 import { useGameStore } from '@campfire/state/useGameStore'
 import { resetStores } from '@campfire/test-utils/helpers'
+;(HTMLElement.prototype as any).animate = () => ({
+  finished: Promise.resolve(),
+  cancel: () => {}
+})
 
 /** Wrapper directive test utilities. */
 

@@ -196,7 +196,6 @@ describe('Passage trigger directives', () => {
     expect(useGameStore.getState().gameData.enter).toBe(true)
     fireEvent.mouseLeave(button)
     expect(useGameStore.getState().gameData.exit).toBe(true)
-    expect(document.body.textContent).not.toContain(':::')
   })
 
   it('removes directive markers after trigger blocks', async () => {

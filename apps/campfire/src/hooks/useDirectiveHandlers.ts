@@ -781,10 +781,17 @@ export const useDirectiveHandlers = () => {
     index: number
   ): RootContent[] => {
     let end = -1
+    let depth = 0
     for (let i = index + 1; i < parent.children.length; i++) {
-      if (isMarkerParagraph(parent.children[i] as RootContent)) {
-        end = i
-        break
+      const node = parent.children[i] as RootContent
+      if (isMarkerParagraph(node)) {
+        if (depth === 0) {
+          end = i
+          break
+        }
+        depth--
+      } else if (node.type === 'containerDirective') {
+        depth++
       }
     }
     if (end === -1) return container.children as RootContent[]
@@ -1756,7 +1763,10 @@ export const useDirectiveHandlers = () => {
       expandIndentedCode(collectDirectiveChildren(container, parent, index))
     )
     const { events, remaining } = extractEventProps(rawChildren)
-    const content = JSON.stringify(stripLabel(remaining))
+    const cleaned = remaining.filter(
+      child => !isMarkerParagraph(child as RootContent)
+    )
+    const content = JSON.stringify(stripLabel(cleaned))
     const classes = classAttr.split(/\s+/).filter(Boolean)
     const node: Parent = {
       type: 'paragraph',
@@ -1782,6 +1792,12 @@ export const useDirectiveHandlers = () => {
     ])
     const markerIndex = newIndex + 1
     removeDirectiveMarker(parent, markerIndex)
+    while (
+      markerIndex < parent.children.length &&
+      isMarkerParagraph(parent.children[markerIndex] as RootContent)
+    ) {
+      parent.children.splice(markerIndex, 1)
+    }
     return [SKIP, newIndex]
   }
 
@@ -3179,12 +3195,21 @@ export const useDirectiveHandlers = () => {
       const { events, remaining } = extractEventProps(children)
       wrapperEvents = events
       return remaining
+        .filter(child => !isMarkerParagraph(child as RootContent))
         .flatMap(child => {
           if (child.type !== 'paragraph') return child
           const paragraph = child as Parent
           return paragraph.children
         })
         .filter(child => !isWhitespaceNode(child as RootContent))
+    },
+    (parent, markerIndex) => {
+      while (
+        markerIndex + 1 < parent.children.length &&
+        isMarkerParagraph(parent.children[markerIndex + 1] as RootContent)
+      ) {
+        parent.children.splice(markerIndex + 1, 1)
+      }
     }
   )
 
