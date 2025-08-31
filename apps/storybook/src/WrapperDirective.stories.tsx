@@ -34,3 +34,50 @@ export const Basic: StoryObj = {
     </>
   )
 }
+
+/**
+ * Demonstrates wrapper events such as mouse enter and exit interactions.
+ *
+ * @returns Campfire story showcasing wrapper event directives.
+ */
+export const WithEvents: StoryObj = {
+  render: () => (
+    <>
+      <tw-storydata startnode='1' options='debug'>
+        <tw-passagedata pid='1' name='Start'>
+          {`
+:set[enter=false]
+:set[exit=false]
+
+:::wrapper{as="button" className="bg-[var(--color-primary-500)] text-[var(--color-gray-950)] p-4"}
+:::onMouseEnter
+  :set[enter=true]
+  :set[exit=false]
+:::
+:::onMouseExit
+  :set[enter=false]
+  :set[exit=true]
+:::
+
+Hover me
+
+:::
+
+:::if[enter]
+
+You hovered the wrapper!
+
+:::
+
+:::if[exit]
+
+You left the wrapper!
+
+:::
+          `}
+        </tw-passagedata>
+      </tw-storydata>
+      <Campfire />
+    </>
+  )
+}
