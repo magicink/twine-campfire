@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.98.0](https://github.com/magicink/twine-campfire/compare/v1.97.0...v1.98.0) (2025-08-31)
+
+
+### Features
+
+* replace onHover with onMouseEnter and onMouseLeave for interact… ([75fdf1e](https://github.com/magicink/twine-campfire/commit/75fdf1e625974afd1a8d2feeff76553c4c071dbe))
+* replace onHover with onMouseEnter and onMouseLeave for interactive elements ([#597](https://github.com/magicink/twine-campfire/issues/597)) ([df0f583](https://github.com/magicink/twine-campfire/commit/df0f583efd7e87475021586a3b035d8d6a45972f))
+
 ## [1.97.0](https://github.com/magicink/twine-campfire/compare/v1.96.0...v1.97.0) (2025-08-31)
 
 
