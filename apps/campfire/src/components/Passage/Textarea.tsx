@@ -16,13 +16,16 @@ interface TextareaProps
     | 'onFocus'
     | 'onBlur'
     | 'onMouseEnter'
+    | 'onMouseLeave'
   > {
   /** Key in game state to bind the textarea value to. */
   stateKey: string
   /** Additional CSS classes for the textarea element. */
   className?: string | string[]
-  /** Serialized directives to run when hovered. */
-  onHover?: string
+  /** Serialized directives to run on mouse enter. */
+  onMouseEnter?: string
+  /** Serialized directives to run on mouse leave. */
+  onMouseLeave?: string
   /** Serialized directives to run on focus. */
   onFocus?: string
   /** Serialized directives to run on blur. */
@@ -36,7 +39,8 @@ interface TextareaProps
  *
  * @param stateKey - Key in game state to store the value.
  * @param className - Optional additional classes.
- * @param onHover - Serialized directives to run when hovered.
+ * @param onMouseEnter - Serialized directives to run on mouse enter.
+ * @param onMouseLeave - Serialized directives to run on mouse leave.
  * @param onFocus - Serialized directives to run on focus.
  * @param onBlur - Serialized directives to run on blur.
  * @param rest - Additional textarea element attributes.
@@ -45,7 +49,8 @@ interface TextareaProps
 export const Textarea = ({
   stateKey,
   className,
-  onHover,
+  onMouseEnter,
+  onMouseLeave,
   onFocus,
   onBlur,
   onInput,
@@ -55,7 +60,12 @@ export const Textarea = ({
   const value = useGameStore(state => state.gameData[stateKey]) as
     | string
     | undefined
-  const directiveEvents = useDirectiveEvents(onHover, onFocus, onBlur)
+  const directiveEvents = useDirectiveEvents(
+    onMouseEnter,
+    onMouseLeave,
+    onFocus,
+    onBlur
+  )
   const setGameData = useGameStore(state => state.setGameData)
   useEffect(() => {
     if (value === undefined) {

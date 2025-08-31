@@ -94,7 +94,12 @@ const BANNED_BATCH_DIRECTIVES = new Set(['batch'])
 const DIRECTIVE_MARKER = ':::'
 
 /** Event directives supported by interactive elements. */
-const INTERACTIVE_EVENTS = new Set(['onHover', 'onFocus', 'onBlur'])
+const INTERACTIVE_EVENTS = new Set([
+  'onMouseEnter',
+  'onMouseLeave',
+  'onFocus',
+  'onBlur'
+])
 
 /**
  * When both parsed dimensions are less than or equal to this threshold, the
@@ -1235,7 +1240,8 @@ export const useDirectiveHandlers = () => {
       if (styleAttr) props.style = styleAttr
       if (placeholder) props.placeholder = placeholder
       if (initialValue) props.initialValue = initialValue
-      if (events.onHover) props.onHover = events.onHover
+      if (events.onMouseEnter) props.onMouseEnter = events.onMouseEnter
+      if (events.onMouseLeave) props.onMouseLeave = events.onMouseLeave
       if (events.onFocus) props.onFocus = events.onFocus
       if (events.onBlur) props.onBlur = events.onBlur
       applyAdditionalAttributes(attrs, props, [
@@ -1347,7 +1353,8 @@ export const useDirectiveHandlers = () => {
       if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
       if (styleAttr) props.style = styleAttr
       if (initialValue) props.initialValue = initialValue
-      if (events.onHover) props.onHover = events.onHover
+      if (events.onMouseEnter) props.onMouseEnter = events.onMouseEnter
+      if (events.onMouseLeave) props.onMouseLeave = events.onMouseLeave
       if (events.onFocus) props.onFocus = events.onFocus
       if (events.onBlur) props.onBlur = events.onBlur
       applyAdditionalAttributes(attrs, props, [
@@ -1454,7 +1461,8 @@ export const useDirectiveHandlers = () => {
       if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
       if (styleAttr) props.style = styleAttr
       if (initialValue) props.initialValue = initialValue
-      if (events.onHover) props.onHover = events.onHover
+      if (events.onMouseEnter) props.onMouseEnter = events.onMouseEnter
+      if (events.onMouseLeave) props.onMouseLeave = events.onMouseLeave
       if (events.onFocus) props.onFocus = events.onFocus
       if (events.onBlur) props.onBlur = events.onBlur
       applyAdditionalAttributes(attrs, props, [
@@ -1563,7 +1571,8 @@ export const useDirectiveHandlers = () => {
       if (styleAttr) props.style = styleAttr
       if (placeholder) props.placeholder = placeholder
       if (initialValue) props.initialValue = initialValue
-      if (events.onHover) props.onHover = events.onHover
+      if (events.onMouseEnter) props.onMouseEnter = events.onMouseEnter
+      if (events.onMouseLeave) props.onMouseLeave = events.onMouseLeave
       if (events.onFocus) props.onFocus = events.onFocus
       if (events.onBlur) props.onBlur = events.onBlur
       applyAdditionalAttributes(attrs, props, [
@@ -1663,7 +1672,8 @@ export const useDirectiveHandlers = () => {
     if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
     if (styleAttr) props.style = styleAttr
     if (initialValue) props.initialValue = initialValue
-    if (events.onHover) props.onHover = events.onHover
+    if (events.onMouseEnter) props.onMouseEnter = events.onMouseEnter
+    if (events.onMouseLeave) props.onMouseLeave = events.onMouseLeave
     if (events.onFocus) props.onFocus = events.onFocus
     if (events.onBlur) props.onBlur = events.onBlur
     applyAdditionalAttributes(attrs, props, [
@@ -1718,7 +1728,8 @@ export const useDirectiveHandlers = () => {
           content,
           disabled,
           ...(styleAttr ? { style: styleAttr } : {}),
-          ...(events.onHover ? { onHover: events.onHover } : {}),
+          ...(events.onMouseEnter ? { onMouseEnter: events.onMouseEnter } : {}),
+          ...(events.onMouseLeave ? { onMouseLeave: events.onMouseLeave } : {}),
           ...(events.onFocus ? { onFocus: events.onFocus } : {}),
           ...(events.onBlur ? { onBlur: events.onBlur } : {})
         }

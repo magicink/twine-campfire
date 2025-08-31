@@ -87,7 +87,7 @@ describe('Select directive', () => {
         {
           type: 'text',
           value:
-            ':::select[color]\n:option{value="red" label="Red"}\n:option{value="blue" label="Blue"}\n:::onFocus\n:set[focused=true]\n:::\n:::onBlur\n:set[blurred=true]\n:::\n:::onHover\n:set[hovered=true]\n:::\n:::\n'
+            ':::select[color]\n:option{value="red" label="Red"}\n:option{value="blue" label="Blue"}\n:::onFocus\n:set[focused=true]\n:::\n:::onBlur\n:set[blurred=true]\n:::\n:::onMouseEnter\n:set[hovered=true]\n:::\n:::\n'
         }
       ]
     }

@@ -46,7 +46,7 @@ describe('Textarea directive', () => {
         {
           type: 'text',
           value:
-            ':::textarea[bio]\n:::onFocus\n:set[focused=true]\n:::\n:::onHover\n:set[hovered=true]\n:::\n:::\n'
+            ':::textarea[bio]\n:::onFocus\n:set[focused=true]\n:::\n:::onMouseEnter\n:set[hovered=true]\n:::\n:::\n'
         }
       ]
     }
