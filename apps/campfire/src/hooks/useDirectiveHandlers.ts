@@ -828,6 +828,21 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
+   * Skips processing for event directives so their contents can be serialized
+   * and executed later in response to user interactions.
+   *
+   * @param _directive - The event directive node.
+   * @param _parent - Parent node containing the directive.
+   * @param index - Index of the directive within the parent.
+   * @returns Visitor instructions to skip traversing child nodes.
+   */
+  const handleEventDirective: DirectiveHandler = (
+    _directive,
+    _parent,
+    index
+  ) => [SKIP, index ?? 0]
+
+  /**
    * Serializes `:::if` directive blocks into `<if>` components that
    * evaluate a test expression against game data and render optional
    * fallback content when the expression is falsy.
@@ -3157,61 +3172,71 @@ export const useDirectiveHandlers = () => {
     return ['span', 'div', 'p', 'section'].includes(tag) ? tag : 'div'
   }
 
-  let wrapperEvents: Record<string, string> = {}
-
-  const handleWrapper = createContainerHandler(
-    'wrapper',
-    wrapperSchema,
-    (attrs, raw) => {
-      const props: Record<string, unknown> = {}
-      const preset = attrs.from
-        ? (presetsRef.current['wrapper']?.[String(attrs.from)] as
-            | Record<string, unknown>
-            | undefined)
-        : undefined
-      const mergedRaw = mergeAttrs(preset, raw)
-      props.as = resolveWrapperTag(attrs)
-      props['data-testid'] = 'wrapper'
-      const classAttr =
-        typeof mergedRaw.className === 'string'
-          ? mergedRaw.className
-          : undefined
-      props.className = ['campfire-wrapper', classAttr]
-        .filter(Boolean)
-        .join(' ')
-      if (wrapperEvents.onMouseEnter)
-        props.onMouseEnter = wrapperEvents.onMouseEnter
-      if (wrapperEvents.onMouseExit)
-        props.onMouseExit = wrapperEvents.onMouseExit
-      if (wrapperEvents.onMouseDown)
-        props.onMouseDown = wrapperEvents.onMouseDown
-      if (wrapperEvents.onMouseUp) props.onMouseUp = wrapperEvents.onMouseUp
-      if (wrapperEvents.onFocus) props.onFocus = wrapperEvents.onFocus
-      if (wrapperEvents.onBlur) props.onBlur = wrapperEvents.onBlur
-      applyAdditionalAttributes(mergedRaw, props, ['as', 'className', 'from'])
-      return props
-    },
-    (children, _attrs) => {
-      const { events, remaining } = extractEventProps(children)
-      wrapperEvents = events
-      return remaining
-        .filter(child => !isMarkerParagraph(child as RootContent))
-        .flatMap(child => {
-          if (child.type !== 'paragraph') return child
-          const paragraph = child as Parent
-          return paragraph.children
-        })
-        .filter(child => !isWhitespaceNode(child as RootContent))
-    },
-    (parent, markerIndex) => {
-      while (
-        markerIndex + 1 < parent.children.length &&
-        isMarkerParagraph(parent.children[markerIndex + 1] as RootContent)
-      ) {
-        parent.children.splice(markerIndex + 1, 1)
-      }
+  const handleWrapper: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    if (directive.type !== 'containerDirective') {
+      const msg = 'wrapper can only be used as a container directive'
+      console.error(msg)
+      addError(msg)
+      return removeNode(parent, index)
     }
-  )
+    const container = directive as ContainerDirective
+    const { attrs } = extractAttributes<WrapperSchema>(
+      directive,
+      parent,
+      index,
+      wrapperSchema
+    )
+    const raw = (directive.attributes || {}) as Record<string, unknown>
+    const preset = attrs.from
+      ? (presetsRef.current['wrapper']?.[String(attrs.from)] as
+          | Record<string, unknown>
+          | undefined)
+      : undefined
+    const mergedRaw = mergeAttrs(preset, raw)
+    const combined = collectDirectiveChildren(container, parent, index)
+    const processed = runDirectiveBlock(expandIndentedCode(combined))
+    const stripped = stripLabel(processed)
+    const { events, remaining } = extractEventProps(stripped)
+    const children = remaining
+      .filter(child => !isMarkerParagraph(child as RootContent))
+      .flatMap(child => {
+        if (child.type !== 'paragraph') return child
+        const paragraph = child as Parent
+        return paragraph.children
+      })
+      .filter(child => !isWhitespaceNode(child as RootContent))
+    const props: Record<string, unknown> = {}
+    props.as = resolveWrapperTag(attrs)
+    props['data-testid'] = 'wrapper'
+    const classAttr =
+      typeof mergedRaw.className === 'string' ? mergedRaw.className : undefined
+    props.className = ['campfire-wrapper', classAttr].filter(Boolean).join(' ')
+    if (events.onMouseEnter) props.onMouseEnter = events.onMouseEnter
+    if (events.onMouseExit) props.onMouseExit = events.onMouseExit
+    if (events.onMouseDown) props.onMouseDown = events.onMouseDown
+    if (events.onMouseUp) props.onMouseUp = events.onMouseUp
+    if (events.onFocus) props.onFocus = events.onFocus
+    if (events.onBlur) props.onBlur = events.onBlur
+    applyAdditionalAttributes(mergedRaw, props, ['as', 'className', 'from'])
+    const node: Parent = {
+      type: 'paragraph',
+      children,
+      data: { hName: 'wrapper', hProperties: props as Properties }
+    }
+    const newIndex = replaceWithIndentation(directive, parent, index, [
+      node as RootContent
+    ])
+    const markerIndex = newIndex + 1
+    while (
+      markerIndex + 1 < parent.children.length &&
+      isMarkerParagraph(parent.children[markerIndex + 1] as RootContent)
+    ) {
+      parent.children.splice(markerIndex + 1, 1)
+    }
+    removeDirectiveMarker(parent, markerIndex)
+    return [SKIP, newIndex]
+  }
 
   /**
    * Converts a `:text` directive into a SlideText element.
@@ -3951,6 +3976,12 @@ export const useDirectiveHandlers = () => {
       checkbox: handleCheckbox,
       radio: handleRadio,
       textarea: handleTextarea,
+      onMouseEnter: handleEventDirective,
+      onMouseExit: handleEventDirective,
+      onMouseDown: handleEventDirective,
+      onMouseUp: handleEventDirective,
+      onFocus: handleEventDirective,
+      onBlur: handleEventDirective,
       onExit: handleOnExit,
       reveal: handleReveal,
       layer: handleLayer,

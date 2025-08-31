@@ -130,6 +130,8 @@ describe('wrapper directive', () => {
       ':::wrapper{as="div"}\n:::onMouseEnter\n:set[enter=true]\n:::\n:::onMouseExit\n:set[exit=true]\n:::\nContent\n:::'
     render(<MarkdownRunner markdown={md} />)
     const el = document.querySelector('[data-testid="wrapper"]') as HTMLElement
+    expect(useGameStore.getState().gameData.enter).toBeUndefined()
+    expect(useGameStore.getState().gameData.exit).toBeUndefined()
     fireEvent.mouseEnter(el)
     expect(useGameStore.getState().gameData.enter).toBe(true)
     fireEvent.mouseLeave(el)
@@ -141,6 +143,8 @@ describe('wrapper directive', () => {
       ':::wrapper{as="div"}\n:::onMouseEnter\n:set[enter=true]\n:::\n:::onMouseExit\n:set[exit=true]\n:::\n:::'
     render(<MarkdownRunner markdown={md} />)
     const el = document.querySelector('[data-testid="wrapper"]') as HTMLElement
+    expect(useGameStore.getState().gameData.enter).toBeUndefined()
+    expect(useGameStore.getState().gameData.exit).toBeUndefined()
     fireEvent.mouseEnter(el)
     expect(useGameStore.getState().gameData.enter).toBe(true)
     fireEvent.mouseLeave(el)
