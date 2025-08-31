@@ -1,8 +1,10 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { render } from '@testing-library/preact'
+import { render, fireEvent } from '@testing-library/preact'
 import type { ComponentChild } from 'preact'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { renderDirectiveMarkdown } from '@campfire/components/Deck/Slide'
+import { useGameStore } from '@campfire/state/useGameStore'
+import { resetStores } from '@campfire/test-utils/helpers'
 
 /** Wrapper directive test utilities. */
 
@@ -23,6 +25,7 @@ const MarkdownRunner = ({ markdown }: { markdown: string }) => {
 beforeEach(() => {
   output = null
   document.body.innerHTML = ''
+  resetStores()
 })
 
 describe('wrapper directive', () => {
@@ -116,5 +119,16 @@ describe('wrapper directive', () => {
     expect(wrappers[0].textContent?.trim()).toBe('Hi')
     expect(wrappers[1].textContent?.trim()).toBe('Hello')
     expect(wrappers[2].textContent?.trim()).toBe('Goodbye')
+  })
+
+  it('runs event directives', () => {
+    const md =
+      ':::wrapper{as="div"}\n:::onMouseEnter\n:set[enter=true]\n:::\n:::onMouseExit\n:set[exit=true]\n:::\nContent\n:::'
+    render(<MarkdownRunner markdown={md} />)
+    const el = document.querySelector('[data-testid="wrapper"]') as HTMLElement
+    fireEvent.mouseEnter(el)
+    expect(useGameStore.getState().gameData.enter).toBe(true)
+    fireEvent.mouseLeave(el)
+    expect(useGameStore.getState().gameData.exit).toBe(true)
   })
 })

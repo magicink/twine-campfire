@@ -56,7 +56,7 @@ describe('Radio directive', () => {
         {
           type: 'text',
           value:
-            ':::radio[choice]{value="a"}\n:::onFocus\n:set[focused=true]\n:::\n:::onHover\n:set[hovered=true]\n:::\n:::\n:radio[choice]{value="b"}\n'
+            ':::radio[choice]{value="a"}\n:::onFocus\n:set[focused=true]\n:::\n:::onMouseEnter\n:set[hovered=true]\n:::\n:::onMouseExit\n:set[exited=true]\n:::\n:::\n:radio[choice]{value="b"}\n'
         }
       ]
     }
@@ -69,6 +69,8 @@ describe('Radio directive', () => {
     expect(useGameStore.getState().gameData.focused).toBe(true)
     fireEvent.mouseEnter(buttons[0])
     expect(useGameStore.getState().gameData.hovered).toBe(true)
+    fireEvent.mouseLeave(buttons[0])
+    expect(useGameStore.getState().gameData.exited).toBe(true)
   })
 
   it('removes directive markers for container radios', async () => {

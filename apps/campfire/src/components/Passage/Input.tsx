@@ -16,13 +16,22 @@ interface InputProps
     | 'onFocus'
     | 'onBlur'
     | 'onMouseEnter'
+    | 'onMouseLeave'
+    | 'onMouseDown'
+    | 'onMouseUp'
   > {
   /** Key in game state to bind the input value to. */
   stateKey: string
   /** Additional CSS classes for the input element. */
   className?: string | string[]
-  /** Serialized directives to run when hovered. */
-  onHover?: string
+  /** Serialized directives to run on mouse enter. */
+  onMouseEnter?: string
+  /** Serialized directives to run on mouse exit. */
+  onMouseExit?: string
+  /** Serialized directives to run on mouse down. */
+  onMouseDown?: string
+  /** Serialized directives to run on mouse up. */
+  onMouseUp?: string
   /** Serialized directives to run on focus. */
   onFocus?: string
   /** Serialized directives to run on blur. */
@@ -36,7 +45,10 @@ interface InputProps
  *
  * @param stateKey - Key in game state to store the value.
  * @param className - Optional additional classes.
- * @param onHover - Serialized directives to run when hovered.
+ * @param onMouseEnter - Serialized directives to run on mouse enter.
+ * @param onMouseExit - Serialized directives to run on mouse exit.
+ * @param onMouseDown - Serialized directives to run on mouse down.
+ * @param onMouseUp - Serialized directives to run on mouse up.
  * @param onFocus - Serialized directives to run on focus.
  * @param onBlur - Serialized directives to run on blur.
  * @param rest - Additional input element attributes.
@@ -45,7 +57,10 @@ interface InputProps
 export const Input = ({
   stateKey,
   className,
-  onHover,
+  onMouseEnter,
+  onMouseExit,
+  onMouseDown,
+  onMouseUp,
   onFocus,
   onBlur,
   onInput,
@@ -55,7 +70,14 @@ export const Input = ({
   const value = useGameStore(state => state.gameData[stateKey]) as
     | string
     | undefined
-  const directiveEvents = useDirectiveEvents(onHover, onFocus, onBlur)
+  const directiveEvents = useDirectiveEvents(
+    onMouseEnter,
+    onMouseExit,
+    onMouseDown,
+    onMouseUp,
+    onFocus,
+    onBlur
+  )
   const setGameData = useGameStore(state => state.setGameData)
   useEffect(() => {
     if (value === undefined) {

@@ -46,7 +46,7 @@ describe('Input directive', () => {
         {
           type: 'text',
           value:
-            ':::input[name]\n:::onFocus\n:set[focused=true]\n:::\n:::onHover\n:set[hovered=true]\n:::\n:::\n'
+            ':::input[name]\n:::onFocus\n:set[focused=true]\n:::\n:::onMouseEnter\n:set[hovered=true]\n:::\n:::onMouseExit\n:set[exited=true]\n:::\n:::\n'
         }
       ]
     }
@@ -59,6 +59,8 @@ describe('Input directive', () => {
     expect(useGameStore.getState().gameData.focused).toBe(true)
     fireEvent.mouseEnter(input)
     expect(useGameStore.getState().gameData.hovered).toBe(true)
+    fireEvent.mouseLeave(input)
+    expect(useGameStore.getState().gameData.exited).toBe(true)
   })
 
   it('removes directive markers for container inputs', async () => {

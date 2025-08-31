@@ -11,14 +11,26 @@ const clone = rfdc()
 interface TriggerButtonProps
   extends Omit<
     JSX.HTMLAttributes<HTMLButtonElement>,
-    'className' | 'onMouseEnter' | 'onFocus' | 'onBlur'
+    | 'className'
+    | 'onMouseEnter'
+    | 'onMouseLeave'
+    | 'onMouseDown'
+    | 'onMouseUp'
+    | 'onFocus'
+    | 'onBlur'
   > {
   className?: string | string[]
   content: string
   children?: string
   disabled?: boolean
-  /** Serialized directives to run when hovered. */
-  onHover?: string
+  /** Serialized directives to run on mouse enter. */
+  onMouseEnter?: string
+  /** Serialized directives to run on mouse exit. */
+  onMouseExit?: string
+  /** Serialized directives to run on mouse down. */
+  onMouseDown?: string
+  /** Serialized directives to run on mouse up. */
+  onMouseUp?: string
   /** Serialized directives to run on focus. */
   onFocus?: string
   /** Serialized directives to run on blur. */
@@ -33,7 +45,10 @@ interface TriggerButtonProps
  * @param children - Button label.
  * @param disabled - Disables the button when true.
  * @param style - Optional inline styles.
- * @param onHover - Serialized directives to run when hovered.
+ * @param onMouseEnter - Serialized directives to run on mouse enter.
+ * @param onMouseExit - Serialized directives to run on mouse exit.
+ * @param onMouseDown - Serialized directives to run on mouse down.
+ * @param onMouseUp - Serialized directives to run on mouse up.
  * @param onFocus - Serialized directives to run on focus.
  * @param onBlur - Serialized directives to run on blur.
  */
@@ -43,14 +58,24 @@ export const TriggerButton = ({
   children,
   disabled,
   style,
-  onHover,
+  onMouseEnter,
+  onMouseExit,
+  onMouseDown,
+  onMouseUp,
   onFocus,
   onBlur,
   onClick,
   ...rest
 }: TriggerButtonProps) => {
   const handlers = useDirectiveHandlers()
-  const directiveEvents = useDirectiveEvents(onHover, onFocus, onBlur)
+  const directiveEvents = useDirectiveEvents(
+    onMouseEnter,
+    onMouseExit,
+    onMouseDown,
+    onMouseUp,
+    onFocus,
+    onBlur
+  )
   return (
     <button
       type='button'

@@ -42,7 +42,7 @@ You clicked the button!
 }
 
 /**
- * Demonstrates trigger events such as hover.
+ * Demonstrates trigger events such as mouse enter and exit interactions.
  *
  * @returns Campfire story showcasing trigger event directives.
  */
@@ -52,17 +52,29 @@ export const WithEvents: StoryObj = {
       <tw-storydata startnode='1' options='debug'>
         <tw-passagedata pid='1' name='Start'>
           {`
-:set[hover=false]
+:set[enter=false]
+:set[exit=false]
 
 :::trigger{label="Hover"}
-:::onHover
-  :set[hover=true]
+:::onMouseEnter
+  :set[enter=true]
+  :set[exit=false]
+:::
+:::onMouseExit
+  :set[enter=false]
+  :set[exit=true]
 :::
 :::
 
-:::if[hover]
+:::if[enter]
 
 You hovered the button!
+
+:::
+
+:::if[exit]
+
+You left the button!
 
 :::
           `}

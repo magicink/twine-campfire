@@ -11,14 +11,27 @@ const selectStyles =
 interface SelectProps
   extends Omit<
     JSX.HTMLAttributes<HTMLButtonElement>,
-    'className' | 'onInput' | 'onFocus' | 'onBlur' | 'onMouseEnter'
+    | 'className'
+    | 'onInput'
+    | 'onFocus'
+    | 'onBlur'
+    | 'onMouseEnter'
+    | 'onMouseLeave'
+    | 'onMouseDown'
+    | 'onMouseUp'
   > {
   /** Key in game state to bind the select value to. */
   stateKey: string
   /** Additional CSS classes for the select element. */
   className?: string | string[]
-  /** Serialized directives to run when hovered. */
-  onHover?: string
+  /** Serialized directives to run on mouse enter. */
+  onMouseEnter?: string
+  /** Serialized directives to run on mouse exit. */
+  onMouseExit?: string
+  /** Serialized directives to run on mouse down. */
+  onMouseDown?: string
+  /** Serialized directives to run on mouse up. */
+  onMouseUp?: string
   /** Serialized directives to run on focus. */
   onFocus?: string
   /** Serialized directives to run on blur. */
@@ -36,7 +49,10 @@ interface SelectProps
  *
  * @param stateKey - Key in game state to store the selected value.
  * @param className - Optional additional classes.
- * @param onHover - Serialized directives to run when hovered.
+ * @param onMouseEnter - Serialized directives to run on mouse enter.
+ * @param onMouseExit - Serialized directives to run on mouse exit.
+ * @param onMouseDown - Serialized directives to run on mouse down.
+ * @param onMouseUp - Serialized directives to run on mouse up.
  * @param onFocus - Serialized directives to run on focus.
  * @param onBlur - Serialized directives to run on blur.
  * @param style - Optional inline styles for the select element.
@@ -47,7 +63,10 @@ interface SelectProps
 export const Select = ({
   stateKey,
   className,
-  onHover,
+  onMouseEnter,
+  onMouseExit,
+  onMouseDown,
+  onMouseUp,
   onFocus,
   onBlur,
   onInput,
@@ -61,7 +80,14 @@ export const Select = ({
     | string
     | undefined
   const setGameData = useGameStore(state => state.setGameData)
-  const directiveEvents = useDirectiveEvents(onHover, onFocus, onBlur)
+  const directiveEvents = useDirectiveEvents(
+    onMouseEnter,
+    onMouseExit,
+    onMouseDown,
+    onMouseUp,
+    onFocus,
+    onBlur
+  )
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   useEffect(() => {

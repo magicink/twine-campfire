@@ -94,7 +94,14 @@ const BANNED_BATCH_DIRECTIVES = new Set(['batch'])
 const DIRECTIVE_MARKER = ':::'
 
 /** Event directives supported by interactive elements. */
-const INTERACTIVE_EVENTS = new Set(['onHover', 'onFocus', 'onBlur'])
+const INTERACTIVE_EVENTS = new Set([
+  'onMouseEnter',
+  'onMouseExit',
+  'onMouseDown',
+  'onMouseUp',
+  'onFocus',
+  'onBlur'
+])
 
 /**
  * When both parsed dimensions are less than or equal to this threshold, the
@@ -1235,7 +1242,10 @@ export const useDirectiveHandlers = () => {
       if (styleAttr) props.style = styleAttr
       if (placeholder) props.placeholder = placeholder
       if (initialValue) props.initialValue = initialValue
-      if (events.onHover) props.onHover = events.onHover
+      if (events.onMouseEnter) props.onMouseEnter = events.onMouseEnter
+      if (events.onMouseExit) props.onMouseExit = events.onMouseExit
+      if (events.onMouseDown) props.onMouseDown = events.onMouseDown
+      if (events.onMouseUp) props.onMouseUp = events.onMouseUp
       if (events.onFocus) props.onFocus = events.onFocus
       if (events.onBlur) props.onBlur = events.onBlur
       applyAdditionalAttributes(attrs, props, [
@@ -1347,7 +1357,10 @@ export const useDirectiveHandlers = () => {
       if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
       if (styleAttr) props.style = styleAttr
       if (initialValue) props.initialValue = initialValue
-      if (events.onHover) props.onHover = events.onHover
+      if (events.onMouseEnter) props.onMouseEnter = events.onMouseEnter
+      if (events.onMouseExit) props.onMouseExit = events.onMouseExit
+      if (events.onMouseDown) props.onMouseDown = events.onMouseDown
+      if (events.onMouseUp) props.onMouseUp = events.onMouseUp
       if (events.onFocus) props.onFocus = events.onFocus
       if (events.onBlur) props.onBlur = events.onBlur
       applyAdditionalAttributes(attrs, props, [
@@ -1454,7 +1467,10 @@ export const useDirectiveHandlers = () => {
       if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
       if (styleAttr) props.style = styleAttr
       if (initialValue) props.initialValue = initialValue
-      if (events.onHover) props.onHover = events.onHover
+      if (events.onMouseEnter) props.onMouseEnter = events.onMouseEnter
+      if (events.onMouseExit) props.onMouseExit = events.onMouseExit
+      if (events.onMouseDown) props.onMouseDown = events.onMouseDown
+      if (events.onMouseUp) props.onMouseUp = events.onMouseUp
       if (events.onFocus) props.onFocus = events.onFocus
       if (events.onBlur) props.onBlur = events.onBlur
       applyAdditionalAttributes(attrs, props, [
@@ -1563,7 +1579,10 @@ export const useDirectiveHandlers = () => {
       if (styleAttr) props.style = styleAttr
       if (placeholder) props.placeholder = placeholder
       if (initialValue) props.initialValue = initialValue
-      if (events.onHover) props.onHover = events.onHover
+      if (events.onMouseEnter) props.onMouseEnter = events.onMouseEnter
+      if (events.onMouseExit) props.onMouseExit = events.onMouseExit
+      if (events.onMouseDown) props.onMouseDown = events.onMouseDown
+      if (events.onMouseUp) props.onMouseUp = events.onMouseUp
       if (events.onFocus) props.onFocus = events.onFocus
       if (events.onBlur) props.onBlur = events.onBlur
       applyAdditionalAttributes(attrs, props, [
@@ -1663,7 +1682,10 @@ export const useDirectiveHandlers = () => {
     if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
     if (styleAttr) props.style = styleAttr
     if (initialValue) props.initialValue = initialValue
-    if (events.onHover) props.onHover = events.onHover
+    if (events.onMouseEnter) props.onMouseEnter = events.onMouseEnter
+    if (events.onMouseExit) props.onMouseExit = events.onMouseExit
+    if (events.onMouseDown) props.onMouseDown = events.onMouseDown
+    if (events.onMouseUp) props.onMouseUp = events.onMouseUp
     if (events.onFocus) props.onFocus = events.onFocus
     if (events.onBlur) props.onBlur = events.onBlur
     applyAdditionalAttributes(attrs, props, [
@@ -1718,7 +1740,10 @@ export const useDirectiveHandlers = () => {
           content,
           disabled,
           ...(styleAttr ? { style: styleAttr } : {}),
-          ...(events.onHover ? { onHover: events.onHover } : {}),
+          ...(events.onMouseEnter ? { onMouseEnter: events.onMouseEnter } : {}),
+          ...(events.onMouseExit ? { onMouseExit: events.onMouseExit } : {}),
+          ...(events.onMouseDown ? { onMouseDown: events.onMouseDown } : {}),
+          ...(events.onMouseUp ? { onMouseUp: events.onMouseUp } : {}),
           ...(events.onFocus ? { onFocus: events.onFocus } : {}),
           ...(events.onBlur ? { onBlur: events.onBlur } : {})
         }
@@ -3087,8 +3112,10 @@ export const useDirectiveHandlers = () => {
     return ['span', 'div', 'p', 'section'].includes(tag) ? tag : 'div'
   }
 
+  let wrapperEvents: Record<string, string> = {}
+
   const handleWrapper = createContainerHandler(
-    resolveWrapperTag,
+    'wrapper',
     wrapperSchema,
     (attrs, raw) => {
       const props: Record<string, unknown> = {}
@@ -3098,6 +3125,7 @@ export const useDirectiveHandlers = () => {
             | undefined)
         : undefined
       const mergedRaw = mergeAttrs(preset, raw)
+      props.as = resolveWrapperTag(attrs)
       props['data-testid'] = 'wrapper'
       const classAttr =
         typeof mergedRaw.className === 'string'
@@ -3106,17 +3134,29 @@ export const useDirectiveHandlers = () => {
       props.className = ['campfire-wrapper', classAttr]
         .filter(Boolean)
         .join(' ')
+      if (wrapperEvents.onMouseEnter)
+        props.onMouseEnter = wrapperEvents.onMouseEnter
+      if (wrapperEvents.onMouseExit)
+        props.onMouseExit = wrapperEvents.onMouseExit
+      if (wrapperEvents.onMouseDown)
+        props.onMouseDown = wrapperEvents.onMouseDown
+      if (wrapperEvents.onMouseUp) props.onMouseUp = wrapperEvents.onMouseUp
+      if (wrapperEvents.onFocus) props.onFocus = wrapperEvents.onFocus
+      if (wrapperEvents.onBlur) props.onBlur = wrapperEvents.onBlur
       applyAdditionalAttributes(mergedRaw, props, ['as', 'className', 'from'])
       return props
     },
-    children =>
-      children
+    (children, _attrs) => {
+      const { events, remaining } = extractEventProps(children)
+      wrapperEvents = events
+      return remaining
         .flatMap(child => {
           if (child.type !== 'paragraph') return child
           const paragraph = child as Parent
           return paragraph.children
         })
         .filter(child => !isWhitespaceNode(child as RootContent))
+    }
   )
 
   /**

@@ -87,7 +87,7 @@ describe('Select directive', () => {
         {
           type: 'text',
           value:
-            ':::select[color]\n:option{value="red" label="Red"}\n:option{value="blue" label="Blue"}\n:::onFocus\n:set[focused=true]\n:::\n:::onBlur\n:set[blurred=true]\n:::\n:::onHover\n:set[hovered=true]\n:::\n:::\n'
+            ':::select[color]\n:option{value="red" label="Red"}\n:option{value="blue" label="Blue"}\n:::onFocus\n:set[focused=true]\n:::\n:::onBlur\n:set[blurred=true]\n:::\n:::onMouseEnter\n:set[hovered=true]\n:::\n:::onMouseExit\n:set[exited=true]\n:::\n:::\n'
         }
       ]
     }
@@ -105,6 +105,8 @@ describe('Select directive', () => {
     expect(useGameStore.getState().gameData.blurred).toBe(true)
     fireEvent.mouseEnter(select)
     expect(useGameStore.getState().gameData.hovered).toBe(true)
+    fireEvent.mouseLeave(select)
+    expect(useGameStore.getState().gameData.exited).toBe(true)
   })
 
   it('removes directive markers for container selects', async () => {

@@ -8,6 +8,7 @@ import { Radio } from '@campfire/components/Passage/Radio'
 import { Textarea } from '@campfire/components/Passage/Textarea'
 import { Select } from '@campfire/components/Passage/Select'
 import { Option } from '@campfire/components/Passage/Option'
+import { Wrapper } from '@campfire/components/Passage/Wrapper'
 import { If } from '@campfire/components/Passage/If'
 import { Show } from '@campfire/components/Passage/Show'
 import { Translate } from '@campfire/components/Passage/Translate'
@@ -40,6 +41,7 @@ export const renderDirectiveMarkdown = (
     textarea: Textarea,
     select: Select,
     option: Option,
+    wrapper: Wrapper,
     if: If,
     show: Show,
     translate: Translate,

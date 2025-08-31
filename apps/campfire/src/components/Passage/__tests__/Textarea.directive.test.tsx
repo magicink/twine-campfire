@@ -46,7 +46,7 @@ describe('Textarea directive', () => {
         {
           type: 'text',
           value:
-            ':::textarea[bio]\n:::onFocus\n:set[focused=true]\n:::\n:::onHover\n:set[hovered=true]\n:::\n:::\n'
+            ':::textarea[bio]\n:::onFocus\n:set[focused=true]\n:::\n:::onMouseEnter\n:set[hovered=true]\n:::\n:::onMouseExit\n:set[exited=true]\n:::\n:::\n'
         }
       ]
     }
@@ -59,6 +59,8 @@ describe('Textarea directive', () => {
     expect(useGameStore.getState().gameData.focused).toBe(true)
     fireEvent.mouseEnter(textarea)
     expect(useGameStore.getState().gameData.hovered).toBe(true)
+    fireEvent.mouseLeave(textarea)
+    expect(useGameStore.getState().gameData.exited).toBe(true)
   })
 
   it('removes directive markers for container textareas', async () => {

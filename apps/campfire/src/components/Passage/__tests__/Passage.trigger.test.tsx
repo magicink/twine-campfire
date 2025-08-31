@@ -149,7 +149,7 @@ describe('Passage trigger directives', () => {
         {
           type: 'text',
           value:
-            ':::trigger{label="Do"}\n:::onHover\n:set[hovered=true]\n:::\n:::onFocus\n:set[focused=true]\n:::\n:::onBlur\n:set[blurred=true]\n:::\n:set[clicked=true]\n:::\n'
+            ':::trigger{label="Do"}\n:::onMouseEnter\n:set[entered=true]\n:::\n:::onMouseExit\n:set[exited=true]\n:::\n:::onMouseDown\n:set[down=true]\n:::\n:::onMouseUp\n:set[up=true]\n:::\n:::onFocus\n:set[focused=true]\n:::\n:::onBlur\n:set[blurred=true]\n:::\n:set[clicked=true]\n:::\n'
         }
       ]
     }
@@ -157,7 +157,13 @@ describe('Passage trigger directives', () => {
     render(<Passage />)
     const button = await screen.findByRole('button', { name: 'Do' })
     fireEvent.mouseEnter(button)
-    expect(useGameStore.getState().gameData.hovered).toBe(true)
+    expect(useGameStore.getState().gameData.entered).toBe(true)
+    fireEvent.mouseLeave(button)
+    expect(useGameStore.getState().gameData.exited).toBe(true)
+    fireEvent.mouseDown(button)
+    expect(useGameStore.getState().gameData.down).toBe(true)
+    fireEvent.mouseUp(button)
+    expect(useGameStore.getState().gameData.up).toBe(true)
     fireEvent.focus(button)
     expect(useGameStore.getState().gameData.focused).toBe(true)
     fireEvent.blur(button)

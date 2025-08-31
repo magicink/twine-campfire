@@ -14,6 +14,9 @@ interface RadioProps
     | 'onFocus'
     | 'onBlur'
     | 'onMouseEnter'
+    | 'onMouseLeave'
+    | 'onMouseDown'
+    | 'onMouseUp'
   > {
   /** Key in game state to bind the radio selection to. */
   stateKey: string
@@ -21,8 +24,14 @@ interface RadioProps
   value: string
   /** Additional CSS classes for the radio element. */
   className?: string | string[]
-  /** Serialized directives to run when hovered. */
-  onHover?: string
+  /** Serialized directives to run on mouse enter. */
+  onMouseEnter?: string
+  /** Serialized directives to run on mouse exit. */
+  onMouseExit?: string
+  /** Serialized directives to run on mouse down. */
+  onMouseDown?: string
+  /** Serialized directives to run on mouse up. */
+  onMouseUp?: string
   /** Serialized directives to run on focus. */
   onFocus?: string
   /** Serialized directives to run on blur. */
@@ -37,7 +46,10 @@ interface RadioProps
  * @param stateKey - Key in game state to store the selected value.
  * @param value - Value represented by this radio button.
  * @param className - Optional additional classes.
- * @param onHover - Serialized directives to run when hovered.
+ * @param onMouseEnter - Serialized directives to run on mouse enter.
+ * @param onMouseExit - Serialized directives to run on mouse exit.
+ * @param onMouseDown - Serialized directives to run on mouse down.
+ * @param onMouseUp - Serialized directives to run on mouse up.
  * @param onFocus - Serialized directives to run on focus.
  * @param onBlur - Serialized directives to run on blur.
  * @param rest - Additional button element attributes.
@@ -47,7 +59,10 @@ export const Radio = ({
   stateKey,
   value: optionValue,
   className,
-  onHover,
+  onMouseEnter,
+  onMouseExit,
+  onMouseDown,
+  onMouseUp,
   onFocus,
   onBlur,
   onClick,
@@ -57,7 +72,14 @@ export const Radio = ({
   const value = useGameStore(state => state.gameData[stateKey]) as
     | string
     | undefined
-  const directiveEvents = useDirectiveEvents(onHover, onFocus, onBlur)
+  const directiveEvents = useDirectiveEvents(
+    onMouseEnter,
+    onMouseExit,
+    onMouseDown,
+    onMouseUp,
+    onFocus,
+    onBlur
+  )
   const setGameData = useGameStore(state => state.setGameData)
   useEffect(() => {
     if (value === undefined && initialValue !== undefined) {
