@@ -1,21 +1,8 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { render, screen, act, waitFor } from '@testing-library/preact'
-import type { ComponentChild } from 'preact'
-import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
-import { renderDirectiveMarkdown } from '@campfire/components/Deck/Slide'
+import { Campfire } from '@campfire/components'
 import { useGameStore } from '@campfire/state/useGameStore'
 import { resetStores } from '@campfire/test-utils/helpers'
-
-/**
- * Renders directive markdown using project handlers.
- *
- * @param markdown - Markdown string containing directives.
- * @returns The rendered component tree.
- */
-const MarkdownRunner = ({ markdown }: { markdown: string }): ComponentChild => {
-  const handlers = useDirectiveHandlers()
-  return <>{renderDirectiveMarkdown(markdown, handlers)}</>
-}
 
 beforeEach(() => {
   resetStores()
@@ -26,25 +13,113 @@ beforeEach(() => {
 })
 
 describe('nested if/set directives', () => {
-  it('processes deeply nested directives with siblings', async () => {
-    const md = `:::deck\n:::slide\nbefore slide\n:::layer\nbefore trigger\n:::trigger{label="fire"}\nbefore set\n:::set[flag=true]\n:::\n\nbetween\n:::if[flag]\nhit\n:::\n\nafter if\n\n:::\n\nafter trigger\n\n:::\n\nafter layer\n:::layer\nsecond layer\n:::\nend slide\n:::\n:::slide\nsecond slide\n:::\n:::`
-    render(<MarkdownRunner markdown={md} />)
+  it('processes deeply nested directives with multiple siblings and triggers', async () => {
+    render(
+      <>
+        <tw-storydata startnode='1' options='debug'>
+          <tw-passagedata pid='1' name='Start'>
+            {`
+:::deck
+:::slide
+before outer layer
+:::layer
+before outer trigger
+:::trigger{label="outer"}
+before outer set
+:::set[outer=true]
+:::
+between outer set and if
 
-    expect(screen.queryByText('hit')).toBeNull()
-    const button = await screen.findByRole('button', { name: 'fire' })
+:::if[outer]
+before inner layer
+:::layer
+sibling before inner trigger one
+:::trigger{label="inner one"}
+before inner set
+:::set[inner=true]
+:::
+between inner set and if
+
+:::if[inner]
+inner hit
+:::
+after inner if
+:::
+between inner triggers
+
+:::trigger{label="inner two"}
+before inner2 set
+:::set[inner2=true]
+:::
+between inner2 set and if
+
+:::if[inner2]
+inner2 hit
+:::
+after inner2 if
+:::
+after inner triggers
+:::
+after inner layer
+:::
+after outer if
+:::
+after outer trigger
+:::
+after outer layer
+:::layer
+sibling layer after outer
+:::
+end slide
+:::
+:::slide
+second slide
+:::
+:::
+            `}
+          </tw-passagedata>
+        </tw-storydata>
+        <Campfire />
+      </>
+    )
+
+    const campfire = (await screen.findByTestId('campfire')) as HTMLElement
+
+    expect(campfire.textContent).not.toContain('inner hit')
+    expect(campfire.textContent).not.toContain('inner2 hit')
+
+    const outerButton = await screen.findByRole('button', { name: 'outer' })
     act(() => {
-      button.click()
+      outerButton.click()
     })
-
     await waitFor(() => {
-      expect(useGameStore.getState().gameData.flag).toBe(true)
+      expect(useGameStore.getState().gameData.outer).toBe(true)
     })
-    await screen.findByText('hit')
 
-    expect(screen.getByText('before slide')).toBeInTheDocument()
-    expect(screen.getByText('after trigger')).toBeInTheDocument()
-    expect(screen.getByText('after layer')).toBeInTheDocument()
-    expect(screen.getByText('second layer')).toBeInTheDocument()
-    expect(document.body.textContent).not.toContain(':::')
+    const innerOne = await screen.findByRole('button', { name: 'inner one' })
+    act(() => {
+      innerOne.click()
+    })
+    await waitFor(() => {
+      expect(useGameStore.getState().gameData.inner).toBe(true)
+    })
+    await waitFor(() => {
+      expect(campfire.textContent).toContain('inner hit')
+    })
+
+    const innerTwo = await screen.findByRole('button', { name: 'inner two' })
+    act(() => {
+      innerTwo.click()
+    })
+    await waitFor(() => {
+      expect(useGameStore.getState().gameData.inner2).toBe(true)
+    })
+    await waitFor(() => {
+      expect(campfire.textContent).toContain('inner2 hit')
+    })
+
+    expect(campfire.textContent).toContain('after outer trigger')
+    expect(campfire.textContent).toContain('after outer layer')
+    expect(campfire.textContent).toContain('sibling layer after outer')
   })
 })
