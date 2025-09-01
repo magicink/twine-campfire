@@ -1134,8 +1134,7 @@ export const useDirectiveHandlers = () => {
     const container = directive as ContainerDirective
     const allowed = ALLOWED_BATCH_DIRECTIVES
     const rawChildren = runDirectiveBlock(
-      expandIndentedCode(container.children as RootContent[]),
-      handlersRef.current
+      expandIndentedCode(container.children as RootContent[])
     )
     const processedChildren = stripLabel(rawChildren)
     const [filtered, invalid, nested] = filterDirectiveChildren(
