@@ -19,6 +19,8 @@
 
 ## Directives and Attributes
 
+See `docs/spec/markdown-directives.md` for the normative directive spec (syntax, attributes, recursion, grouping, and tests).
+
 ### Container directives
 
 - Always group nested container directives within their parent until the closing `:::` marker.

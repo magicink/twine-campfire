@@ -35,6 +35,8 @@
 
 ## Directives and Attributes
 
+Refer to `docs/spec/markdown-directives.md` for the canonical directive rules (syntax, attributes, recursion, grouping, and test expectations).
+
 ### Container directives
 
 - Always group nested container directives within their parent until the closing `:::` marker.
