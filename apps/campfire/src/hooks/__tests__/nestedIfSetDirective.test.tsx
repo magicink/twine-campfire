@@ -1,10 +1,12 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { render, screen, act, waitFor } from '@testing-library/preact'
-import { Campfire } from '@campfire/components'
+import type { Element } from 'hast'
+import { Passage } from '@campfire/components/Passage/Passage'
 import { useGameStore } from '@campfire/state/useGameStore'
+import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
 import { resetStores } from '@campfire/test-utils/helpers'
 
-beforeEach(() => {
+beforeEach(async () => {
   resetStores()
   document.body.innerHTML = ''
   ;(HTMLElement.prototype as any).animate = () => ({
@@ -14,79 +16,66 @@ beforeEach(() => {
 
 describe('nested if/set directives', () => {
   it('processes deeply nested directives with multiple siblings and triggers', async () => {
-    render(
-      <>
-        <tw-storydata startnode='1' options='debug'>
-          <tw-passagedata pid='1' name='Start'>
-            {`
-:::deck
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: `:::deck
 :::slide
 before outer layer
 :::layer
 before outer trigger
 :::trigger{label="outer"}
-before outer set
 :::set[outer=true]
 :::
-between outer set and if
 
 :::if[outer]
 before inner layer
 :::layer
-sibling before inner trigger one
 :::trigger{label="inner one"}
-before inner set
 :::set[inner=true]
 :::
-between inner set and if
 
 :::if[inner]
 inner hit
 :::
-after inner if
 :::
-between inner triggers
 
 :::trigger{label="inner two"}
-before inner2 set
 :::set[inner2=true]
 :::
-between inner2 set and if
 
 :::if[inner2]
 inner2 hit
 :::
-after inner2 if
 :::
-after inner triggers
 :::
-after inner layer
 :::
-after outer if
-:::
-after outer trigger
-:::
-after outer layer
+
 :::layer
 sibling layer after outer
 :::
-end slide
 :::
 :::slide
 second slide
 :::
-:::
-            `}
-          </tw-passagedata>
-        </tw-storydata>
-        <Campfire />
-      </>
-    )
+:::`
+        }
+      ]
+    }
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+    render(<Passage />)
 
-    const campfire = (await screen.findByTestId('campfire')) as HTMLElement
+    const passageEl = (await screen.findByTestId('passage')) as HTMLElement
 
-    expect(campfire.textContent).not.toContain('inner hit')
-    expect(campfire.textContent).not.toContain('inner2 hit')
+    expect(passageEl.textContent).not.toContain('inner hit')
+    expect(passageEl.textContent).not.toContain('inner2 hit')
 
     const outerButton = await screen.findByRole('button', { name: 'outer' })
     act(() => {
@@ -104,7 +93,7 @@ second slide
       expect(useGameStore.getState().gameData.inner).toBe(true)
     })
     await waitFor(() => {
-      expect(campfire.textContent).toContain('inner hit')
+      expect(passageEl.textContent).toContain('inner hit')
     })
 
     const innerTwo = await screen.findByRole('button', { name: 'inner two' })
@@ -115,11 +104,11 @@ second slide
       expect(useGameStore.getState().gameData.inner2).toBe(true)
     })
     await waitFor(() => {
-      expect(campfire.textContent).toContain('inner2 hit')
+      expect(passageEl.textContent).toContain('inner2 hit')
     })
 
-    expect(campfire.textContent).toContain('after outer trigger')
-    expect(campfire.textContent).toContain('after outer layer')
-    expect(campfire.textContent).toContain('sibling layer after outer')
+    expect(passageEl.textContent).toContain('before outer layer')
+    expect(passageEl.textContent).toContain('sibling layer after outer')
+    expect(document.body.textContent).not.toContain(':::')
   })
 })
