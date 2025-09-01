@@ -38,7 +38,9 @@ Here's a practical example showing how directives can be combined to create inte
 The value is currently :show[testRange]
 
 :::trigger{label="add"}
+:::onClick
 :setRange[testRange=(testRange.value+1)]
+:::
 :::
 
 :::if[testRange.value === testRange.max]

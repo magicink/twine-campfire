@@ -17,10 +17,8 @@ export default meta
 export const States: StoryObj<typeof TriggerButton> = {
   render: () => (
     <div className='flex gap-2'>
-      <TriggerButton content='[]'>Enabled</TriggerButton>
-      <TriggerButton content='[]' disabled>
-        Disabled
-      </TriggerButton>
+      <TriggerButton>Enabled</TriggerButton>
+      <TriggerButton disabled>Disabled</TriggerButton>
     </div>
   )
 }
@@ -33,7 +31,6 @@ export const States: StoryObj<typeof TriggerButton> = {
 export const Styled: StoryObj<typeof TriggerButton> = {
   render: () => (
     <TriggerButton
-      content='[]'
       style={{
         backgroundColor: 'var(--color-primary-500)',
         color: 'var(--color-primary-foreground)'

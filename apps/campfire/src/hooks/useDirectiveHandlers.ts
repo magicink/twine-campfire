@@ -104,7 +104,10 @@ const INTERACTIVE_EVENTS = new Set([
   'onMouseEnter',
   'onMouseLeave',
   'onFocus',
-  'onBlur'
+  'onBlur',
+  'onClick',
+  'onMouseDown',
+  'onMouseUp'
 ])
 
 /**
@@ -1886,10 +1889,17 @@ export const useDirectiveHandlers = () => {
       ...pendingFiltered
     ])
 
+    if (finalContentNodes.length > 0) {
+      const msg =
+        'trigger content must be wrapped in onClick, onMouseDown, or onMouseUp directives'
+      console.error(msg)
+      addError(msg)
+    }
+
     const classes = classAttr.split(/\s+/).filter(Boolean)
     const hProps: Record<string, unknown> = {
       className: classes,
-      content: JSON.stringify(finalContentNodes),
+      content: '[]',
       disabled,
       ...(styleAttr ? { style: styleAttr } : {})
     }
@@ -1897,6 +1907,9 @@ export const useDirectiveHandlers = () => {
     if (events.onMouseLeave) hProps.onMouseLeave = events.onMouseLeave
     if (events.onFocus) hProps.onFocus = events.onFocus
     if (events.onBlur) hProps.onBlur = events.onBlur
+    if (events.onClick) hProps.onClick = events.onClick
+    if (events.onMouseDown) hProps.onMouseDown = events.onMouseDown
+    if (events.onMouseUp) hProps.onMouseUp = events.onMouseUp
     // Child-level events take precedence if not already set
     if (!hProps.onMouseEnter && extraEvents.onMouseEnter)
       hProps.onMouseEnter = extraEvents.onMouseEnter
@@ -1905,6 +1918,12 @@ export const useDirectiveHandlers = () => {
     if (!hProps.onFocus && extraEvents.onFocus)
       hProps.onFocus = extraEvents.onFocus
     if (!hProps.onBlur && extraEvents.onBlur) hProps.onBlur = extraEvents.onBlur
+    if (!hProps.onClick && extraEvents.onClick)
+      hProps.onClick = extraEvents.onClick
+    if (!hProps.onMouseDown && extraEvents.onMouseDown)
+      hProps.onMouseDown = extraEvents.onMouseDown
+    if (!hProps.onMouseUp && extraEvents.onMouseUp)
+      hProps.onMouseUp = extraEvents.onMouseUp
 
     const node: Parent = {
       type: 'paragraph',

@@ -46,11 +46,11 @@ describe('Slide directive hooks', () => {
   })
 
   it('runs TriggerButton directives inside slides', () => {
-    const btnContent = makeDirective(':set[clicked=true]')
+    const btnContent = makeDirective(':::onClick\n:set[clicked=true]\n:::')
     const { getByRole } = render(
       <Deck>
         <Slide>
-          <TriggerButton content={btnContent}>Click</TriggerButton>
+          <TriggerButton onClick={btnContent}>Click</TriggerButton>
         </Slide>
       </Deck>
     )

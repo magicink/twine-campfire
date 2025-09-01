@@ -103,7 +103,9 @@ Render a button that runs directives when clicked. Supports event directives ins
 :::onMouseEnter
 :set[hovered=true]
 :::
+:::onClick
 :set[key=value]
+:::
 :::
 ```
 
@@ -146,6 +148,9 @@ Use event directives inside `input`, `select`, or `trigger` blocks to run direct
 | `onMouseLeave` | is no longer hovered      |
 | `onFocus`      | receives focus            |
 | `onBlur`       | loses focus               |
+| `onClick`      | is clicked                |
+| `onMouseDown`  | receives a mouse down     |
+| `onMouseUp`    | receives a mouse up       |
 
 ## Passage event blocks
 

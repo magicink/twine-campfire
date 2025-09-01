@@ -11,10 +11,17 @@ const clone = rfdc()
 interface TriggerButtonProps
   extends Omit<
     JSX.HTMLAttributes<HTMLButtonElement>,
-    'className' | 'onMouseEnter' | 'onMouseLeave' | 'onFocus' | 'onBlur'
+    | 'className'
+    | 'onMouseEnter'
+    | 'onMouseLeave'
+    | 'onFocus'
+    | 'onBlur'
+    | 'onClick'
+    | 'onMouseDown'
+    | 'onMouseUp'
   > {
   className?: string | string[]
-  content: string
+  content?: string
   disabled?: boolean
   /** Serialized directives to run on mouse enter. */
   onMouseEnter?: string
@@ -24,13 +31,19 @@ interface TriggerButtonProps
   onFocus?: string
   /** Serialized directives to run on blur. */
   onBlur?: string
+  /** Serialized directives to run on click. */
+  onClick?: string
+  /** Serialized directives to run on mouse down. */
+  onMouseDown?: string
+  /** Serialized directives to run on mouse up. */
+  onMouseUp?: string
 }
 
 /**
  * Button that processes directive content when clicked.
  *
  * @param className - Optional CSS classes.
- * @param content - Serialized directive block.
+ * @param content - Serialized directive block (unused).
  * @param children - Button label.
  * @param disabled - Disables the button when true.
  * @param style - Optional inline styles.
@@ -38,10 +51,13 @@ interface TriggerButtonProps
  * @param onMouseLeave - Serialized directives to run on mouse leave.
  * @param onFocus - Serialized directives to run on focus.
  * @param onBlur - Serialized directives to run on blur.
+ * @param onClick - Serialized directives to run on click.
+ * @param onMouseDown - Serialized directives to run on mouse down.
+ * @param onMouseUp - Serialized directives to run on mouse up.
  */
 export const TriggerButton = ({
   className,
-  content,
+  content: _content,
   children,
   disabled,
   style,
@@ -50,6 +66,8 @@ export const TriggerButton = ({
   onFocus,
   onBlur,
   onClick,
+  onMouseDown,
+  onMouseUp,
   ...rest
 }: TriggerButtonProps) => {
   const handlers = useDirectiveHandlers()
@@ -59,6 +77,10 @@ export const TriggerButton = ({
     onFocus,
     onBlur
   )
+  const run = (contentStr?: string) => {
+    if (!contentStr) return
+    runDirectiveBlock(clone(JSON.parse(contentStr)) as RootContent[], handlers)
+  }
   return (
     <button
       type='button'
@@ -72,11 +94,20 @@ export const TriggerButton = ({
       style={style}
       {...rest}
       {...directiveEvents}
+      onMouseDown={e => {
+        e.stopPropagation()
+        if (disabled) return
+        run(onMouseDown)
+      }}
+      onMouseUp={e => {
+        e.stopPropagation()
+        if (disabled) return
+        run(onMouseUp)
+      }}
       onClick={e => {
         e.stopPropagation()
-        onClick?.(e)
         if (e.defaultPrevented || disabled) return
-        runDirectiveBlock(clone(JSON.parse(content)) as RootContent[], handlers)
+        run(onClick)
       }}
     >
       {children}
