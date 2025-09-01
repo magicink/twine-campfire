@@ -1134,8 +1134,7 @@ export const useDirectiveHandlers = () => {
     const container = directive as ContainerDirective
     const allowed = ALLOWED_BATCH_DIRECTIVES
     const rawChildren = runDirectiveBlock(
-      expandIndentedCode(container.children as RootContent[]),
-      handlersRef.current
+      expandIndentedCode(container.children as RootContent[])
     )
     const processedChildren = stripLabel(rawChildren)
     const [filtered, invalid, nested] = filterDirectiveChildren(
@@ -3304,8 +3303,8 @@ export const useDirectiveHandlers = () => {
       children
         .flatMap(child => {
           if (child.type !== 'paragraph') return child
-          const paragraph = child as Parent
-          return paragraph.children
+          const paragraph = child as Paragraph
+          return paragraph.data?.hName ? paragraph : paragraph.children
         })
         .filter(child => !isWhitespaceNode(child as RootContent))
   )
