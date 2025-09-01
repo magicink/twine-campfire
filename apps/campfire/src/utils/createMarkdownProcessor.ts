@@ -30,8 +30,19 @@ export const createMarkdownProcessor = (
   handlers: Record<string, DirectiveHandler>,
   components: Record<string, ComponentType<any>>,
   remarkPlugins: PluggableList = []
-) =>
-  unified()
+) => {
+  const normalized = Object.fromEntries(
+    Object.entries(components).flatMap(([key, value]) => {
+      const lower = key.toLowerCase()
+      return lower === key
+        ? [[key, value]]
+        : [
+            [key, value],
+            [lower, value]
+          ]
+    })
+  )
+  return unified()
     .use(remarkParse)
     .use(remarkGfm)
     .use(remarkDirective)
@@ -43,4 +54,5 @@ export const createMarkdownProcessor = (
     .use(rehypeChecklistButtons)
     .use(rehypeRadioButtons)
     .use(rehypeTableStyles)
-    .use(rehypeReact, { Fragment, jsx, jsxs, components })
+    .use(rehypeReact, { Fragment, jsx, jsxs, components: normalized })
+}

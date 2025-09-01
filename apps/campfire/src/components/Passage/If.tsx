@@ -34,9 +34,25 @@ interface IfProps {
  * serialized nodes when the expression is truthy or an optional
  * fallback when it is falsy.
  */
-export const If = ({ test, content, fallback }: IfProps) => {
+export const If = ({
+  test,
+  content,
+  fallback
+}: IfProps): ComponentChild | null => {
   const handlers = useDirectiveHandlers()
   const processor = useMemo(() => {
+    const componentMap: Record<string, any> = {
+      button: LinkButton,
+      trigger: TriggerButton,
+      show: Show,
+      translate: Translate,
+      onExit: OnExit,
+      reveal: SlideReveal,
+      slideText: SlideText,
+      slideImage: SlideImage,
+      slideShape: SlideShape
+    }
+    componentMap.if = If
     const proc = unified()
       .use(remarkGfm)
       .use(remarkCampfire, { handlers })
@@ -47,18 +63,17 @@ export const If = ({ test, content, fallback }: IfProps) => {
         Fragment,
         jsx,
         jsxs,
-        components: {
-          button: LinkButton,
-          trigger: TriggerButton,
-          if: If,
-          show: Show,
-          translate: Translate,
-          onExit: OnExit,
-          reveal: SlideReveal,
-          slideText: SlideText,
-          slideImage: SlideImage,
-          slideShape: SlideShape
-        }
+        components: Object.fromEntries(
+          Object.entries(componentMap).flatMap(([key, value]) => {
+            const lower = key.toLowerCase()
+            return lower === key
+              ? [[key, value]]
+              : [
+                  [key, value],
+                  [lower, value]
+                ]
+          })
+        )
       })
     proc.parser = (_doc: unknown, file: Root) => ({
       type: file.type,

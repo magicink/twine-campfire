@@ -82,4 +82,20 @@ describe('If directive', () => {
     expect(screen.queryByRole('button', { name: 'One' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Two' })).toBeNull()
   })
+
+  it('maps if directive to component', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':::if[true]\nHello\n:::' }]
+    }
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+    render(<Passage />)
+    expect(await screen.findByText('Hello')).toBeInTheDocument()
+    expect(document.querySelector('if')).toBeNull()
+  })
 })
