@@ -787,14 +787,16 @@ export const useDirectiveHandlers = () => {
    * @returns Object with serialized event blocks and remaining nodes.
    */
   const extractEventProps = (
-    nodes: RootContent[]
+    nodes: RootContent[],
+    extraEvents: string[] = []
   ): { events: Record<string, string>; remaining: RootContent[] } => {
     const events: Record<string, string> = {}
     const remaining: RootContent[] = []
+    const eventSet = new Set([...INTERACTIVE_EVENTS, ...extraEvents])
     for (const node of nodes) {
       if (
         node.type === 'containerDirective' &&
-        INTERACTIVE_EVENTS.has((node as ContainerDirective).name)
+        eventSet.has((node as ContainerDirective).name)
       ) {
         const name = (node as ContainerDirective).name
         events[name] = JSON.stringify(
@@ -1133,9 +1135,12 @@ export const useDirectiveHandlers = () => {
 
     const container = directive as ContainerDirective
     const allowed = ALLOWED_BATCH_DIRECTIVES
+    const allowedHandlers = Object.fromEntries(
+      Object.entries(handlersRef.current).filter(([k]) => allowed.has(k))
+    )
     const rawChildren = runDirectiveBlock(
       expandIndentedCode(container.children as RootContent[]),
-      handlersRef.current
+      allowedHandlers
     )
     const processedChildren = stripLabel(rawChildren)
     const [filtered, invalid, nested] = filterDirectiveChildren(
@@ -1752,7 +1757,11 @@ export const useDirectiveHandlers = () => {
     )
     // 2) A raw view (no directive execution) used to serialize content to run on click
     const rawChildren = expandIndentedCode(container.children as RootContent[])
-    const { events, remaining } = extractEventProps(rawChildren)
+    const { events, remaining } = extractEventProps(rawChildren, [
+      'onClick',
+      'onMouseDown',
+      'onMouseUp'
+    ])
 
     // Detect processed wrapper elements (paragraph with campfire-wrapper) or raw wrapper directives
     const isProcessedWrapper = (node: RootContent): node is Paragraph => {
@@ -1789,6 +1798,13 @@ export const useDirectiveHandlers = () => {
         !isRawWrapper(n) &&
         !(n.type === 'text' && isMarkerText(n as RootContent))
     )
+    if (remainingAfterLabel.length > 0) {
+      const msg =
+        'Trigger content must be inside onClick, onMouseDown, or onMouseUp directives'
+      console.error(msg)
+      addError(msg)
+      remainingAfterLabel = []
+    }
 
     if (totalWrappers > 0) {
       if (totalWrappers > 1) {
@@ -1876,28 +1892,37 @@ export const useDirectiveHandlers = () => {
 
     // Extract any additional events from siblings and filter out wrapper nodes
     const { events: extraEvents, remaining: pendingRemaining } =
-      extractEventProps(siblings)
+      extractEventProps(siblings, ['onClick', 'onMouseDown', 'onMouseUp'])
     const pendingFiltered = pendingRemaining.filter(
       n => !isProcessedWrapper(n) && !isRawWrapper(n)
     )
-
-    const finalContentNodes = stripLabel([
-      ...(remainingAfterLabel as RootContent[]),
-      ...pendingFiltered
-    ])
+    if (pendingFiltered.length > 0) {
+      const msg =
+        'Trigger content must be inside onClick, onMouseDown, or onMouseUp directives'
+      console.error(msg)
+      addError(msg)
+    }
 
     const classes = classAttr.split(/\s+/).filter(Boolean)
+    const clickContent =
+      events.onClick || extraEvents.onClick || JSON.stringify([])
     const hProps: Record<string, unknown> = {
       className: classes,
-      content: JSON.stringify(finalContentNodes),
+      content: clickContent,
       disabled,
       ...(styleAttr ? { style: styleAttr } : {})
     }
+    if (events.onMouseDown) hProps.onMouseDown = events.onMouseDown
+    if (events.onMouseUp) hProps.onMouseUp = events.onMouseUp
     if (events.onMouseEnter) hProps.onMouseEnter = events.onMouseEnter
     if (events.onMouseLeave) hProps.onMouseLeave = events.onMouseLeave
     if (events.onFocus) hProps.onFocus = events.onFocus
     if (events.onBlur) hProps.onBlur = events.onBlur
     // Child-level events take precedence if not already set
+    if (!hProps.onMouseDown && extraEvents.onMouseDown)
+      hProps.onMouseDown = extraEvents.onMouseDown
+    if (!hProps.onMouseUp && extraEvents.onMouseUp)
+      hProps.onMouseUp = extraEvents.onMouseUp
     if (!hProps.onMouseEnter && extraEvents.onMouseEnter)
       hProps.onMouseEnter = extraEvents.onMouseEnter
     if (!hProps.onMouseLeave && extraEvents.onMouseLeave)

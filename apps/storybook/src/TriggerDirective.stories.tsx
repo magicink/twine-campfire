@@ -21,7 +21,9 @@ export const Basic: StoryObj = {
 :set[test=true]
 
 :::trigger{label="Click me"}
-  :set[test=false]
+  :::onClick
+    :set[test=false]
+  :::
 :::
 
 :::if[!test]
@@ -90,7 +92,9 @@ export const WithWrapperLabel: StoryObj = {
     ![cat](https://placecats.com/neo/50/50)
     Click the cat
   :::
-  :set[clicked=true]
+  :::onClick
+    :set[clicked=true]
+  :::
 :::
 
 :::if[clicked]

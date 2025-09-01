@@ -93,7 +93,9 @@ describe('Story', () => {
 :::
 
 :::trigger{label="open"}
-:::set[open=false]
+:::onClick
+:set[open=false]
+:::
 :::
 
 :::if[!open]
@@ -124,7 +126,8 @@ is open!
 
 :::if[open]
 :::trigger{label="open"}
-:::set[clicked=true]
+:::onClick
+:set[clicked=true]
 :::
 :::
 :::

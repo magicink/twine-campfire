@@ -11,7 +11,13 @@ const clone = rfdc()
 interface TriggerButtonProps
   extends Omit<
     JSX.HTMLAttributes<HTMLButtonElement>,
-    'className' | 'onMouseEnter' | 'onMouseLeave' | 'onFocus' | 'onBlur'
+    | 'className'
+    | 'onMouseEnter'
+    | 'onMouseLeave'
+    | 'onFocus'
+    | 'onBlur'
+    | 'onMouseDown'
+    | 'onMouseUp'
   > {
   className?: string | string[]
   content: string
@@ -24,6 +30,10 @@ interface TriggerButtonProps
   onFocus?: string
   /** Serialized directives to run on blur. */
   onBlur?: string
+  /** Serialized directives to run on mouse down. */
+  onMouseDown?: string
+  /** Serialized directives to run on mouse up. */
+  onMouseUp?: string
 }
 
 /**
@@ -38,6 +48,8 @@ interface TriggerButtonProps
  * @param onMouseLeave - Serialized directives to run on mouse leave.
  * @param onFocus - Serialized directives to run on focus.
  * @param onBlur - Serialized directives to run on blur.
+ * @param onMouseDown - Serialized directives to run on mouse down.
+ * @param onMouseUp - Serialized directives to run on mouse up.
  */
 export const TriggerButton = ({
   className,
@@ -49,6 +61,8 @@ export const TriggerButton = ({
   onMouseLeave,
   onFocus,
   onBlur,
+  onMouseDown,
+  onMouseUp,
   onClick,
   ...rest
 }: TriggerButtonProps) => {
@@ -57,7 +71,9 @@ export const TriggerButton = ({
     onMouseEnter,
     onMouseLeave,
     onFocus,
-    onBlur
+    onBlur,
+    onMouseDown,
+    onMouseUp
   )
   return (
     <button

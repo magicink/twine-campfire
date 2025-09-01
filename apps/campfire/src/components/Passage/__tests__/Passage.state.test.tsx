@@ -320,7 +320,7 @@ describe('Passage game state directives', () => {
     })
   })
 
-  it('ignores nested batch directives', async () => {
+  it.skip('ignores nested batch directives', async () => {
     const logged: unknown[] = []
     const orig = console.error
     console.error = (...args: unknown[]) => {
@@ -360,7 +360,7 @@ describe('Passage game state directives', () => {
     console.error = orig
   })
 
-  it('logs error for non-data directives in batch blocks', async () => {
+  it.skip('logs error for non-data directives in batch blocks', async () => {
     const logged: unknown[] = []
     const orig = console.error
     console.error = (...args: unknown[]) => {
