@@ -72,3 +72,34 @@ You hovered the button!
     </>
   )
 }
+
+/**
+ * Demonstrates using a wrapper inside a trigger to render a rich label
+ * with an inline image next to text. The wrapper becomes the button’s label.
+ */
+export const WithWrapperLabel: StoryObj = {
+  render: () => (
+    <>
+      <tw-storydata startnode='1' options='debug'>
+        <tw-passagedata pid='1' name='Start'>
+          {`
+:set[clicked=false]
+
+:::trigger{className='flex items-center'}
+  :::wrapper{as="span" className="inline-flex items-center gap-2"}
+    ![cat](https://placecats.com/neo/50/50)
+    Click the cat
+  :::
+  :set[clicked=true]
+:::
+
+:::if[clicked]
+You clicked the cat button!
+:::
+          `}
+        </tw-passagedata>
+      </tw-storydata>
+      <Campfire />
+    </>
+  )
+}

@@ -13,7 +13,13 @@ import type {
 import remarkCampfire, {
   remarkCampfireIndentation
 } from '@campfire/remark-campfire'
-import type { Parent, RootContent, Text as MdText, InlineCode } from 'mdast'
+import type {
+  Parent,
+  Paragraph,
+  RootContent,
+  Text as MdText,
+  InlineCode
+} from 'mdast'
 import type { Node } from 'unist'
 import type {
   Element,
@@ -752,6 +758,17 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
+   * Determines whether a text node consists only of directive markers.
+   */
+  const isMarkerText = (node: RootContent): boolean => {
+    if (node.type !== 'text') return false
+    const stripped = (node as MdText).value.replace(/\s+/g, '')
+    if (!stripped) return false
+    const parts = stripped.split(DIRECTIVE_MARKER)
+    return parts.every(part => part === '')
+  }
+
+  /**
    * Determines whether a node contains only whitespace or marker tokens.
    *
    * @param node - Node to examine.
@@ -885,8 +902,21 @@ export const useDirectiveHandlers = () => {
     const newIndex = replaceWithIndentation(directive, parent, index, [
       node as RootContent
     ])
-    const markerIndex = newIndex + 1
-    removeDirectiveMarker(parent, markerIndex)
+    // Remove closing directive markers after the trigger block, skipping any whitespace-only nodes
+    let markerIndex = newIndex + 1
+    while (markerIndex < parent.children.length) {
+      const sibling = parent.children[markerIndex] as RootContent
+      if (isMarkerParagraph(sibling)) {
+        parent.children.splice(markerIndex, 1)
+        // Do not advance index; next sibling shifts into current index
+        continue
+      }
+      if (isWhitespaceNode(sibling)) {
+        markerIndex++
+        continue
+      }
+      break
+    }
     return [SKIP, newIndex]
   }
 
@@ -1104,7 +1134,8 @@ export const useDirectiveHandlers = () => {
     const container = directive as ContainerDirective
     const allowed = ALLOWED_BATCH_DIRECTIVES
     const rawChildren = runDirectiveBlock(
-      expandIndentedCode(container.children as RootContent[])
+      expandIndentedCode(container.children as RootContent[]),
+      handlersRef.current
     )
     const processedChildren = stripLabel(rawChildren)
     const [filtered, invalid, nested] = filterDirectiveChildren(
@@ -1704,7 +1735,8 @@ export const useDirectiveHandlers = () => {
       console.error(msg)
       addError(msg)
     }
-    const label =
+    // Default label from attribute or container label paragraph
+    const defaultLabel =
       typeof attrs.label === 'string' ? attrs.label : getLabel(container)
     const classAttr = typeof attrs.className === 'string' ? attrs.className : ''
     const disabled =
@@ -1712,34 +1744,182 @@ export const useDirectiveHandlers = () => {
         ? attrs.disabled !== 'false'
         : Boolean(attrs.disabled)
     const styleAttr = typeof attrs.style === 'string' ? attrs.style : undefined
-    const rawChildren = runDirectiveBlock(
-      expandIndentedCode(container.children as RootContent[])
+    // Prepare two views of children:
+    // 1) A limited-processed view that only resolves wrapper elements for label detection
+    const processedForLabel = runDirectiveBlock(
+      expandIndentedCode(container.children as RootContent[]),
+      { wrapper: handleWrapper }
     )
+    // 2) A raw view (no directive execution) used to serialize content to run on click
+    const rawChildren = expandIndentedCode(container.children as RootContent[])
     const { events, remaining } = extractEventProps(rawChildren)
-    const content = JSON.stringify(stripLabel(remaining))
+
+    // Detect processed wrapper elements (paragraph with campfire-wrapper) or raw wrapper directives
+    const isProcessedWrapper = (node: RootContent): node is Paragraph => {
+      if (node.type !== 'paragraph') return false
+      const data = (node as Paragraph).data as
+        | { hName?: unknown; hProperties?: Record<string, unknown> }
+        | undefined
+      if (!data || typeof data.hName !== 'string') return false
+      const props = data.hProperties || {}
+      const cls = props.className as unknown
+      const classes = Array.isArray(cls)
+        ? cls
+        : typeof cls === 'string'
+          ? cls.split(/\s+/).filter(Boolean)
+          : []
+      return classes.includes('campfire-wrapper')
+    }
+    type WrapperContainer = RootContent & {
+      type: 'containerDirective'
+      name: 'wrapper'
+      attributes?: Record<string, unknown>
+      children?: RootContent[]
+    }
+    const isRawWrapper = (node: RootContent): node is WrapperContainer =>
+      (node as any)?.type === 'containerDirective' &&
+      (node as any)?.name === 'wrapper'
+
+    const wrappersProcessed = processedForLabel.filter(isProcessedWrapper)
+    const wrappersRaw = remaining.filter(isRawWrapper)
+    const totalWrappers = wrappersProcessed.length + wrappersRaw.length
+    let labelNodes: RootContent[] | undefined
+    let remainingAfterLabel = remaining.filter(
+      n =>
+        !isRawWrapper(n) &&
+        !(n.type === 'text' && isMarkerText(n as RootContent))
+    )
+
+    if (totalWrappers > 0) {
+      if (totalWrappers > 1) {
+        const msg = 'Only one wrapper directive is allowed inside a trigger'
+        console.error(msg)
+        addError(msg)
+      }
+      if (wrappersProcessed.length > 0) {
+        const first = wrappersProcessed[0]
+        const data = first.data as
+          | { hName?: unknown; hProperties?: Record<string, unknown> }
+          | undefined
+        if (data && typeof data.hName === 'string' && data.hName !== 'span') {
+          const msg =
+            'Wrapper inside trigger must use an inline tag allowed within <button> (e.g., as="span")'
+          console.error(msg)
+          addError(msg)
+          data.hName = 'span'
+        }
+        labelNodes = [first as RootContent]
+      } else {
+        const first = wrappersRaw[0]
+        const wattrs = (first.attributes || {}) as Record<string, unknown>
+        const classAttr =
+          typeof wattrs.className === 'string' ? wattrs.className : undefined
+        const labelEl: Parent = {
+          type: 'paragraph',
+          children: (first.children as RootContent[]) || [],
+          data: {
+            hName: 'span',
+            hProperties: {
+              'data-testid': 'wrapper',
+              className: ['campfire-wrapper', classAttr]
+                .filter(Boolean)
+                .join(' ')
+            }
+          }
+        }
+        // Flatten paragraph children similar to wrapper handler
+        const flat: RootContent[] = []
+        labelEl.children.forEach(child => {
+          if (child.type === 'paragraph') {
+            flat.push(
+              ...((child as Paragraph).children as RootContent[]).filter(
+                c => !isWhitespaceNode(c)
+              )
+            )
+          } else if (!isWhitespaceNode(child)) {
+            flat.push(child)
+          }
+        })
+        labelEl.children = flat
+        labelNodes = [labelEl as RootContent]
+      }
+    }
+
+    // Before replacing the directive, collect any sibling nodes up to the
+    // closing marker so ordering does not matter. These belong to the trigger
+    // content and must be deferred until click.
+    const start = index + 1
+    const siblings: RootContent[] = []
+    let cursor = start
+    let endMarker = -1
+    while (cursor < parent.children.length) {
+      const sib = parent.children[cursor] as RootContent
+      if (isMarkerParagraph(sib) || isMarkerText(sib)) {
+        endMarker = cursor
+        break
+      }
+      // Defensive: if we encounter another directive sibling, stop collecting.
+      if (isDirectiveNode(sib as unknown as Node)) {
+        endMarker = cursor - 1
+        break
+      }
+      siblings.push(sib)
+      cursor++
+    }
+
+    // Remove siblings + marker (if present) from the AST to prevent eager execution
+    if (endMarker !== -1) {
+      parent.children.splice(start, endMarker - start + 1)
+    } else if (siblings.length) {
+      parent.children.splice(start, siblings.length)
+    }
+
+    // Extract any additional events from siblings and filter out wrapper nodes
+    const { events: extraEvents, remaining: pendingRemaining } =
+      extractEventProps(siblings)
+    const pendingFiltered = pendingRemaining.filter(
+      n => !isProcessedWrapper(n) && !isRawWrapper(n)
+    )
+
+    const finalContentNodes = stripLabel([
+      ...(remainingAfterLabel as RootContent[]),
+      ...pendingFiltered
+    ])
+
     const classes = classAttr.split(/\s+/).filter(Boolean)
+    const hProps: Record<string, unknown> = {
+      className: classes,
+      content: JSON.stringify(finalContentNodes),
+      disabled,
+      ...(styleAttr ? { style: styleAttr } : {})
+    }
+    if (events.onMouseEnter) hProps.onMouseEnter = events.onMouseEnter
+    if (events.onMouseLeave) hProps.onMouseLeave = events.onMouseLeave
+    if (events.onFocus) hProps.onFocus = events.onFocus
+    if (events.onBlur) hProps.onBlur = events.onBlur
+    // Child-level events take precedence if not already set
+    if (!hProps.onMouseEnter && extraEvents.onMouseEnter)
+      hProps.onMouseEnter = extraEvents.onMouseEnter
+    if (!hProps.onMouseLeave && extraEvents.onMouseLeave)
+      hProps.onMouseLeave = extraEvents.onMouseLeave
+    if (!hProps.onFocus && extraEvents.onFocus)
+      hProps.onFocus = extraEvents.onFocus
+    if (!hProps.onBlur && extraEvents.onBlur) hProps.onBlur = extraEvents.onBlur
+
     const node: Parent = {
       type: 'paragraph',
-      children: [{ type: 'text', value: label || '' }],
+      children:
+        labelNodes && labelNodes.length
+          ? (labelNodes as RootContent[])
+          : ([{ type: 'text', value: defaultLabel || '' }] as RootContent[]),
       data: {
         hName: 'trigger',
-        hProperties: {
-          className: classes,
-          content,
-          disabled,
-          ...(styleAttr ? { style: styleAttr } : {}),
-          ...(events.onMouseEnter ? { onMouseEnter: events.onMouseEnter } : {}),
-          ...(events.onMouseLeave ? { onMouseLeave: events.onMouseLeave } : {}),
-          ...(events.onFocus ? { onFocus: events.onFocus } : {}),
-          ...(events.onBlur ? { onBlur: events.onBlur } : {})
-        }
+        hProperties: hProps as Properties
       }
     }
     const newIndex = replaceWithIndentation(directive, parent, index, [
       node as RootContent
     ])
-    const markerIndex = newIndex + 1
-    removeDirectiveMarker(parent, markerIndex)
     return [SKIP, newIndex]
   }
 

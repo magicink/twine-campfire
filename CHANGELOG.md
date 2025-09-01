@@ -1,5 +1,50 @@
 # Changelog
 
+## [1.98.0](https://github.com/magicink/twine-campfire/compare/v1.97.0...v1.98.0) (2025-08-31)
+
+
+### Features
+
+* replace onHover with onMouseEnter and onMouseLeave for interact… ([75fdf1e](https://github.com/magicink/twine-campfire/commit/75fdf1e625974afd1a8d2feeff76553c4c071dbe))
+* replace onHover with onMouseEnter and onMouseLeave for interactive elements ([#597](https://github.com/magicink/twine-campfire/issues/597)) ([df0f583](https://github.com/magicink/twine-campfire/commit/df0f583efd7e87475021586a3b035d8d6a45972f))
+
+## [1.97.0](https://github.com/magicink/twine-campfire/compare/v1.96.0...v1.97.0) (2025-08-31)
+
+
+### Features
+
+* **utils:** introduce generic AssetManager ([ada96bf](https://github.com/magicink/twine-campfire/commit/ada96bfc6468b5a2a70f2519316d7bfcfdc124cc))
+
+## [1.96.0](https://github.com/magicink/twine-campfire/compare/v1.95.0...v1.96.0) (2025-08-30)
+
+
+### Features
+
+* introduce useDirectiveEvents hook ([#586](https://github.com/magicink/twine-campfire/issues/586)) ([37e766e](https://github.com/magicink/twine-campfire/commit/37e766e0f323a4ee1ace0eb7b12d88fe557cf1a2))
+
+## [1.95.0](https://github.com/magicink/twine-campfire/compare/v1.94.0...v1.95.0) (2025-08-30)
+
+
+### Features
+
+* add wrapper directive ([#582](https://github.com/magicink/twine-campfire/issues/582)) ([e75f286](https://github.com/magicink/twine-campfire/commit/e75f28693d10c49c24eadec6c48cae223e75fafd))
+* add wrapper directive ([#582](https://github.com/magicink/twine-campfire/issues/582)) ([54fd5fe](https://github.com/magicink/twine-campfire/commit/54fd5febd2914aec3c6fded5ad319d532357d6d8))
+
+## [1.94.0](https://github.com/magicink/twine-campfire/compare/v1.93.1...v1.94.0) (2025-08-29)
+
+
+### Features
+
+* **radio:** add radio input button styles ([#577](https://github.com/magicink/twine-campfire/issues/577)) ([13bfb52](https://github.com/magicink/twine-campfire/commit/13bfb52f52a76f31c8edd6dcc955263aff262a83))
+* style checkboxes as buttons ([#576](https://github.com/magicink/twine-campfire/issues/576)) ([f47f6dc](https://github.com/magicink/twine-campfire/commit/f47f6dc5d46e62ed57306af4c6d63d1456144888))
+
+## [1.93.1](https://github.com/magicink/twine-campfire/compare/v1.93.0...v1.93.1) (2025-08-29)
+
+
+### Bug Fixes
+
+* define theme colors ([#573](https://github.com/magicink/twine-campfire/issues/573)) ([24a29b7](https://github.com/magicink/twine-campfire/commit/24a29b71dde187f2f6cc8384759146cf42145e16))
+
 ## [1.93.0](https://github.com/magicink/twine-campfire/compare/v1.92.0...v1.93.0) (2025-08-29)
 
 
