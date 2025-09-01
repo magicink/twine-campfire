@@ -104,7 +104,10 @@ const INTERACTIVE_EVENTS = new Set([
   'onMouseEnter',
   'onMouseLeave',
   'onFocus',
-  'onBlur'
+  'onBlur',
+  'onClick',
+  'onMouseDown',
+  'onMouseUp'
 ])
 
 /**
@@ -1133,13 +1136,12 @@ export const useDirectiveHandlers = () => {
 
     const container = directive as ContainerDirective
     const allowed = ALLOWED_BATCH_DIRECTIVES
-    const rawChildren = runDirectiveBlock(
+    const preprocessed = runDirectiveBlock(
       expandIndentedCode(container.children as RootContent[]),
-      handlersRef.current
+      {}
     )
-    const processedChildren = stripLabel(rawChildren)
     const [filtered, invalid, nested] = filterDirectiveChildren(
-      processedChildren,
+      preprocessed,
       allowed,
       BANNED_BATCH_DIRECTIVES
     )
@@ -1162,7 +1164,8 @@ export const useDirectiveHandlers = () => {
     lockedKeys = scoped.getLockedKeys()
     onceKeys = scoped.getOnceKeys()
 
-    runDirectiveBlock(expandIndentedCode(filtered), handlersRef.current)
+    const processed = stripLabel(filtered)
+    runDirectiveBlock(expandIndentedCode(processed), handlersRef.current)
 
     const changes = scoped.getChanges()
     state = prevState
@@ -1784,11 +1787,6 @@ export const useDirectiveHandlers = () => {
     const wrappersRaw = remaining.filter(isRawWrapper)
     const totalWrappers = wrappersProcessed.length + wrappersRaw.length
     let labelNodes: RootContent[] | undefined
-    let remainingAfterLabel = remaining.filter(
-      n =>
-        !isRawWrapper(n) &&
-        !(n.type === 'text' && isMarkerText(n as RootContent))
-    )
 
     if (totalWrappers > 0) {
       if (totalWrappers > 1) {
@@ -1875,29 +1873,28 @@ export const useDirectiveHandlers = () => {
     }
 
     // Extract any additional events from siblings and filter out wrapper nodes
-    const { events: extraEvents, remaining: pendingRemaining } =
-      extractEventProps(siblings)
-    const pendingFiltered = pendingRemaining.filter(
-      n => !isProcessedWrapper(n) && !isRawWrapper(n)
-    )
-
-    const finalContentNodes = stripLabel([
-      ...(remainingAfterLabel as RootContent[]),
-      ...pendingFiltered
-    ])
+    const { events: extraEvents } = extractEventProps(siblings)
 
     const classes = classAttr.split(/\s+/).filter(Boolean)
     const hProps: Record<string, unknown> = {
       className: classes,
-      content: JSON.stringify(finalContentNodes),
       disabled,
       ...(styleAttr ? { style: styleAttr } : {})
     }
+    if (events.onClick) hProps.onClick = events.onClick
+    if (events.onMouseDown) hProps.onMouseDown = events.onMouseDown
+    if (events.onMouseUp) hProps.onMouseUp = events.onMouseUp
     if (events.onMouseEnter) hProps.onMouseEnter = events.onMouseEnter
     if (events.onMouseLeave) hProps.onMouseLeave = events.onMouseLeave
     if (events.onFocus) hProps.onFocus = events.onFocus
     if (events.onBlur) hProps.onBlur = events.onBlur
     // Child-level events take precedence if not already set
+    if (!hProps.onClick && extraEvents.onClick)
+      hProps.onClick = extraEvents.onClick
+    if (!hProps.onMouseDown && extraEvents.onMouseDown)
+      hProps.onMouseDown = extraEvents.onMouseDown
+    if (!hProps.onMouseUp && extraEvents.onMouseUp)
+      hProps.onMouseUp = extraEvents.onMouseUp
     if (!hProps.onMouseEnter && extraEvents.onMouseEnter)
       hProps.onMouseEnter = extraEvents.onMouseEnter
     if (!hProps.onMouseLeave && extraEvents.onMouseLeave)

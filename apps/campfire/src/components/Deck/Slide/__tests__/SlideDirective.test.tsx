@@ -50,7 +50,7 @@ describe('Slide directive hooks', () => {
     const { getByRole } = render(
       <Deck>
         <Slide>
-          <TriggerButton content={btnContent}>Click</TriggerButton>
+          <TriggerButton onClick={btnContent}>Click</TriggerButton>
         </Slide>
       </Deck>
     )

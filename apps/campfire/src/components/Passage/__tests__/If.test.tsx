@@ -122,7 +122,7 @@ describe('If', () => {
 
   it('executes trigger directives', async () => {
     const content = makeMixedContent(
-      ':::trigger{label="Fire"}\n:::set[fired=true]\n:::\n:::'
+      ':::trigger{label="Fire"}\n:::onClick\n:set[fired=true]\n:::\n:::'
     )
     render(<If test='true' content={content} />)
     const button = await screen.findByRole('button', { name: 'Fire' })

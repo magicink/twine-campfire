@@ -96,14 +96,16 @@ The select button uses the same default styling as trigger and link buttons and 
 
 ### `trigger`
 
-Render a button that runs directives when clicked. Supports event directives inside the block.
+Render a button that runs directives on interaction. Click events must be nested inside an event directive.
 
 ```md
 :::trigger{label="Do it" className="primary"}
 :::onMouseEnter
 :set[hovered=true]
 :::
+:::onClick
 :set[key=value]
+:::
 :::
 ```
 
@@ -146,6 +148,9 @@ Use event directives inside `input`, `select`, or `trigger` blocks to run direct
 | `onMouseLeave` | is no longer hovered      |
 | `onFocus`      | receives focus            |
 | `onBlur`       | loses focus               |
+| `onClick`      | is clicked                |
+| `onMouseDown`  | is pressed                |
+| `onMouseUp`    | is released               |
 
 ## Passage event blocks
 
