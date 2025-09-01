@@ -282,6 +282,8 @@ Text
 | className | Additional classes applied to the element                         |
 | from      | Name of a wrapper preset to apply                                 |
 
+Note: When a `wrapper` is placed inside a `trigger` directive block, it is rendered as the button’s label and takes precedence over the `label` attribute. Only one wrapper is allowed as a trigger label, and the wrapper must use an inline tag valid within a `<button>` (unsupported tags are coerced to `span`). This enables rich button labels (for example, adding icons or extra inline styling) without affecting the trigger’s click behavior.
+
 ### `preset`
 
 Define reusable attribute sets that can be applied via the `from` attribute on `deck`, `reveal`, `image`, `shape`, `text`, and `wrapper` directives.

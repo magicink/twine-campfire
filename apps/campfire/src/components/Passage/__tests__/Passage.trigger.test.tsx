@@ -210,4 +210,95 @@ describe('Passage trigger directives', () => {
     fireEvent.click(button)
     expect(clicked).toBe(false)
   })
+
+  it('uses wrapper child as the trigger label, overriding label attribute', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            ':::trigger{label="Ignored"}\n' +
+            ':::wrapper{as="span" className="fancy"}\n' +
+            'Styled Label\n' +
+            ':::\n' +
+            ':::set[fired=true]\n' +
+            ':::\n' +
+            ':::'
+        }
+      ]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    const button = await screen.findByRole('button', { name: 'Styled Label' })
+    // Ensure wrapper element is used inside the button
+    const wrapper = button.querySelector(
+      '[data-testid="wrapper"]'
+    ) as HTMLElement
+    expect(wrapper).toBeTruthy()
+    expect(wrapper.className).toContain('campfire-wrapper')
+    expect(wrapper.className).toContain('fancy')
+    // Clicking runs remaining directive content
+    act(() => {
+      button.click()
+    })
+    await waitFor(() => {
+      expect(useGameStore.getState().gameData.fired).toBe(true)
+    })
+  })
+
+  it('enforces a single wrapper inside trigger and coerces invalid wrapper tag to span', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            ':::trigger{label="Fallback"}\n' +
+            // Two wrappers (only one should be used)
+            ':::wrapper{as="p" className="first"}\n' +
+            'First\n' +
+            ':::\n' +
+            ':::wrapper{as="div" className="second"}\n' +
+            'Second\n' +
+            ':::\n' +
+            ':::\n'
+        }
+      ]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    const button = await screen.findByRole('button', { name: 'First' })
+    const wrappers = button.querySelectorAll('[data-testid="wrapper"]')
+    expect(wrappers).toHaveLength(1)
+    // Coerced to span when used as trigger label
+    expect((wrappers[0] as HTMLElement).tagName).toBe('SPAN')
+  })
+
+  it('does not leave stray markers when wrapper is used as label', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            ':::trigger\n' +
+            ':::wrapper{as="span" className="inline-flex items-center gap-2"}\n' +
+            'Label\n' +
+            ':::\n' +
+            ':::\n'
+        }
+      ]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    await screen.findByRole('button', { name: 'Label' })
+    expect(document.body.textContent).not.toContain(':::')
+  })
 })

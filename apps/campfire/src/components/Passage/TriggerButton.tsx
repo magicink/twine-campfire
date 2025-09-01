@@ -15,7 +15,6 @@ interface TriggerButtonProps
   > {
   className?: string | string[]
   content: string
-  children?: string
   disabled?: boolean
   /** Serialized directives to run on mouse enter. */
   onMouseEnter?: string
