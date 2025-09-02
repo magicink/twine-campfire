@@ -3317,13 +3317,23 @@ export const useDirectiveHandlers = () => {
       return props
     },
     children =>
-      children
-        .flatMap(child => {
+      (
+        children.flatMap(child => {
           if (child.type !== 'paragraph') return child
           const paragraph = child as Parent
-          return paragraph.children
-        })
-        .filter(child => !isWhitespaceNode(child as RootContent))
+          const data = paragraph.data as { hName?: unknown } | undefined
+          // Preserve paragraphs representing custom elements such as slideImage
+          return data && typeof data.hName === 'string'
+            ? paragraph
+            : paragraph.children
+        }) as RootContent[]
+      ).filter(child => {
+        if (child.type === 'paragraph') {
+          const data = (child as Parent).data as { hName?: unknown } | undefined
+          if (data && typeof data.hName === 'string') return true
+        }
+        return !isWhitespaceNode(child as RootContent)
+      })
   )
 
   /**
