@@ -135,7 +135,7 @@ Recursion
 ```md
 :::if[user.isAdmin]
 :::batch
-::set[key=value]
+::set[role="admin" loggedIn=true]
 :::
 :::
 ```

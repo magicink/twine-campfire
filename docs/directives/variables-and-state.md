@@ -25,6 +25,12 @@ Replace `key` with the key name and `value` with the number, string, or expressi
 ::set[isActive=true]
 ```
 
+Set multiple keys in one directive by separating assignments with spaces:
+
+```md
+::set[color="red" cls="big"]
+```
+
 ### `setOnce`
 
 Set a key only if it has not been set. This directive is leaf-only and cannot wrap content.
