@@ -47,7 +47,7 @@ export interface LangDirective extends Omit<TextDirective, 'attributes'> {
 }
 
 /** RegExp matching safe characters in directive attribute values. */
-const SAFE_ATTR_VALUE_PATTERN = /^[\w\s.,'"`{}\[\]$!-]*$/
+const SAFE_ATTR_VALUE_PATTERN = /^[\w\s.,:'"`{}\[\]$!;\-]*$/
 
 // TODO(campfire): Add comprehensive directive regression tests here:
 // - Attribute quoting rules (quoted stays string; state-key allowances)
@@ -279,9 +279,7 @@ const remarkCampfire =
                 MSG_SLIDE_TRANSITION_UNQUOTED
               )
             }
-            if (
-              'id' in directive.attributes
-            ) {
+            if ('id' in directive.attributes) {
               ensureQuotedAttribute(
                 directive,
                 'id',

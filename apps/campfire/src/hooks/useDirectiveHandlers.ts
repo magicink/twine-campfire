@@ -178,6 +178,35 @@ export const useDirectiveHandlers = () => {
   }, [currentPassageId])
 
   /**
+   * Interpolates template placeholders in an attribute string using game data.
+   *
+   * @param value - Raw attribute value that may contain `${}` expressions.
+   * @returns The interpolated string when placeholders are present.
+   */
+  const interpolateAttr = (value?: string): string | undefined =>
+    value && value.includes('${') ? interpolateString(value, gameData) : value
+
+  /**
+   * Retrieves and interpolates the `className` attribute from a directive.
+   *
+   * @param attrs - Attribute map from the directive.
+   * @returns The processed class string, or an empty string when absent.
+   */
+  const getClassAttr = (attrs: Record<string, unknown>): string =>
+    interpolateAttr(
+      typeof attrs.className === 'string' ? attrs.className : undefined
+    ) || ''
+
+  /**
+   * Retrieves and interpolates the `style` attribute from a directive.
+   *
+   * @param attrs - Attribute map from the directive.
+   * @returns The processed style string, or undefined when absent.
+   */
+  const getStyleAttr = (attrs: Record<string, unknown>): string | undefined =>
+    interpolateAttr(typeof attrs.style === 'string' ? attrs.style : undefined)
+
+  /**
    * Handles the leaf `set` and `setOnce` directives by assigning values to keys
    * in game data using shorthand `key=value` pairs.
    *
@@ -450,8 +479,8 @@ export const useDirectiveHandlers = () => {
       console.error(msg)
       addError(msg)
     }
-    const classAttr = typeof attrs.className === 'string' ? attrs.className : ''
-    const styleAttr = typeof attrs.style === 'string' ? attrs.style : undefined
+    const classAttr = getClassAttr(attrs)
+    const styleAttr = getStyleAttr(attrs)
     if (classAttr) props.className = classAttr
     if (styleAttr) props.style = styleAttr
     applyAdditionalAttributes(attrs, props, ['className', 'style'])
@@ -1218,10 +1247,8 @@ export const useDirectiveHandlers = () => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr =
-        typeof attrs.className === 'string' ? attrs.className : ''
-      const styleAttr =
-        typeof attrs.style === 'string' ? attrs.style : undefined
+      const classAttr = getClassAttr(attrs)
+      const styleAttr = getStyleAttr(attrs)
       const placeholder =
         typeof attrs.placeholder === 'string' ? attrs.placeholder : undefined
       const initialValue =
@@ -1262,10 +1289,8 @@ export const useDirectiveHandlers = () => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr =
-        typeof attrs.className === 'string' ? attrs.className : ''
-      const styleAttr =
-        typeof attrs.style === 'string' ? attrs.style : undefined
+      const classAttr = getClassAttr(attrs)
+      const styleAttr = getStyleAttr(attrs)
       const placeholder =
         typeof attrs.placeholder === 'string' ? attrs.placeholder : undefined
       const initialValue =
@@ -1333,10 +1358,8 @@ export const useDirectiveHandlers = () => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr =
-        typeof attrs.className === 'string' ? attrs.className : ''
-      const styleAttr =
-        typeof attrs.style === 'string' ? attrs.style : undefined
+      const classAttr = getClassAttr(attrs)
+      const styleAttr = getStyleAttr(attrs)
       const initialValue =
         typeof attrs.value === 'string'
           ? attrs.value
@@ -1376,10 +1399,8 @@ export const useDirectiveHandlers = () => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr =
-        typeof attrs.className === 'string' ? attrs.className : ''
-      const styleAttr =
-        typeof attrs.style === 'string' ? attrs.style : undefined
+      const classAttr = getClassAttr(attrs)
+      const styleAttr = getStyleAttr(attrs)
       const initialValue =
         typeof attrs.value === 'string'
           ? attrs.value
@@ -1437,10 +1458,8 @@ export const useDirectiveHandlers = () => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr =
-        typeof attrs.className === 'string' ? attrs.className : ''
-      const styleAttr =
-        typeof attrs.style === 'string' ? attrs.style : undefined
+      const classAttr = getClassAttr(attrs)
+      const styleAttr = getStyleAttr(attrs)
       const valueAttr = typeof attrs.value === 'string' ? attrs.value : ''
       const initialValue =
         typeof attrs.defaultValue === 'string'
@@ -1482,10 +1501,8 @@ export const useDirectiveHandlers = () => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr =
-        typeof attrs.className === 'string' ? attrs.className : ''
-      const styleAttr =
-        typeof attrs.style === 'string' ? attrs.style : undefined
+      const classAttr = getClassAttr(attrs)
+      const styleAttr = getStyleAttr(attrs)
       const valueAttr = typeof attrs.value === 'string' ? attrs.value : ''
       const initialValue =
         typeof attrs.defaultValue === 'string'
@@ -1549,10 +1566,8 @@ export const useDirectiveHandlers = () => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr =
-        typeof attrs.className === 'string' ? attrs.className : ''
-      const styleAttr =
-        typeof attrs.style === 'string' ? attrs.style : undefined
+      const classAttr = getClassAttr(attrs)
+      const styleAttr = getStyleAttr(attrs)
       const placeholder =
         typeof attrs.placeholder === 'string' ? attrs.placeholder : undefined
       const initialValue =
@@ -1593,10 +1608,8 @@ export const useDirectiveHandlers = () => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr =
-        typeof attrs.className === 'string' ? attrs.className : ''
-      const styleAttr =
-        typeof attrs.style === 'string' ? attrs.style : undefined
+      const classAttr = getClassAttr(attrs)
+      const styleAttr = getStyleAttr(attrs)
       const placeholder =
         typeof attrs.placeholder === 'string' ? attrs.placeholder : undefined
       const initialValue =
@@ -1659,8 +1672,8 @@ export const useDirectiveHandlers = () => {
       console.error(msg)
       addError(msg)
     }
-    const classAttr = typeof attrs.className === 'string' ? attrs.className : ''
-    const styleAttr = typeof attrs.style === 'string' ? attrs.style : undefined
+    const classAttr = getClassAttr(attrs)
+    const styleAttr = getStyleAttr(attrs)
     const initialValue =
       typeof attrs.value === 'string'
         ? attrs.value
@@ -1698,8 +1711,8 @@ export const useDirectiveHandlers = () => {
       console.error(msg)
       addError(msg)
     }
-    const classAttr = typeof attrs.className === 'string' ? attrs.className : ''
-    const styleAttr = typeof attrs.style === 'string' ? attrs.style : undefined
+    const classAttr = getClassAttr(attrs)
+    const styleAttr = getStyleAttr(attrs)
     const initialValue =
       typeof attrs.value === 'string'
         ? attrs.value
@@ -1750,9 +1763,9 @@ export const useDirectiveHandlers = () => {
     // Default label from attribute or container label paragraph
     const defaultLabel =
       typeof attrs.label === 'string' ? attrs.label : getLabel(container)
-    const classAttr = typeof attrs.className === 'string' ? attrs.className : ''
+    const classAttr = getClassAttr(attrs)
     const disabledAttr = attrs.disabled
-    const styleAttr = typeof attrs.style === 'string' ? attrs.style : undefined
+    const styleAttr = getStyleAttr(attrs)
     // Prepare two views of children:
     // 1) A limited-processed view that only resolves wrapper elements for label detection
     const processedForLabel = runDirectiveBlock(
@@ -1821,8 +1834,7 @@ export const useDirectiveHandlers = () => {
       } else {
         const first = wrappersRaw[0]
         const wattrs = (first.attributes || {}) as Record<string, unknown>
-        const classAttr =
-          typeof wattrs.className === 'string' ? wattrs.className : undefined
+        const classAttr = getClassAttr(wattrs)
         const labelEl: Parent = {
           type: 'paragraph',
           children: (first.children as RootContent[]) || [],
@@ -2174,8 +2186,8 @@ export const useDirectiveHandlers = () => {
       { state: gameData }
     )
     if (attrs.ns) ns = attrs.ns
-    const classAttr = typeof attrs.className === 'string' ? attrs.className : ''
-    const styleAttr = typeof attrs.style === 'string' ? attrs.style : undefined
+    const classAttr = getClassAttr(attrs)
+    const styleAttr = getStyleAttr(attrs)
     const keyPattern = /^[A-Za-z_$][A-Za-z0-9_$]*(?::[A-Za-z0-9_.$-]+)?$/
     let props: Properties
     if (key || keyPattern.test(raw)) {
@@ -3213,10 +3225,10 @@ export const useDirectiveHandlers = () => {
       props['data-testid'] = 'layer'
       const classAttr =
         typeof attrs.className === 'string'
-          ? attrs.className
+          ? getClassAttr(attrs)
           : typeof mergedRaw.className === 'string'
-            ? mergedRaw.className
-            : undefined
+            ? getClassAttr(mergedRaw)
+            : ''
       if (classAttr) props.className = classAttr
       if (attrs.id) props.id = attrs.id
       applyAdditionalAttributes(mergedRaw, props, [
@@ -3324,8 +3336,8 @@ export const useDirectiveHandlers = () => {
       props['data-testid'] = 'wrapper'
       const classAttr =
         typeof mergedRaw.className === 'string'
-          ? mergedRaw.className
-          : undefined
+          ? getClassAttr(mergedRaw as Record<string, unknown>)
+          : ''
       props.className = ['campfire-wrapper', classAttr]
         .filter(Boolean)
         .join(' ')
@@ -3433,7 +3445,7 @@ export const useDirectiveHandlers = () => {
     const rawStyle = mergedRaw.style
     if (rawStyle) {
       if (typeof rawStyle === 'string') {
-        style.push(rawStyle)
+        style.push(interpolateAttr(rawStyle) || rawStyle)
       } else if (typeof rawStyle === 'object') {
         const entries = Object.entries(rawStyle as Record<string, unknown>).map(
           ([k, v]) => `${k}:${v}`
@@ -3453,10 +3465,12 @@ export const useDirectiveHandlers = () => {
     if (mergedAttrs.anchor) props.anchor = mergedAttrs.anchor
     if (style.length) props.style = style.join(';')
     const classAttr =
-      typeof mergedRaw.className === 'string' ? mergedRaw.className : undefined
+      typeof mergedRaw.className === 'string'
+        ? getClassAttr(mergedRaw as Record<string, unknown>)
+        : undefined
     const layerClassAttr =
       typeof mergedRaw.layerClassName === 'string'
-        ? mergedRaw.layerClassName
+        ? interpolateAttr(mergedRaw.layerClassName) || mergedRaw.layerClassName
         : undefined
     const classes = ['text-base', 'font-normal']
     if (classAttr) classes.unshift(classAttr)
@@ -3546,8 +3560,10 @@ export const useDirectiveHandlers = () => {
     if (typeof mergedAttrs.scale === 'number') props.scale = mergedAttrs.scale
     if (mergedAttrs.anchor) props.anchor = mergedAttrs.anchor
     if (mergedAttrs.alt) props.alt = mergedAttrs.alt
-    if (mergedAttrs.style) props.style = mergedAttrs.style
-    if (mergedAttrs.className) props.className = mergedAttrs.className
+    const mergedStyle = getStyleAttr(mergedAttrs as Record<string, unknown>)
+    if (mergedStyle) props.style = mergedStyle
+    const mergedClass = getClassAttr(mergedAttrs as Record<string, unknown>)
+    if (mergedClass) props.className = mergedClass
     if (mergedAttrs.layerClassName)
       props.layerClassName = mergedAttrs.layerClassName
     if (mergedAttrs.id) props.id = mergedAttrs.id
@@ -3634,8 +3650,10 @@ export const useDirectiveHandlers = () => {
       props.radius = mergedAttrs.radius
     if (typeof mergedAttrs.shadow === 'boolean')
       props.shadow = mergedAttrs.shadow
-    if (mergedAttrs.style) props.style = mergedAttrs.style
-    if (mergedAttrs.className) props.className = mergedAttrs.className
+    const mergedStyle = getStyleAttr(mergedAttrs as Record<string, unknown>)
+    if (mergedStyle) props.style = mergedStyle
+    const mergedClass = getClassAttr(mergedAttrs as Record<string, unknown>)
+    if (mergedClass) props.className = mergedClass
     if (mergedAttrs.layerClassName)
       props.layerClassName = mergedAttrs.layerClassName
     if (mergedAttrs.id) props.id = mergedAttrs.id
