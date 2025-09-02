@@ -3,7 +3,7 @@ import { LoadingScreen } from '@campfire/components/LoadingScreen'
 
 const meta: Meta<typeof LoadingScreen> = {
   component: LoadingScreen,
-  title: 'Campfire/LoadingScreen'
+  title: 'Campfire/Components/LoadingScreen'
 }
 
 export default meta

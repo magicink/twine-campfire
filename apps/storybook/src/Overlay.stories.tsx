@@ -5,7 +5,7 @@ import { useOverlayStore } from '@campfire/state/useOverlayStore'
 
 const meta: Meta<typeof Overlay> = {
   component: Overlay,
-  title: 'Campfire/Overlay'
+  title: 'Campfire/Components/Overlay'
 }
 
 export default meta

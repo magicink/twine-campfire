@@ -4,7 +4,7 @@ import { Input } from '@campfire/components'
 
 const meta: Meta<typeof Input> = {
   component: Input,
-  title: 'Campfire/Input'
+  title: 'Campfire/Components/Input'
 }
 
 export default meta

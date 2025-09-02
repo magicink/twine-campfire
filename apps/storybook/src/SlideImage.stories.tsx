@@ -4,7 +4,7 @@ import { Deck, Slide, SlideImage, SlideReveal } from '@campfire/components'
 
 const meta: Meta<typeof SlideImage> = {
   component: SlideImage,
-  title: 'Campfire/SlideImage'
+  title: 'Campfire/Components/SlideImage'
 }
 
 export default meta
