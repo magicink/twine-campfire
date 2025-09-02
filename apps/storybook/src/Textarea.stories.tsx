@@ -4,7 +4,7 @@ import { Textarea } from '@campfire/components'
 
 const meta: Meta<typeof Textarea> = {
   component: Textarea,
-  title: 'Campfire/Textarea'
+  title: 'Campfire/Components/Textarea'
 }
 
 export default meta

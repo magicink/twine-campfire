@@ -4,7 +4,7 @@ import { TriggerButton } from '@campfire/components'
 
 const meta: Meta<typeof TriggerButton> = {
   component: TriggerButton,
-  title: 'Campfire/TriggerButton'
+  title: 'Campfire/Components/TriggerButton'
 }
 
 export default meta

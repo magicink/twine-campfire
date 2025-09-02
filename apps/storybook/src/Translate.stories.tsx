@@ -8,7 +8,7 @@ import { useGameStore } from '@campfire/state/useGameStore'
 
 const meta: Meta<typeof Translate> = {
   component: Translate,
-  title: 'Campfire/Translate'
+  title: 'Campfire/Components/Translate'
 }
 
 export default meta

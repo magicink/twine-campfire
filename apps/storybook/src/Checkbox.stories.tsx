@@ -4,7 +4,7 @@ import { Checkbox } from '@campfire/components'
 
 const meta: Meta<typeof Checkbox> = {
   component: Checkbox,
-  title: 'Campfire/Checkbox'
+  title: 'Campfire/Components/Checkbox'
 }
 
 export default meta
