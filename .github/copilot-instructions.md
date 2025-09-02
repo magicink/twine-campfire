@@ -58,6 +58,8 @@ For all container directives (`trigger`, `if`, `select`, `layer`, `wrapper`, `de
 
 If content after a container stops rendering or is captured unexpectedly, check these sentinel rules first.
 
+If a container directive nests another container and is followed by an inline directive, confirm the inline directive renders and does not leave stray `:::` markers. This regression has appeared repeatedly; add tests for these cases. See `docs/recurring-issues.md` for more information.
+
 ### Attributes
 
 - If a directive attribute's value is surrounded by quotes or backticks, it MUST be treated as a string and NEVER converted into JSON, even if the contents of the string appear to be JSON.
