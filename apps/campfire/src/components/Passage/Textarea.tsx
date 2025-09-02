@@ -17,6 +17,7 @@ interface TextareaProps
     | 'onBlur'
     | 'onMouseEnter'
     | 'onMouseLeave'
+    | 'disabled'
   > {
   /** Key in game state to bind the textarea value to. */
   stateKey: string
@@ -32,6 +33,8 @@ interface TextareaProps
   onBlur?: string
   /** Initial value if the state key is unset. */
   initialValue?: string
+  /** Boolean or state key controlling the disabled state. */
+  disabled?: boolean | string
 }
 
 /**
@@ -55,11 +58,28 @@ export const Textarea = ({
   onBlur,
   onInput,
   initialValue,
+  disabled,
   ...rest
 }: TextareaProps) => {
   const value = useGameStore(state => state.gameData[stateKey]) as
     | string
     | undefined
+  const disabledState = useGameStore(state =>
+    typeof disabled === 'string' &&
+    disabled !== '' &&
+    disabled !== 'true' &&
+    disabled !== 'false'
+      ? state.gameData[disabled]
+      : undefined
+  ) as unknown
+  const isDisabled =
+    typeof disabled === 'string'
+      ? disabled === '' || disabled === 'true'
+        ? true
+        : disabled === 'false'
+          ? false
+          : Boolean(disabledState)
+      : Boolean(disabled)
   const directiveEvents = useDirectiveEvents(
     onMouseEnter,
     onMouseLeave,
@@ -77,6 +97,7 @@ export const Textarea = ({
       data-testid='textarea'
       className={mergeClasses('campfire-textarea', textareaStyles, className)}
       value={value ?? ''}
+      disabled={isDisabled}
       {...rest}
       {...directiveEvents}
       onInput={e => {

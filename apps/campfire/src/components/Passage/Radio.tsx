@@ -15,6 +15,7 @@ interface RadioProps
     | 'onBlur'
     | 'onMouseEnter'
     | 'onMouseLeave'
+    | 'disabled'
   > {
   /** Key in game state to bind the radio selection to. */
   stateKey: string
@@ -32,6 +33,8 @@ interface RadioProps
   onBlur?: string
   /** Initial value if the state key is unset. */
   initialValue?: string
+  /** Boolean or state key controlling the disabled state. */
+  disabled?: boolean | string
 }
 
 /**
@@ -57,11 +60,28 @@ export const Radio = ({
   onBlur,
   onClick,
   initialValue,
+  disabled,
   ...rest
 }: RadioProps) => {
   const value = useGameStore(state => state.gameData[stateKey]) as
     | string
     | undefined
+  const disabledState = useGameStore(state =>
+    typeof disabled === 'string' &&
+    disabled !== '' &&
+    disabled !== 'true' &&
+    disabled !== 'false'
+      ? state.gameData[disabled]
+      : undefined
+  ) as unknown
+  const isDisabled =
+    typeof disabled === 'string'
+      ? disabled === '' || disabled === 'true'
+        ? true
+        : disabled === 'false'
+          ? false
+          : Boolean(disabledState)
+      : Boolean(disabled)
   const directiveEvents = useDirectiveEvents(
     onMouseEnter,
     onMouseLeave,
@@ -83,11 +103,12 @@ export const Radio = ({
       className={mergeClasses('campfire-radio', radioStyles, className)}
       aria-checked={checked}
       data-state={checked ? 'checked' : 'unchecked'}
+      disabled={isDisabled}
       {...rest}
       {...directiveEvents}
       onClick={e => {
         onClick?.(e)
-        if (e.defaultPrevented) return
+        if (e.defaultPrevented || isDisabled) return
         setGameData({ [stateKey]: optionValue })
       }}
     >

@@ -17,6 +17,7 @@ interface SelectProps
     | 'onBlur'
     | 'onMouseEnter'
     | 'onMouseLeave'
+    | 'disabled'
   > {
   /** Key in game state to bind the select value to. */
   stateKey: string
@@ -36,6 +37,8 @@ interface SelectProps
   initialValue?: string
   /** Text shown when no option is selected. */
   label?: string
+  /** Boolean or state key controlling the disabled state. */
+  disabled?: boolean | string
 }
 
 /**
@@ -64,12 +67,29 @@ export const Select = ({
   children,
   initialValue,
   label,
+  disabled,
   ...rest
 }: SelectProps) => {
   const value = useGameStore(state => state.gameData[stateKey]) as
     | string
     | undefined
   const setGameData = useGameStore(state => state.setGameData)
+  const disabledState = useGameStore(state =>
+    typeof disabled === 'string' &&
+    disabled !== '' &&
+    disabled !== 'true' &&
+    disabled !== 'false'
+      ? state.gameData[disabled]
+      : undefined
+  ) as unknown
+  const isDisabled =
+    typeof disabled === 'string'
+      ? disabled === '' || disabled === 'true'
+        ? true
+        : disabled === 'false'
+          ? false
+          : Boolean(disabledState)
+      : Boolean(disabled)
   const directiveEvents = useDirectiveEvents(
     onMouseEnter,
     onMouseLeave,
@@ -123,9 +143,10 @@ export const Select = ({
         )}
         style={style}
         value={value ?? ''}
+        disabled={isDisabled}
         {...rest}
         {...directiveEvents}
-        onClick={() => setOpen(prev => !prev)}
+        onClick={() => !isDisabled && setOpen(prev => !prev)}
       >
         <span className='flex-1 truncate text-left pr-2'>
           {selected ? selected.props.children : (label ?? '')}

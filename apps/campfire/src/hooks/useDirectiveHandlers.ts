@@ -1751,10 +1751,7 @@ export const useDirectiveHandlers = () => {
     const defaultLabel =
       typeof attrs.label === 'string' ? attrs.label : getLabel(container)
     const classAttr = typeof attrs.className === 'string' ? attrs.className : ''
-    const disabled =
-      typeof attrs.disabled === 'string'
-        ? attrs.disabled !== 'false'
-        : Boolean(attrs.disabled)
+    const disabledAttr = attrs.disabled
     const styleAttr = typeof attrs.style === 'string' ? attrs.style : undefined
     // Prepare two views of children:
     // 1) A limited-processed view that only resolves wrapper elements for label detection
@@ -1902,7 +1899,7 @@ export const useDirectiveHandlers = () => {
     const hProps: Record<string, unknown> = {
       className: classes,
       content: JSON.stringify(finalContentNodes),
-      disabled,
+      ...(disabledAttr !== undefined ? { disabled: disabledAttr } : {}),
       ...(styleAttr ? { style: styleAttr } : {})
     }
     if (events.onMouseEnter) hProps.onMouseEnter = events.onMouseEnter

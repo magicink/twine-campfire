@@ -17,6 +17,7 @@ interface InputProps
     | 'onBlur'
     | 'onMouseEnter'
     | 'onMouseLeave'
+    | 'disabled'
   > {
   /** Key in game state to bind the input value to. */
   stateKey: string
@@ -32,6 +33,8 @@ interface InputProps
   onBlur?: string
   /** Initial value if the state key is unset. */
   initialValue?: string
+  /** Boolean or state key controlling the disabled state. */
+  disabled?: boolean | string
 }
 
 /**
@@ -55,11 +58,28 @@ export const Input = ({
   onBlur,
   onInput,
   initialValue,
+  disabled,
   ...rest
 }: InputProps) => {
   const value = useGameStore(state => state.gameData[stateKey]) as
     | string
     | undefined
+  const disabledState = useGameStore(state =>
+    typeof disabled === 'string' &&
+    disabled !== '' &&
+    disabled !== 'true' &&
+    disabled !== 'false'
+      ? state.gameData[disabled]
+      : undefined
+  ) as unknown
+  const isDisabled =
+    typeof disabled === 'string'
+      ? disabled === '' || disabled === 'true'
+        ? true
+        : disabled === 'false'
+          ? false
+          : Boolean(disabledState)
+      : Boolean(disabled)
   const directiveEvents = useDirectiveEvents(
     onMouseEnter,
     onMouseLeave,
@@ -77,6 +97,7 @@ export const Input = ({
       data-testid='input'
       className={mergeClasses('campfire-input', inputStyles, className)}
       value={value ?? ''}
+      disabled={isDisabled}
       {...rest}
       {...directiveEvents}
       onInput={e => {
