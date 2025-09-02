@@ -107,14 +107,34 @@ Render a button that runs directives when clicked. Supports event directives ins
 :::
 ```
 
-The `label` attribute must be a quoted string using matching single-, double-, or backtick quotes. Replace the label, class name, disabled state, and directives as needed.
+Label sources and precedence:
 
-| Input     | Description                            |
-| --------- | -------------------------------------- |
-| label     | Text displayed on the button           |
-| className | Optional space-separated classes       |
-| disabled  | Optional boolean to disable the button |
-| style     | Optional inline style declarations     |
+- The `label` attribute must be a quoted string using matching single-, double-, or backtick quotes when used.
+- If the trigger block contains a `wrapper` child directive, the wrapper is rendered as the button label and takes precedence over the `label` attribute. This allows rich labels (e.g., inline elements, icons, classes).
+
+Constraints when using a wrapper as a label:
+
+- Only one `wrapper` is allowed inside a single `trigger` block. If multiple wrappers are present, only the first is used.
+- The wrapper used as the label must use an inline tag permitted inside a `<button>`. When an unsupported tag is provided, it is coerced to `span`.
+
+Example using a wrapper as the label:
+
+```md
+:::trigger{label="Ignored"}
+:::wrapper{as="span" className="inline-flex items-center gap-2"}
+Start
+:::
+:::
+```
+
+In this case, the `wrapper` content (“Start”) is used as the button label, and the `label` attribute is ignored.
+
+| Input     | Description                                                            |
+| --------- | ---------------------------------------------------------------------- |
+| label     | Text displayed on the button (ignored when a wrapper child is present) |
+| className | Optional space-separated classes                                       |
+| disabled  | Optional boolean to disable the button                                 |
+| style     | Optional inline style declarations                                     |
 
 ### Event directives
 
