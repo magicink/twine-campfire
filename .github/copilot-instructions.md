@@ -70,3 +70,4 @@ If content after a container stops rendering or is captured unexpectedly, check 
 - Visual components must include `data-testid` attributes and a default `campfire-{name}` class with no associated styles.
 - Trust these instructions and search the repository only if information is missing or incorrect.
 - Define colors using `oklch()` notation instead of hex or other color formats.
+- Ensure tests cover both truthy and falsey paths for conditional logic.

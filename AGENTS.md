@@ -3,6 +3,7 @@
 - Always run `bun x prettier --write .` before committing. This ensures consistent formatting across the project.
 - Always run a type check (`bun tsc` or `tsc`) before committing. This helps catch type errors early.
 - After making changes, run `bun test` to verify the test suite passes.
+- When writing tests, exercise both truthy and falsey paths for conditional logic.
 - Prefer arrow functions for holding functions when possible.
 - Include JSDoc comments for all functions and components.
 - Always add `data-testid` attributes to visual components.

@@ -85,16 +85,30 @@ export const WithWrapperLabel: StoryObj = {
           {`
 :set[clicked=false]
 
-:::trigger{className='flex items-center'}
-  :::wrapper{as="span" className="inline-flex items-center gap-2"}
-    ![cat](https://placecats.com/neo/50/50)
-    Click the cat
-  :::
-  :set[clicked=true]
-:::
+:::deck{size="1280x720"}
 
-:::if[clicked]
-You clicked the cat button!
+  :::slide
+
+    :::layer{className='flex items-center justify-center mx-auto w-full top-1/3'}
+
+      :::trigger{className='flex items-center cursor-pointer pl-0'}
+        :set[clicked=true]
+        :::wrapper{as="span" className="inline-flex items-center gap-2"}
+          ![cat](https://placecats.com/neo/50/50)
+          Click the cat
+        :::
+      :::
+
+    :::
+
+    :::if[clicked]
+      :::layer{className='flex items-center justify-center top-1/2 absolute w-full'}
+        You clicked the cat button!
+      :::
+    :::
+
+  :::
+
 :::
           `}
         </tw-passagedata>
