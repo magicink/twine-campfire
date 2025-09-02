@@ -51,6 +51,17 @@ describe('image directive', () => {
     expect(img.style.border).toBe('1px solid red')
   })
 
+  it('handles hyphenated class names without evaluation', () => {
+    const md =
+      ':::reveal\n:image{src="https://example.com/cat.png" className="w-full"}\n:::\n'
+    render(<MarkdownRunner markdown={md} />)
+    const img = document.querySelector(
+      '[data-testid="slideImage"] img'
+    ) as HTMLImageElement
+    expect(img.className).toContain('campfire-slide-image')
+    expect(img.className).toContain('w-full')
+  })
+
   it('does not wrap SlideImage in a paragraph', () => {
     const md = ':::reveal\n:image{src="https://example.com/cat.png"}\n:::\n'
     render(<MarkdownRunner markdown={md} />)

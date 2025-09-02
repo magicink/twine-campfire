@@ -259,6 +259,7 @@ export const parseAttributeValue = (
         if (spec.expression === false) return raw
         const evaluated = evalExpr(raw)
         if (typeof evaluated === 'string') return evaluated
+        if (typeof evaluated === 'number' && Number.isNaN(evaluated)) return raw
         return evaluated != null ? String(evaluated) : raw
       }
       return String(raw)
