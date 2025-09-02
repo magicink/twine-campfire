@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/preact'
 import { h } from 'preact'
+import { useEffect, useState } from 'preact/hooks'
 import { Translate } from '@campfire/components'
 import i18next from 'i18next'
 import { initReactI18next } from 'react-i18next'
@@ -19,22 +20,44 @@ export default meta
  */
 export const Examples: StoryObj<typeof Translate> = {
   render: () => {
+    const [lang, setLang] = useState('en-US')
+
+    /**
+     * Initializes i18next with translation resources and updates language.
+     */
     const init = async () => {
       if (!i18next.isInitialized) {
         await i18next.use(initReactI18next).init({
-          lng: 'en-US',
-          resources: { 'en-US': { translation: { hello: 'Hello' } } }
+          lng: lang,
+          resources: {
+            'en-US': { translation: { hello: 'Hello' } },
+            fr: { translation: { hello: 'Bonjour' } },
+            th: { translation: { hello: 'สวัสดี' } }
+          }
         })
       } else {
-        await i18next.changeLanguage('en-US')
-        i18next.addResource('en-US', 'translation', 'hello', 'Hello')
+        await i18next.changeLanguage(lang)
       }
     }
-    void init()
+
+    useEffect(() => {
+      void init()
+    }, [lang])
+
     useGameStore.getState().setGameData({ greet: 'hello', player: 'Sam' })
     const player = useGameStore.getState().gameData.player as string
     return (
       <div className='flex flex-col gap-2'>
+        <select
+          className='campfire-language-select'
+          data-testid='language-select'
+          value={lang}
+          onChange={e => setLang((e.target as HTMLSelectElement).value)}
+        >
+          <option value='en-US'>English</option>
+          <option value='fr'>Français</option>
+          <option value='th'>ไทย</option>
+        </select>
         <Translate
           data-i18n-key='hello'
           className='text-[var(--color-primary-300)]'
