@@ -280,11 +280,7 @@ const remarkCampfire =
               )
             }
             if (
-              (directive.name === 'checkpoint' ||
-                directive.name === 'save' ||
-                directive.name === 'load' ||
-                directive.name === 'clearSave') &&
-              Object.prototype.hasOwnProperty.call(directive.attributes, 'id')
+              'id' in directive.attributes
             ) {
               ensureQuotedAttribute(
                 directive,

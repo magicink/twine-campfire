@@ -11,12 +11,12 @@ Position an image within a slide.
 ```md
 :::deck
 :::slide
-:image{src='https://example.com/cat.png' x=10 y=20}
+:image{id='cat' layerId='cat-layer' src='https://example.com/cat.png' x=10 y=20}
 :::
 :::
 ```
 
-Supports a `from` attribute to apply presets.
+Supports a `from` attribute to apply presets and uses `layerClassName` and `layerId` to customize the Layer wrapper.
 
 | Input          | Description                              |
 | -------------- | ---------------------------------------- |
@@ -33,6 +33,8 @@ Supports a `from` attribute to apply presets.
 | style          | Inline styles applied to the `<img>`     |
 | className      | Classes applied to the `<img>`           |
 | layerClassName | Classes applied to the Layer wrapper     |
+| id             | Unique identifier for the `<img>`        |
+| layerId        | Unique identifier for the Layer wrapper  |
 | from           | Name of an image preset to apply         |
 
 ### `preloadImage`

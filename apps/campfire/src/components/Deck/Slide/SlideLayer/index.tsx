@@ -6,8 +6,12 @@ export interface SlideLayerProps
   extends Omit<LayerProps, 'children' | 'className'> {
   /** Class applied to the Layer wrapper. */
   layerClassName?: string
+  /** id applied to the Layer wrapper. */
+  layerId?: string
   /** Element or component to render inside the Layer. */
   as?: keyof JSX.IntrinsicElements | ComponentType<any>
+  /** id applied to the inner element. */
+  id?: string
   /** Class applied to the inner element. */
   className?: string
   /** Style for the inner element. */
@@ -30,6 +34,8 @@ export interface SlideLayerProps
  */
 export const SlideLayer = ({
   layerClassName,
+  layerId,
+  id,
   as: Tag = 'div',
   className,
   style,
@@ -45,9 +51,10 @@ export const SlideLayer = ({
     <Layer
       data-testid={testId}
       className={mergeClasses('campfire-slide-layer', layerClassName)}
+      id={layerId}
       {...layerProps}
     >
-      <Tag className={className} style={finalStyle} {...elementProps}>
+      <Tag id={id} className={className} style={finalStyle} {...elementProps}>
         {children}
       </Tag>
     </Layer>
