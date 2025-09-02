@@ -10,6 +10,10 @@ export class AudioManager extends AssetManager<HTMLAudioElement> {
   private globalBgmVolume = 1
   private bgmBaseVolume = 1
 
+  // TODO(campfire): Consider switching to Web Audio API for precise mixing,
+  // panning, and better control over concurrent SFX; pool/reuse nodes to
+  // reduce GC pressure. Handle user gesture requirements for autoplay.
+
   /**
    * Retrieves a cached audio element or creates one from the given source.
    *
@@ -117,6 +121,8 @@ export class AudioManager extends AssetManager<HTMLAudioElement> {
     this.bgm = undefined
     this.bgmName = undefined
     this.bgmBaseVolume = 1
+    // TODO(campfire): Fire an event/hook when BGM stops so UI can reflect
+    // current audio state; add tests for fade and immediate stop paths.
   }
 
   /**
@@ -160,5 +166,7 @@ export class AudioManager extends AssetManager<HTMLAudioElement> {
     } else {
       start()
     }
+    // TODO(campfire): Add a completion callback or return a handle to allow
+    // callers to stop/chain SFX; consider clamping concurrent instances.
   }
 }

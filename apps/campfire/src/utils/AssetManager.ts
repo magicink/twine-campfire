@@ -11,6 +11,9 @@ export abstract class AssetManager<T> {
   /** Cache of loaded assets keyed by identifier. */
   protected cache: Map<string, T> = new Map()
 
+  // TODO(campfire): Consider adding cache controls (max size/TTL/clear)
+  // and metrics for hit/miss to guide preloading strategies.
+
   /**
    * Retrieves the singleton instance for the derived manager.
    *

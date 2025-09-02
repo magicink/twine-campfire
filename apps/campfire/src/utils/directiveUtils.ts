@@ -642,6 +642,9 @@ export const runDirectiveBlock = (
   nodes: RootContent[],
   handlers: Record<string, DirectiveHandler> = {}
 ): RootContent[] => {
+  // TODO(campfire): Memoize/reuse processors when handler identity is stable
+  // to avoid repeatedly constructing unified pipelines in hot paths. Add
+  // benchmarks for typical passage sizes.
   const root: Root = { type: 'root', children: nodes }
   unified()
     .use(remarkCampfireIndentation)

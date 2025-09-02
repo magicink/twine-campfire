@@ -97,6 +97,9 @@ const ALLOWED_BATCH_DIRECTIVES = new Set(
 const BANNED_BATCH_DIRECTIVES = new Set(['batch'])
 
 /** Marker inserted to close directive blocks. */
+// TODO(campfire): Centralize marker parsing and end-of-block detection
+// across remark and handlers to avoid drift; add regression tests that
+// cover paragraph vs. bare-text markers, blank lines, and sibling directives.
 const DIRECTIVE_MARKER = ':::'
 
 /** Event directives supported by interactive elements. */
@@ -125,6 +128,9 @@ const hasLabel = (
   typeof (node as { label?: unknown }).label === 'string'
 
 export const useDirectiveHandlers = () => {
+  // TODO(campfire): This module is very large; consider splitting handlers
+  // into focused files (e.g., state, array, deck/slide, overlay) to improve
+  // maintainability and enable more targeted unit tests.
   let state = createStateManager<Record<string, unknown>>()
   let gameData = state.getState()
   let lockedKeys = state.getLockedKeys()
@@ -744,6 +750,9 @@ export const useDirectiveHandlers = () => {
    * @returns True if the node contains only marker tokens and whitespace.
    */
   const isMarkerParagraph = (node: RootContent): boolean => {
+    // TODO(campfire): Verify we never treat mixed-content paragraphs
+    // (markers + other text) as pure markers; add tests for both cases
+    // and ensure whitespace/indentation variants are handled.
     if (
       node.type === 'paragraph' &&
       node.children.length > 0 &&
@@ -761,6 +770,9 @@ export const useDirectiveHandlers = () => {
    * Determines whether a text node consists only of directive markers.
    */
   const isMarkerText = (node: RootContent): boolean => {
+    // TODO(campfire): Ensure all container handlers consider bare-text
+    // markers as valid closers; add tests for early termination when these
+    // appear with blank lines before/after.
     if (node.type !== 'text') return false
     const stripped = (node as MdText).value.replace(/\s+/g, '')
     if (!stripped) return false
@@ -813,6 +825,8 @@ export const useDirectiveHandlers = () => {
    * fallback content when the expression is falsy.
    */
   const handleIf: DirectiveHandler = (directive, parent, index) => {
+    // TODO(campfire): Add tests for truthy/falsy branches, nested containers,
+    // and marker-only closing nodes appearing as paragraph vs. bare text.
     if (!parent || typeof index !== 'number') return
     const container = directive as ContainerDirective
     const children = container.children as RootContent[]
@@ -3215,6 +3229,10 @@ export const useDirectiveHandlers = () => {
           parent.children.splice(idx, 1)
           continue
         }
+        // TODO(campfire): Per spec, stop at first sibling directive node
+        // (do not fold it into the current container). Add regression tests
+        // to ensure we terminate correctly for both paragraph and bare-text
+        // markers.
         if (node.type === 'containerDirective' || isWhitespaceNode(node)) {
           pending.push(node)
           parent.children.splice(idx, 1)
