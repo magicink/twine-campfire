@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.99.0](https://github.com/magicink/twine-campfire/compare/v1.98.0...v1.99.0) (2025-09-02)
+
+
+### Features
+
+* enhance trigger directive to support wrapper as button label with precedence ([#604](https://github.com/magicink/twine-campfire/issues/604)) ([19bcdb7](https://github.com/magicink/twine-campfire/commit/19bcdb72f79cdf90d09cb0381a3fd9612ef1036e))
+
+
+### Bug Fixes
+
+* prevent nested batch directives from executing ([#607](https://github.com/magicink/twine-campfire/issues/607)) ([d7fedf3](https://github.com/magicink/twine-campfire/commit/d7fedf395700c082fc042225e4d3bc8a0eaa69df))
+
 ## [1.98.0](https://github.com/magicink/twine-campfire/compare/v1.97.0...v1.98.0) (2025-08-31)
 
 
