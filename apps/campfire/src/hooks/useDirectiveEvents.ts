@@ -35,6 +35,9 @@ export const useDirectiveEvents = (
           )
       : undefined
 
+  // TODO(campfire): Consider debouncing mouse events and preventing re-entry
+  // while a directive block is running; add tests for both handler present
+  // and undefined paths per repository guidelines.
   return {
     onMouseEnter: createHandler(onMouseEnter),
     onMouseLeave: createHandler(onMouseLeave),

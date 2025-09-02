@@ -120,6 +120,9 @@ export const Deck = ({
   children,
   store = useDeckStore
 }: DeckProps) => {
+  // TODO(campfire): Theme tokens should default to documented CSS variables
+  // using oklch() values; add Storybook examples and docs showing how to
+  // override via `theme` and custom properties while maintaining contrast.
   /**
    * Type guard to determine whether a child is a valid {@link VNode}.
    *
@@ -401,6 +404,9 @@ export const Deck = ({
     }
   }, [reset])
 
+  // TODO(campfire): A11y: consider roving tabindex for focusable controls,
+  // visible focus indicators, and ARIA live regions for autoplay state.
+  // Add tests to verify keyboard-only navigation and reduced-motion paths.
   return (
     <div
       ref={hostRef}

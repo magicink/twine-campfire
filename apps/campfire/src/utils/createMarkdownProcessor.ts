@@ -31,6 +31,9 @@ export const createMarkdownProcessor = (
   components: Record<string, ComponentType<any>>,
   remarkPlugins: PluggableList = []
 ) =>
+  // TODO(campfire): Consider including remarkCampfireIndentation here to
+  // preserve directive indentation metadata end-to-end (currently done in
+  // directiveUtils). Validate plugin ordering with regression tests.
   unified()
     .use(remarkParse)
     .use(remarkGfm)
