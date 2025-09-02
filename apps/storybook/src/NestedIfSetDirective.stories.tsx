@@ -26,38 +26,35 @@ before outer layer
 :::layer{x=40 y=40 className="flex flex-col gap-[8px]"}
 before outer trigger
 :::trigger{label="outer"}
-:::set[outer=true]
+::set[outer=true]
 :::
 
 :::if[outer]
 before inner layer
 :::layer{x=280 y=40 className="flex flex-col gap-[8px]"}
 :::trigger{label="inner one"}
-:::set[inner=true]
+::set[inner=true]
 :::
 
 :::if[inner]
 inner hit
 :::trigger{label="inner off"}
-:::set[inner=false]
-:::
+::set[inner=false]
 :::
 
 :::trigger{label="inner two"}
-:::set[inner2=true]
+::set[inner2=true]
 :::
 
 :::if[inner2]
 inner2 hit
 :::trigger{label="inner two off"}
-:::set[inner2=false]
-:::
+::set[inner2=false]
 :::
 :::
 
 :::trigger{label="outer off"}
-:::set[outer=false]
-:::
+::set[outer=false]
 :::
 :::
 
