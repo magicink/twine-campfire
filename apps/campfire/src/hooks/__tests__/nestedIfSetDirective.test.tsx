@@ -41,6 +41,8 @@ before inner layer
 
 :::if[inner]
 inner hit
+:::trigger{label="inner off"}
+:::set[inner=false]
 :::
 :::
 
@@ -50,7 +52,14 @@ inner hit
 
 :::if[inner2]
 inner2 hit
+:::trigger{label="inner two off"}
+:::set[inner2=false]
 :::
+:::
+:::
+
+:::trigger{label="outer off"}
+:::set[outer=false]
 :::
 :::
 :::
@@ -74,6 +83,7 @@ second slide
 
     const passageEl = (await screen.findByTestId('passage')) as HTMLElement
 
+    expect(passageEl.textContent).not.toContain('before inner layer')
     expect(passageEl.textContent).not.toContain('inner hit')
     expect(passageEl.textContent).not.toContain('inner2 hit')
 
@@ -83,6 +93,9 @@ second slide
     })
     await waitFor(() => {
       expect(useGameStore.getState().gameData.outer).toBe(true)
+    })
+    await waitFor(() => {
+      expect(passageEl.textContent).toContain('before inner layer')
     })
 
     const innerOne = await screen.findByRole('button', { name: 'inner one' })
@@ -96,6 +109,17 @@ second slide
       expect(passageEl.textContent).toContain('inner hit')
     })
 
+    const innerOff = await screen.findByRole('button', { name: 'inner off' })
+    act(() => {
+      innerOff.click()
+    })
+    await waitFor(() => {
+      expect(useGameStore.getState().gameData.inner).toBe(false)
+    })
+    await waitFor(() => {
+      expect(passageEl.textContent).not.toContain('inner hit')
+    })
+
     const innerTwo = await screen.findByRole('button', { name: 'inner two' })
     act(() => {
       innerTwo.click()
@@ -105,6 +129,30 @@ second slide
     })
     await waitFor(() => {
       expect(passageEl.textContent).toContain('inner2 hit')
+    })
+
+    const innerTwoOff = await screen.findByRole('button', {
+      name: 'inner two off'
+    })
+    act(() => {
+      innerTwoOff.click()
+    })
+    await waitFor(() => {
+      expect(useGameStore.getState().gameData.inner2).toBe(false)
+    })
+    await waitFor(() => {
+      expect(passageEl.textContent).not.toContain('inner2 hit')
+    })
+
+    const outerOff = await screen.findByRole('button', { name: 'outer off' })
+    act(() => {
+      outerOff.click()
+    })
+    await waitFor(() => {
+      expect(useGameStore.getState().gameData.outer).toBe(false)
+    })
+    await waitFor(() => {
+      expect(passageEl.textContent).not.toContain('before inner layer')
     })
 
     expect(passageEl.textContent).toContain('before outer layer')
