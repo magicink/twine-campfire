@@ -47,6 +47,8 @@ For any container directive (e.g., `trigger`, `if`, `select`, `layer`, `wrapper`
 
 If content “after a container” fails to render or containers accidentally swallow following directives, verify these sentinels and ensure marker‑only nodes are not removed before the handler runs.
 
+If a container directive includes a nested container followed immediately by an inline directive, verify the inline directive renders and no stray `:::` markers remain. This regression has resurfaced multiple times; add tests for these scenarios. See `docs/recurring-issues.md` for details.
+
 ### Attributes
 
 - If a directive attribute's value is surrounded by quotes or backticks, it MUST be treated as a string and NEVER converted into JSON, even if the contents of the string appear to be JSON.
