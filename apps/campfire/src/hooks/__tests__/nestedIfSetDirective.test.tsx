@@ -23,10 +23,10 @@ describe('nested if/set directives', () => {
       children: [
         {
           type: 'text',
-          value: `:::deck
+          value: `:::deck{size="800x600"}
 :::slide
 before outer layer
-:::layer
+:::layer{x=40 y=40 className="flex flex-col gap-[8px]"}
 before outer trigger
 :::trigger{label="outer"}
 :::set[outer=true]
@@ -34,7 +34,7 @@ before outer trigger
 
 :::if[outer]
 before inner layer
-:::layer
+:::layer{x=280 y=40 className="flex flex-col gap-[8px]"}
 :::trigger{label="inner one"}
 :::set[inner=true]
 :::
@@ -64,7 +64,7 @@ inner2 hit
 :::
 :::
 
-:::layer
+:::layer{x=40 y=240}
 sibling layer after outer
 :::
 :::
