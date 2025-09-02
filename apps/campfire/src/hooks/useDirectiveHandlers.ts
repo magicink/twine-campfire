@@ -3591,11 +3591,21 @@ export const useDirectiveHandlers = () => {
       'layerId',
       'from'
     ])
-    const node: Parent = {
-      type: 'paragraph',
-      children: [],
-      data: { hName: 'slideImage', hProperties: props as Properties }
+    const data = {
+      hName: 'slideImage',
+      hProperties: props as Properties
     }
+    if (parent.type === 'paragraph') {
+      const others = parent.children.filter(
+        child => child !== directive && !isWhitespaceNode(child as RootContent)
+      )
+      if (others.length === 0) {
+        parent.children = []
+        ;(parent as Parent).data = data
+        return index
+      }
+    }
+    const node: Parent = { type: 'paragraph', children: [], data }
     return replaceWithIndentation(directive, parent, index, [
       node as RootContent
     ])
