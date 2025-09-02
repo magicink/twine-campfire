@@ -280,8 +280,7 @@ const remarkCampfire =
               )
             }
             if (
-              directive.attributes &&
-              Object.prototype.hasOwnProperty.call(directive.attributes, 'id')
+              'id' in directive.attributes
             ) {
               ensureQuotedAttribute(
                 directive,
