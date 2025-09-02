@@ -2792,10 +2792,10 @@ export const useDirectiveHandlers = () => {
    * @param raw - Attributes provided on the directive.
    * @returns Combined attribute map with directive attributes taking precedence.
    */
-  const mergeAttrs = (
-    preset: Record<string, unknown> | undefined,
-    raw: Record<string, unknown>
-  ): Record<string, unknown> => ({ ...(preset || {}), ...raw })
+  const mergeAttrs = <T extends Record<string, unknown>>(
+    preset: Partial<T> | undefined,
+    raw: T
+  ): T => ({ ...(preset || {}), ...raw })
 
   /**
    * Stores attribute presets for reuse by other directives.
@@ -3232,12 +3232,11 @@ export const useDirectiveHandlers = () => {
       if (attrs.anchor) props.anchor = attrs.anchor
       const mergedRaw = mergeAttrs(preset, raw)
       props['data-testid'] = 'layer'
-      const classAttr =
-        typeof attrs.className === 'string'
-          ? getClassAttr(attrs)
-          : typeof mergedRaw.className === 'string'
-            ? getClassAttr(mergedRaw)
-            : ''
+      let classAttr = ''
+      if (typeof attrs.className === 'string')
+        classAttr = getClassAttr({ className: attrs.className })
+      else if (typeof mergedRaw.className === 'string')
+        classAttr = getClassAttr({ className: mergedRaw.className })
       if (classAttr) props.className = classAttr
       if (attrs.id) props.id = attrs.id
       applyAdditionalAttributes(mergedRaw, props, [
@@ -3551,13 +3550,12 @@ export const useDirectiveHandlers = () => {
     )
     const raw = (directive.attributes || {}) as Record<string, unknown>
     const preset = attrs.from
-      ? presetsRef.current['image']?.[String(attrs.from)]
+      ? (presetsRef.current['image']?.[
+          String(attrs.from)
+        ] as Partial<ImageAttrs>)
       : undefined
-    const mergedRaw = mergeAttrs(preset, raw)
-    const mergedAttrs = mergeAttrs(
-      preset,
-      attrs as unknown as Record<string, unknown>
-    ) as ImageAttrs & Record<string, unknown>
+    const mergedRaw = mergeAttrs<Record<string, unknown>>(preset, raw)
+    const mergedAttrs = mergeAttrs<ImageAttrs>(preset, attrs)
     const props: Record<string, unknown> = { src: mergedAttrs.src }
     if (typeof mergedAttrs.x === 'number') props.x = mergedAttrs.x
     if (typeof mergedAttrs.y === 'number') props.y = mergedAttrs.y
@@ -3569,9 +3567,9 @@ export const useDirectiveHandlers = () => {
     if (typeof mergedAttrs.scale === 'number') props.scale = mergedAttrs.scale
     if (mergedAttrs.anchor) props.anchor = mergedAttrs.anchor
     if (mergedAttrs.alt) props.alt = mergedAttrs.alt
-    const mergedStyle = getStyleAttr(mergedAttrs as Record<string, unknown>)
+    const mergedStyle = getStyleAttr({ style: mergedAttrs.style })
     if (mergedStyle) props.style = mergedStyle
-    const mergedClass = getClassAttr(mergedAttrs as Record<string, unknown>)
+    const mergedClass = getClassAttr({ className: mergedAttrs.className })
     if (mergedClass) props.className = mergedClass
     if (mergedAttrs.layerClassName)
       props.layerClassName = mergedAttrs.layerClassName
