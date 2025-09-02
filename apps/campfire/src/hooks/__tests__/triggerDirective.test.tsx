@@ -32,7 +32,7 @@ describe('trigger directive', () => {
       ':::trigger{label="Fire"}\n' +
       ':::wrapper{as="span"}\n' +
       'Run\n' +
-      ':image{src="https://placehold.co/32"}\n' +
+      '::image{src="https://placehold.co/32"}\n' +
       ':::\n' +
       ':set[fired=true]\n' +
       ':::\n'

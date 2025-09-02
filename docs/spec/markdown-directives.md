@@ -11,8 +11,8 @@ This document defines the normative behavior for Campfire’s Markdown directive
 ## Terminology
 
 - Container directive: Block directive that can contain child nodes. Written with leading and trailing `:::` markers (e.g., `:::if … :::`).
-- Leaf directive: Standalone directive with no nested block (e.g., `:set{key="v"}`).
-- Text directive: Inline directive syntax parsed by `remark-directive`.
+- Leaf directive: Block-level directive with no nested content. Written with leading `::` markers (e.g., `::image{src="cat.png"}`).
+- Inline directive: Directive embedded in text flow, written with a single leading `:` (e.g., `:show[hp]`). Parsed by `remark-directive` as a text directive.
 - Label: The optional first paragraph inside a container used to carry short values (e.g., an expression for `if`, a locale for `lang`).
 - Marker: A paragraph composed solely of directive marker tokens `:::` and whitespace.
 - State key: Unquoted identifier path referencing game state (e.g., `user.name`, `items[0]`).
@@ -20,8 +20,8 @@ This document defines the normative behavior for Campfire’s Markdown directive
 ## Syntax
 
 - Container: `:::name[optional-label]{attrs}\n…children…\n:::`
-- Leaf: `:name[optional-label]{attrs}`
-- Inline/text: `:name[...]` in text flow (parsed by `remark-directive`).
+- Leaf: `::name[optional-label]{attrs}`
+- Inline: `:name[optional-label]{attrs}` in text flow.
 
 Notes
 

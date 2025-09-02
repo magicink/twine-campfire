@@ -31,7 +31,7 @@ beforeEach(() => {
 describe('image directive', () => {
   it('renders a SlideImage component with props', () => {
     const md =
-      ':::reveal\n:image{src="https://example.com/cat.png" x=10 y=20 alt="Cat" className="rounded" layerClassName="wrapper" style="border:1px solid red" data-test="ok"}\n:::\n'
+      ':::reveal\n::image{src="https://example.com/cat.png" x=10 y=20 alt="Cat" className="rounded" layerClassName="wrapper" style="border:1px solid red" data-test="ok"}\n:::\n'
     render(<MarkdownRunner markdown={md} />)
     const el = document.querySelector(
       '[data-testid="slideImage"]'
@@ -53,7 +53,7 @@ describe('image directive', () => {
 
   it('handles hyphenated class names without evaluation', () => {
     const md =
-      ':::reveal\n:image{src="https://example.com/cat.png" className="w-full"}\n:::\n'
+      ':::reveal\n::image{src="https://example.com/cat.png" className="w-full"}\n:::\n'
     render(<MarkdownRunner markdown={md} />)
     const img = document.querySelector(
       '[data-testid="slideImage"] img'
@@ -63,7 +63,7 @@ describe('image directive', () => {
   })
 
   it('does not wrap SlideImage in a paragraph', () => {
-    const md = ':::reveal\n:image{src="https://example.com/cat.png"}\n:::\n'
+    const md = ':::reveal\n::image{src="https://example.com/cat.png"}\n:::\n'
     render(<MarkdownRunner markdown={md} />)
     const el = document.querySelector(
       '[data-testid="slideImage"]'
@@ -73,7 +73,7 @@ describe('image directive', () => {
 
   it('applies image presets with overrides', () => {
     const md =
-      ':preset{type="image" name="cat" x=5 y=5 src="https://example.com/cat.png"}\n:::reveal\n:image{from="cat" y=10}\n:::\n'
+      ':preset{type="image" name="cat" x=5 y=5 src="https://example.com/cat.png"}\n:::reveal\n::image{from="cat" y=10}\n:::\n'
     render(<MarkdownRunner markdown={md} />)
     const el = document.querySelector(
       '[data-testid="slideImage"]'
@@ -86,7 +86,7 @@ describe('image directive', () => {
 
   it('applies class names from presets', () => {
     const md =
-      ':preset{type="image" name="cat" className="rounded" layerClassName="wrap" src="https://example.com/cat.png"}\n:::reveal\n:image{from="cat"}\n:::\n'
+      ':preset{type="image" name="cat" className="rounded" layerClassName="wrap" src="https://example.com/cat.png"}\n:::reveal\n::image{from="cat"}\n:::\n'
     render(<MarkdownRunner markdown={md} />)
     const el = document.querySelector(
       '[data-testid="slideImage"]'

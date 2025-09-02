@@ -11,7 +11,7 @@ Position an image within a slide.
 ```md
 :::deck
 :::slide
-:image{id='cat' layerId='cat-layer' src='https://example.com/cat.png' x=10 y=20}
+::image{id='cat' layerId='cat-layer' src='https://example.com/cat.png' x=10 y=20}
 :::
 :::
 ```

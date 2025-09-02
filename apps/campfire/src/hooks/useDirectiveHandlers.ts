@@ -3525,7 +3525,7 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
-   * Converts a `:image` directive into a SlideImage element.
+   * Converts an `image` directive into a SlideImage element.
    *
    * @param directive - The image directive node.
    * @param parent - Parent node containing the directive.
@@ -3534,8 +3534,8 @@ export const useDirectiveHandlers = () => {
    */
   const handleImage: DirectiveHandler = (directive, parent, index) => {
     if (!parent || typeof index !== 'number') return
-    if (directive.type !== 'textDirective') {
-      const msg = 'image can only be used as a leaf directive'
+    if (directive.type === 'containerDirective') {
+      const msg = 'image can only be used as an inline or leaf directive'
       console.error(msg)
       addError(msg)
       return removeNode(parent, index)
