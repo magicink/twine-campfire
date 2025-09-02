@@ -86,6 +86,7 @@ its own slide if not preceded by a slide directive.
 | autoplay                   | Whether to automatically advance through slides                            |
 | autoplayDelay              | Milliseconds between automatic slide advances (defaults to 3000)           |
 | pause                      | Start autoplay paused and display a play button                            |
+| id                         | Unique identifier for the deck                                             |
 | groupClassName             | Additional classes applied to the slide group wrapper                      |
 | navClassName               | Additional classes applied to the navigation wrapper                       |
 | hudClassName               | Additional classes applied to the slide counter HUD wrapper                |
@@ -126,6 +127,7 @@ Content
 | steps         | Number of build steps on this slide |
 | onEnter       | Directive block to run on enter     |
 | onExit        | Directive block to run on exit      |
+| id            | Unique identifier for the slide     |
 | from          | Name of a slide preset to apply     |
 
 ### `reveal`
@@ -159,6 +161,7 @@ Second
 | enterDuration     | Enter transition duration in ms      |
 | exitDuration      | Exit transition duration in ms       |
 | interruptBehavior | How to handle interrupted animations |
+| id                | Unique identifier for the reveal     |
 | from              | Name of a reveal preset to apply     |
 
 ### `layer`
@@ -185,6 +188,7 @@ Content
 | scale     | Scale multiplier                         |
 | anchor    | Transform origin (`top-left` by default) |
 | className | Additional classes applied to the Layer  |
+| id        | Unique identifier for the Layer wrapper  |
 | from      | Name of a layer preset to apply          |
 
 ### `text`
@@ -200,7 +204,7 @@ Hello
 :::
 ```
 
-Supports a `from` attribute to apply presets and uses `layerClassName` to add classes to the Layer wrapper.
+Supports a `from` attribute to apply presets and uses `layerClassName` and `layerId` to customize the Layer wrapper.
 
 | Input          | Description                              |
 | -------------- | ---------------------------------------- |
@@ -220,6 +224,8 @@ Supports a `from` attribute to apply presets and uses `layerClassName` to add cl
 | style          | Inline styles applied to the text node   |
 | className      | Classes applied to the text node         |
 | layerClassName | Classes applied to the Layer wrapper     |
+| id             | Unique identifier for the text element   |
+| layerId        | Unique identifier for the Layer wrapper  |
 | from           | Name of a text preset to apply           |
 
 ### `shape`
@@ -233,6 +239,8 @@ Draw basic shapes within a slide.
 :::
 :::
 ```
+
+Supports a `from` attribute to apply presets and uses `layerClassName` and `layerId` to customize the Layer wrapper.
 
 | Input          | Description                                       |
 | -------------- | ------------------------------------------------- |
@@ -257,6 +265,8 @@ Draw basic shapes within a slide.
 | shadow         | Adds a drop shadow when true                      |
 | className      | Classes applied to the `<svg>` element            |
 | layerClassName | Classes applied to the Layer wrapper              |
+| id             | Unique identifier for the `<svg>` element         |
+| layerId        | Unique identifier for the Layer wrapper           |
 | style          | Inline styles applied to the `<svg>` element      |
 | from           | Name of a shape preset to apply                   |
 
@@ -280,6 +290,7 @@ Text
 | --------- | ----------------------------------------------------------------- |
 | as        | Element tag (`div`, `span`, `p`, or `section`, defaults to `div`) |
 | className | Additional classes applied to the element                         |
+| id        | Unique identifier for the element                                 |
 | from      | Name of a wrapper preset to apply                                 |
 
 Note: When a `wrapper` is placed inside a `trigger` directive block, it is rendered as the button’s label and takes precedence over the `label` attribute. Only one wrapper is allowed as a trigger label, and the wrapper must use an inline tag valid within a `<button>` (unsupported tags are coerced to `span`). This enables rich button labels (for example, adding icons or extra inline styling) without affecting the trigger’s click behavior.

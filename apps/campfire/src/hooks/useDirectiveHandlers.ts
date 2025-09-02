@@ -2903,7 +2903,8 @@ export const useDirectiveHandlers = () => {
     enterDuration: { type: 'number' },
     exitDuration: { type: 'number' },
     interruptBehavior: { type: 'string' },
-    from: { type: 'string', expression: false }
+    from: { type: 'string', expression: false },
+    id: { type: 'string' }
   } as const
 
   type RevealSchema = typeof revealSchema
@@ -2918,7 +2919,8 @@ export const useDirectiveHandlers = () => {
     'exitDir',
     'enterDuration',
     'exitDuration',
-    'interruptBehavior'
+    'interruptBehavior',
+    'id'
   ] as const
 
   /**
@@ -2964,7 +2966,8 @@ export const useDirectiveHandlers = () => {
     steps: { type: 'number' },
     onEnter: { type: 'string' },
     onExit: { type: 'string' },
-    from: { type: 'string', expression: false }
+    from: { type: 'string', expression: false },
+    id: { type: 'string' }
   } as const
 
   type SlideSchema = typeof slideSchema
@@ -2998,6 +3001,7 @@ export const useDirectiveHandlers = () => {
     scale: { type: 'number' },
     anchor: { type: 'string' },
     className: { type: 'string' },
+    id: { type: 'string' },
     from: { type: 'string', expression: false }
   } as const
 
@@ -3012,13 +3016,15 @@ export const useDirectiveHandlers = () => {
     'z',
     'rotate',
     'scale',
-    'anchor'
+    'anchor',
+    'id'
   ] as const
 
   /** Schema describing supported wrapper directive attributes. */
   const wrapperSchema = {
     as: { type: 'string' },
-    from: { type: 'string', expression: false }
+    from: { type: 'string', expression: false },
+    id: { type: 'string' }
   } as const
 
   type WrapperSchema = typeof wrapperSchema
@@ -3040,6 +3046,8 @@ export const useDirectiveHandlers = () => {
     weight: { type: 'number' },
     lineHeight: { type: 'number' },
     color: { type: 'string' },
+    id: { type: 'string' },
+    layerId: { type: 'string' },
     from: { type: 'string', expression: false }
   } as const
 
@@ -3061,6 +3069,8 @@ export const useDirectiveHandlers = () => {
     style: { type: 'string' },
     className: { type: 'string' },
     layerClassName: { type: 'string' },
+    id: { type: 'string' },
+    layerId: { type: 'string' },
     from: { type: 'string', expression: false }
   } as const
 
@@ -3091,6 +3101,8 @@ export const useDirectiveHandlers = () => {
     className: { type: 'string' },
     layerClassName: { type: 'string' },
     style: { type: 'string' },
+    id: { type: 'string' },
+    layerId: { type: 'string' },
     from: { type: 'string', expression: false }
   } as const
 
@@ -3155,7 +3167,12 @@ export const useDirectiveHandlers = () => {
       if (attrs.interruptBehavior)
         props.interruptBehavior = attrs.interruptBehavior
       const mergedRaw = mergeAttrs(preset, raw)
-      applyAdditionalAttributes(mergedRaw, props, [...REVEAL_EXCLUDES, 'from'])
+      if (attrs.id) props.id = attrs.id
+      applyAdditionalAttributes(mergedRaw, props, [
+        ...REVEAL_EXCLUDES,
+        'from',
+        'id'
+      ])
       return props
     }
   )
@@ -3204,10 +3221,12 @@ export const useDirectiveHandlers = () => {
             ? mergedRaw.className
             : undefined
       if (classAttr) props.className = classAttr
+      if (attrs.id) props.id = attrs.id
       applyAdditionalAttributes(mergedRaw, props, [
         ...LAYER_EXCLUDES,
         'from',
-        'layerClassName'
+        'layerClassName',
+        'id'
       ])
       return props
     },
@@ -3313,7 +3332,13 @@ export const useDirectiveHandlers = () => {
       props.className = ['campfire-wrapper', classAttr]
         .filter(Boolean)
         .join(' ')
-      applyAdditionalAttributes(mergedRaw, props, ['as', 'className', 'from'])
+      if (attrs.id) props.id = attrs.id
+      applyAdditionalAttributes(mergedRaw, props, [
+        'as',
+        'className',
+        'from',
+        'id'
+      ])
       return props
     },
     children =>
@@ -3440,6 +3465,8 @@ export const useDirectiveHandlers = () => {
     if (classAttr) classes.unshift(classAttr)
     props.className = classes.join(' ')
     if (layerClassAttr) props.layerClassName = layerClassAttr
+    if (mergedAttrs.id) props.id = mergedAttrs.id
+    if (mergedAttrs.layerId) props.layerId = mergedAttrs.layerId
     props['data-component'] = 'slideText'
     props['data-as'] = tagName
     applyAdditionalAttributes(mergedRaw, props, [
@@ -3460,6 +3487,8 @@ export const useDirectiveHandlers = () => {
       'style',
       'className',
       'layerClassName',
+      'id',
+      'layerId',
       'from'
     ])
     const processed = runDirectiveBlock(
@@ -3524,6 +3553,8 @@ export const useDirectiveHandlers = () => {
     if (mergedAttrs.className) props.className = mergedAttrs.className
     if (mergedAttrs.layerClassName)
       props.layerClassName = mergedAttrs.layerClassName
+    if (mergedAttrs.id) props.id = mergedAttrs.id
+    if (mergedAttrs.layerId) props.layerId = mergedAttrs.layerId
     applyAdditionalAttributes(mergedRaw, props, [
       'x',
       'y',
@@ -3538,6 +3569,8 @@ export const useDirectiveHandlers = () => {
       'style',
       'className',
       'layerClassName',
+      'id',
+      'layerId',
       'from'
     ])
     const node: Parent = {
@@ -3608,6 +3641,8 @@ export const useDirectiveHandlers = () => {
     if (mergedAttrs.className) props.className = mergedAttrs.className
     if (mergedAttrs.layerClassName)
       props.layerClassName = mergedAttrs.layerClassName
+    if (mergedAttrs.id) props.id = mergedAttrs.id
+    if (mergedAttrs.layerId) props.layerId = mergedAttrs.layerId
     applyAdditionalAttributes(mergedRaw, props, [
       'x',
       'y',
@@ -3631,6 +3666,8 @@ export const useDirectiveHandlers = () => {
       'style',
       'className',
       'layerClassName',
+      'id',
+      'layerId',
       'from'
     ])
     const node: Parent = {
@@ -3724,7 +3761,8 @@ export const useDirectiveHandlers = () => {
     'theme',
     'autoplay',
     'autoplayDelay',
-    'pause'
+    'pause',
+    'id'
   ] as const
 
   /**
@@ -3756,7 +3794,8 @@ export const useDirectiveHandlers = () => {
         from: { type: 'string', expression: false },
         autoplay: { type: 'boolean' },
         autoplayDelay: { type: 'number' },
-        pause: { type: 'boolean' }
+        pause: { type: 'boolean' },
+        id: { type: 'string' }
       },
       { label: false }
     )
@@ -3790,10 +3829,12 @@ export const useDirectiveHandlers = () => {
           : 3000
       if (deckAttrs.pause) deckProps.autoAdvancePaused = true
     }
+    if (deckAttrs.id) deckProps.id = deckAttrs.id
     const rawDeckAttrs = (directive.attributes || {}) as Record<string, unknown>
     applyAdditionalAttributes(rawDeckAttrs, deckProps, [
       ...DECK_EXCLUDES,
-      'from'
+      'from',
+      'id'
     ])
 
     const slides: Parent[] = []

@@ -41,7 +41,7 @@ Special cases (validation enforced by remark plugin)
 
 - `trigger[label]` or `:::trigger{label="..."}`: `label` MUST be a quoted/backticked string.
 - `slide{transition="..."}` (and `deck > slide transition`): `transition` MUST be a quoted/backticked string.
-- `checkpoint|save|load|clearSave { id=... }`: `id` MUST be quoted unless it is a state key path. Unquoted literals (e.g., `id=foo`) are invalid; unquoted state keys (e.g., `id=cp.id`) are allowed.
+- `id` or `layerId` attributes across directives MUST be quoted/backticked strings unless referencing a state key path. Unquoted literals (e.g., `id=foo`) are invalid; unquoted state keys (e.g., `id=cp.id`) are allowed.
 
 Evaluation
 
