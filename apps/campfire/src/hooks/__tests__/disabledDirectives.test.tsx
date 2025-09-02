@@ -27,7 +27,7 @@ beforeEach(() => {
 })
 
 describe('disabled state directives', () => {
-  it('toggles disabled attribute based on state', async () => {
+  it('toggles disabled attribute based on state key', async () => {
     useGameStore.setState({ gameData: { disabled: true } })
     const md =
       ':input[name]{disabled=disabled}\n' +
@@ -71,5 +71,51 @@ describe('disabled state directives', () => {
     expect(radio.disabled).toBe(false)
     expect(checkbox.disabled).toBe(false)
     expect(textarea.disabled).toBe(false)
+  })
+
+  it('toggles disabled attribute based on an expression', async () => {
+    useGameStore.setState({ gameData: { count: 1 } })
+    const md =
+      ':input[name]{disabled="count>2"}\n' +
+      ':::select[color]{disabled="count>2"}\n' +
+      ':option{value="r" label="Red"}\n' +
+      ':::\n' +
+      ':radio[choice]{value="a" disabled="count>2"}\n' +
+      ':checkbox[check]{disabled="count>2"}\n' +
+      ':textarea[bio]{disabled="count>2"}\n' +
+      ':::trigger{label="Go" disabled="count>2"}\n' +
+      ':::\n'
+    render(<MarkdownRunner markdown={md} />)
+    const trigger = document.querySelector(
+      '[data-testid="trigger-button"]'
+    ) as HTMLButtonElement
+    const input = document.querySelector(
+      '[data-testid="input"]'
+    ) as HTMLInputElement
+    const select = document.querySelector(
+      '[data-testid="select"]'
+    ) as HTMLButtonElement
+    const radio = document.querySelector(
+      '[data-testid="radio"]'
+    ) as HTMLButtonElement
+    const checkbox = document.querySelector(
+      '[data-testid="checkbox"]'
+    ) as HTMLButtonElement
+    const textarea = document.querySelector(
+      '[data-testid="textarea"]'
+    ) as HTMLTextAreaElement
+    expect(trigger.disabled).toBe(false)
+    expect(input.disabled).toBe(false)
+    expect(select.disabled).toBe(false)
+    expect(radio.disabled).toBe(false)
+    expect(checkbox.disabled).toBe(false)
+    expect(textarea.disabled).toBe(false)
+    await act(() => useGameStore.getState().setGameData({ count: 3 }))
+    expect(trigger.disabled).toBe(true)
+    expect(input.disabled).toBe(true)
+    expect(select.disabled).toBe(true)
+    expect(radio.disabled).toBe(true)
+    expect(checkbox.disabled).toBe(true)
+    expect(textarea.disabled).toBe(true)
   })
 })

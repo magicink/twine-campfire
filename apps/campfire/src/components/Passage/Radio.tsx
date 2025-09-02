@@ -1,7 +1,7 @@
 import type { JSX } from 'preact'
 import { useEffect } from 'preact/hooks'
 import { useDirectiveEvents } from '@campfire/hooks/useDirectiveEvents'
-import { mergeClasses } from '@campfire/utils/core'
+import { mergeClasses, evalExpression } from '@campfire/utils/core'
 import { useGameStore } from '@campfire/state/useGameStore'
 import { radioStyles, radioIndicatorStyles } from '@campfire/utils/remarkStyles'
 
@@ -66,22 +66,18 @@ export const Radio = ({
   const value = useGameStore(state => state.gameData[stateKey]) as
     | string
     | undefined
-  const disabledState = useGameStore(state =>
-    typeof disabled === 'string' &&
-    disabled !== '' &&
-    disabled !== 'true' &&
-    disabled !== 'false'
-      ? state.gameData[disabled]
-      : undefined
-  ) as unknown
-  const isDisabled =
-    typeof disabled === 'string'
-      ? disabled === '' || disabled === 'true'
-        ? true
-        : disabled === 'false'
-          ? false
-          : Boolean(disabledState)
-      : Boolean(disabled)
+  const isDisabled = useGameStore(state => {
+    if (typeof disabled === 'string') {
+      if (disabled === '' || disabled === 'true') return true
+      if (disabled === 'false') return false
+      try {
+        return Boolean(evalExpression(disabled, state.gameData))
+      } catch {
+        return false
+      }
+    }
+    return Boolean(disabled)
+  })
   const directiveEvents = useDirectiveEvents(
     onMouseEnter,
     onMouseLeave,

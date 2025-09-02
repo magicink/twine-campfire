@@ -26,15 +26,15 @@ Container form:
 :::
 ```
 
-| Input       | Description                                        |
-| ----------- | -------------------------------------------------- |
-| state_key   | Key in game state to store the input value         |
-| placeholder | Optional text shown when empty                     |
-| value       | Initial value when the state key is unset          |
-| type        | Optional input `type` attribute                    |
-| className   | Optional space-separated classes                   |
-| disabled    | Optional boolean or state key to disable the input |
-| style       | Optional inline style declarations                 |
+| Input       | Description                                                     |
+| ----------- | --------------------------------------------------------------- |
+| state_key   | Key in game state to store the input value                      |
+| placeholder | Optional text shown when empty                                  |
+| value       | Initial value when the state key is unset                       |
+| type        | Optional input `type` attribute                                 |
+| className   | Optional space-separated classes                                |
+| disabled    | Optional boolean, state key, or expression to disable the input |
+| style       | Optional inline style declarations                              |
 
 ### `textarea`
 
@@ -56,15 +56,15 @@ Container form:
 :::
 ```
 
-| Input       | Description                                           |
-| ----------- | ----------------------------------------------------- |
-| state_key   | Key in game state to store the textarea value         |
-| placeholder | Optional text shown when empty                        |
-| rows        | Optional number of visible text rows                  |
-| value       | Initial value when the state key is unset             |
-| className   | Optional space-separated classes                      |
-| disabled    | Optional boolean or state key to disable the textarea |
-| style       | Optional inline style declarations                    |
+| Input       | Description                                                        |
+| ----------- | ------------------------------------------------------------------ |
+| state_key   | Key in game state to store the textarea value                      |
+| placeholder | Optional text shown when empty                                     |
+| rows        | Optional number of visible text rows                               |
+| value       | Initial value when the state key is unset                          |
+| className   | Optional space-separated classes                                   |
+| disabled    | Optional boolean, state key, or expression to disable the textarea |
+| style       | Optional inline style declarations                                 |
 
 ### `select`
 
@@ -77,14 +77,14 @@ Render a dropdown bound to a game state key. Must be used as a container with ne
 :::
 ```
 
-| Input     | Description                                         |
-| --------- | --------------------------------------------------- |
-| state_key | Key in game state to store the select value         |
-| className | Optional space-separated classes                    |
-| disabled  | Optional boolean or state key to disable the select |
-| style     | Optional inline style declarations                  |
-| value     | Initial selected value when the key is unset        |
-| label     | Text displayed when no option is selected           |
+| Input     | Description                                                      |
+| --------- | ---------------------------------------------------------------- |
+| state_key | Key in game state to store the select value                      |
+| className | Optional space-separated classes                                 |
+| disabled  | Optional boolean, state key, or expression to disable the select |
+| style     | Optional inline style declarations                               |
+| value     | Initial selected value when the key is unset                     |
+| label     | Text displayed when no option is selected                        |
 
 The select button uses the same default styling as trigger and link buttons and includes a downward caret on the right. The menu closes when clicking outside the button or pressing Escape.
 
@@ -117,13 +117,13 @@ Container form:
 :::
 ```
 
-| Input     | Description                                           |
-| --------- | ----------------------------------------------------- |
-| state_key | Key in game state to store the checkbox value         |
-| value     | Initial value when the state key is unset             |
-| className | Optional space-separated classes                      |
-| disabled  | Optional boolean or state key to disable the checkbox |
-| style     | Optional inline style declarations                    |
+| Input     | Description                                                        |
+| --------- | ------------------------------------------------------------------ |
+| state_key | Key in game state to store the checkbox value                      |
+| value     | Initial value when the state key is unset                          |
+| className | Optional space-separated classes                                   |
+| disabled  | Optional boolean, state key, or expression to disable the checkbox |
+| style     | Optional inline style declarations                                 |
 
 ### `radio`
 
@@ -145,14 +145,14 @@ Container form:
 :::
 ```
 
-| Input     | Description                                        |
-| --------- | -------------------------------------------------- |
-| state_key | Key in game state to store the selected value      |
-| value     | Value represented by this radio button             |
-| checked   | Initial selected value when the state key is unset |
-| className | Optional space-separated classes                   |
-| disabled  | Optional boolean or state key to disable the radio |
-| style     | Optional inline style declarations                 |
+| Input     | Description                                                     |
+| --------- | --------------------------------------------------------------- |
+| state_key | Key in game state to store the selected value                   |
+| value     | Value represented by this radio button                          |
+| checked   | Initial selected value when the state key is unset              |
+| className | Optional space-separated classes                                |
+| disabled  | Optional boolean, state key, or expression to disable the radio |
+| style     | Optional inline style declarations                              |
 
 ### `trigger`
 
@@ -193,7 +193,7 @@ In this case, the `wrapper` content (“Start”) is used as the button label, a
 | --------- | ---------------------------------------------------------------------- |
 | label     | Text displayed on the button (ignored when a wrapper child is present) |
 | className | Optional space-separated classes                                       |
-| disabled  | Optional boolean or state key to disable the button                    |
+| disabled  | Optional boolean, state key, or expression to disable the button       |
 | style     | Optional inline style declarations                                     |
 
 ### Event directives
