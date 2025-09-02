@@ -3343,9 +3343,7 @@ export const useDirectiveHandlers = () => {
       const mergedRaw = mergeAttrs(preset, raw)
       props['data-testid'] = 'wrapper'
       const classAttr =
-        typeof mergedRaw.className === 'string'
-          ? getClassAttr(mergedRaw as Record<string, unknown>)
-          : ''
+        typeof mergedRaw.className === 'string' ? getClassAttr(mergedRaw) : ''
       props.className = ['campfire-wrapper', classAttr]
         .filter(Boolean)
         .join(' ')
@@ -3474,7 +3472,7 @@ export const useDirectiveHandlers = () => {
     if (style.length) props.style = style.join(';')
     const classAttr =
       typeof mergedRaw.className === 'string'
-        ? getClassAttr(mergedRaw as Record<string, unknown>)
+        ? getClassAttr(mergedRaw)
         : undefined
     const layerClassAttr =
       typeof mergedRaw.layerClassName === 'string'
