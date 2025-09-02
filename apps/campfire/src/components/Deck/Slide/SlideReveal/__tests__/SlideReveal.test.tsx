@@ -55,6 +55,22 @@ describe('SlideReveal', () => {
     expect(visibleReveal.className).not.toContain('hidden')
   })
 
+  it('applies custom className and style', () => {
+    render(
+      <Deck>
+        <Slide>
+          <SlideReveal className='extra' style={{ color: 'red' }}>
+            Styled
+          </SlideReveal>
+        </Slide>
+      </Deck>
+    )
+    const el = screen.getByTestId('slide-reveal')
+    expect(el.className).toContain('campfire-slide-reveal')
+    expect(el.className).toContain('extra')
+    expect(el.style.color).toBe('red')
+  })
+
   it.skip('toggles visibility at the configured steps', async () => {
     // @ts-expect-error override animate
     HTMLElement.prototype.animate = () => new StubAnimation()
