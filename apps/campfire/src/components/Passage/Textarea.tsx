@@ -1,7 +1,7 @@
 import type { JSX } from 'preact'
 import { useEffect } from 'preact/hooks'
 import { useDirectiveEvents } from '@campfire/hooks/useDirectiveEvents'
-import { mergeClasses } from '@campfire/utils/core'
+import { mergeClasses, evalExpression } from '@campfire/utils/core'
 import { useGameStore } from '@campfire/state/useGameStore'
 
 const textareaStyles =
@@ -17,6 +17,7 @@ interface TextareaProps
     | 'onBlur'
     | 'onMouseEnter'
     | 'onMouseLeave'
+    | 'disabled'
   > {
   /** Key in game state to bind the textarea value to. */
   stateKey: string
@@ -32,6 +33,8 @@ interface TextareaProps
   onBlur?: string
   /** Initial value if the state key is unset. */
   initialValue?: string
+  /** Boolean or state key controlling the disabled state. */
+  disabled?: boolean | string
 }
 
 /**
@@ -55,11 +58,24 @@ export const Textarea = ({
   onBlur,
   onInput,
   initialValue,
+  disabled,
   ...rest
 }: TextareaProps) => {
   const value = useGameStore(state => state.gameData[stateKey]) as
     | string
     | undefined
+  const isDisabled = useGameStore(state => {
+    if (typeof disabled === 'string') {
+      if (disabled === '' || disabled === 'true') return true
+      if (disabled === 'false') return false
+      try {
+        return Boolean(evalExpression(disabled, state.gameData))
+      } catch {
+        return false
+      }
+    }
+    return Boolean(disabled)
+  })
   const directiveEvents = useDirectiveEvents(
     onMouseEnter,
     onMouseLeave,
@@ -77,6 +93,7 @@ export const Textarea = ({
       data-testid='textarea'
       className={mergeClasses('campfire-textarea', textareaStyles, className)}
       value={value ?? ''}
+      disabled={isDisabled}
       {...rest}
       {...directiveEvents}
       onInput={e => {
