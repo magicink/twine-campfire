@@ -51,6 +51,15 @@ describe('image directive', () => {
     expect(img.style.border).toBe('1px solid red')
   })
 
+  it('does not wrap SlideImage in a paragraph', () => {
+    const md = ':::reveal\n:image{src="https://example.com/cat.png"}\n:::\n'
+    render(<MarkdownRunner markdown={md} />)
+    const el = document.querySelector(
+      '[data-testid="slideImage"]'
+    ) as HTMLElement
+    expect(el.closest('p')).toBeNull()
+  })
+
   it('applies image presets with overrides', () => {
     const md =
       ':preset{type="image" name="cat" x=5 y=5 src="https://example.com/cat.png"}\n:::reveal\n:image{from="cat" y=10}\n:::\n'
