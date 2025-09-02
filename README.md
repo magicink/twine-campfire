@@ -32,12 +32,12 @@ Directives are grouped by purpose.
 Here's a practical example showing how directives can be combined to create interactive content:
 
 ```md
-:createRange[testRange=0]{min=0 max=10}
+::createRange[testRange=0]{min=0 max=10}
 
 The value is currently :show[testRange]
 
 :::trigger{label="add"}
-:setRange[testRange=(testRange.value+1)]
+::setRange[testRange=(testRange.value+1)]
 :::
 
 :::if[testRange.value === testRange.max]

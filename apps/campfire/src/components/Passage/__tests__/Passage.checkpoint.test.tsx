@@ -28,7 +28,7 @@ describe('Passage checkpoint directives', () => {
       children: [
         {
           type: 'text',
-          value: ':::set[hp=5]\n:::\n:checkpoint{id="cp1"}'
+          value: '::set[hp=5]\n:::\n:checkpoint{id="cp1"}'
         }
       ]
     }
@@ -39,7 +39,7 @@ describe('Passage checkpoint directives', () => {
       children: [
         {
           type: 'text',
-          value: ':::set[hp=1]\n:::\n:loadCheckpoint'
+          value: '::set[hp=1]\n:::\n:loadCheckpoint'
         }
       ]
     }
@@ -97,7 +97,7 @@ describe('Passage checkpoint directives', () => {
       children: [
         {
           type: 'text',
-          value: ':::set[hp=2]\n:::\n:checkpoint{id="cp1"}:include["Second"]'
+          value: '::set[hp=2]\n:::\n:checkpoint{id="cp1"}:include["Second"]'
         }
       ]
     }
@@ -108,7 +108,7 @@ describe('Passage checkpoint directives', () => {
       children: [
         {
           type: 'text',
-          value: ':::set[hp=1]\n:::\n:loadCheckpoint:checkpoint{id="cp2"}'
+          value: '::set[hp=1]\n:::\n:loadCheckpoint:checkpoint{id="cp2"}'
         }
       ]
     }
@@ -141,7 +141,7 @@ describe('Passage checkpoint directives', () => {
       children: [
         {
           type: 'text',
-          value: ':checkpoint{id="cp1"}:::set[hp=1]\n:::\n:checkpoint{id="cp2"}'
+          value: ':checkpoint{id="cp1"}::set[hp=1]\n:::\n:checkpoint{id="cp2"}'
         }
       ]
     }
@@ -169,7 +169,7 @@ describe('Passage checkpoint directives', () => {
       children: [
         {
           type: 'text',
-          value: ':::set[hp=5]\n:::\n:checkpoint{id="cp1"}:save{id="slot1"}'
+          value: '::set[hp=5]\n:::\n:checkpoint{id="cp1"}:save{id="slot1"}'
         }
       ]
     }

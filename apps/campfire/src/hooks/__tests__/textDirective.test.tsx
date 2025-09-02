@@ -92,7 +92,7 @@ describe('text directive', () => {
   })
 
   it('interpolates className and style attributes', () => {
-    const md = `:set[color="red" cls="big"]
+    const md = `::set[color="red" cls="big"]
 :::text{className="title-\${cls}" style="color: \${color}"}
 Hi
 :::`

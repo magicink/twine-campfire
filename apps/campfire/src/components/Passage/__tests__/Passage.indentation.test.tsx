@@ -15,7 +15,7 @@ const makePassage = (indent: string): Element => ({
   type: 'element',
   tagName: 'tw-passagedata',
   properties: { pid: '1', name: 'Start' },
-  children: [{ type: 'text', value: `:::if[true]\n${indent}:set[hp=5]\n:::` }]
+  children: [{ type: 'text', value: `:::if[true]\n${indent}::set[hp=5]\n:::` }]
 })
 
 describe('directive indentation', () => {

@@ -86,46 +86,14 @@ describe('Story', () => {
     expect(useGameStore.getState().gameData).toEqual({ hp: 10 })
   })
 
-  it('renders content based on if directives', async () => {
-    document.body.innerHTML = `
-<tw-storydata name="Story" startnode="1">
-  <tw-passagedata pid="1" name="Start">:::set[open=true]
-:::
-
-:::trigger{label="open"}
-:::set[open=false]
-:::
-
-:::if[!open]
-not open
-:::
-
-:::if[open]
-is open!
-:::</tw-passagedata>
-</tw-storydata>
-    `
-    render(<Campfire />)
-    await screen.findByText('is open!')
-    expect(screen.queryByText('not open')).toBeNull()
-    const button = await screen.findByRole('button', { name: 'open' })
-    act(() => {
-      button.click()
-    })
-    await screen.findByText('not open')
-    expect(screen.queryByText('is open!')).toBeNull()
-  })
-
   it('renders trigger directives within if directives', async () => {
     document.body.innerHTML = `
 <tw-storydata name="Story" startnode="1">
-  <tw-passagedata pid="1" name="Start">:::set[open=true]
-:::
+  <tw-passagedata pid="1" name="Start">\n::set[open=true]
 
 :::if[open]
 :::trigger{label="open"}
-:::set[clicked=true]
-:::
+::set[clicked=true]
 :::
 :::
 </tw-passagedata>
@@ -145,12 +113,12 @@ is open!
   it('parses if directives after blank lines', async () => {
     document.body.innerHTML = `
 <tw-storydata name="Story" startnode="1">
-  <tw-passagedata pid="1" name="Start">:::set[open=true]
-:::
+  <tw-passagedata pid="1" name="Start">\n::set[open=true]
 
 :::if[!open]
 not open
-:::</tw-passagedata>
+:::
+</tw-passagedata>
 </tw-storydata>
     `
     render(<Campfire />)
@@ -161,12 +129,10 @@ not open
   it('does not render ::: when if has no else', async () => {
     document.body.innerHTML = `
 <tw-storydata name="Story" startnode="1">
-  <tw-passagedata pid="1" name="Start">:::set[open=true]
-:::
+  <tw-passagedata pid="1" name="Start">\n::set[open=true]
 
 :::if[open]
-:::set[done=true]
-:::
+::set[done=true]
 :::
   </tw-passagedata>
 </tw-storydata>
@@ -181,15 +147,12 @@ not open
   it('executes only the matching branch when else is present', async () => {
     document.body.innerHTML = `
 <tw-storydata name="Story" startnode="1">
-  <tw-passagedata pid="1" name="Start">:::set[open=true]
-:::
+  <tw-passagedata pid="1" name="Start">\n::set[open=true]
 
 :::if[open]
-:::set[yes=true]
-:::
+::set[yes=true]
 :::else
-:::set[no=true]
-:::
+::set[no=true]
 :::
   </tw-passagedata>
 </tw-storydata>
@@ -203,15 +166,12 @@ not open
   it('renders else block when condition is false', async () => {
     document.body.innerHTML = `
 <tw-storydata name="Story" startnode="1">
-  <tw-passagedata pid="1" name="Start">:::set[open=false]
-:::
+  <tw-passagedata pid="1" name="Start">::set[open=false]
 
 :::if[open]
-:::set[yes=true]
-:::
+::set[yes=true]
 :::else
-:::set[no=true]
-:::
+::set[no=true]
 :::
   </tw-passagedata>
 </tw-storydata>

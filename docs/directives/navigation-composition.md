@@ -230,12 +230,12 @@ Supports a `from` attribute to apply presets and uses `layerClassName` and `laye
 
 ### `shape`
 
-Draw basic shapes within a slide.
+Draw basic shapes within a slide. The directive supports both inline `:shape` and leaf `::shape` forms.
 
 ```md
 :::deck
 :::slide
-:shape{type='rect' x=10 y=20 w=100 h=50}
+::shape{type='rect' x=10 y=20 w=100 h=50}
 :::
 :::
 ```
