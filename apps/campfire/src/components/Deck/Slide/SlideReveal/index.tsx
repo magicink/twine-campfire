@@ -21,6 +21,10 @@ export interface SlideRevealProps {
   enter?: Transition
   exit?: Transition
   interruptBehavior?: 'jumpToEnd' | 'cancel'
+  /** Additional CSS class names for the reveal element. */
+  className?: string
+  /** Additional CSS properties for the reveal element. */
+  style?: JSX.CSSProperties | string
   children: ComponentChildren
   /** Optional custom deck store. */
   store?: typeof useDeckStore
@@ -38,6 +42,8 @@ export const SlideReveal = ({
   enter,
   exit,
   interruptBehavior = 'jumpToEnd',
+  className,
+  style,
   children,
   store = useDeckStore
 }: SlideRevealProps): JSX.Element | null => {
@@ -161,7 +167,10 @@ export const SlideReveal = ({
   return (
     <div
       ref={ref}
-      className={`campfire-slide-reveal${!visible ? ' hidden' : ''}`}
+      className={['campfire-slide-reveal', !visible && 'hidden', className]
+        .filter(Boolean)
+        .join(' ')}
+      style={style}
       data-testid='slide-reveal'
     >
       {children}

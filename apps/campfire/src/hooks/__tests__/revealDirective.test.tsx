@@ -93,6 +93,20 @@ describe('reveal directive', () => {
     expect(reveal.props.enter).toEqual({ type: 'flip', duration: 500 })
   })
 
+  it('interpolates className and style attributes', () => {
+    const md = `:set[color="red" cls="special"]\n:::reveal{className="box-\${cls}" style="color: \${color}"}\nHi\n:::`
+    render(<MarkdownRunner markdown={md} />)
+    const reveal = findReveal(output)!
+    expect(reveal.props.className).toBe('box-special')
+    const style =
+      typeof reveal.props.style === 'string'
+        ? reveal.props.style
+        : Object.entries(reveal.props.style || {})
+            .map(([k, v]) => `${k}: ${v}`)
+            .join('; ')
+    expect(style).toContain('color: red')
+  })
+
   it('does not render stray colons when reveal contains directives', () => {
     const md = `:::reveal\n:::if[true]\nHi\n:::\n:::\n`
     render(<MarkdownRunner markdown={md} />)
