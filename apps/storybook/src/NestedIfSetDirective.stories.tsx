@@ -26,48 +26,44 @@ before outer layer
 :::layer
 before outer trigger
 :::trigger{label="outer"}
-before outer set
 :::set[outer=true]
 :::
-between outer set and if
+
 :::if[outer]
 before inner layer
 :::layer
-sibling before inner trigger one
 :::trigger{label="inner one"}
-before inner set
 :::set[inner=true]
 :::
-between inner set and if
+
 :::if[inner]
 inner hit
+:::trigger{label="inner off"}
+:::set[inner=false]
 :::
-after inner if
 :::
-between inner triggers
+
 :::trigger{label="inner two"}
-before inner2 set
 :::set[inner2=true]
 :::
-between inner2 set and if
+
 :::if[inner2]
 inner2 hit
+:::trigger{label="inner two off"}
+:::set[inner2=false]
 :::
-after inner2 if
 :::
-after inner triggers
 :::
-after inner layer
+
+:::trigger{label="outer off"}
+:::set[outer=false]
 :::
-after outer if
 :::
-after outer trigger
 :::
-after outer layer
+
 :::layer
 sibling layer after outer
 :::
-end slide
 :::
 :::slide
 second slide
