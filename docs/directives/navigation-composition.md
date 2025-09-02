@@ -20,10 +20,10 @@ game state.
 
 ### `include`
 
-Embed another passage's content.
+Embed another passage's content. Use as a leaf directive.
 
 ```md
-:include["PASSAGE-NAME"]
+::include["PASSAGE-NAME"]
 ```
 
 Use quotes or backticks for passage names. Unquoted numbers include by pid.

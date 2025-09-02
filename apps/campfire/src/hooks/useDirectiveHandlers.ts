@@ -269,6 +269,26 @@ export const useDirectiveHandlers = () => {
     interpolateAttr(typeof attrs.style === 'string' ? attrs.style : undefined)
 
   /**
+   * Ensures a directive is used in leaf form. Logs an error and removes the node otherwise.
+   *
+   * @param directive - The directive to validate.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within the parent.
+   * @returns The index of the removed node when invalid, otherwise undefined.
+   */
+  const requireLeafDirective = (
+    directive: DirectiveNode,
+    parent: Parent | undefined,
+    index: number | undefined
+  ): DirectiveHandlerResult | undefined => {
+    if (directive.type === 'leafDirective') return
+    const msg = `${directive.name} can only be used as a leaf directive`
+    console.error(msg)
+    addError(msg)
+    return removeNode(parent, index)
+  }
+
+  /**
    * Handles the leaf `set` and `setOnce` directives by assigning values to keys
    * in game data using shorthand `key=value` pairs.
    *
@@ -284,12 +304,8 @@ export const useDirectiveHandlers = () => {
     index: number | undefined,
     lock = false
   ): DirectiveHandlerResult => {
-    if (directive.type !== 'leafDirective') {
-      const msg = `${directive.name} can only be used as a leaf directive`
-      console.error(msg)
-      addError(msg)
-      return removeNode(parent, index)
-    }
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const rawLabel = hasLabel(directive) ? directive.label : undefined
     const textContent = toString(directive)
     let shorthand: string | undefined
@@ -368,12 +384,8 @@ export const useDirectiveHandlers = () => {
     index: number | undefined,
     lock = false
   ): DirectiveHandlerResult => {
-    if (directive.type !== 'leafDirective') {
-      const msg = `${directive.name} can only be used as a leaf directive`
-      console.error(msg)
-      addError(msg)
-      return removeNode(parent, index)
-    }
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const splitItems = (input: string): string[] => {
       const result: string[] = []
       let current = ''
@@ -468,12 +480,8 @@ export const useDirectiveHandlers = () => {
     parent: Parent | undefined,
     index: number | undefined
   ): DirectiveHandlerResult => {
-    if (directive.type !== 'leafDirective') {
-      const msg = `${directive.name} can only be used as a leaf directive`
-      console.error(msg)
-      addError(msg)
-      return removeNode(parent, index)
-    }
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const parsed = extractKeyValue(directive, parent, index, addError)
     if (!parsed) return index
     const { key, valueRaw } = parsed
@@ -595,12 +603,8 @@ export const useDirectiveHandlers = () => {
     index: number | undefined,
     lock = false
   ): DirectiveHandlerResult => {
-    if (directive.type !== 'leafDirective') {
-      const msg = `${directive.name} can only be used as a leaf directive`
-      console.error(msg)
-      addError(msg)
-      return removeNode(parent, index)
-    }
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const label = hasLabel(directive) ? directive.label : toString(directive)
     const key = ensureKey(label.trim(), parent, index)
     if (!key) return index
@@ -725,12 +729,8 @@ export const useDirectiveHandlers = () => {
       op: 'push' | 'pop' | 'shift' | 'unshift' | 'splice' | 'concat'
     ): DirectiveHandler =>
     (directive, parent, index) => {
-      if (directive.type !== 'leafDirective') {
-        const msg = `${directive.name} can only be used as a leaf directive`
-        console.error(msg)
-        addError(msg)
-        return removeNode(parent, index)
-      }
+      const invalid = requireLeafDirective(directive, parent, index)
+      if (typeof invalid !== 'undefined') return invalid
       const attrs = directive.attributes || {}
       const key = ensureKey(
         (attrs as Record<string, unknown>).key,
@@ -820,12 +820,8 @@ export const useDirectiveHandlers = () => {
   const handleConcat = createArrayOperationHandler('concat')
 
   const handleUnset: DirectiveHandler = (directive, parent, index) => {
-    if (directive.type !== 'leafDirective') {
-      const msg = `${directive.name} can only be used as a leaf directive`
-      console.error(msg)
-      addError(msg)
-      return removeNode(parent, index)
-    }
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const attrs = directive.attributes || {}
     const key = ensureKey(
       (attrs as Record<string, unknown>).key ?? toString(directive),
@@ -4083,6 +4079,8 @@ export const useDirectiveHandlers = () => {
    * @returns The new index after replacement, or removes the node if not found or on error.
    */
   const handleInclude: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const rawText = toString(directive).trim()
     const target = resolvePassageTarget(rawText, attrs)
