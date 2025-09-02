@@ -93,6 +93,14 @@ const ALLOWED_ONEXIT_DIRECTIVES = new Set([
   'unshift',
   'splice',
   'concat',
+  'checkpoint',
+  'loadCheckpoint',
+  'clearCheckpoint',
+  'save',
+  'load',
+  'clearSave',
+  'lang',
+  'translations',
   'if',
   'for',
   'batch'
@@ -2103,6 +2111,8 @@ export const useDirectiveHandlers = () => {
    * @returns The new index after removing the directive.
    */
   const handleLang: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const locale = toString(directive).trim()
 
     // Basic locale validation: e.g., "en", "en-US", "fr", "zh-CN"
@@ -2121,7 +2131,7 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
-   * Adds a translation using shorthand `:translations[locale]{ns:key="value"}`.
+   * Adds a translation using shorthand `::translations[locale]{ns:key="value"}`.
    *
    * @param directive - The directive node representing the translations.
    * @param parent - The parent AST node containing this directive.
@@ -2129,6 +2139,8 @@ export const useDirectiveHandlers = () => {
    * @returns The new index after processing.
    */
   const handleTranslations: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const locale =
       getLabel(directive as ContainerDirective) || toString(directive).trim()
     const attrs = directive.attributes as Record<string, unknown>
@@ -2565,6 +2577,8 @@ export const useDirectiveHandlers = () => {
    * @param index - Index of the directive within the parent.
    */
   const handleSave: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const id = typeof attrs.id === 'string' ? attrs.id : 'campfire.save'
     setLoading(true)
@@ -2597,6 +2611,8 @@ export const useDirectiveHandlers = () => {
    * @param index - Index of the directive within the parent.
    */
   const handleLoad: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const id = typeof attrs.id === 'string' ? attrs.id : 'campfire.save'
     setLoading(true)
@@ -2643,6 +2659,8 @@ export const useDirectiveHandlers = () => {
    * @param index - Index of the directive within the parent.
    */
   const handleClearSave: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const id = typeof attrs.id === 'string' ? attrs.id : 'campfire.save'
     setLoading(true)
@@ -2660,6 +2678,8 @@ export const useDirectiveHandlers = () => {
   }
 
   const handleCheckpoint: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     if (lastPassageIdRef.current !== currentPassageId) {
       resetDirectiveState()
     }
@@ -2693,7 +2713,7 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
-   * Handles the `:loadCheckpoint` directive, which loads the saved checkpoint.
+   * Handles the `::loadCheckpoint` directive, which loads the saved checkpoint.
    * If the directive is used inside an included passage, it is ignored.
    *
    * @param directive - The directive node representing `:loadCheckpoint`.
@@ -2701,11 +2721,9 @@ export const useDirectiveHandlers = () => {
    * @param index - The index of this directive within the parent's children.
    * @returns The index at which processing should continue.
    */
-  const handleLoadCheckpoint: DirectiveHandler = (
-    _directive,
-    parent,
-    index
-  ) => {
+  const handleLoadCheckpoint: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     if (includeDepth > 0) return removeNode(parent, index)
     const cp = loadCheckpointFn()
     if (cp?.currentPassageId) {
@@ -2715,7 +2733,7 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
-   * Handles the `:clearCheckpoint` directive, which removes the currently saved
+   * Handles the `::clearCheckpoint` directive, which removes the currently saved
    * checkpoint. If the directive is used inside an included passage, it is
    * ignored.
    *
@@ -2725,10 +2743,12 @@ export const useDirectiveHandlers = () => {
    * @returns The index at which processing should continue.
    */
   const handleClearCheckpoint: DirectiveHandler = (
-    _directive,
+    directive,
     parent,
     index
   ) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     if (includeDepth > 0) return removeNode(parent, index)
     useGameStore.setState({ checkpoints: {} })
     return removeNode(parent, index)

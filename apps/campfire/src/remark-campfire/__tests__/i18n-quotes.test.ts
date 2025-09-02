@@ -31,7 +31,7 @@ const parseDirective = (md: string, name: string) => {
 
 describe('lang directive', () => {
   it('parses locale from label', () => {
-    const { node } = parseDirective(':lang[fr]', 'lang')
+    const { node } = parseDirective('::lang[fr]', 'lang')
     expect(node && toString(node)).toBe('fr')
   })
 })

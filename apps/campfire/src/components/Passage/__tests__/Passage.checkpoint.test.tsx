@@ -28,7 +28,7 @@ describe('Passage checkpoint directives', () => {
       children: [
         {
           type: 'text',
-          value: '::set[hp=5]\n:::\n:checkpoint{id="cp1"}'
+          value: '::set[hp=5]\n:::\n::checkpoint{id="cp1"}'
         }
       ]
     }
@@ -39,7 +39,7 @@ describe('Passage checkpoint directives', () => {
       children: [
         {
           type: 'text',
-          value: '::set[hp=1]\n:::\n:loadCheckpoint'
+          value: '::set[hp=1]\n:::\n::loadCheckpoint'
         }
       ]
     }
@@ -73,9 +73,9 @@ describe('Passage checkpoint directives', () => {
       children: [
         {
           type: 'text',
-          value: ':translations[en-US]{translation:save="Save"}'
+          value: '::translations[en-US]{translation:save="Save"}\n'
         },
-        { type: 'text', value: ':checkpoint{id="cp1" label=save}' }
+        { type: 'text', value: '::checkpoint{id="cp1" label=save}' }
       ]
     }
 
@@ -89,6 +89,23 @@ describe('Passage checkpoint directives', () => {
     })
   })
 
+  it('ignores inline checkpoint directive', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: 'before :checkpoint{id="cp1"} after' }]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(useGameStore.getState().checkpoints.cp1).toBeUndefined()
+    })
+  })
+
   it('ignores checkpoint and loadCheckpoint directives in included passages', async () => {
     const start: Element = {
       type: 'element',
@@ -97,7 +114,7 @@ describe('Passage checkpoint directives', () => {
       children: [
         {
           type: 'text',
-          value: '::set[hp=2]\n:::\n:checkpoint{id="cp1"}\n::include["Second"]'
+          value: '::set[hp=2]\n:::\n::checkpoint{id="cp1"}\n::include["Second"]'
         }
       ]
     }
@@ -108,7 +125,7 @@ describe('Passage checkpoint directives', () => {
       children: [
         {
           type: 'text',
-          value: '::set[hp=1]\n:::\n:loadCheckpoint:checkpoint{id="cp2"}'
+          value: '::set[hp=1]\n:::\n::loadCheckpoint\n::checkpoint{id="cp2"}'
         }
       ]
     }
@@ -141,7 +158,8 @@ describe('Passage checkpoint directives', () => {
       children: [
         {
           type: 'text',
-          value: ':checkpoint{id="cp1"}::set[hp=1]\n:::\n:checkpoint{id="cp2"}'
+          value:
+            '::checkpoint{id="cp1"}\n::set[hp=1]\n:::\n::checkpoint{id="cp2"}'
         }
       ]
     }
@@ -169,7 +187,7 @@ describe('Passage checkpoint directives', () => {
       children: [
         {
           type: 'text',
-          value: '::set[hp=5]\n:::\n:checkpoint{id="cp1"}:save{id="slot1"}'
+          value: '::set[hp=5]\n:::\n::checkpoint{id="cp1"}\n::save{id="slot1"}'
         }
       ]
     }
@@ -209,7 +227,7 @@ describe('Passage checkpoint directives', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':load{id="slot1"}' }]
+      children: [{ type: 'text', value: '::load{id="slot1"}' }]
     }
     const second: Element = {
       type: 'element',
@@ -249,7 +267,7 @@ describe('Passage checkpoint directives', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':load{id="slot1"}' }]
+      children: [{ type: 'text', value: '::load{id="slot1"}' }]
     }
 
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
@@ -276,7 +294,7 @@ describe('Passage checkpoint directives', () => {
       children: [
         {
           type: 'text',
-          value: ':checkpoint{id="cp1"}:clearCheckpoint'
+          value: '::checkpoint{id="cp1"}\n::clearCheckpoint'
         }
       ]
     }
@@ -303,7 +321,7 @@ describe('Passage checkpoint directives', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':clearCheckpoint' }]
+      children: [{ type: 'text', value: '::clearCheckpoint' }]
     }
 
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
@@ -322,7 +340,7 @@ describe('Passage checkpoint directives', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':clearSave{id="slot1"}' }]
+      children: [{ type: 'text', value: '::clearSave{id="slot1"}' }]
     }
 
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
@@ -346,7 +364,7 @@ describe('Passage checkpoint directives', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':loadCheckpoint' }]
+      children: [{ type: 'text', value: '::loadCheckpoint' }]
     }
 
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })

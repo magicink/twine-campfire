@@ -18,7 +18,15 @@ describe('filterDirectiveChildren', () => {
     'shift',
     'unshift',
     'splice',
-    'concat'
+    'concat',
+    'checkpoint',
+    'loadCheckpoint',
+    'clearCheckpoint',
+    'save',
+    'load',
+    'clearSave',
+    'lang',
+    'translations'
   ]
   const allowed = new Set(names)
   it('allows leaf directives', () => {
