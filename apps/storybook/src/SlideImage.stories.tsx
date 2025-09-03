@@ -4,7 +4,7 @@ import { Deck, Slide, SlideImage, SlideReveal } from '@campfire/components'
 
 const meta: Meta<typeof SlideImage> = {
   component: SlideImage,
-  title: 'Campfire/SlideImage'
+  title: 'Campfire/Components/SlideImage'
 }
 
 export default meta
@@ -24,6 +24,8 @@ export const Basic: StoryObj<typeof SlideImage> = {
           exit={{ type: 'fade', duration: 300 }}
         >
           <SlideImage
+            id='kitten-img'
+            layerId='kitten-layer'
             className={'rounded-full'}
             src='https://placecats.com/neo/200/200'
             alt='Kitten'

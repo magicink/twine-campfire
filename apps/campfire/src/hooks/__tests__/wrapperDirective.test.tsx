@@ -93,7 +93,7 @@ describe('wrapper directive', () => {
   it('does not wrap inline radio content in paragraphs', () => {
     const md =
       ':preset{type="wrapper" name="radioLabel" as="div" className="flex items-center gap-2"}\n' +
-      ':set[choice="b"]\n' +
+      '::set[choice="b"]\n' +
       ':::layer{className="flex gap-[12px] items-center justify-center"}\n' +
       '  :::wrapper{from="radioLabel"}\n' +
       '    :radio[choice]{value="a"}\n' +

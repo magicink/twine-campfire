@@ -35,4 +35,14 @@ describe('SlideImage', () => {
     expect(img.className).toContain('rounded')
     expect(img.style.border).toBe('1px solid red')
   })
+
+  it('applies id attributes to layer and image', () => {
+    render(
+      <SlideImage src='img.png' alt='test ids' id='img-id' layerId='layer-id' />
+    )
+    const wrapper = screen.getByTestId('slideImage') as HTMLElement
+    const img = wrapper.querySelector('img') as HTMLImageElement
+    expect(wrapper.id).toBe('layer-id')
+    expect(img.id).toBe('img-id')
+  })
 })

@@ -64,6 +64,8 @@ export const useSerializedDirectiveRunner = (content: string) => {
   const gameData = useGameStore(state => state.gameData)
 
   return useCallback(() => {
+    // TODO(campfire): Profile large blocks to avoid long
+    // main-thread work during interactions.
     runBlock(clone(baseNodes), gameData as Record<string, unknown>)
   }, [baseNodes, handlers, gameData])
 }

@@ -11,12 +11,12 @@ Position an image within a slide.
 ```md
 :::deck
 :::slide
-:image{src='https://example.com/cat.png' x=10 y=20}
+::image{id='cat' layerId='cat-layer' src='https://example.com/cat.png' x=10 y=20}
 :::
 :::
 ```
 
-Supports a `from` attribute to apply presets.
+Supports a `from` attribute to apply presets and uses `layerClassName` and `layerId` to customize the Layer wrapper.
 
 | Input          | Description                              |
 | -------------- | ---------------------------------------- |
@@ -33,6 +33,8 @@ Supports a `from` attribute to apply presets.
 | style          | Inline styles applied to the `<img>`     |
 | className      | Classes applied to the `<img>`           |
 | layerClassName | Classes applied to the Layer wrapper     |
+| id             | Unique identifier for the `<img>`        |
+| layerId        | Unique identifier for the Layer wrapper  |
 | from           | Name of an image preset to apply         |
 
 ### `preloadImage`
@@ -40,7 +42,7 @@ Supports a `from` attribute to apply presets.
 Preload an image for later use.
 
 ```md
-:preloadImage[titleScreen]{src='images/title.png'}
+::preloadImage[titleScreen]{src='images/title.png'}
 ```
 
 | Attribute | Description                     |
@@ -55,7 +57,7 @@ Preload an image for later use.
 Preload an audio file for later use.
 
 ```md
-:preloadAudio[click]{src='audio/click.wav'}
+::preloadAudio[click]{src='audio/click.wav'}
 ```
 
 | Attribute | Description                    |
@@ -68,7 +70,7 @@ Preload an audio file for later use.
 Play a one-off sound effect.
 
 ```md
-:sound[click]{volume=0.5 delay=200}
+::sound[click]{volume=0.5 delay=200}
 ```
 
 | Attribute | Description                         |
@@ -84,8 +86,8 @@ Play a one-off sound effect.
 Control background music. Use `stop=true` to stop.
 
 ```md
-:bgm[forest]{volume=0.4 loop=true fade=1000}
-:bgm{stop=true fade=500}
+::bgm[forest]{volume=0.4 loop=true fade=1000}
+::bgm{stop=true fade=500}
 ```
 
 | Attribute | Description                                    |
@@ -102,7 +104,7 @@ Control background music. Use `stop=true` to stop.
 Set global volume levels.
 
 ```md
-:volume{bgm=0.2 sfx=0.8}
+::volume{bgm=0.2 sfx=0.8}
 ```
 
 | Attribute | Description                      |

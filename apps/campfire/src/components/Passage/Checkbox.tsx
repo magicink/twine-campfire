@@ -1,7 +1,7 @@
 import type { JSX } from 'preact'
 import { useEffect } from 'preact/hooks'
 import { useDirectiveEvents } from '@campfire/hooks/useDirectiveEvents'
-import { mergeClasses } from '@campfire/utils/core'
+import { mergeClasses, evalExpression } from '@campfire/utils/core'
 import { useGameStore } from '@campfire/state/useGameStore'
 import {
   checkboxStyles,
@@ -18,6 +18,7 @@ interface CheckboxProps
     | 'onBlur'
     | 'onMouseEnter'
     | 'onMouseLeave'
+    | 'disabled'
   > {
   /** Key in game state to bind the checkbox value to. */
   stateKey: string
@@ -33,6 +34,8 @@ interface CheckboxProps
   onBlur?: string
   /** Initial value if the state key is unset. */
   initialValue?: boolean
+  /** Boolean or state key controlling the disabled state. */
+  disabled?: boolean | string
 }
 
 /**
@@ -56,12 +59,25 @@ export const Checkbox = ({
   onBlur,
   onClick,
   initialValue,
+  disabled,
   ...rest
 }: CheckboxProps) => {
   const value = useGameStore(state => state.gameData[stateKey]) as
     | boolean
     | string
     | undefined
+  const isDisabled = useGameStore(state => {
+    if (typeof disabled === 'string') {
+      if (disabled === '' || disabled === 'true') return true
+      if (disabled === 'false') return false
+      try {
+        return Boolean(evalExpression(disabled, state.gameData))
+      } catch {
+        return false
+      }
+    }
+    return Boolean(disabled)
+  })
   const directiveEvents = useDirectiveEvents(
     onMouseEnter,
     onMouseLeave,
@@ -87,11 +103,12 @@ export const Checkbox = ({
       className={mergeClasses('campfire-checkbox', checkboxStyles, className)}
       aria-checked={checked}
       data-state={checked ? 'checked' : 'unchecked'}
+      disabled={isDisabled}
       {...rest}
       {...directiveEvents}
       onClick={e => {
         onClick?.(e)
-        if (e.defaultPrevented) return
+        if (e.defaultPrevented || isDisabled) return
         setGameData({ [stateKey]: !checked })
       }}
     >

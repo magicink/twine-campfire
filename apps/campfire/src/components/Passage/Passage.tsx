@@ -155,6 +155,9 @@ export const Passage = () => {
   useEffect(() => {
     const controller = new AbortController()
     ;(async () => {
+      // TODO(campfire): Consider yielding across frames or using a worker to
+      // process very large passages; add error boundary/logging for parse
+      // failures and ensure end-of-block directive sentinels are respected.
       if (controller.signal.aborted) return
       if (!passage) {
         setContent(null)

@@ -6,10 +6,10 @@ Save and load progress or store data in the browser.
 
 ### `checkpoint`
 
-Save the current game state.
+Save the current game state. Use as a leaf directive.
 
 ```md
-:checkpoint{id="SAVE-ID" label="LABEL"}
+::checkpoint{id="SAVE-ID" label="LABEL"}
 ```
 
 Replace `SAVE-ID` with a key and `LABEL` with a description. Wrap the `id`
@@ -23,10 +23,10 @@ checkpoint replaces any existing checkpoint.
 
 ### `clearCheckpoint`
 
-Remove the saved checkpoint.
+Remove the saved checkpoint. Use as a leaf directive.
 
 ```md
-:clearCheckpoint
+::clearCheckpoint
 ```
 
 Removes the currently stored checkpoint. Only one checkpoint can exist at a
@@ -38,10 +38,10 @@ time, so this directive has no attributes.
 
 ### `loadCheckpoint`
 
-Load a saved checkpoint.
+Load a saved checkpoint. Use as a leaf directive.
 
 ```md
-:loadCheckpoint
+::loadCheckpoint
 ```
 
 Loads the currently stored checkpoint. Only one checkpoint can exist at a
@@ -55,10 +55,10 @@ time, so this directive has no attributes.
 
 ### `save`
 
-Write the current state to local storage.
+Write the current state to local storage. Use as a leaf directive.
 
 ```md
-:save{id="SLOT"}
+::save{id="SLOT"}
 ```
 
 Replace `SLOT` with the storage id. Wrap the `id` value in quotes or
@@ -70,10 +70,10 @@ backticks unless referencing a state key.
 
 ### `load`
 
-Load state from local storage.
+Load state from local storage. Use as a leaf directive.
 
 ```md
-:load{id="SLOT"}
+::load{id="SLOT"}
 ```
 
 Replace `SLOT` with the storage id. Wrap the `id` value in quotes or
@@ -85,10 +85,10 @@ backticks unless referencing a state key.
 
 ### `clearSave`
 
-Remove a stored game state.
+Remove a stored game state. Use as a leaf directive.
 
 ```md
-:clearSave{id="SLOT"}
+::clearSave{id="SLOT"}
 ```
 
 Replace `SLOT` with the storage id. Wrap the `id` value in quotes or
@@ -97,3 +97,25 @@ backticks unless referencing a state key.
 | Input | Description           |
 | ----- | --------------------- |
 | id    | Storage key to remove |
+
+### `listSavedGames`
+
+Retrieve metadata for existing saves. This helper scans `localStorage` for
+keys starting with `campfire.save` and returns their labels, passage ids, and
+timestamps when available. Call the function in a directive expression and
+build a list of triggers that load each save when clicked:
+
+```md
+::set[saves=listSavedGames()]
+:::for[save in saves]
+:::trigger{label=save.label||save.id}
+::load{id=save.id}
+:::
+:::
+```
+
+Provide a custom prefix to scan a different namespace:
+
+```md
+::set[demoSaves=listSavedGames('demo-')]
+```

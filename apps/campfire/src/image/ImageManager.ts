@@ -4,6 +4,9 @@ import { AssetManager } from '@campfire/utils/AssetManager'
  * Manages image asset loading and caching.
  */
 export class ImageManager extends AssetManager<HTMLImageElement> {
+  // TODO(campfire): Track in-flight requests and dedupe concurrent loads for
+  // the same id/src; expose a clear() method to free cache entries when
+  // memory is constrained.
   /**
    * Preloads an image and caches it by id.
    *

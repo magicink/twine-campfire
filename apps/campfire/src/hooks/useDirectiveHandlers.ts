@@ -52,6 +52,7 @@ import {
 } from '@campfire/utils/math'
 import {
   parseTypedValue,
+  parseAttributeValue,
   extractKeyValue,
   replaceWithIndentation,
   expandIndentedCode,
@@ -87,6 +88,20 @@ const ALLOWED_ONEXIT_DIRECTIVES = new Set([
   'unset',
   'random',
   'randomOnce',
+  'push',
+  'pop',
+  'shift',
+  'unshift',
+  'splice',
+  'concat',
+  'checkpoint',
+  'loadCheckpoint',
+  'clearCheckpoint',
+  'save',
+  'load',
+  'clearSave',
+  'lang',
+  'translations',
   'if',
   'for',
   'batch'
@@ -97,6 +112,9 @@ const ALLOWED_BATCH_DIRECTIVES = new Set(
 const BANNED_BATCH_DIRECTIVES = new Set(['batch'])
 
 /** Marker inserted to close directive blocks. */
+// TODO(campfire): Centralize marker parsing and end-of-block detection
+// across remark and handlers to avoid drift; add regression tests that
+// cover paragraph vs. bare-text markers, blank lines, and sibling directives.
 const DIRECTIVE_MARKER = ':::'
 
 /** Event directives supported by interactive elements. */
@@ -124,7 +142,84 @@ const hasLabel = (
 ): node is DirectiveNode & { label: string } =>
   typeof (node as { label?: unknown }).label === 'string'
 
+/**
+ * Determines whether a node is a directive node.
+ *
+ * @param node - Node to inspect.
+ * @returns True if the node is a directive node.
+ */
+const isDirectiveNode = (node: Node): node is DirectiveNode =>
+  node.type === 'leafDirective' ||
+  node.type === 'containerDirective' ||
+  node.type === 'textDirective'
+
+/**
+ * Filters directive children to allowed directives, optionally flagging banned ones.
+ * Supports leaf directives in addition to inline directives nested in paragraphs.
+ *
+ * @param children - Raw nodes inside the directive.
+ * @param allowed - Set of permitted directive names.
+ * @param banned - Set of explicitly banned directive names.
+ * @returns Filtered nodes, a flag for other invalid content, and whether banned directives were found.
+ */
+export const filterDirectiveChildren = (
+  children: RootContent[],
+  allowed: Set<string>,
+  banned?: Set<string>
+): [RootContent[], boolean, boolean?] => {
+  const filtered: RootContent[] = []
+  let invalidOther = false
+  let bannedFound = false
+  children.forEach(child => {
+    if (child.type === 'paragraph') {
+      let paragraphInvalid = false
+      child.children.forEach(grand => {
+        if (isDirectiveNode(grand)) {
+          if (banned?.has(grand.name)) {
+            bannedFound = true
+            return
+          }
+          if (allowed.has(grand.name)) {
+            filtered.push(grand)
+            return
+          }
+          paragraphInvalid = true
+          return
+        }
+        if (grand.type === 'text' && toString(grand).trim().length === 0) {
+          return
+        }
+        paragraphInvalid = true
+      })
+      if (paragraphInvalid) invalidOther = true
+      return
+    }
+    if (child.type === 'text') {
+      if (toString(child).trim().length === 0) return
+      invalidOther = true
+      return
+    }
+    if (isDirectiveNode(child)) {
+      if (banned?.has(child.name)) {
+        bannedFound = true
+        return
+      }
+      if (allowed.has(child.name)) {
+        filtered.push(child)
+        return
+      }
+      invalidOther = true
+      return
+    }
+    invalidOther = true
+  })
+  return [filtered, invalidOther, bannedFound]
+}
+
 export const useDirectiveHandlers = () => {
+  // TODO(campfire): This module is very large; consider splitting handlers
+  // into focused files (e.g., state, array, deck/slide, overlay) to improve
+  // maintainability and enable more targeted unit tests.
   let state = createStateManager<Record<string, unknown>>()
   let gameData = state.getState()
   let lockedKeys = state.getLockedKeys()
@@ -172,6 +267,55 @@ export const useDirectiveHandlers = () => {
   }, [currentPassageId])
 
   /**
+   * Interpolates template placeholders in an attribute string using game data.
+   *
+   * @param value - Raw attribute value that may contain `${}` expressions.
+   * @returns The interpolated string when placeholders are present.
+   */
+  const interpolateAttr = (value?: string): string | undefined =>
+    value && value.includes('${') ? interpolateString(value, gameData) : value
+
+  /**
+   * Retrieves and interpolates the `className` attribute from a directive.
+   *
+   * @param attrs - Attribute map from the directive.
+   * @returns The processed class string, or an empty string when absent.
+   */
+  const getClassAttr = (attrs: Record<string, unknown>): string =>
+    interpolateAttr(
+      typeof attrs.className === 'string' ? attrs.className : undefined
+    ) || ''
+
+  /**
+   * Retrieves and interpolates the `style` attribute from a directive.
+   *
+   * @param attrs - Attribute map from the directive.
+   * @returns The processed style string, or undefined when absent.
+   */
+  const getStyleAttr = (attrs: Record<string, unknown>): string | undefined =>
+    interpolateAttr(typeof attrs.style === 'string' ? attrs.style : undefined)
+
+  /**
+   * Ensures a directive is used in leaf form. Logs an error and removes the node otherwise.
+   *
+   * @param directive - The directive to validate.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within the parent.
+   * @returns The index of the removed node when invalid, otherwise undefined.
+   */
+  const requireLeafDirective = (
+    directive: DirectiveNode,
+    parent: Parent | undefined,
+    index: number | undefined
+  ): DirectiveHandlerResult | undefined => {
+    if (directive.type === 'leafDirective') return
+    const msg = `${directive.name} can only be used as a leaf directive`
+    console.error(msg)
+    addError(msg)
+    return removeNode(parent, index)
+  }
+
+  /**
    * Handles the leaf `set` and `setOnce` directives by assigning values to keys
    * in game data using shorthand `key=value` pairs.
    *
@@ -187,6 +331,8 @@ export const useDirectiveHandlers = () => {
     index: number | undefined,
     lock = false
   ): DirectiveHandlerResult => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const rawLabel = hasLabel(directive) ? directive.label : undefined
     const textContent = toString(directive)
     let shorthand: string | undefined
@@ -265,6 +411,8 @@ export const useDirectiveHandlers = () => {
     index: number | undefined,
     lock = false
   ): DirectiveHandlerResult => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const splitItems = (input: string): string[] => {
       const result: string[] = []
       let current = ''
@@ -359,6 +507,8 @@ export const useDirectiveHandlers = () => {
     parent: Parent | undefined,
     index: number | undefined
   ): DirectiveHandlerResult => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const parsed = extractKeyValue(directive, parent, index, addError)
     if (!parsed) return index
     const { key, valueRaw } = parsed
@@ -444,8 +594,8 @@ export const useDirectiveHandlers = () => {
       console.error(msg)
       addError(msg)
     }
-    const classAttr = typeof attrs.className === 'string' ? attrs.className : ''
-    const styleAttr = typeof attrs.style === 'string' ? attrs.style : undefined
+    const classAttr = getClassAttr(attrs)
+    const styleAttr = getStyleAttr(attrs)
     if (classAttr) props.className = classAttr
     if (styleAttr) props.style = styleAttr
     applyAdditionalAttributes(attrs, props, ['className', 'style'])
@@ -480,6 +630,8 @@ export const useDirectiveHandlers = () => {
     index: number | undefined,
     lock = false
   ): DirectiveHandlerResult => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const label = hasLabel(directive) ? directive.label : toString(directive)
     const key = ensureKey(label.trim(), parent, index)
     if (!key) return index
@@ -604,6 +756,8 @@ export const useDirectiveHandlers = () => {
       op: 'push' | 'pop' | 'shift' | 'unshift' | 'splice' | 'concat'
     ): DirectiveHandler =>
     (directive, parent, index) => {
+      const invalid = requireLeafDirective(directive, parent, index)
+      if (typeof invalid !== 'undefined') return invalid
       const attrs = directive.attributes || {}
       const key = ensureKey(
         (attrs as Record<string, unknown>).key,
@@ -693,6 +847,8 @@ export const useDirectiveHandlers = () => {
   const handleConcat = createArrayOperationHandler('concat')
 
   const handleUnset: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const attrs = directive.attributes || {}
     const key = ensureKey(
       (attrs as Record<string, unknown>).key ?? toString(directive),
@@ -744,6 +900,9 @@ export const useDirectiveHandlers = () => {
    * @returns True if the node contains only marker tokens and whitespace.
    */
   const isMarkerParagraph = (node: RootContent): boolean => {
+    // TODO(campfire): Verify we never treat mixed-content paragraphs
+    // (markers + other text) as pure markers; add tests for both cases
+    // and ensure whitespace/indentation variants are handled.
     if (
       node.type === 'paragraph' &&
       node.children.length > 0 &&
@@ -761,6 +920,9 @@ export const useDirectiveHandlers = () => {
    * Determines whether a text node consists only of directive markers.
    */
   const isMarkerText = (node: RootContent): boolean => {
+    // TODO(campfire): Ensure all container handlers consider bare-text
+    // markers as valid closers; add tests for early termination when these
+    // appear with blank lines before/after.
     if (node.type !== 'text') return false
     const stripped = (node as MdText).value.replace(/\s+/g, '')
     if (!stripped) return false
@@ -813,6 +975,8 @@ export const useDirectiveHandlers = () => {
    * fallback content when the expression is falsy.
    */
   const handleIf: DirectiveHandler = (directive, parent, index) => {
+    // TODO(campfire): Add tests for truthy/falsy branches, nested containers,
+    // and marker-only closing nodes appearing as paragraph vs. bare text.
     if (!parent || typeof index !== 'number') return
     const container = directive as ContainerDirective
     const children = container.children as RootContent[]
@@ -1204,10 +1368,8 @@ export const useDirectiveHandlers = () => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr =
-        typeof attrs.className === 'string' ? attrs.className : ''
-      const styleAttr =
-        typeof attrs.style === 'string' ? attrs.style : undefined
+      const classAttr = getClassAttr(attrs)
+      const styleAttr = getStyleAttr(attrs)
       const placeholder =
         typeof attrs.placeholder === 'string' ? attrs.placeholder : undefined
       const initialValue =
@@ -1248,10 +1410,8 @@ export const useDirectiveHandlers = () => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr =
-        typeof attrs.className === 'string' ? attrs.className : ''
-      const styleAttr =
-        typeof attrs.style === 'string' ? attrs.style : undefined
+      const classAttr = getClassAttr(attrs)
+      const styleAttr = getStyleAttr(attrs)
       const placeholder =
         typeof attrs.placeholder === 'string' ? attrs.placeholder : undefined
       const initialValue =
@@ -1319,10 +1479,8 @@ export const useDirectiveHandlers = () => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr =
-        typeof attrs.className === 'string' ? attrs.className : ''
-      const styleAttr =
-        typeof attrs.style === 'string' ? attrs.style : undefined
+      const classAttr = getClassAttr(attrs)
+      const styleAttr = getStyleAttr(attrs)
       const initialValue =
         typeof attrs.value === 'string'
           ? attrs.value
@@ -1362,10 +1520,8 @@ export const useDirectiveHandlers = () => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr =
-        typeof attrs.className === 'string' ? attrs.className : ''
-      const styleAttr =
-        typeof attrs.style === 'string' ? attrs.style : undefined
+      const classAttr = getClassAttr(attrs)
+      const styleAttr = getStyleAttr(attrs)
       const initialValue =
         typeof attrs.value === 'string'
           ? attrs.value
@@ -1423,10 +1579,8 @@ export const useDirectiveHandlers = () => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr =
-        typeof attrs.className === 'string' ? attrs.className : ''
-      const styleAttr =
-        typeof attrs.style === 'string' ? attrs.style : undefined
+      const classAttr = getClassAttr(attrs)
+      const styleAttr = getStyleAttr(attrs)
       const valueAttr = typeof attrs.value === 'string' ? attrs.value : ''
       const initialValue =
         typeof attrs.defaultValue === 'string'
@@ -1468,10 +1622,8 @@ export const useDirectiveHandlers = () => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr =
-        typeof attrs.className === 'string' ? attrs.className : ''
-      const styleAttr =
-        typeof attrs.style === 'string' ? attrs.style : undefined
+      const classAttr = getClassAttr(attrs)
+      const styleAttr = getStyleAttr(attrs)
       const valueAttr = typeof attrs.value === 'string' ? attrs.value : ''
       const initialValue =
         typeof attrs.defaultValue === 'string'
@@ -1535,10 +1687,8 @@ export const useDirectiveHandlers = () => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr =
-        typeof attrs.className === 'string' ? attrs.className : ''
-      const styleAttr =
-        typeof attrs.style === 'string' ? attrs.style : undefined
+      const classAttr = getClassAttr(attrs)
+      const styleAttr = getStyleAttr(attrs)
       const placeholder =
         typeof attrs.placeholder === 'string' ? attrs.placeholder : undefined
       const initialValue =
@@ -1579,10 +1729,8 @@ export const useDirectiveHandlers = () => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr =
-        typeof attrs.className === 'string' ? attrs.className : ''
-      const styleAttr =
-        typeof attrs.style === 'string' ? attrs.style : undefined
+      const classAttr = getClassAttr(attrs)
+      const styleAttr = getStyleAttr(attrs)
       const placeholder =
         typeof attrs.placeholder === 'string' ? attrs.placeholder : undefined
       const initialValue =
@@ -1645,8 +1793,8 @@ export const useDirectiveHandlers = () => {
       console.error(msg)
       addError(msg)
     }
-    const classAttr = typeof attrs.className === 'string' ? attrs.className : ''
-    const styleAttr = typeof attrs.style === 'string' ? attrs.style : undefined
+    const classAttr = getClassAttr(attrs)
+    const styleAttr = getStyleAttr(attrs)
     const initialValue =
       typeof attrs.value === 'string'
         ? attrs.value
@@ -1684,8 +1832,8 @@ export const useDirectiveHandlers = () => {
       console.error(msg)
       addError(msg)
     }
-    const classAttr = typeof attrs.className === 'string' ? attrs.className : ''
-    const styleAttr = typeof attrs.style === 'string' ? attrs.style : undefined
+    const classAttr = getClassAttr(attrs)
+    const styleAttr = getStyleAttr(attrs)
     const initialValue =
       typeof attrs.value === 'string'
         ? attrs.value
@@ -1734,14 +1882,17 @@ export const useDirectiveHandlers = () => {
       addError(msg)
     }
     // Default label from attribute or container label paragraph
-    const defaultLabel =
-      typeof attrs.label === 'string' ? attrs.label : getLabel(container)
-    const classAttr = typeof attrs.className === 'string' ? attrs.className : ''
-    const disabled =
-      typeof attrs.disabled === 'string'
-        ? attrs.disabled !== 'false'
-        : Boolean(attrs.disabled)
-    const styleAttr = typeof attrs.style === 'string' ? attrs.style : undefined
+    const rawLabel = typeof attrs.label === 'string' ? attrs.label : undefined
+    const evaluatedLabel =
+      rawLabel && /[.()?:|&]/.test(rawLabel)
+        ? (parseAttributeValue(rawLabel, { type: 'string' }, gameData) as
+            | string
+            | undefined)
+        : rawLabel
+    const defaultLabel = evaluatedLabel ?? getLabel(container)
+    const classAttr = getClassAttr(attrs)
+    const disabledAttr = attrs.disabled
+    const styleAttr = getStyleAttr(attrs)
     // Prepare two views of children:
     // 1) A limited-processed view that only resolves wrapper elements for label detection
     const processedForLabel = runDirectiveBlock(
@@ -1810,8 +1961,7 @@ export const useDirectiveHandlers = () => {
       } else {
         const first = wrappersRaw[0]
         const wattrs = (first.attributes || {}) as Record<string, unknown>
-        const classAttr =
-          typeof wattrs.className === 'string' ? wattrs.className : undefined
+        const classAttr = getClassAttr(wattrs)
         const labelEl: Parent = {
           type: 'paragraph',
           children: (first.children as RootContent[]) || [],
@@ -1888,7 +2038,7 @@ export const useDirectiveHandlers = () => {
     const hProps: Record<string, unknown> = {
       className: classes,
       content: JSON.stringify(finalContentNodes),
-      disabled,
+      ...(disabledAttr !== undefined ? { disabled: disabledAttr } : {}),
       ...(styleAttr ? { style: styleAttr } : {})
     }
     if (events.onMouseEnter) hProps.onMouseEnter = events.onMouseEnter
@@ -1929,76 +2079,6 @@ export const useDirectiveHandlers = () => {
    * @param index - The index of the directive node within its parent.
    * @returns The index of the inserted component.
    */
-  /**
-   * Determines whether a node is a directive node.
-   *
-   * @param node - Node to inspect.
-   * @returns True if the node is a directive node.
-   */
-  const isDirectiveNode = (node: Node): node is DirectiveNode =>
-    node.type === 'leafDirective' ||
-    node.type === 'containerDirective' ||
-    node.type === 'textDirective'
-
-  /**
-   * Filters directive children to allowed directives, optionally flagging banned ones.
-   *
-   * @param children - Raw nodes inside the directive.
-   * @param allowed - Set of permitted directive names.
-   * @param banned - Set of explicitly banned directive names.
-   * @returns Filtered nodes, a flag for other invalid content, and whether banned directives were found.
-   */
-  const filterDirectiveChildren = (
-    children: RootContent[],
-    allowed: Set<string>,
-    banned: Set<string> = new Set()
-  ): [RootContent[], boolean, boolean] => {
-    let invalidOther = false
-    let bannedFound = false
-    const filtered: RootContent[] = []
-    children.forEach(child => {
-      if (child.type === 'text') {
-        if (toString(child).trim().length === 0) return
-        invalidOther = true
-        return
-      }
-      if (isDirectiveNode(child)) {
-        if (banned.has(child.name)) {
-          bannedFound = true
-          return
-        }
-        if (allowed.has(child.name)) {
-          filtered.push(child)
-          return
-        }
-        invalidOther = true
-        return
-      }
-      if (child.type === 'paragraph') {
-        child.children.forEach(sub => {
-          if (sub.type === 'text') {
-            if (toString(sub).trim().length === 0) return
-            invalidOther = true
-            return
-          }
-          if (isDirectiveNode(sub)) {
-            if (banned.has(sub.name)) {
-              bannedFound = true
-              return
-            }
-            if (allowed.has(sub.name)) {
-              filtered.push(sub)
-              return
-            }
-          }
-          invalidOther = true
-        })
-        return
-      }
-      invalidOther = true
-    })
-    return [filtered, invalidOther, bannedFound]
-  }
 
   const handleOnExit: DirectiveHandler = (directive, parent, index) => {
     if (!parent || typeof index !== 'number') return
@@ -2056,6 +2136,8 @@ export const useDirectiveHandlers = () => {
    * @returns The new index after removing the directive.
    */
   const handleLang: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const locale = toString(directive).trim()
 
     // Basic locale validation: e.g., "en", "en-US", "fr", "zh-CN"
@@ -2074,7 +2156,7 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
-   * Adds a translation using shorthand `:translations[locale]{ns:key="value"}`.
+   * Adds a translation using shorthand `::translations[locale]{ns:key="value"}`.
    *
    * @param directive - The directive node representing the translations.
    * @param parent - The parent AST node containing this directive.
@@ -2082,6 +2164,8 @@ export const useDirectiveHandlers = () => {
    * @returns The new index after processing.
    */
   const handleTranslations: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const locale =
       getLabel(directive as ContainerDirective) || toString(directive).trim()
     const attrs = directive.attributes as Record<string, unknown>
@@ -2163,8 +2247,8 @@ export const useDirectiveHandlers = () => {
       { state: gameData }
     )
     if (attrs.ns) ns = attrs.ns
-    const classAttr = typeof attrs.className === 'string' ? attrs.className : ''
-    const styleAttr = typeof attrs.style === 'string' ? attrs.style : undefined
+    const classAttr = getClassAttr(attrs)
+    const styleAttr = getStyleAttr(attrs)
     const keyPattern = /^[A-Za-z_$][A-Za-z0-9_$]*(?::[A-Za-z0-9_.$-]+)?$/
     let props: Properties
     if (key || keyPattern.test(raw)) {
@@ -2387,6 +2471,8 @@ export const useDirectiveHandlers = () => {
    * @returns The index of the removed node.
    */
   const handlePreloadAudio: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const { attrs } = extractAttributes(directive, parent, index, {
       id: { type: 'string' },
       src: { type: 'string' }
@@ -2410,6 +2496,8 @@ export const useDirectiveHandlers = () => {
    * @returns The index of the removed node.
    */
   const handlePreloadImage: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const { attrs } = extractAttributes(directive, parent, index, {
       id: { type: 'string' },
       src: { type: 'string' }
@@ -2433,6 +2521,8 @@ export const useDirectiveHandlers = () => {
    * @returns The index of the removed node.
    */
   const handleSound: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const { attrs } = extractAttributes(directive, parent, index, {
       id: { type: 'string' },
       src: { type: 'string' },
@@ -2461,6 +2551,8 @@ export const useDirectiveHandlers = () => {
    * @returns The index of the removed node.
    */
   const handleBgm: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const { attrs } = extractAttributes(directive, parent, index, {
       id: { type: 'string' },
       src: { type: 'string' },
@@ -2497,6 +2589,8 @@ export const useDirectiveHandlers = () => {
    * @returns The index of the removed node.
    */
   const handleVolume: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const { attrs } = extractAttributes(directive, parent, index, {
       bgm: { type: 'number' },
       sfx: { type: 'number' }
@@ -2518,6 +2612,8 @@ export const useDirectiveHandlers = () => {
    * @param index - Index of the directive within the parent.
    */
   const handleSave: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const id = typeof attrs.id === 'string' ? attrs.id : 'campfire.save'
     setLoading(true)
@@ -2550,6 +2646,8 @@ export const useDirectiveHandlers = () => {
    * @param index - Index of the directive within the parent.
    */
   const handleLoad: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const id = typeof attrs.id === 'string' ? attrs.id : 'campfire.save'
     setLoading(true)
@@ -2596,6 +2694,8 @@ export const useDirectiveHandlers = () => {
    * @param index - Index of the directive within the parent.
    */
   const handleClearSave: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const id = typeof attrs.id === 'string' ? attrs.id : 'campfire.save'
     setLoading(true)
@@ -2613,6 +2713,8 @@ export const useDirectiveHandlers = () => {
   }
 
   const handleCheckpoint: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     if (lastPassageIdRef.current !== currentPassageId) {
       resetDirectiveState()
     }
@@ -2646,7 +2748,7 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
-   * Handles the `:loadCheckpoint` directive, which loads the saved checkpoint.
+   * Handles the `::loadCheckpoint` directive, which loads the saved checkpoint.
    * If the directive is used inside an included passage, it is ignored.
    *
    * @param directive - The directive node representing `:loadCheckpoint`.
@@ -2654,11 +2756,9 @@ export const useDirectiveHandlers = () => {
    * @param index - The index of this directive within the parent's children.
    * @returns The index at which processing should continue.
    */
-  const handleLoadCheckpoint: DirectiveHandler = (
-    _directive,
-    parent,
-    index
-  ) => {
+  const handleLoadCheckpoint: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     if (includeDepth > 0) return removeNode(parent, index)
     const cp = loadCheckpointFn()
     if (cp?.currentPassageId) {
@@ -2668,7 +2768,7 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
-   * Handles the `:clearCheckpoint` directive, which removes the currently saved
+   * Handles the `::clearCheckpoint` directive, which removes the currently saved
    * checkpoint. If the directive is used inside an included passage, it is
    * ignored.
    *
@@ -2678,10 +2778,12 @@ export const useDirectiveHandlers = () => {
    * @returns The index at which processing should continue.
    */
   const handleClearCheckpoint: DirectiveHandler = (
-    _directive,
+    directive,
     parent,
     index
   ) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     if (includeDepth > 0) return removeNode(parent, index)
     useGameStore.setState({ checkpoints: {} })
     return removeNode(parent, index)
@@ -2769,10 +2871,10 @@ export const useDirectiveHandlers = () => {
    * @param raw - Attributes provided on the directive.
    * @returns Combined attribute map with directive attributes taking precedence.
    */
-  const mergeAttrs = (
-    preset: Record<string, unknown> | undefined,
-    raw: Record<string, unknown>
-  ): Record<string, unknown> => ({ ...(preset || {}), ...raw })
+  const mergeAttrs = <T extends Record<string, unknown>>(
+    preset: Partial<T> | undefined,
+    raw: T
+  ): T => ({ ...(preset || {}), ...raw })
 
   /**
    * Stores attribute presets for reuse by other directives.
@@ -2889,7 +2991,10 @@ export const useDirectiveHandlers = () => {
     enterDuration: { type: 'number' },
     exitDuration: { type: 'number' },
     interruptBehavior: { type: 'string' },
-    from: { type: 'string', expression: false }
+    className: { type: 'string' },
+    style: { type: 'string' },
+    from: { type: 'string', expression: false },
+    id: { type: 'string' }
   } as const
 
   type RevealSchema = typeof revealSchema
@@ -2904,7 +3009,10 @@ export const useDirectiveHandlers = () => {
     'exitDir',
     'enterDuration',
     'exitDuration',
-    'interruptBehavior'
+    'interruptBehavior',
+    'className',
+    'style',
+    'id'
   ] as const
 
   /**
@@ -2950,7 +3058,8 @@ export const useDirectiveHandlers = () => {
     steps: { type: 'number' },
     onEnter: { type: 'string' },
     onExit: { type: 'string' },
-    from: { type: 'string', expression: false }
+    from: { type: 'string', expression: false },
+    id: { type: 'string' }
   } as const
 
   type SlideSchema = typeof slideSchema
@@ -2984,6 +3093,7 @@ export const useDirectiveHandlers = () => {
     scale: { type: 'number' },
     anchor: { type: 'string' },
     className: { type: 'string' },
+    id: { type: 'string' },
     from: { type: 'string', expression: false }
   } as const
 
@@ -2998,13 +3108,15 @@ export const useDirectiveHandlers = () => {
     'z',
     'rotate',
     'scale',
-    'anchor'
+    'anchor',
+    'id'
   ] as const
 
   /** Schema describing supported wrapper directive attributes. */
   const wrapperSchema = {
     as: { type: 'string' },
-    from: { type: 'string', expression: false }
+    from: { type: 'string', expression: false },
+    id: { type: 'string' }
   } as const
 
   type WrapperSchema = typeof wrapperSchema
@@ -3026,6 +3138,8 @@ export const useDirectiveHandlers = () => {
     weight: { type: 'number' },
     lineHeight: { type: 'number' },
     color: { type: 'string' },
+    id: { type: 'string' },
+    layerId: { type: 'string' },
     from: { type: 'string', expression: false }
   } as const
 
@@ -3047,6 +3161,8 @@ export const useDirectiveHandlers = () => {
     style: { type: 'string' },
     className: { type: 'string' },
     layerClassName: { type: 'string' },
+    id: { type: 'string' },
+    layerId: { type: 'string' },
     from: { type: 'string', expression: false }
   } as const
 
@@ -3077,6 +3193,8 @@ export const useDirectiveHandlers = () => {
     className: { type: 'string' },
     layerClassName: { type: 'string' },
     style: { type: 'string' },
+    id: { type: 'string' },
+    layerId: { type: 'string' },
     from: { type: 'string', expression: false }
   } as const
 
@@ -3141,7 +3259,17 @@ export const useDirectiveHandlers = () => {
       if (attrs.interruptBehavior)
         props.interruptBehavior = attrs.interruptBehavior
       const mergedRaw = mergeAttrs(preset, raw)
-      applyAdditionalAttributes(mergedRaw, props, [...REVEAL_EXCLUDES, 'from'])
+      const classAttr =
+        typeof mergedRaw.className === 'string' ? getClassAttr(mergedRaw) : ''
+      if (classAttr) props.className = classAttr
+      const styleAttr = getStyleAttr(mergedRaw)
+      if (styleAttr) props.style = styleAttr
+      if (attrs.id) props.id = attrs.id
+      applyAdditionalAttributes(mergedRaw, props, [
+        ...REVEAL_EXCLUDES,
+        'from',
+        'id'
+      ])
       return props
     }
   )
@@ -3183,17 +3311,18 @@ export const useDirectiveHandlers = () => {
       if (attrs.anchor) props.anchor = attrs.anchor
       const mergedRaw = mergeAttrs(preset, raw)
       props['data-testid'] = 'layer'
-      const classAttr =
-        typeof attrs.className === 'string'
-          ? attrs.className
-          : typeof mergedRaw.className === 'string'
-            ? mergedRaw.className
-            : undefined
+      let classAttr = ''
+      if (typeof attrs.className === 'string')
+        classAttr = getClassAttr({ className: attrs.className })
+      else if (typeof mergedRaw.className === 'string')
+        classAttr = getClassAttr({ className: mergedRaw.className })
       if (classAttr) props.className = classAttr
+      if (attrs.id) props.id = attrs.id
       applyAdditionalAttributes(mergedRaw, props, [
         ...LAYER_EXCLUDES,
         'from',
-        'layerClassName'
+        'layerClassName',
+        'id'
       ])
       return props
     },
@@ -3215,6 +3344,10 @@ export const useDirectiveHandlers = () => {
           parent.children.splice(idx, 1)
           continue
         }
+        // TODO(campfire): Per spec, stop at first sibling directive node
+        // (do not fold it into the current container). Add regression tests
+        // to ensure we terminate correctly for both paragraph and bare-text
+        // markers.
         if (node.type === 'containerDirective' || isWhitespaceNode(node)) {
           pending.push(node)
           parent.children.splice(idx, 1)
@@ -3289,23 +3422,37 @@ export const useDirectiveHandlers = () => {
       const mergedRaw = mergeAttrs(preset, raw)
       props['data-testid'] = 'wrapper'
       const classAttr =
-        typeof mergedRaw.className === 'string'
-          ? mergedRaw.className
-          : undefined
+        typeof mergedRaw.className === 'string' ? getClassAttr(mergedRaw) : ''
       props.className = ['campfire-wrapper', classAttr]
         .filter(Boolean)
         .join(' ')
-      applyAdditionalAttributes(mergedRaw, props, ['as', 'className', 'from'])
+      if (attrs.id) props.id = attrs.id
+      applyAdditionalAttributes(mergedRaw, props, [
+        'as',
+        'className',
+        'from',
+        'id'
+      ])
       return props
     },
     children =>
-      children
-        .flatMap(child => {
+      (
+        children.flatMap(child => {
           if (child.type !== 'paragraph') return child
           const paragraph = child as Parent
-          return paragraph.children
-        })
-        .filter(child => !isWhitespaceNode(child as RootContent))
+          const data = paragraph.data as { hName?: unknown } | undefined
+          // Preserve paragraphs representing custom elements such as slideImage
+          return data && typeof data.hName === 'string'
+            ? paragraph
+            : paragraph.children
+        }) as RootContent[]
+      ).filter(child => {
+        if (child.type === 'paragraph') {
+          const data = (child as Parent).data as { hName?: unknown } | undefined
+          if (data && typeof data.hName === 'string') return true
+        }
+        return !isWhitespaceNode(child as RootContent)
+      })
   )
 
   /**
@@ -3383,7 +3530,7 @@ export const useDirectiveHandlers = () => {
     const rawStyle = mergedRaw.style
     if (rawStyle) {
       if (typeof rawStyle === 'string') {
-        style.push(rawStyle)
+        style.push(interpolateAttr(rawStyle) || rawStyle)
       } else if (typeof rawStyle === 'object') {
         const entries = Object.entries(rawStyle as Record<string, unknown>).map(
           ([k, v]) => `${k}:${v}`
@@ -3403,15 +3550,19 @@ export const useDirectiveHandlers = () => {
     if (mergedAttrs.anchor) props.anchor = mergedAttrs.anchor
     if (style.length) props.style = style.join(';')
     const classAttr =
-      typeof mergedRaw.className === 'string' ? mergedRaw.className : undefined
+      typeof mergedRaw.className === 'string'
+        ? getClassAttr(mergedRaw)
+        : undefined
     const layerClassAttr =
       typeof mergedRaw.layerClassName === 'string'
-        ? mergedRaw.layerClassName
+        ? interpolateAttr(mergedRaw.layerClassName) || mergedRaw.layerClassName
         : undefined
     const classes = ['text-base', 'font-normal']
     if (classAttr) classes.unshift(classAttr)
     props.className = classes.join(' ')
     if (layerClassAttr) props.layerClassName = layerClassAttr
+    if (mergedAttrs.id) props.id = mergedAttrs.id
+    if (mergedAttrs.layerId) props.layerId = mergedAttrs.layerId
     props['data-component'] = 'slideText'
     props['data-as'] = tagName
     applyAdditionalAttributes(mergedRaw, props, [
@@ -3432,6 +3583,8 @@ export const useDirectiveHandlers = () => {
       'style',
       'className',
       'layerClassName',
+      'id',
+      'layerId',
       'from'
     ])
     const processed = runDirectiveBlock(
@@ -3451,7 +3604,7 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
-   * Converts a `:image` directive into a SlideImage element.
+   * Converts an `image` directive into a SlideImage element.
    *
    * @param directive - The image directive node.
    * @param parent - Parent node containing the directive.
@@ -3460,12 +3613,8 @@ export const useDirectiveHandlers = () => {
    */
   const handleImage: DirectiveHandler = (directive, parent, index) => {
     if (!parent || typeof index !== 'number') return
-    if (directive.type !== 'textDirective') {
-      const msg = 'image can only be used as a leaf directive'
-      console.error(msg)
-      addError(msg)
-      return removeNode(parent, index)
-    }
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const { attrs } = extractAttributes<ImageSchema>(
       directive,
       parent,
@@ -3474,13 +3623,12 @@ export const useDirectiveHandlers = () => {
     )
     const raw = (directive.attributes || {}) as Record<string, unknown>
     const preset = attrs.from
-      ? presetsRef.current['image']?.[String(attrs.from)]
+      ? (presetsRef.current['image']?.[
+          String(attrs.from)
+        ] as Partial<ImageAttrs>)
       : undefined
-    const mergedRaw = mergeAttrs(preset, raw)
-    const mergedAttrs = mergeAttrs(
-      preset,
-      attrs as unknown as Record<string, unknown>
-    ) as ImageAttrs & Record<string, unknown>
+    const mergedRaw = mergeAttrs<Record<string, unknown>>(preset, raw)
+    const mergedAttrs = mergeAttrs<ImageAttrs>(preset, attrs)
     const props: Record<string, unknown> = { src: mergedAttrs.src }
     if (typeof mergedAttrs.x === 'number') props.x = mergedAttrs.x
     if (typeof mergedAttrs.y === 'number') props.y = mergedAttrs.y
@@ -3492,10 +3640,14 @@ export const useDirectiveHandlers = () => {
     if (typeof mergedAttrs.scale === 'number') props.scale = mergedAttrs.scale
     if (mergedAttrs.anchor) props.anchor = mergedAttrs.anchor
     if (mergedAttrs.alt) props.alt = mergedAttrs.alt
-    if (mergedAttrs.style) props.style = mergedAttrs.style
-    if (mergedAttrs.className) props.className = mergedAttrs.className
+    const mergedStyle = getStyleAttr({ style: mergedAttrs.style })
+    if (mergedStyle) props.style = mergedStyle
+    const mergedClass = getClassAttr({ className: mergedAttrs.className })
+    if (mergedClass) props.className = mergedClass
     if (mergedAttrs.layerClassName)
       props.layerClassName = mergedAttrs.layerClassName
+    if (mergedAttrs.id) props.id = mergedAttrs.id
+    if (mergedAttrs.layerId) props.layerId = mergedAttrs.layerId
     applyAdditionalAttributes(mergedRaw, props, [
       'x',
       'y',
@@ -3510,13 +3662,15 @@ export const useDirectiveHandlers = () => {
       'style',
       'className',
       'layerClassName',
+      'id',
+      'layerId',
       'from'
     ])
-    const node: Parent = {
-      type: 'paragraph',
-      children: [],
-      data: { hName: 'slideImage', hProperties: props as Properties }
+    const data = {
+      hName: 'slideImage',
+      hProperties: props as Properties
     }
+    const node: Parent = { type: 'paragraph', children: [], data }
     return replaceWithIndentation(directive, parent, index, [
       node as RootContent
     ])
@@ -3532,8 +3686,11 @@ export const useDirectiveHandlers = () => {
    */
   const handleShape: DirectiveHandler = (directive, parent, index) => {
     if (!parent || typeof index !== 'number') return
-    if (directive.type !== 'textDirective') {
-      const msg = 'shape can only be used as a leaf directive'
+    if (
+      directive.type !== 'textDirective' &&
+      directive.type !== 'leafDirective'
+    ) {
+      const msg = 'shape can only be used as a leaf or text directive'
       console.error(msg)
       addError(msg)
       return removeNode(parent, index)
@@ -3576,10 +3733,14 @@ export const useDirectiveHandlers = () => {
       props.radius = mergedAttrs.radius
     if (typeof mergedAttrs.shadow === 'boolean')
       props.shadow = mergedAttrs.shadow
-    if (mergedAttrs.style) props.style = mergedAttrs.style
-    if (mergedAttrs.className) props.className = mergedAttrs.className
+    const mergedStyle = getStyleAttr(mergedAttrs as Record<string, unknown>)
+    if (mergedStyle) props.style = mergedStyle
+    const mergedClass = getClassAttr(mergedAttrs as Record<string, unknown>)
+    if (mergedClass) props.className = mergedClass
     if (mergedAttrs.layerClassName)
       props.layerClassName = mergedAttrs.layerClassName
+    if (mergedAttrs.id) props.id = mergedAttrs.id
+    if (mergedAttrs.layerId) props.layerId = mergedAttrs.layerId
     applyAdditionalAttributes(mergedRaw, props, [
       'x',
       'y',
@@ -3603,6 +3764,8 @@ export const useDirectiveHandlers = () => {
       'style',
       'className',
       'layerClassName',
+      'id',
+      'layerId',
       'from'
     ])
     const node: Parent = {
@@ -3696,7 +3859,12 @@ export const useDirectiveHandlers = () => {
     'theme',
     'autoplay',
     'autoplayDelay',
-    'pause'
+    'pause',
+    'id',
+    'hideNavigation',
+    'showSlideCount',
+    'initialSlide',
+    'a11y'
   ] as const
 
   /**
@@ -3728,7 +3896,12 @@ export const useDirectiveHandlers = () => {
         from: { type: 'string', expression: false },
         autoplay: { type: 'boolean' },
         autoplayDelay: { type: 'number' },
-        pause: { type: 'boolean' }
+        pause: { type: 'boolean' },
+        id: { type: 'string' },
+        hideNavigation: { type: 'boolean' },
+        showSlideCount: { type: 'boolean' },
+        initialSlide: { type: 'number' },
+        a11y: { type: 'object', expression: false }
       },
       { label: false }
     )
@@ -3762,10 +3935,25 @@ export const useDirectiveHandlers = () => {
           : 3000
       if (deckAttrs.pause) deckProps.autoAdvancePaused = true
     }
+    if (deckAttrs.hideNavigation) deckProps.hideNavigation = true
+    if (deckAttrs.showSlideCount) deckProps.showSlideCount = true
+    if (typeof deckAttrs.initialSlide === 'number')
+      deckProps.initialSlide = deckAttrs.initialSlide
+    if (deckAttrs.id) deckProps.id = deckAttrs.id
+    if (typeof deckAttrs.a11y === 'string') {
+      try {
+        deckProps.a11y = JSON.parse(deckAttrs.a11y)
+      } catch {
+        /* ignore */
+      }
+    } else if (deckAttrs.a11y) {
+      deckProps.a11y = deckAttrs.a11y
+    }
     const rawDeckAttrs = (directive.attributes || {}) as Record<string, unknown>
     applyAdditionalAttributes(rawDeckAttrs, deckProps, [
       ...DECK_EXCLUDES,
-      'from'
+      'from',
+      'id'
     ])
 
     const slides: Parent[] = []
@@ -3953,6 +4141,8 @@ export const useDirectiveHandlers = () => {
    * @returns The new index after replacement, or removes the node if not found or on error.
    */
   const handleInclude: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const rawText = toString(directive).trim()
     const target = resolvePassageTarget(rawText, attrs)

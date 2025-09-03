@@ -5,7 +5,7 @@ import { useGameStore } from '@campfire/state/useGameStore'
 
 const meta: Meta<typeof Show> = {
   component: Show,
-  title: 'Campfire/Show'
+  title: 'Campfire/Components/Show'
 }
 
 export default meta

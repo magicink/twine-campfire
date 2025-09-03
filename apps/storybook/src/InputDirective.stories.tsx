@@ -45,10 +45,10 @@ export const WithEvents: StoryObj = {
           {`
 :::input[name]{placeholder="Hover or focus"}
 :::onFocus
-  :set[focused=true]
+  ::set[focused=true]
 :::
 :::onBlur
-  :unset[focused]
+  ::unset{key=focused}
 :::
 :::if[focused]
 

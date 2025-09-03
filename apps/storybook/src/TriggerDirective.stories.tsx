@@ -18,10 +18,10 @@ export const Basic: StoryObj = {
       <tw-storydata startnode='1' options='debug'>
         <tw-passagedata pid='1' name='Start'>
           {`
-:set[test=true]
+::set[test=true]
 
 :::trigger{label="Click me"}
-  :set[test=false]
+  ::set[test=false]
 :::
 
 :::if[!test]
@@ -31,7 +31,7 @@ You clicked the button!
 :::
 
 :::onExit
-  :unset[test]
+  ::unset{key=test}
 :::
 `}
         </tw-passagedata>
@@ -52,11 +52,11 @@ export const WithEvents: StoryObj = {
       <tw-storydata startnode='1' options='debug'>
         <tw-passagedata pid='1' name='Start'>
           {`
-:set[hover=false]
+::set[hover=false]
 
 :::trigger{label="Hover"}
 :::onMouseEnter
-  :set[hover=true]
+  ::set[hover=true]
 :::
 :::
 
@@ -83,7 +83,7 @@ export const WithWrapperLabel: StoryObj = {
       <tw-storydata startnode='1' options='debug'>
         <tw-passagedata pid='1' name='Start'>
           {`
-:set[clicked=false]
+::set[clicked=false]
 
 :::deck{size="1280x720"}
 
@@ -92,7 +92,7 @@ export const WithWrapperLabel: StoryObj = {
     :::layer{className='flex items-center justify-center mx-auto w-full top-1/3'}
 
       :::trigger{className='flex items-center cursor-pointer pl-0'}
-        :set[clicked=true]
+        ::set[clicked=true]
         :::wrapper{as="span" className="inline-flex items-center gap-2"}
           ![cat](https://placecats.com/neo/50/50)
           Click the cat

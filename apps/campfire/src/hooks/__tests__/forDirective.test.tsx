@@ -33,7 +33,7 @@ describe('for directive', () => {
   })
 
   it('iterates over range values', () => {
-    const md = ':createRange[r=1]{min=1 max=3}\n:::for[x in r]\nHi\n:::'
+    const md = '::createRange[r=1]{min=1 max=3}\n:::for[x in r]\nHi\n:::'
     render(<MarkdownRunner markdown={md} />)
     expect(document.body.textContent?.replace(/\n/g, '')).toBe('HiHiHi')
   })
@@ -60,7 +60,7 @@ describe('for directive', () => {
 
   it('evaluates nested if blocks using loop variables', () => {
     const md =
-      ':array[fruits=["apple","banana","cherry"]]\n' +
+      '::array[fruits=["apple","banana","cherry"]]\n' +
       ':::for[fruit in fruits]\n' +
       ':::if[fruit !== "banana"]\n' +
       ':show[fruit]\n' +

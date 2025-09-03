@@ -299,4 +299,80 @@ describe('deck directive', () => {
     expect(deck.props.autoAdvanceMs).toBe(3000)
     expect(deck.props.autoAdvancePaused).toBe(true)
   })
+
+  it('hides navigation when hideNavigation is true', () => {
+    const md = `:::deck{hideNavigation=true}\n:::slide\nHi\n:::\n:::`
+    render(<MarkdownRunner markdown={md} />)
+    const getDeck = (node: any): any => {
+      if (Array.isArray(node)) return getDeck(node[0])
+      if (node?.type === Fragment) return getDeck(node.props.children)
+      return node
+    }
+    const deck = getDeck(output)
+    expect(deck.props.hideNavigation).toBe(true)
+  })
+
+  it('shows navigation when hideNavigation is false', () => {
+    const md = `:::deck{hideNavigation=false}\n:::slide\nHi\n:::\n:::`
+    render(<MarkdownRunner markdown={md} />)
+    const getDeck = (node: any): any => {
+      if (Array.isArray(node)) return getDeck(node[0])
+      if (node?.type === Fragment) return getDeck(node.props.children)
+      return node
+    }
+    const deck = getDeck(output)
+    expect(deck.props.hideNavigation).toBeUndefined()
+  })
+
+  it('shows slide count when showSlideCount is true', () => {
+    const md = `:::deck{showSlideCount=true}\n:::slide\nHi\n:::\n:::`
+    render(<MarkdownRunner markdown={md} />)
+    const getDeck = (node: any): any => {
+      if (Array.isArray(node)) return getDeck(node[0])
+      if (node?.type === Fragment) return getDeck(node.props.children)
+      return node
+    }
+    const deck = getDeck(output)
+    expect(deck.props.showSlideCount).toBe(true)
+  })
+
+  it('hides slide count when showSlideCount is false', () => {
+    const md = `:::deck{showSlideCount=false}\n:::slide\nHi\n:::\n:::`
+    render(<MarkdownRunner markdown={md} />)
+    const getDeck = (node: any): any => {
+      if (Array.isArray(node)) return getDeck(node[0])
+      if (node?.type === Fragment) return getDeck(node.props.children)
+      return node
+    }
+    const deck = getDeck(output)
+    expect(deck.props.showSlideCount).toBeUndefined()
+  })
+
+  it('uses the provided initial slide', () => {
+    const md = `:::deck{initialSlide=2}\n:::slide\nA\n:::\n:::slide\nB\n:::\n:::slide\nC\n:::\n:::`
+    render(<MarkdownRunner markdown={md} />)
+    const getDeck = (node: any): any => {
+      if (Array.isArray(node)) return getDeck(node[0])
+      if (node?.type === Fragment) return getDeck(node.props.children)
+      return node
+    }
+    const deck = getDeck(output)
+    expect(deck.props.initialSlide).toBe(2)
+  })
+
+  it('parses a11y label overrides from the docs example', () => {
+    const md = `:::deck{a11y='{"deck":"Carousel","next":"Forward","prev":"Back","play":"Start","pause":"Stop"}'}\n:::slide\nContent\n:::\n:::`
+    render(<MarkdownRunner markdown={md} />)
+    const getDeck = (node: any): any => {
+      if (Array.isArray(node)) return getDeck(node[0])
+      if (node?.type === Fragment) return getDeck(node.props.children)
+      return node
+    }
+    const deck = getDeck(output)
+    expect(deck.props.a11y.deck).toBe('Carousel')
+    expect(deck.props.a11y.next).toBe('Forward')
+    expect(deck.props.a11y.prev).toBe('Back')
+    expect(deck.props.a11y.play).toBe('Start')
+    expect(deck.props.a11y.pause).toBe('Stop')
+  })
 })

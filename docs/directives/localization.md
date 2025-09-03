@@ -4,10 +4,10 @@ Change language and handle translations.
 
 ### `lang`
 
-Switch the active locale.
+Switch the active locale. Use as a leaf directive.
 
 ```md
-:lang[lang]
+::lang[lang]
 ```
 
 Replace `lang` with a locale like `fr`.
@@ -47,10 +47,10 @@ output.
 
 ### `translations`
 
-Add a translation.
+Add a translation as a leaf directive.
 
 ```md
-:translations[lang]{ui:hello="BONJOUR"}
+::translations[lang]{ui:hello="BONJOUR"}
 ```
 
 Replace `lang` with the locale and `ui` with the namespace. Only one
@@ -58,7 +58,7 @@ Replace `lang` with the locale and `ui` with the namespace. Only one
 for additional translations.
 
 ```md
-:translations[en]{ui:greeting="Hello, {{name}}!"}
+::translations[en]{ui:greeting="Hello, {{name}}!"}
 :t[greeting]{ns="ui" name="Aiden"}
 ```
 

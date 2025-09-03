@@ -11,17 +11,17 @@ This document defines the normative behavior for Campfire’s Markdown directive
 ## Terminology
 
 - Container directive: Block directive that can contain child nodes. Written with leading and trailing `:::` markers (e.g., `:::if … :::`).
-- Leaf directive: Standalone directive with no nested block (e.g., `:set{key="v"}`).
-- Text directive: Inline directive syntax parsed by `remark-directive`.
-- Label: The optional first paragraph inside a container used to carry short values (e.g., an expression for `if`, a locale for `lang`).
+- Leaf directive: Block-level directive with no nested content. Written with leading `::` markers (e.g., `::image{src="cat.png"}`).
+- Inline directive: Directive embedded in text flow, written with a single leading `:` (e.g., `:show[hp]`). Parsed by `remark-directive` as a text directive.
+- Label: The optional first paragraph inside a container used to carry short values (e.g., an expression for `if`). Some leaf directives also use labels for metadata, such as the locale for `::lang`.
 - Marker: A paragraph composed solely of directive marker tokens `:::` and whitespace.
 - State key: Unquoted identifier path referencing game state (e.g., `user.name`, `items[0]`).
 
 ## Syntax
 
 - Container: `:::name[optional-label]{attrs}\n…children…\n:::`
-- Leaf: `:name[optional-label]{attrs}`
-- Inline/text: `:name[...]` in text flow (parsed by `remark-directive`).
+- Leaf: `::name[optional-label]{attrs}`
+- Inline: `:name[optional-label]{attrs}` in text flow.
 
 Notes
 
@@ -36,12 +36,13 @@ General
 - Wrap literal strings in quotes or backticks unless referencing a state key.
 - To pass an object or array via an attribute, do not wrap the JSON in quotes, e.g., `:d{options={a:1}}` or valid JSON `:d{options={"a":1}}`.
 - Safe attribute characters: attribute extraction only accepts values composed of safe characters to reduce injection risk.
+- New directive attributes must be exposed through their handlers and accompanied by directive tests verifying their behavior.
 
 Special cases (validation enforced by remark plugin)
 
 - `trigger[label]` or `:::trigger{label="..."}`: `label` MUST be a quoted/backticked string.
 - `slide{transition="..."}` (and `deck > slide transition`): `transition` MUST be a quoted/backticked string.
-- `checkpoint|save|load|clearSave { id=... }`: `id` MUST be quoted unless it is a state key path. Unquoted literals (e.g., `id=foo`) are invalid; unquoted state keys (e.g., `id=cp.id`) are allowed.
+- `id` or `layerId` attributes across directives MUST be quoted/backticked strings unless referencing a state key path. Unquoted literals (e.g., `id=foo`) are invalid; unquoted state keys (e.g., `id=cp.id`) are allowed.
 
 Evaluation
 
@@ -135,7 +136,7 @@ Recursion
 ```md
 :::if[user.isAdmin]
 :::batch
-:set[key=value]
+::set[role="admin" loggedIn=true]
 :::
 :::
 ```

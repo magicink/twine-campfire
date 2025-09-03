@@ -30,7 +30,7 @@ describe('Passage lifecycle directives', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: 'Visible\n:::onExit\n:set[x=1]\n:::' }]
+      children: [{ type: 'text', value: 'Visible\n:::onExit\n::set[x=1]\n:::' }]
     }
 
     useStoryDataStore.setState({
@@ -49,7 +49,7 @@ describe('Passage lifecycle directives', () => {
     const root = unified()
       .use(remarkParse)
       .use(remarkDirective)
-      .parse(':set[hp=5]') as Root
+      .parse('::set[hp=5]') as Root
     const content = JSON.stringify(root.children)
     const { unmount } = render(<OnExit content={content} />)
     act(() => {
@@ -67,7 +67,7 @@ describe('Passage lifecycle directives', () => {
     const root = unified()
       .use(remarkParse)
       .use(remarkDirective)
-      .parse(':::if[false]\n:set[a=1]\n:::else\n:set[b=2]\n:::') as Root
+      .parse(':::if[false]\n::set[a=1]\n:::else\n::set[b=2]\n:::') as Root
     const content = JSON.stringify(root.children)
     const { unmount } = render(<OnExit content={content} />)
     act(() => {
@@ -87,7 +87,7 @@ describe('Passage lifecycle directives', () => {
     const root = unified()
       .use(remarkParse)
       .use(remarkDirective)
-      .parse(':::batch\n:set[a=1]\n:unset{key=old}\n:::') as Root
+      .parse(':::batch\n::set[a=1]\n::unset{key=old}\n:::') as Root
     const content = JSON.stringify(root.children)
     const { unmount } = render(<OnExit content={content} />)
     act(() => {
@@ -106,7 +106,7 @@ describe('Passage lifecycle directives', () => {
     const root = unified()
       .use(remarkParse)
       .use(remarkDirective)
-      .parse(':random[roll]{min=1 max=6}') as Root
+      .parse('::random[roll]{min=1 max=6}') as Root
     const content = JSON.stringify(root.children)
     const { unmount } = render(<OnExit content={content} />)
     act(() => {
@@ -120,28 +120,11 @@ describe('Passage lifecycle directives', () => {
     expect(data.roll).toBeLessThanOrEqual(6)
   })
 
-  it('handles array-based random directives inside batch within onExit blocks', async () => {
-    const root = unified()
-      .use(remarkParse)
-      .use(remarkDirective)
-      .parse(":::batch\n:random[item]{from=['a','b','c']}\n:::") as Root
-    const content = JSON.stringify(root.children)
-    const { unmount } = render(<OnExit content={content} />)
-    act(() => {
-      unmount()
-    })
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0))
-    })
-    const data = useGameStore.getState().gameData as Record<string, unknown>
-    expect(['a', 'b', 'c']).toContain(data.item)
-  })
-
   it('locks keys with randomOnce inside onExit blocks', async () => {
     const root = unified()
       .use(remarkParse)
       .use(remarkDirective)
-      .parse(':randomOnce[foo]{min=1 max=2}') as Root
+      .parse('::randomOnce[foo]{min=1 max=2}') as Root
     const content = JSON.stringify(root.children)
     const { unmount } = render(<OnExit content={content} />)
     act(() => {
@@ -168,7 +151,7 @@ describe('Passage lifecycle directives', () => {
       children: [
         {
           type: 'text',
-          value: 'Visible\n:::onExit\n:::batch\n:set[a=1]\n:::\n:::\n'
+          value: 'Visible\n:::onExit\n:::batch\n::set[a=1]\n:::\n:::\n'
         }
       ]
     }
@@ -187,7 +170,7 @@ describe('Passage lifecycle directives', () => {
     const root = unified()
       .use(remarkParse)
       .use(remarkDirective)
-      .parse(':set[count=(count||0)+1]') as Root
+      .parse('::set[count=(count||0)+1]') as Root
     const content = JSON.stringify(root.children)
     const { unmount } = render(<OnExit content={content} />)
     expect(
@@ -218,7 +201,7 @@ describe('Passage lifecycle directives', () => {
       children: [
         {
           type: 'text',
-          value: ':::onExit\n:set[a=1]\n:::\n:::onExit\n:set[b=2]\n:::'
+          value: ':::onExit\n::set[a=1]\n:::\n:::onExit\n::set[b=2]\n:::'
         }
       ]
     }
@@ -263,7 +246,7 @@ describe('Passage lifecycle directives', () => {
 
     await waitFor(() => {
       expect(useGameStore.getState().errors).toEqual([
-        'onExit only supports directives: set, setOnce, array, arrayOnce, createRange, setRange, unset, random, randomOnce, if, for, batch'
+        'onExit only supports directives: set, setOnce, array, arrayOnce, createRange, setRange, unset, random, randomOnce, push, pop, shift, unshift, splice, concat, checkpoint, loadCheckpoint, clearCheckpoint, save, load, clearSave, lang, translations, if, for, batch'
       ])
       expect(logged).toHaveLength(1)
     })

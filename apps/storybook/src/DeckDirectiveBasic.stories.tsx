@@ -16,6 +16,17 @@ export const Basic: StoryObj = {
   render: () => (
     <>
       <tw-storydata startnode='1' options='debug'>
+        <tw-passagedata pid={'2'} name={'overlay-1'} tags={'overlay'} hidden>
+          {`
+:::wrapper{className='bg-white/50 text-black absolute bottom-4 left-4 p-4 rounded shadow-lg'}
+Overlay Text
+:::
+
+:::wrapper{className='bg-white/50 text-black absolute top-4 left-4 p-4 rounded shadow-lg'}
+Overlay Text2
+:::
+`}
+        </tw-passagedata>
         <tw-passagedata pid='1' name='Start'>
           {`
 :preset{type="text" name="title" x=80 y=80 as="p" size=36}
@@ -24,15 +35,37 @@ export const Basic: StoryObj = {
   :::slide{transition='fade'}
     :::reveal{at=0}
       :::text{from="title"}
-      Hello
+        Hello
       :::
     :::
-      :::reveal{at=1}
-      :shape{x=150 y=150 w=100 h=50 type='rect' stroke='blue' fill='#ddf' radius=8 shadow=true className='opacity-25'}
-      :::
+    :::reveal{at=1}
+      :shape{x=150 y=150 w=100 h=50 z=-10 type='rect' stroke='blue' fill='#ddf' radius=8 shadow=true className='opacity-25'}
+    :::
     :::reveal{at=2}
       :::text{from="title" x=100 y=100}
-      World
+        World
+      :::
+    :::
+  :::
+
+  :::slide{transition='fade'}
+    :::reveal{at=0}
+      :::text{from="title"}
+      Paused 1
+      :::
+    :::
+    :::reveal{at=1}
+      :::text{from="title" x=100 y=100}
+      2nd Slide
+      :::
+    :::
+    :::reveal{at=2}
+      :::text{from="title" x=150 y=150}
+      3rd Slide
+      :::
+    :::reveal{at=3}
+      :::text{from="title" x=200 y=200}
+      The End
       :::
     :::
   :::

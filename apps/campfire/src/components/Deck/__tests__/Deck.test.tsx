@@ -477,6 +477,42 @@ describe('Deck', () => {
     expect(nav.className).toContain('bottom-2')
   })
 
+  it('overrides accessible labels with the a11y prop', () => {
+    render(
+      <Deck
+        showSlideCount
+        a11y={{
+          deck: 'Slide deck',
+          next: 'Forward',
+          prev: 'Back',
+          play: 'Start autoplay',
+          pause: 'Pause autoplay',
+          slide: (i: number, t: number) => `Page ${i} of ${t}`
+        }}
+      >
+        <Slide>One</Slide>
+        <Slide>Two</Slide>
+      </Deck>
+    )
+    expect(screen.getByTestId('deck')).toHaveAttribute(
+      'aria-label',
+      'Slide deck'
+    )
+    expect(screen.getByTestId('deck-next')).toHaveAttribute(
+      'aria-label',
+      'Forward'
+    )
+    expect(screen.getByTestId('deck-prev')).toHaveAttribute(
+      'aria-label',
+      'Back'
+    )
+    expect(screen.getByTestId('deck-autoplay-toggle')).toHaveAttribute(
+      'aria-label',
+      'Start autoplay'
+    )
+    expect(screen.getByText('Page 1 of 2')).toBeInTheDocument()
+  })
+
   it.skip('sets max steps once for multiple SlideReveal elements', async () => {
     const original = useDeckStore.getState().setMaxSteps
     const calls: number[] = []

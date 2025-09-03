@@ -47,7 +47,13 @@ export interface LangDirective extends Omit<TextDirective, 'attributes'> {
 }
 
 /** RegExp matching safe characters in directive attribute values. */
-const SAFE_ATTR_VALUE_PATTERN = /^[\w\s.,'"`{}\[\]$!-]*$/
+const SAFE_ATTR_VALUE_PATTERN = /^[\w\s.,:'"`{}\[\]$!;\-]*$/
+
+// TODO(campfire): Add comprehensive directive regression tests here:
+// - Attribute quoting rules (quoted stays string; state-key allowances)
+// - Marker-only paragraphs/text are preserved for handlers to delimit blocks
+// - Deck/slide/wrapper/trigger end-of-block detection remains robust with
+//   blank lines and mixed whitespace
 
 /**
  * Data structure for paragraph nodes that may include custom hast element
@@ -188,6 +194,9 @@ const ensureQuotedAttribute = (
   message: string,
   allowStateKey = false
 ) => {
+  // TODO(campfire): Performance: avoid repeatedly slicing file.value and
+  // re-compiling regex per directive. Consider passing the raw directive
+  // substring into the handler or caching a precomputed map of offsets.
   const content = typeof file.value === 'string' ? file.value : undefined
   if (content) {
     const raw = content.slice(
@@ -270,13 +279,7 @@ const remarkCampfire =
                 MSG_SLIDE_TRANSITION_UNQUOTED
               )
             }
-            if (
-              (directive.name === 'checkpoint' ||
-                directive.name === 'save' ||
-                directive.name === 'load' ||
-                directive.name === 'clearSave') &&
-              Object.prototype.hasOwnProperty.call(directive.attributes, 'id')
-            ) {
+            if ('id' in directive.attributes) {
               ensureQuotedAttribute(
                 directive,
                 'id',
@@ -323,6 +326,9 @@ const remarkCampfire =
           const paragraph = node as ParagraphWithData
           // Preserve paragraphs transformed into custom elements
           if (paragraph.data?.hName) return
+          // TODO(campfire): Do not remove marker-only paragraphs/text at the
+          // remark stage. Double-check we only strip paragraphs that are truly
+          // whitespace-only. Add regression tests for this sentinel.
           const hasContent = paragraph.children.some(child => {
             return !(
               child.type === 'text' && (child as Text).value.trim() === ''

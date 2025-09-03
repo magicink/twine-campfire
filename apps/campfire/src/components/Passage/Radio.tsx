@@ -1,7 +1,7 @@
 import type { JSX } from 'preact'
 import { useEffect } from 'preact/hooks'
 import { useDirectiveEvents } from '@campfire/hooks/useDirectiveEvents'
-import { mergeClasses } from '@campfire/utils/core'
+import { mergeClasses, evalExpression } from '@campfire/utils/core'
 import { useGameStore } from '@campfire/state/useGameStore'
 import { radioStyles, radioIndicatorStyles } from '@campfire/utils/remarkStyles'
 
@@ -15,6 +15,7 @@ interface RadioProps
     | 'onBlur'
     | 'onMouseEnter'
     | 'onMouseLeave'
+    | 'disabled'
   > {
   /** Key in game state to bind the radio selection to. */
   stateKey: string
@@ -32,6 +33,8 @@ interface RadioProps
   onBlur?: string
   /** Initial value if the state key is unset. */
   initialValue?: string
+  /** Boolean or state key controlling the disabled state. */
+  disabled?: boolean | string
 }
 
 /**
@@ -57,11 +60,24 @@ export const Radio = ({
   onBlur,
   onClick,
   initialValue,
+  disabled,
   ...rest
 }: RadioProps) => {
   const value = useGameStore(state => state.gameData[stateKey]) as
     | string
     | undefined
+  const isDisabled = useGameStore(state => {
+    if (typeof disabled === 'string') {
+      if (disabled === '' || disabled === 'true') return true
+      if (disabled === 'false') return false
+      try {
+        return Boolean(evalExpression(disabled, state.gameData))
+      } catch {
+        return false
+      }
+    }
+    return Boolean(disabled)
+  })
   const directiveEvents = useDirectiveEvents(
     onMouseEnter,
     onMouseLeave,
@@ -83,11 +99,12 @@ export const Radio = ({
       className={mergeClasses('campfire-radio', radioStyles, className)}
       aria-checked={checked}
       data-state={checked ? 'checked' : 'unchecked'}
+      disabled={isDisabled}
       {...rest}
       {...directiveEvents}
       onClick={e => {
         onClick?.(e)
-        if (e.defaultPrevented) return
+        if (e.defaultPrevented || isDisabled) return
         setGameData({ [stateKey]: optionValue })
       }}
     >

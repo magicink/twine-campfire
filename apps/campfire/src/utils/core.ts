@@ -24,6 +24,8 @@ const cache = new Map<string, (scope: Record<string, unknown>) => unknown>()
  *
  * @param expr - Expression to compile and evaluate.
  * @param scope - Scope object providing variables for evaluation.
+ *                 Merged with `globalThis` so globally exposed helpers are
+ *                 available; provided scope values take precedence.
  * @returns Result of the evaluated expression.
  */
 export const evalExpression = (
@@ -35,7 +37,7 @@ export const evalExpression = (
     fn = compile(expr) as (scope: Record<string, unknown>) => unknown
     cache.set(expr, fn)
   }
-  return fn(scope)
+  return fn({ ...(globalThis as Record<string, unknown>), ...scope })
 }
 
 /**

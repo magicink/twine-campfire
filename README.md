@@ -4,21 +4,21 @@ A cozy story format for Twine.
 
 ## Installation
 
-1. Visit the [Twine Campfire releases page](https://github.com/magicink/twine-campfire/releases) and open the latest release.
-2. Copy the URL of the `format.js` file listed under **Assets**.
-3. Start Twine and navigate to **Twine > Story Formats**.
-4. Click **Add**, paste the copied URL into the form, then confirm.
-5. To activate the format, open a story and choose **campfire 1.x.x** from the **Story Format** dropdown in **Story > Details**.
+1. Copy this link URL: [https://github.com/magicink/twine-campfire/releases/latest/download/format.js](https://github.com/magicink/twine-campfire/releases/latest/download/format.js).
+2. Start Twine and navigate to **Twine > Story Formats**.
+3. Click **Add**, paste the copied URL into the form, then confirm.
+4. To activate the format, open a story and choose **campfire 1.x.x** from the **Story Format** dropdown in **Story > Details**.
 
 ## Directives
 
 Campfire extends Markdown with
 [remark-directive](https://github.com/remarkjs/remark-directive) syntax.
 Directives begin with a colon and let passages interact with the game state.
-They come in leaf or container form.
+They come in leaf, text, or container form, each serving a different role.
 
-- **Leaf/Text** – `:name[LABEL]{attr=value}`
-- **Container** –
+- **Leaf** – `::name[LABEL]{attr=value}` — a standalone directive that performs an action or emits markup without wrapping other content.
+- **Text** – `:name[LABEL]{attr=value}` — an inline directive used inside paragraphs to inject values or generate small spans of text.
+- **Container** – a block directive that wraps content between `:::name{attr=value}` and a closing `:::` marker.
 
   ```md
   :::name{attr=value}
@@ -33,12 +33,12 @@ Directives are grouped by purpose.
 Here's a practical example showing how directives can be combined to create interactive content:
 
 ```md
-:createRange[testRange=0]{min=0 max=10}
+::createRange[testRange=0]{min=0 max=10}
 
 The value is currently :show[testRange]
 
 :::trigger{label="add"}
-:setRange[testRange=(testRange.value+1)]
+::setRange[testRange=(testRange.value+1)]
 :::
 
 :::if[testRange.value === testRange.max]

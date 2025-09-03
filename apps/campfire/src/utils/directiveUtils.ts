@@ -259,6 +259,7 @@ export const parseAttributeValue = (
         if (spec.expression === false) return raw
         const evaluated = evalExpr(raw)
         if (typeof evaluated === 'string') return evaluated
+        if (typeof evaluated === 'number' && Number.isNaN(evaluated)) return raw
         return evaluated != null ? String(evaluated) : raw
       }
       return String(raw)
@@ -642,6 +643,9 @@ export const runDirectiveBlock = (
   nodes: RootContent[],
   handlers: Record<string, DirectiveHandler> = {}
 ): RootContent[] => {
+  // TODO(campfire): Memoize/reuse processors when handler identity is stable
+  // to avoid repeatedly constructing unified pipelines in hot paths. Add
+  // benchmarks for typical passage sizes.
   const root: Root = { type: 'root', children: nodes }
   unified()
     .use(remarkCampfireIndentation)

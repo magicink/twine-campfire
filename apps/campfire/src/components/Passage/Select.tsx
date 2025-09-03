@@ -2,7 +2,7 @@ import type { JSX, VNode } from 'preact'
 import { cloneElement, toChildArray } from 'preact'
 import { useEffect, useRef, useState } from 'preact/hooks'
 import { useDirectiveEvents } from '@campfire/hooks/useDirectiveEvents'
-import { mergeClasses } from '@campfire/utils/core'
+import { mergeClasses, evalExpression } from '@campfire/utils/core'
 import { useGameStore } from '@campfire/state/useGameStore'
 import type { OptionProps } from './Option'
 const selectStyles =
@@ -17,6 +17,7 @@ interface SelectProps
     | 'onBlur'
     | 'onMouseEnter'
     | 'onMouseLeave'
+    | 'disabled'
   > {
   /** Key in game state to bind the select value to. */
   stateKey: string
@@ -36,6 +37,8 @@ interface SelectProps
   initialValue?: string
   /** Text shown when no option is selected. */
   label?: string
+  /** Boolean or state key controlling the disabled state. */
+  disabled?: boolean | string
 }
 
 /**
@@ -64,12 +67,25 @@ export const Select = ({
   children,
   initialValue,
   label,
+  disabled,
   ...rest
 }: SelectProps) => {
   const value = useGameStore(state => state.gameData[stateKey]) as
     | string
     | undefined
   const setGameData = useGameStore(state => state.setGameData)
+  const isDisabled = useGameStore(state => {
+    if (typeof disabled === 'string') {
+      if (disabled === '' || disabled === 'true') return true
+      if (disabled === 'false') return false
+      try {
+        return Boolean(evalExpression(disabled, state.gameData))
+      } catch {
+        return false
+      }
+    }
+    return Boolean(disabled)
+  })
   const directiveEvents = useDirectiveEvents(
     onMouseEnter,
     onMouseLeave,
@@ -123,9 +139,10 @@ export const Select = ({
         )}
         style={style}
         value={value ?? ''}
+        disabled={isDisabled}
         {...rest}
         {...directiveEvents}
-        onClick={() => setOpen(prev => !prev)}
+        onClick={() => !isDisabled && setOpen(prev => !prev)}
       >
         <span className='flex-1 truncate text-left pr-2'>
           {selected ? selected.props.children : (label ?? '')}

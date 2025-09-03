@@ -4,7 +4,7 @@ import { LinkButton } from '@campfire/components'
 
 const meta: Meta<typeof LinkButton> = {
   component: LinkButton,
-  title: 'Campfire/LinkButton'
+  title: 'Campfire/Components/LinkButton'
 }
 
 export default meta

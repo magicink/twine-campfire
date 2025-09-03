@@ -91,6 +91,22 @@ describe('text directive', () => {
     expect(inner.textContent).toBe('Hi')
   })
 
+  it('interpolates className and style attributes', () => {
+    const md = `::set[color="red" cls="big"]
+:::text{className="title-\${cls}" style="color: \${color}"}
+Hi
+:::`
+    render(<MarkdownRunner markdown={md} />)
+    const el = document.querySelector(
+      '[data-testid="slideText"]'
+    ) as HTMLElement
+    const inner = el.firstElementChild as HTMLElement
+    expect(inner.className.split(' ')).toEqual(
+      expect.arrayContaining(['campfire-slide-text', 'title-big'])
+    )
+    expect(inner.style.color).toBe('red')
+  })
+
   it('throws when using reserved class attribute', () => {
     const md = ':::text{class="bad"}\nOops\n:::'
     expect(() => render(<MarkdownRunner markdown={md} />)).toThrow(

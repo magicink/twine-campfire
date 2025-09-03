@@ -21,19 +21,20 @@ Container form:
 ```md
 :::input[email]
 :::onFocus
-:set[focused=true]
+::set[focused=true]
 :::
 :::
 ```
 
-| Input       | Description                                |
-| ----------- | ------------------------------------------ |
-| state_key   | Key in game state to store the input value |
-| placeholder | Optional text shown when empty             |
-| value       | Initial value when the state key is unset  |
-| type        | Optional input `type` attribute            |
-| className   | Optional space-separated classes           |
-| style       | Optional inline style declarations         |
+| Input       | Description                                                     |
+| ----------- | --------------------------------------------------------------- |
+| state_key   | Key in game state to store the input value                      |
+| placeholder | Optional text shown when empty                                  |
+| value       | Initial value when the state key is unset                       |
+| type        | Optional input `type` attribute                                 |
+| className   | Optional space-separated classes                                |
+| disabled    | Optional boolean, state key, or expression to disable the input |
+| style       | Optional inline style declarations                              |
 
 ### `textarea`
 
@@ -50,19 +51,20 @@ Container form:
 ```md
 :::textarea[bio]
 :::onFocus
-:set[focused=true]
+::set[focused=true]
 :::
 :::
 ```
 
-| Input       | Description                                   |
-| ----------- | --------------------------------------------- |
-| state_key   | Key in game state to store the textarea value |
-| placeholder | Optional text shown when empty                |
-| rows        | Optional number of visible text rows          |
-| value       | Initial value when the state key is unset     |
-| className   | Optional space-separated classes              |
-| style       | Optional inline style declarations            |
+| Input       | Description                                                        |
+| ----------- | ------------------------------------------------------------------ |
+| state_key   | Key in game state to store the textarea value                      |
+| placeholder | Optional text shown when empty                                     |
+| rows        | Optional number of visible text rows                               |
+| value       | Initial value when the state key is unset                          |
+| className   | Optional space-separated classes                                   |
+| disabled    | Optional boolean, state key, or expression to disable the textarea |
+| style       | Optional inline style declarations                                 |
 
 ### `select`
 
@@ -75,13 +77,14 @@ Render a dropdown bound to a game state key. Must be used as a container with ne
 :::
 ```
 
-| Input     | Description                                  |
-| --------- | -------------------------------------------- |
-| state_key | Key in game state to store the select value  |
-| className | Optional space-separated classes             |
-| style     | Optional inline style declarations           |
-| value     | Initial selected value when the key is unset |
-| label     | Text displayed when no option is selected    |
+| Input     | Description                                                      |
+| --------- | ---------------------------------------------------------------- |
+| state_key | Key in game state to store the select value                      |
+| className | Optional space-separated classes                                 |
+| disabled  | Optional boolean, state key, or expression to disable the select |
+| style     | Optional inline style declarations                               |
+| value     | Initial selected value when the key is unset                     |
+| label     | Text displayed when no option is selected                        |
 
 The select button uses the same default styling as trigger and link buttons and includes a downward caret on the right. The menu closes when clicking outside the button or pressing Escape.
 
@@ -94,6 +97,63 @@ The select button uses the same default styling as trigger and link buttons and 
 | className | Optional space-separated classes   |
 | style     | Optional inline style declarations |
 
+### `checkbox`
+
+Render a toggle bound to a game state key. Use as a leaf or container. The container form can include event directives. If the key already exists in game state, its value is used; otherwise, the optional `value` attribute sets the starting value.
+
+Leaf form:
+
+```md
+:checkbox[agree]
+```
+
+Container form:
+
+```md
+:::checkbox[agree]
+:::onFocus
+::set[focused=true]
+:::
+:::
+```
+
+| Input     | Description                                                        |
+| --------- | ------------------------------------------------------------------ |
+| state_key | Key in game state to store the checkbox value                      |
+| value     | Initial value when the state key is unset                          |
+| className | Optional space-separated classes                                   |
+| disabled  | Optional boolean, state key, or expression to disable the checkbox |
+| style     | Optional inline style declarations                                 |
+
+### `radio`
+
+Render a radio button bound to a game state key. Use multiple radios with the same key to build a group. Use as a leaf or container. The container form can include event directives. If the key already exists in game state, its value is used; otherwise, the optional `checked` attribute sets the starting value.
+
+Leaf form:
+
+```md
+:radio[color]{value="red"}
+```
+
+Container form:
+
+```md
+:::radio[color]{value="red"}
+:::onFocus
+::set[focused=true]
+:::
+:::
+```
+
+| Input     | Description                                                     |
+| --------- | --------------------------------------------------------------- |
+| state_key | Key in game state to store the selected value                   |
+| value     | Value represented by this radio button                          |
+| checked   | Initial selected value when the state key is unset              |
+| className | Optional space-separated classes                                |
+| disabled  | Optional boolean, state key, or expression to disable the radio |
+| style     | Optional inline style declarations                              |
+
 ### `trigger`
 
 Render a button that runs directives when clicked. Supports event directives inside the block.
@@ -101,9 +161,9 @@ Render a button that runs directives when clicked. Supports event directives ins
 ```md
 :::trigger{label="Do it" className="primary"}
 :::onMouseEnter
-:set[hovered=true]
+::set[hovered=true]
 :::
-:set[key=value]
+::set[key=value]
 :::
 ```
 
@@ -133,7 +193,7 @@ In this case, the `wrapper` content (“Start”) is used as the button label, a
 | --------- | ---------------------------------------------------------------------- |
 | label     | Text displayed on the button (ignored when a wrapper child is present) |
 | className | Optional space-separated classes                                       |
-| disabled  | Optional boolean to disable the button                                 |
+| disabled  | Optional boolean, state key, or expression to disable the button       |
 | style     | Optional inline style declarations                                     |
 
 ### Event directives
@@ -157,9 +217,9 @@ Apply multiple directives as a single update.
 
 ```md
 :::batch
-:set[hp=value]
-:push{key=items value=sword}
-:unset{key=old}
+::set[hp=value]
+::push{key=items value=sword}
+::unset{key=old}
 :::
 ```
 
@@ -175,7 +235,7 @@ Run data directives once when leaving the passage.
 
 ```md
 :::onExit
-:set[key=value]
+::set[key=value]
 :::
 ```
 

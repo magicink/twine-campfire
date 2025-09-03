@@ -4,7 +4,7 @@ import { Deck, Slide, SlideText, SlideReveal } from '@campfire/components'
 
 const meta: Meta<typeof SlideReveal> = {
   component: SlideReveal,
-  title: 'Campfire/SlideReveal'
+  title: 'Campfire/Components/SlideReveal'
 }
 
 export default meta
@@ -21,7 +21,11 @@ const render: StoryObj<typeof SlideReveal>['render'] = () => (
       transition={{ type: 'slide' }}
       className='bg-gray-100 dark:bg-gray-900'
     >
-      <SlideReveal at={0}>
+      <SlideReveal
+        at={0}
+        className='rounded'
+        style={{ border: '2px solid oklch(0.85 0.1 200)' }}
+      >
         <SlideText
           as='h2'
           x={180}

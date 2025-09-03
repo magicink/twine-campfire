@@ -25,7 +25,7 @@ beforeEach(() => {
 
 describe('renderDirectiveMarkdown', () => {
   it('runs directive handlers while rendering markdown', () => {
-    render(<MarkdownWrapper markdown=':set[flag=true]' />)
+    render(<MarkdownWrapper markdown='::set[flag=true]' />)
     const data = useGameStore.getState().gameData as Record<string, unknown>
     expect(data.flag).toBe(true)
   })
