@@ -11,11 +11,10 @@
 ## Build & Validation
 
 1. **Install**: Always run `bun install` after cloning or switching branches.
-2. **Format**: Run `bun x prettier --write .` before committing.
-3. **Type check**: Run `bun run typecheck` (which executes `tsc --noEmit`).
-4. **Test**: Run `bun test`.
-5. **Build**: Use `bun run build` to regenerate `dist/format.js`. This cleans `apps/campfire/dist`, bundles with Rollup, then assembles the final story format.
-6. Use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages.
+2. **Type check**: Run `bun run typecheck` (which executes `tsc --noEmit`).
+3. **Test**: Run `bun test`.
+4. **Build**: Use `bun run build` to regenerate `dist/format.js`. This cleans `apps/campfire/dist`, bundles with Rollup, then assembles the final story format.
+5. Use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages.
 
 ## Project Layout
 
@@ -64,7 +63,6 @@ If a container directive nests another container and is followed by an inline di
 
 - If a directive attribute's value is surrounded by quotes or backticks, it MUST be treated as a string and NEVER converted into JSON, even if the contents of the string appear to be JSON.
 - Wrap string values in quotes or backticks unless referencing a state key.
-- To pass an object via an attribute, do not wrap the object in quotes (e.g., `:directive{attribute={key: val}}`).
 - When adding new directive attributes, expose them via the directive API and extend directive tests to cover them.
 
 ## Notes

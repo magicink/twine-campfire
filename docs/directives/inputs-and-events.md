@@ -219,7 +219,7 @@ Apply multiple directives as a single update.
 :::batch
 ::set[hp=value]
 ::push{key=items value=sword}
-::unset{key=old}
+::unset[old]
 :::
 ```
 

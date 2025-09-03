@@ -121,4 +121,29 @@ describe('Textarea directive', () => {
       (useGameStore.getState().gameData as Record<string, unknown>).bio
     ).toBe('Existing')
   })
+
+  it('clears state on blur after focus', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            ':::textarea[bio]\n:::onFocus\n::set[focused=true]\n:::\n:::onBlur\n::unset[focused]\n:::\n:::\n'
+        }
+      ]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    const textarea = await screen.findByTestId('textarea')
+    expect(useGameStore.getState().gameData.focused).toBeUndefined()
+    act(() => {
+      ;(textarea as HTMLTextAreaElement).focus()
+    })
+    expect(useGameStore.getState().gameData.focused).toBe(true)
+    textarea.dispatchEvent(new FocusEvent('focusout', { bubbles: true }))
+    expect(useGameStore.getState().gameData.focused).toBeUndefined()
+  })
 })

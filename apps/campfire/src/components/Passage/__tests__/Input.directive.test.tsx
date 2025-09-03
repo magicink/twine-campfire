@@ -121,4 +121,31 @@ describe('Input directive', () => {
       (useGameStore.getState().gameData as Record<string, unknown>).name
     ).toBe('Existing')
   })
+
+  it('retains data on blur after focus', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            ':::input[name]\n:::onFocus\n::set[focused=true]\n:::\n:::onBlur\n::unset[focused]\n:::\n:::\n'
+        }
+      ]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    const input = await screen.findByTestId('input')
+    expect(useGameStore.getState().gameData.focused).toBeUndefined()
+    act(() => {
+      ;(input as HTMLInputElement).focus()
+    })
+    expect(useGameStore.getState().gameData.focused).toBe(true)
+    act(() => {
+      input.dispatchEvent(new FocusEvent('focusout', { bubbles: true }))
+    })
+    expect(useGameStore.getState().gameData.focused).toBeUndefined()
+  })
 })

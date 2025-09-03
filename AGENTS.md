@@ -1,6 +1,5 @@
 # Repository Guidelines
 
-- Always run `bun x prettier --write .` before committing. This ensures consistent formatting across the project.
 - Always run a type check (`bun tsc` or `tsc`) before committing. This helps catch type errors early.
 - After making changes, run `bun test` to verify the test suite passes.
 - When writing tests, exercise both truthy and falsey paths for conditional logic.
@@ -53,5 +52,4 @@ If a container directive includes a nested container followed immediately by an 
 
 - If a directive attribute's value is surrounded by quotes or backticks, it MUST be treated as a string and NEVER converted into JSON, even if the contents of the string appear to be JSON.
 - Wrap string values in quotes or backticks unless referencing a state key.
-- To pass an object via an attribute, do not wrap the object in quotes (e.g., `:directive{attribute={key: val}}`).
 - When adding new directive attributes, expose them through the directive API and update directive tests to cover the new behavior.
