@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'bun:test'
 import type { Paragraph, RootContent } from 'mdast'
 import type { LeafDirective, TextDirective } from 'mdast-util-directive'
-import { filterDirectiveChildren } from '../hooks/useDirectiveHandlers'
+import { filterDirectiveChildren } from '@campfire/utils/directiveUtils'
 
 describe('filterDirectiveChildren', () => {
   const names = [
