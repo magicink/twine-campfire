@@ -32,8 +32,8 @@ interface TranslateProps {
  * Returns `null` when the key is missing.
  */
 export const Translate = ({ className, style, ...props }: TranslateProps) => {
-  const addError = useGameStore(state => state.addError)
-  const gameData = useGameStore(state => state.gameData)
+  const addError = useGameStore.use.addError()
+  const gameData = useGameStore.use.gameData()
   const { t } = useTranslation(undefined, { i18n: i18next })
   let ns = props['data-i18n-ns']
   let tKey = props['data-i18n-key']

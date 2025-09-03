@@ -66,7 +66,7 @@ export const If = ({ test, content, fallback }: IfProps) => {
     })
     return proc
   }, [handlers])
-  const gameData = useGameStore(state => state.gameData)
+  const gameData = useGameStore.use.gameData()
   let condition = false
   try {
     const fn = new Function('data', `with (data) { return (${test}) }`) as (
