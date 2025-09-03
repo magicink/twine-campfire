@@ -35,8 +35,8 @@ describe('Passage image directive', () => {
       children: [
         {
           type: 'text',
-          value: `:::deck{size='1280x720' showNav=false}
-  :::slide
+          value: `:::deck{size='1280x720' hideNavigation=true}
+            :::slide
     :::reveal{at=0}
       ::image{src='https://placecats.com/bella/1280/360'}
 

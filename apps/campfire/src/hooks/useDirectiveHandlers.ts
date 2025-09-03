@@ -3853,7 +3853,11 @@ export const useDirectiveHandlers = () => {
     'autoplay',
     'autoplayDelay',
     'pause',
-    'id'
+    'id',
+    'hideNavigation',
+    'showSlideCount',
+    'initialSlide',
+    'a11y'
   ] as const
 
   /**
@@ -3886,7 +3890,11 @@ export const useDirectiveHandlers = () => {
         autoplay: { type: 'boolean' },
         autoplayDelay: { type: 'number' },
         pause: { type: 'boolean' },
-        id: { type: 'string' }
+        id: { type: 'string' },
+        hideNavigation: { type: 'boolean' },
+        showSlideCount: { type: 'boolean' },
+        initialSlide: { type: 'number' },
+        a11y: { type: 'object', expression: false }
       },
       { label: false }
     )
@@ -3920,7 +3928,20 @@ export const useDirectiveHandlers = () => {
           : 3000
       if (deckAttrs.pause) deckProps.autoAdvancePaused = true
     }
+    if (deckAttrs.hideNavigation) deckProps.hideNavigation = true
+    if (deckAttrs.showSlideCount) deckProps.showSlideCount = true
+    if (typeof deckAttrs.initialSlide === 'number')
+      deckProps.initialSlide = deckAttrs.initialSlide
     if (deckAttrs.id) deckProps.id = deckAttrs.id
+    if (typeof deckAttrs.a11y === 'string') {
+      try {
+        deckProps.a11y = JSON.parse(deckAttrs.a11y)
+      } catch {
+        /* ignore */
+      }
+    } else if (deckAttrs.a11y) {
+      deckProps.a11y = deckAttrs.a11y
+    }
     const rawDeckAttrs = (directive.attributes || {}) as Record<string, unknown>
     applyAdditionalAttributes(rawDeckAttrs, deckProps, [
       ...DECK_EXCLUDES,
