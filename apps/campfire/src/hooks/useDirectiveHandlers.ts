@@ -2464,6 +2464,8 @@ export const useDirectiveHandlers = () => {
    * @returns The index of the removed node.
    */
   const handlePreloadAudio: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const { attrs } = extractAttributes(directive, parent, index, {
       id: { type: 'string' },
       src: { type: 'string' }
@@ -2487,6 +2489,8 @@ export const useDirectiveHandlers = () => {
    * @returns The index of the removed node.
    */
   const handlePreloadImage: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const { attrs } = extractAttributes(directive, parent, index, {
       id: { type: 'string' },
       src: { type: 'string' }
@@ -2510,6 +2514,8 @@ export const useDirectiveHandlers = () => {
    * @returns The index of the removed node.
    */
   const handleSound: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const { attrs } = extractAttributes(directive, parent, index, {
       id: { type: 'string' },
       src: { type: 'string' },
@@ -2538,6 +2544,8 @@ export const useDirectiveHandlers = () => {
    * @returns The index of the removed node.
    */
   const handleBgm: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const { attrs } = extractAttributes(directive, parent, index, {
       id: { type: 'string' },
       src: { type: 'string' },
@@ -2574,6 +2582,8 @@ export const useDirectiveHandlers = () => {
    * @returns The index of the removed node.
    */
   const handleVolume: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const { attrs } = extractAttributes(directive, parent, index, {
       bgm: { type: 'number' },
       sfx: { type: 'number' }
@@ -3596,12 +3606,8 @@ export const useDirectiveHandlers = () => {
    */
   const handleImage: DirectiveHandler = (directive, parent, index) => {
     if (!parent || typeof index !== 'number') return
-    if (directive.type === 'containerDirective') {
-      const msg = 'image can only be used as an inline or leaf directive'
-      console.error(msg)
-      addError(msg)
-      return removeNode(parent, index)
-    }
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const { attrs } = extractAttributes<ImageSchema>(
       directive,
       parent,
@@ -3656,16 +3662,6 @@ export const useDirectiveHandlers = () => {
     const data = {
       hName: 'slideImage',
       hProperties: props as Properties
-    }
-    if (parent.type === 'paragraph') {
-      const others = parent.children.filter(
-        child => child !== directive && !isWhitespaceNode(child as RootContent)
-      )
-      if (others.length === 0) {
-        parent.children = []
-        ;(parent as Parent).data = data
-        return index
-      }
     }
     const node: Parent = { type: 'paragraph', children: [], data }
     return replaceWithIndentation(directive, parent, index, [
