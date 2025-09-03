@@ -14,11 +14,11 @@ A cozy story format for Twine.
 Campfire extends Markdown with
 [remark-directive](https://github.com/remarkjs/remark-directive) syntax.
 Directives begin with a colon and let passages interact with the game state.
-They come in leaf, text, or container form.
+They come in leaf, text, or container form, each serving a different role.
 
-- **Leaf** – `::name[LABEL]{attr=value}`
-- **Text** – `:name[LABEL]{attr=value}`
-- **Container** –
+- **Leaf** – `::name[LABEL]{attr=value}` — a standalone directive that performs an action or emits markup without wrapping other content.
+- **Text** – `:name[LABEL]{attr=value}` — an inline directive used inside paragraphs to inject values or generate small spans of text.
+- **Container** – a block directive that wraps content between `:::name{attr=value}` and a closing `:::` marker.
 
   ```md
   :::name{attr=value}
