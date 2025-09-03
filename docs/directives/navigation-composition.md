@@ -4,10 +4,10 @@ Control the flow between passages or how they reveal.
 
 ### `goto`
 
-Jump to another passage.
+Jump to another passage. Use as a leaf directive.
 
 ```md
-:goto["PASSAGE-NAME"]
+::goto["PASSAGE-NAME"]
 ```
 
 Use quotes or backticks for passage names. Unquoted numbers navigate by pid.
@@ -36,10 +36,10 @@ game state. Nested includes are limited to 10 levels to prevent infinite loops.
 
 ### `title`
 
-Set the document title.
+Set the document title. Use as a leaf directive.
 
 ```md
-:title["GAME-TITLE"]
+::title["GAME-TITLE"]
 ```
 
 Replace `GAME-TITLE` with the text to display, wrapped in matching quotes or backticks.

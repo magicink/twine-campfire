@@ -50,7 +50,7 @@ export interface NavigationHandlerContext {
 }
 
 /**
- * Creates handlers for navigation directives (`:goto`, `:title`, `:include`).
+ * Creates handlers for navigation directives (`::goto`, `::title`, `::include`).
  *
  * @param ctx - Context providing state access and utilities.
  * @returns An object containing the navigation directive handlers.
@@ -124,7 +124,7 @@ export const createNavigationHandlers = (ctx: NavigationHandlerContext) => {
   }
 
   /**
-   * Handles the `:goto` directive, which navigates to another passage.
+   * Handles the `::goto` directive, which navigates to another passage.
    * Passage names must be wrapped in matching quotes or backticks, while
    * unquoted numbers are treated as passage IDs. When the `passage` attribute
    * is an unquoted string, its value is looked up as a key in the game state.
@@ -136,6 +136,8 @@ export const createNavigationHandlers = (ctx: NavigationHandlerContext) => {
    * @returns The new index after replacement.
    */
   const handleGoto: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index, addError)
+    if (typeof invalid !== 'undefined') return invalid
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const rawText = toString(directive).trim()
     const target = resolvePassageTarget(rawText, attrs)
@@ -158,7 +160,7 @@ export const createNavigationHandlers = (ctx: NavigationHandlerContext) => {
   }
 
   /**
-   * Handles the `:title` directive, which overrides the page title for the current passage.
+   * Handles the `::title` directive, which overrides the page title for the current passage.
    * The directive's value must be wrapped in matching quotes or backticks. If the
    * directive is used inside an included passage, it is ignored. When valid, the
    * document title is updated and marked as overridden.
@@ -169,6 +171,8 @@ export const createNavigationHandlers = (ctx: NavigationHandlerContext) => {
    * @returns The new index after replacement.
    */
   const handleTitle: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index, addError)
+    if (typeof invalid !== 'undefined') return invalid
     if (getIncludeDepth() > 0) return removeNode(parent, index)
     const raw = toString(directive).trim()
     const title = getQuotedValue(raw)

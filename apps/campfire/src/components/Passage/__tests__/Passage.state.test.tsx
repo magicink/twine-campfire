@@ -375,7 +375,7 @@ describe('Passage game state directives', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':::batch\n:goto[Two]\n:::' }]
+      children: [{ type: 'text', value: ':::batch\n::goto[Two]\n:::' }]
     }
 
     useStoryDataStore.setState({
