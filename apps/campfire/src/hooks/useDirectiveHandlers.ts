@@ -38,8 +38,11 @@ import {
   type ExtractedAttrs,
   type AttributeSchema,
   ensureKey,
+  filterDirectiveChildren,
   extractAttributes,
   getLabel,
+  hasLabel,
+  isDirectiveNode,
   isRange,
   removeNode,
   stripLabel,
@@ -130,91 +133,6 @@ const INTERACTIVE_EVENTS = new Set([
  * value is treated as an aspect ratio instead of explicit pixel dimensions.
  */
 const ASPECT_RATIO_THRESHOLD = 100
-
-/**
- * Determines whether a directive node includes a string label.
- *
- * @param node - Directive node to examine.
- * @returns True if the node has a label.
- */
-const hasLabel = (
-  node: DirectiveNode
-): node is DirectiveNode & { label: string } =>
-  typeof (node as { label?: unknown }).label === 'string'
-
-/**
- * Determines whether a node is a directive node.
- *
- * @param node - Node to inspect.
- * @returns True if the node is a directive node.
- */
-const isDirectiveNode = (node: Node): node is DirectiveNode =>
-  node.type === 'leafDirective' ||
-  node.type === 'containerDirective' ||
-  node.type === 'textDirective'
-
-/**
- * Filters directive children to allowed directives, optionally flagging banned ones.
- * Supports leaf directives in addition to inline directives nested in paragraphs.
- *
- * @param children - Raw nodes inside the directive.
- * @param allowed - Set of permitted directive names.
- * @param banned - Set of explicitly banned directive names.
- * @returns Filtered nodes, a flag for other invalid content, and whether banned directives were found.
- */
-export const filterDirectiveChildren = (
-  children: RootContent[],
-  allowed: Set<string>,
-  banned?: Set<string>
-): [RootContent[], boolean, boolean?] => {
-  const filtered: RootContent[] = []
-  let invalidOther = false
-  let bannedFound = false
-  children.forEach(child => {
-    if (child.type === 'paragraph') {
-      let paragraphInvalid = false
-      child.children.forEach(grand => {
-        if (isDirectiveNode(grand)) {
-          if (banned?.has(grand.name)) {
-            bannedFound = true
-            return
-          }
-          if (allowed.has(grand.name)) {
-            filtered.push(grand)
-            return
-          }
-          paragraphInvalid = true
-          return
-        }
-        if (grand.type === 'text' && toString(grand).trim().length === 0) {
-          return
-        }
-        paragraphInvalid = true
-      })
-      if (paragraphInvalid) invalidOther = true
-      return
-    }
-    if (child.type === 'text') {
-      if (toString(child).trim().length === 0) return
-      invalidOther = true
-      return
-    }
-    if (isDirectiveNode(child)) {
-      if (banned?.has(child.name)) {
-        bannedFound = true
-        return
-      }
-      if (allowed.has(child.name)) {
-        filtered.push(child)
-        return
-      }
-      invalidOther = true
-      return
-    }
-    invalidOther = true
-  })
-  return [filtered, invalidOther, bannedFound]
-}
 
 export const useDirectiveHandlers = () => {
   // TODO(campfire): This module is very large; consider splitting handlers
