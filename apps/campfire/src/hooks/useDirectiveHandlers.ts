@@ -2220,6 +2220,7 @@ export const useDirectiveHandlers = () => {
     exitDir: { type: 'string' },
     enterDuration: { type: 'number' },
     exitDuration: { type: 'number' },
+    onEnter: { type: 'string' },
     interruptBehavior: { type: 'string' },
     className: { type: 'string' },
     style: { type: 'string' },
@@ -2239,6 +2240,7 @@ export const useDirectiveHandlers = () => {
     'exitDir',
     'enterDuration',
     'exitDuration',
+    'onEnter',
     'interruptBehavior',
     'className',
     'style',
@@ -2464,6 +2466,7 @@ export const useDirectiveHandlers = () => {
         if (typeof preset.exitAt === 'number') props.exitAt = preset.exitAt
         if (preset.interruptBehavior)
           props.interruptBehavior = preset.interruptBehavior
+        if (preset.onEnter) props.onEnter = preset.onEnter
         applyAdditionalAttributes(preset, props, REVEAL_EXCLUDES)
       }
       if (typeof attrs.at === 'number') props.at = attrs.at
@@ -2488,6 +2491,7 @@ export const useDirectiveHandlers = () => {
       if (exit) props.exit = exit
       if (attrs.interruptBehavior)
         props.interruptBehavior = attrs.interruptBehavior
+      if (attrs.onEnter) props.onEnter = attrs.onEnter
       const mergedRaw = mergeAttrs(preset, raw)
       const classAttr =
         typeof mergedRaw.className === 'string' ? getClassAttr(mergedRaw) : ''

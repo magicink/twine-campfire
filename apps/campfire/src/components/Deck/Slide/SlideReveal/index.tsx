@@ -14,6 +14,7 @@ import {
   prefersReducedMotion,
   runAnimation
 } from '@campfire/components/transition'
+import { useSerializedDirectiveRunner } from '@campfire/hooks/useSerializedDirectiveRunner'
 
 export interface SlideRevealProps {
   at?: number
@@ -25,6 +26,8 @@ export interface SlideRevealProps {
   className?: string
   /** Additional CSS properties for the reveal element. */
   style?: JSX.CSSProperties | string
+  /** Serialized directive block to run when the reveal becomes visible. */
+  onEnter?: string
   children: ComponentChildren
   /** Optional custom deck store. */
   store?: typeof useDeckStore
@@ -44,6 +47,7 @@ export const SlideReveal = ({
   interruptBehavior = 'jumpToEnd',
   className,
   style,
+  onEnter,
   children,
   store = useDeckStore
 }: SlideRevealProps): JSX.Element | null => {
@@ -54,12 +58,14 @@ export const SlideReveal = ({
   const ref = useRef<HTMLDivElement>(null)
   const animationRef = useRef<Animation | null>(null)
   const skipNextAnimationRef = useRef(false)
+  const runEnter = useSerializedDirectiveRunner(onEnter ?? '[]')
   const reduceMotion = prefersReducedMotion()
   const visible =
     currentStep >= at && (exitAt === undefined || currentStep < exitAt)
 
   const prevStepRef = useRef(currentStep)
   const prevSlideRef = useRef(currentSlide)
+  const prevVisibleRef = useRef(false)
   const slideChanged = prevSlideRef.current !== currentSlide
   const stepJumped =
     !slideChanged && Math.abs(prevStepRef.current - currentStep) > 1
@@ -67,6 +73,13 @@ export const SlideReveal = ({
     prevStepRef.current = currentStep
     prevSlideRef.current = currentSlide
   }, [currentStep, currentSlide])
+
+  useEffect(() => {
+    if (onEnter && !prevVisibleRef.current && visible) {
+      runEnter()
+    }
+    prevVisibleRef.current = visible
+  }, [visible, onEnter, runEnter])
 
   useLayoutEffect(() => {
     const el = ref.current

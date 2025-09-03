@@ -4,8 +4,12 @@ import { Deck } from '@campfire/components/Deck'
 import { Slide } from '@campfire/components/Deck/Slide'
 import { SlideReveal } from '@campfire/components/Deck/Slide'
 import { useDeckStore } from '@campfire/state/useDeckStore'
+import { useGameStore } from '@campfire/state/useGameStore'
 import { StubAnimation } from '@campfire/test-utils/stub-animation'
-import { setupResizeObserver } from '@campfire/test-utils/helpers'
+import { resetStores, setupResizeObserver } from '@campfire/test-utils/helpers'
+import { unified } from 'unified'
+import remarkParse from 'remark-parse'
+import remarkDirective from 'remark-directive'
 
 /**
  * Resets the deck store to a clean initial state.
@@ -14,9 +18,18 @@ const resetStore = () => {
   useDeckStore.getState().reset()
 }
 
+/**
+ * Serializes directive markdown into a JSON string of nodes.
+ */
+const makeDirective = (md: string) =>
+  JSON.stringify(
+    unified().use(remarkParse).use(remarkDirective).parse(md).children
+  )
+
 beforeEach(() => {
   setupResizeObserver()
   resetStore()
+  resetStores()
   document.body.innerHTML = ''
 })
 
@@ -69,6 +82,27 @@ describe('SlideReveal', () => {
     expect(el.className).toContain('campfire-slide-reveal')
     expect(el.className).toContain('extra')
     expect(el.style.color).toBe('red')
+  })
+
+  it('runs onEnter directive when becoming visible', async () => {
+    const content = makeDirective('::set[entered=true]')
+    render(
+      <Deck>
+        <Slide>
+          <SlideReveal at={1} onEnter={content}>
+            Hi
+          </SlideReveal>
+        </Slide>
+      </Deck>
+    )
+    act(() => {
+      useDeckStore.getState().next()
+    })
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    const data = useGameStore.getState().gameData as Record<string, unknown>
+    expect(data.entered).toBe(true)
   })
 
   it.skip('toggles visibility at the configured steps', async () => {
