@@ -8,7 +8,7 @@ const meta: Meta = {
 export default meta
 
 /**
- * Demonstrates the `select` directive bound to game state.
+ * Demonstrates the `select` directive bound to game state with keyboard navigation.
  *
  * @returns Campfire story showcasing the `select` directive.
  */

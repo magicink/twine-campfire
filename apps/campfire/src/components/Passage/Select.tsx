@@ -5,7 +5,19 @@ import { useDirectiveEvents } from '@campfire/hooks/useDirectiveEvents'
 import { mergeClasses, evalExpression } from '@campfire/utils/core'
 import { useGameStore } from '@campfire/state/useGameStore'
 import type { OptionProps } from './Option'
+import { getOptionId } from './Option'
 import type { BoundFieldProps } from './BoundFieldProps'
+
+/** Counter used to generate deterministic IDs. */
+let idCounter = 0
+
+/**
+ * Generate a unique ID with the provided prefix.
+ *
+ * @param prefix - Prefix for the ID.
+ * @returns The generated ID.
+ */
+const generateId = (prefix: string) => `${prefix}-${++idCounter}`
 const selectStyles =
   'file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-2 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive'
 
@@ -78,6 +90,8 @@ export const Select = ({
     onBlur
   )
   const [open, setOpen] = useState(false)
+  const [activeIndex, setActiveIndex] = useState<number | null>(null)
+  const listboxIdRef = useRef<string>(generateId('listbox'))
   const containerRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (value === undefined) {
@@ -85,12 +99,20 @@ export const Select = ({
     }
   }, [value, stateKey, initialValue, setGameData])
   const optionNodes = toChildArray(children) as VNode<OptionProps>[]
-  const selected = optionNodes.find(opt => opt.props.value === value)
+  const selectedIndex = optionNodes.findIndex(opt => opt.props.value === value)
+  const selected = optionNodes[selectedIndex]
   const handleSelect = (val: string) => {
     setGameData({ [stateKey]: val })
     onInput?.({} as any)
     setOpen(false)
   }
+  useEffect(() => {
+    if (open) {
+      setActiveIndex(selectedIndex >= 0 ? selectedIndex : 0)
+    } else {
+      setActiveIndex(null)
+    }
+  }, [open, selectedIndex])
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (
@@ -112,10 +134,54 @@ export const Select = ({
     document.addEventListener('keydown', handleKey)
     return () => document.removeEventListener('keydown', handleKey)
   }, [])
+  const moveActive = (direction: 1 | -1) => {
+    if (!optionNodes.length) return
+    setActiveIndex(prev => {
+      const next =
+        prev === null
+          ? direction === 1
+            ? 0
+            : optionNodes.length - 1
+          : (prev + direction + optionNodes.length) % optionNodes.length
+      return next
+    })
+  }
+  const handleKeyDown: JSX.HTMLAttributes<HTMLButtonElement>['onKeyDown'] =
+    e => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        if (!open) {
+          setOpen(true)
+          setActiveIndex(0)
+        } else {
+          moveActive(1)
+        }
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        if (!open) {
+          setOpen(true)
+          setActiveIndex(optionNodes.length - 1)
+        } else {
+          moveActive(-1)
+        }
+      } else if (e.key === 'Enter' && open && activeIndex !== null) {
+        e.preventDefault()
+        const opt = optionNodes[activeIndex]
+        if (opt) handleSelect(opt.props.value)
+      }
+    }
+  const activeId =
+    open && activeIndex !== null
+      ? getOptionId(optionNodes[activeIndex]!.props.value)
+      : undefined
   return (
     <div ref={containerRef} className='inline-block relative'>
       <button
         data-testid='select'
+        aria-haspopup='listbox'
+        aria-expanded={open}
+        aria-controls={listboxIdRef.current}
+        aria-activedescendant={activeId}
         className={mergeClasses(
           'campfire-select',
           selectStyles,
@@ -128,6 +194,7 @@ export const Select = ({
         {...rest}
         {...directiveEvents}
         onClick={() => !isDisabled && setOpen(prev => !prev)}
+        onKeyDown={handleKeyDown}
       >
         <span className='flex-1 truncate text-left pr-2'>
           {selected ? selected.props.children : (label ?? '')}
@@ -150,11 +217,13 @@ export const Select = ({
       {open && (
         <div
           role='listbox'
+          id={listboxIdRef.current}
           className='absolute left-0 top-full z-50 mt-1 flex w-full flex-col divide-y divide-input rounded-md border border-input bg-[oklch(0.98_0_0)] shadow-md overflow-hidden'
         >
           {optionNodes.map(opt =>
             cloneElement(opt, {
-              onSelectOption: handleSelect
+              onSelectOption: handleSelect,
+              selected: opt.props.value === value
             })
           )}
         </div>
