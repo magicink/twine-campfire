@@ -30,12 +30,13 @@ type WithSelectors<S> = S extends { getState: () => infer T }
  * Adds hook-based selectors to a Zustand store.
  *
  * @param store - The base Zustand store.
- * @returns The store augmented with a `use` object containing selectors.
+ * @returns The store augmented with a memoized `use` object containing selectors.
  */
 export const createSelectors = <S extends UseBoundStore<StoreApi<object>>>(
   store: S
 ) => {
   const typed = store as WithSelectors<typeof store>
+  if ((typed as any).use) return typed
   typed.use = {} as Record<string, () => unknown>
   for (const k of Object.keys(typed.getState())) {
     ;(typed.use as Record<string, unknown>)[k] = () =>

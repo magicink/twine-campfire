@@ -157,11 +157,11 @@ describe('useGameStore', () => {
 
     /** Test component displaying health */
     const Test = () => {
-      const data = useGameStore.use.gameData()
+      const data = useGameStore.use.gameData() as Record<string, unknown>
       return h(
         'span',
         { class: 'campfire-test', 'data-testid': 'hp' },
-        (data as Record<string, unknown>).hp as unknown as string
+        String(data.hp)
       )
     }
 
