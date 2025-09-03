@@ -46,7 +46,7 @@ describe('Input directive', () => {
         {
           type: 'text',
           value:
-            ':::input[name]\n:::onFocus\n:set[focused=true]\n:::\n:::onMouseEnter\n:set[hovered=true]\n:::\n:::\n'
+            ':::input[name]\n:::onFocus\n::set[focused=true]\n:::\n:::onMouseEnter\n::set[hovered=true]\n:::\n:::\n'
         }
       ]
     }

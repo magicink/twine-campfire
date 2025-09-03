@@ -21,7 +21,7 @@ Container form:
 ```md
 :::input[email]
 :::onFocus
-:set[focused=true]
+::set[focused=true]
 :::
 :::
 ```
@@ -51,7 +51,7 @@ Container form:
 ```md
 :::textarea[bio]
 :::onFocus
-:set[focused=true]
+::set[focused=true]
 :::
 :::
 ```
@@ -112,7 +112,7 @@ Container form:
 ```md
 :::checkbox[agree]
 :::onFocus
-:set[focused=true]
+::set[focused=true]
 :::
 :::
 ```
@@ -140,7 +140,7 @@ Container form:
 ```md
 :::radio[color]{value="red"}
 :::onFocus
-:set[focused=true]
+::set[focused=true]
 :::
 :::
 ```
@@ -161,9 +161,9 @@ Render a button that runs directives when clicked. Supports event directives ins
 ```md
 :::trigger{label="Do it" className="primary"}
 :::onMouseEnter
-:set[hovered=true]
+::set[hovered=true]
 :::
-:set[key=value]
+::set[key=value]
 :::
 ```
 
@@ -217,9 +217,9 @@ Apply multiple directives as a single update.
 
 ```md
 :::batch
-:set[hp=value]
-:push{key=items value=sword}
-:unset{key=old}
+::set[hp=value]
+::push{key=items value=sword}
+::unset{key=old}
 :::
 ```
 
@@ -235,7 +235,7 @@ Run data directives once when leaving the passage.
 
 ```md
 :::onExit
-:set[key=value]
+::set[key=value]
 :::
 ```
 

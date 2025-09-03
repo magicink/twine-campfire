@@ -25,7 +25,7 @@ describe('Passage i18n directives', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':lang[fr-FR]' }]
+      children: [{ type: 'text', value: '::lang[fr-FR]' }]
     }
 
     useStoryDataStore.setState({
@@ -37,6 +37,23 @@ describe('Passage i18n directives', () => {
 
     await waitFor(() => {
       expect(i18next.language).toBe('fr-FR')
+    })
+  })
+
+  it('ignores inline lang directive', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: 'before :lang[fr] after' }]
+    }
+
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(i18next.language).toBe('en-US')
     })
   })
 
@@ -115,12 +132,12 @@ describe('Passage i18n directives', () => {
       children: [
         {
           type: 'text',
-          value: ':translations[en-US]{translation:apple_one="1 apple"}'
+          value: '::translations[en-US]{translation:apple_one="1 apple"}\n'
         },
         {
           type: 'text',
           value:
-            ':translations[en-US]{translation:apple_other="{{count}} apples"}'
+            '::translations[en-US]{translation:apple_other="{{count}} apples"}\n'
         },
         { type: 'text', value: ':t[apple]{count=2}' }
       ]
@@ -145,12 +162,12 @@ describe('Passage i18n directives', () => {
       children: [
         {
           type: 'text',
-          value: ':translations[en-US]{translation:apple_one="1 apple"}'
+          value: '::translations[en-US]{translation:apple_one="1 apple"}\n'
         },
         {
           type: 'text',
           value:
-            ':translations[en-US]{translation:apple_other="{{count}} apples"}'
+            '::translations[en-US]{translation:apple_other="{{count}} apples"}\n'
         },
         { type: 'text', value: ':t[apple]{count=appleCount}' }
       ]
@@ -176,7 +193,7 @@ describe('Passage i18n directives', () => {
       children: [
         {
           type: 'text',
-          value: ':translations[en-US]{translation:greet="Hello, {{name}}!"}'
+          value: '::translations[en-US]{translation:greet="Hello, {{name}}!"}\n'
         },
         { type: 'text', value: ':t[greet]{name=player}' }
       ]
@@ -224,7 +241,7 @@ describe('Passage i18n directives', () => {
       children: [
         {
           type: 'text',
-          value: ':translations[en-US]{translation:next="Next"}'
+          value: '::translations[en-US]{translation:next="Next"}\n'
         },
         { type: 'text', value: '[[:t[next]->Next]]' }
       ]
@@ -256,7 +273,7 @@ describe('Passage i18n directives', () => {
       children: [
         {
           type: 'text',
-          value: ':translations[en-US]{ui:goodbye="Au revoir"}'
+          value: '::translations[en-US]{ui:goodbye="Au revoir"}\n'
         },
         { type: 'text', value: ':t[ui:goodbye]' }
       ]
@@ -280,7 +297,7 @@ describe('Passage i18n directives', () => {
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
       children: [
-        { type: 'text', value: ':translations[en-US]{ui:bye="Bye"}' },
+        { type: 'text', value: '::translations[en-US]{ui:bye="Bye"}\n' },
         { type: 'text', value: ':t[bye]{ns="ui"}' }
       ]
     }
@@ -328,7 +345,10 @@ describe('Passage i18n directives', () => {
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
       children: [
-        { type: 'text', value: ':translations[en-US]{ui:greet="Hello there"}' },
+        {
+          type: 'text',
+          value: '::translations[en-US]{ui:greet="Hello there"}\n'
+        },
         { type: 'text', value: ':t[ui:greet]' }
       ]
     }
@@ -352,7 +372,7 @@ describe('Passage i18n directives', () => {
       children: [
         {
           type: 'text',
-          value: ':translations[en-US]{ui:greet="Hello" ui:bye="Bye"}'
+          value: '::translations[en-US]{ui:greet="Hello" ui:bye="Bye"}\n'
         }
       ]
     }

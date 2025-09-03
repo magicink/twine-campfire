@@ -56,7 +56,7 @@ describe('Radio directive', () => {
         {
           type: 'text',
           value:
-            ':::radio[choice]{value="a"}\n:::onFocus\n:set[focused=true]\n:::\n:::onMouseEnter\n:set[hovered=true]\n:::\n:::\n:radio[choice]{value="b"}\n'
+            ':::radio[choice]{value="a"}\n:::onFocus\n::set[focused=true]\n:::\n:::onMouseEnter\n::set[hovered=true]\n:::\n:::\n:radio[choice]{value="b"}\n'
         }
       ]
     }

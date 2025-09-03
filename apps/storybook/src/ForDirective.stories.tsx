@@ -44,7 +44,7 @@ export const Fruits: StoryObj = {
       <tw-storydata startnode='1' options='debug'>
         <tw-passagedata pid='1' name='Start'>
           {`
-:array[fruits=["apple","banana","cherry"]]
+::array[fruits=["apple","banana","cherry"]]
 
 :::for[fruit in fruits]
 

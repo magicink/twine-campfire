@@ -87,6 +87,20 @@ const ALLOWED_ONEXIT_DIRECTIVES = new Set([
   'unset',
   'random',
   'randomOnce',
+  'push',
+  'pop',
+  'shift',
+  'unshift',
+  'splice',
+  'concat',
+  'checkpoint',
+  'loadCheckpoint',
+  'clearCheckpoint',
+  'save',
+  'load',
+  'clearSave',
+  'lang',
+  'translations',
   'if',
   'for',
   'batch'
@@ -126,6 +140,80 @@ const hasLabel = (
   node: DirectiveNode
 ): node is DirectiveNode & { label: string } =>
   typeof (node as { label?: unknown }).label === 'string'
+
+/**
+ * Determines whether a node is a directive node.
+ *
+ * @param node - Node to inspect.
+ * @returns True if the node is a directive node.
+ */
+const isDirectiveNode = (node: Node): node is DirectiveNode =>
+  node.type === 'leafDirective' ||
+  node.type === 'containerDirective' ||
+  node.type === 'textDirective'
+
+/**
+ * Filters directive children to allowed directives, optionally flagging banned ones.
+ * Supports leaf directives in addition to inline directives nested in paragraphs.
+ *
+ * @param children - Raw nodes inside the directive.
+ * @param allowed - Set of permitted directive names.
+ * @param banned - Set of explicitly banned directive names.
+ * @returns Filtered nodes, a flag for other invalid content, and whether banned directives were found.
+ */
+export const filterDirectiveChildren = (
+  children: RootContent[],
+  allowed: Set<string>,
+  banned?: Set<string>
+): [RootContent[], boolean, boolean?] => {
+  const filtered: RootContent[] = []
+  let invalidOther = false
+  let bannedFound = false
+  children.forEach(child => {
+    if (child.type === 'paragraph') {
+      let paragraphInvalid = false
+      child.children.forEach(grand => {
+        if (isDirectiveNode(grand)) {
+          if (banned?.has(grand.name)) {
+            bannedFound = true
+            return
+          }
+          if (allowed.has(grand.name)) {
+            filtered.push(grand)
+            return
+          }
+          paragraphInvalid = true
+          return
+        }
+        if (grand.type === 'text' && toString(grand).trim().length === 0) {
+          return
+        }
+        paragraphInvalid = true
+      })
+      if (paragraphInvalid) invalidOther = true
+      return
+    }
+    if (child.type === 'text') {
+      if (toString(child).trim().length === 0) return
+      invalidOther = true
+      return
+    }
+    if (isDirectiveNode(child)) {
+      if (banned?.has(child.name)) {
+        bannedFound = true
+        return
+      }
+      if (allowed.has(child.name)) {
+        filtered.push(child)
+        return
+      }
+      invalidOther = true
+      return
+    }
+    invalidOther = true
+  })
+  return [filtered, invalidOther, bannedFound]
+}
 
 export const useDirectiveHandlers = () => {
   // TODO(campfire): This module is very large; consider splitting handlers
@@ -207,6 +295,26 @@ export const useDirectiveHandlers = () => {
     interpolateAttr(typeof attrs.style === 'string' ? attrs.style : undefined)
 
   /**
+   * Ensures a directive is used in leaf form. Logs an error and removes the node otherwise.
+   *
+   * @param directive - The directive to validate.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within the parent.
+   * @returns The index of the removed node when invalid, otherwise undefined.
+   */
+  const requireLeafDirective = (
+    directive: DirectiveNode,
+    parent: Parent | undefined,
+    index: number | undefined
+  ): DirectiveHandlerResult | undefined => {
+    if (directive.type === 'leafDirective') return
+    const msg = `${directive.name} can only be used as a leaf directive`
+    console.error(msg)
+    addError(msg)
+    return removeNode(parent, index)
+  }
+
+  /**
    * Handles the leaf `set` and `setOnce` directives by assigning values to keys
    * in game data using shorthand `key=value` pairs.
    *
@@ -222,6 +330,8 @@ export const useDirectiveHandlers = () => {
     index: number | undefined,
     lock = false
   ): DirectiveHandlerResult => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const rawLabel = hasLabel(directive) ? directive.label : undefined
     const textContent = toString(directive)
     let shorthand: string | undefined
@@ -300,6 +410,8 @@ export const useDirectiveHandlers = () => {
     index: number | undefined,
     lock = false
   ): DirectiveHandlerResult => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const splitItems = (input: string): string[] => {
       const result: string[] = []
       let current = ''
@@ -394,6 +506,8 @@ export const useDirectiveHandlers = () => {
     parent: Parent | undefined,
     index: number | undefined
   ): DirectiveHandlerResult => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const parsed = extractKeyValue(directive, parent, index, addError)
     if (!parsed) return index
     const { key, valueRaw } = parsed
@@ -515,6 +629,8 @@ export const useDirectiveHandlers = () => {
     index: number | undefined,
     lock = false
   ): DirectiveHandlerResult => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const label = hasLabel(directive) ? directive.label : toString(directive)
     const key = ensureKey(label.trim(), parent, index)
     if (!key) return index
@@ -639,6 +755,8 @@ export const useDirectiveHandlers = () => {
       op: 'push' | 'pop' | 'shift' | 'unshift' | 'splice' | 'concat'
     ): DirectiveHandler =>
     (directive, parent, index) => {
+      const invalid = requireLeafDirective(directive, parent, index)
+      if (typeof invalid !== 'undefined') return invalid
       const attrs = directive.attributes || {}
       const key = ensureKey(
         (attrs as Record<string, unknown>).key,
@@ -728,6 +846,8 @@ export const useDirectiveHandlers = () => {
   const handleConcat = createArrayOperationHandler('concat')
 
   const handleUnset: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const attrs = directive.attributes || {}
     const key = ensureKey(
       (attrs as Record<string, unknown>).key ?? toString(directive),
@@ -1952,76 +2072,6 @@ export const useDirectiveHandlers = () => {
    * @param index - The index of the directive node within its parent.
    * @returns The index of the inserted component.
    */
-  /**
-   * Determines whether a node is a directive node.
-   *
-   * @param node - Node to inspect.
-   * @returns True if the node is a directive node.
-   */
-  const isDirectiveNode = (node: Node): node is DirectiveNode =>
-    node.type === 'leafDirective' ||
-    node.type === 'containerDirective' ||
-    node.type === 'textDirective'
-
-  /**
-   * Filters directive children to allowed directives, optionally flagging banned ones.
-   *
-   * @param children - Raw nodes inside the directive.
-   * @param allowed - Set of permitted directive names.
-   * @param banned - Set of explicitly banned directive names.
-   * @returns Filtered nodes, a flag for other invalid content, and whether banned directives were found.
-   */
-  const filterDirectiveChildren = (
-    children: RootContent[],
-    allowed: Set<string>,
-    banned: Set<string> = new Set()
-  ): [RootContent[], boolean, boolean] => {
-    let invalidOther = false
-    let bannedFound = false
-    const filtered: RootContent[] = []
-    children.forEach(child => {
-      if (child.type === 'text') {
-        if (toString(child).trim().length === 0) return
-        invalidOther = true
-        return
-      }
-      if (isDirectiveNode(child)) {
-        if (banned.has(child.name)) {
-          bannedFound = true
-          return
-        }
-        if (allowed.has(child.name)) {
-          filtered.push(child)
-          return
-        }
-        invalidOther = true
-        return
-      }
-      if (child.type === 'paragraph') {
-        child.children.forEach(sub => {
-          if (sub.type === 'text') {
-            if (toString(sub).trim().length === 0) return
-            invalidOther = true
-            return
-          }
-          if (isDirectiveNode(sub)) {
-            if (banned.has(sub.name)) {
-              bannedFound = true
-              return
-            }
-            if (allowed.has(sub.name)) {
-              filtered.push(sub)
-              return
-            }
-          }
-          invalidOther = true
-        })
-        return
-      }
-      invalidOther = true
-    })
-    return [filtered, invalidOther, bannedFound]
-  }
 
   const handleOnExit: DirectiveHandler = (directive, parent, index) => {
     if (!parent || typeof index !== 'number') return
@@ -2079,6 +2129,8 @@ export const useDirectiveHandlers = () => {
    * @returns The new index after removing the directive.
    */
   const handleLang: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const locale = toString(directive).trim()
 
     // Basic locale validation: e.g., "en", "en-US", "fr", "zh-CN"
@@ -2097,7 +2149,7 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
-   * Adds a translation using shorthand `:translations[locale]{ns:key="value"}`.
+   * Adds a translation using shorthand `::translations[locale]{ns:key="value"}`.
    *
    * @param directive - The directive node representing the translations.
    * @param parent - The parent AST node containing this directive.
@@ -2105,6 +2157,8 @@ export const useDirectiveHandlers = () => {
    * @returns The new index after processing.
    */
   const handleTranslations: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const locale =
       getLabel(directive as ContainerDirective) || toString(directive).trim()
     const attrs = directive.attributes as Record<string, unknown>
@@ -2541,6 +2595,8 @@ export const useDirectiveHandlers = () => {
    * @param index - Index of the directive within the parent.
    */
   const handleSave: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const id = typeof attrs.id === 'string' ? attrs.id : 'campfire.save'
     setLoading(true)
@@ -2573,6 +2629,8 @@ export const useDirectiveHandlers = () => {
    * @param index - Index of the directive within the parent.
    */
   const handleLoad: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const id = typeof attrs.id === 'string' ? attrs.id : 'campfire.save'
     setLoading(true)
@@ -2619,6 +2677,8 @@ export const useDirectiveHandlers = () => {
    * @param index - Index of the directive within the parent.
    */
   const handleClearSave: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const id = typeof attrs.id === 'string' ? attrs.id : 'campfire.save'
     setLoading(true)
@@ -2636,6 +2696,8 @@ export const useDirectiveHandlers = () => {
   }
 
   const handleCheckpoint: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     if (lastPassageIdRef.current !== currentPassageId) {
       resetDirectiveState()
     }
@@ -2669,7 +2731,7 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
-   * Handles the `:loadCheckpoint` directive, which loads the saved checkpoint.
+   * Handles the `::loadCheckpoint` directive, which loads the saved checkpoint.
    * If the directive is used inside an included passage, it is ignored.
    *
    * @param directive - The directive node representing `:loadCheckpoint`.
@@ -2677,11 +2739,9 @@ export const useDirectiveHandlers = () => {
    * @param index - The index of this directive within the parent's children.
    * @returns The index at which processing should continue.
    */
-  const handleLoadCheckpoint: DirectiveHandler = (
-    _directive,
-    parent,
-    index
-  ) => {
+  const handleLoadCheckpoint: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     if (includeDepth > 0) return removeNode(parent, index)
     const cp = loadCheckpointFn()
     if (cp?.currentPassageId) {
@@ -2691,7 +2751,7 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
-   * Handles the `:clearCheckpoint` directive, which removes the currently saved
+   * Handles the `::clearCheckpoint` directive, which removes the currently saved
    * checkpoint. If the directive is used inside an included passage, it is
    * ignored.
    *
@@ -2701,10 +2761,12 @@ export const useDirectiveHandlers = () => {
    * @returns The index at which processing should continue.
    */
   const handleClearCheckpoint: DirectiveHandler = (
-    _directive,
+    directive,
     parent,
     index
   ) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     if (includeDepth > 0) return removeNode(parent, index)
     useGameStore.setState({ checkpoints: {} })
     return removeNode(parent, index)
@@ -3621,8 +3683,11 @@ export const useDirectiveHandlers = () => {
    */
   const handleShape: DirectiveHandler = (directive, parent, index) => {
     if (!parent || typeof index !== 'number') return
-    if (directive.type !== 'textDirective') {
-      const msg = 'shape can only be used as a leaf directive'
+    if (
+      directive.type !== 'textDirective' &&
+      directive.type !== 'leafDirective'
+    ) {
+      const msg = 'shape can only be used as a leaf or text directive'
       console.error(msg)
       addError(msg)
       return removeNode(parent, index)
@@ -4052,6 +4117,8 @@ export const useDirectiveHandlers = () => {
    * @returns The new index after replacement, or removes the node if not found or on error.
    */
   const handleInclude: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index)
+    if (typeof invalid !== 'undefined') return invalid
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const rawText = toString(directive).trim()
     const target = resolvePassageTarget(rawText, attrs)

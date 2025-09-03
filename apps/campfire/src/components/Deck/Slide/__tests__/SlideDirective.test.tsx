@@ -35,7 +35,7 @@ beforeEach(() => {
 
 describe('Slide directive hooks', () => {
   it('runs onEnter directive when slide becomes active', () => {
-    const content = makeDirective(':set[entered=true]')
+    const content = makeDirective('::set[entered=true]')
     render(
       <Deck>
         <Slide onEnter={content}>One</Slide>
@@ -46,7 +46,7 @@ describe('Slide directive hooks', () => {
   })
 
   it('runs TriggerButton directives inside slides', () => {
-    const btnContent = makeDirective(':set[clicked=true]')
+    const btnContent = makeDirective('::set[clicked=true]')
     const { getByRole } = render(
       <Deck>
         <Slide>

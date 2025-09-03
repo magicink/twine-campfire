@@ -45,7 +45,7 @@ export const WithEvents: StoryObj = {
           {`
 :::textarea[bio]{placeholder="Hover or focus"}
 :::onFocus
-  :set[focused=true]
+  ::set[focused=true]
 :::
 :::onBlur
   :unset[focused]

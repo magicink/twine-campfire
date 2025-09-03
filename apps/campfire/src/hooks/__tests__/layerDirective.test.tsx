@@ -75,7 +75,7 @@ describe('layer directive', () => {
 
   it('renders siblings after wrappers with nested containers', () => {
     const md =
-      ':set[show=true]\n' +
+      '::set[show=true]\n' +
       ':::layer{className="flex gap-[4px] items-center justify-center"}\n' +
       ':::wrapper{as="div"}\n' +
       ':radio[choice]{value="a"}\n' +

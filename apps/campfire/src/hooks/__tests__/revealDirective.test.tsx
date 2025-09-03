@@ -94,7 +94,7 @@ describe('reveal directive', () => {
   })
 
   it('interpolates className and style attributes', () => {
-    const md = `:set[color="red" cls="special"]\n:::reveal{className="box-\${cls}" style="color: \${color}"}\nHi\n:::`
+    const md = `::set[color="red" cls="special"]\n:::reveal{className="box-\${cls}" style="color: \${color}"}\nHi\n:::`
     render(<MarkdownRunner markdown={md} />)
     const reveal = findReveal(output)!
     expect(reveal.props.className).toBe('box-special')

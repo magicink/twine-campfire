@@ -159,7 +159,7 @@ describe('Passage rendering and navigation', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':include["Second"]' }]
+      children: [{ type: 'text', value: '::include["Second"]' }]
     }
     const second: Element = {
       type: 'element',
@@ -329,7 +329,7 @@ describe('Passage rendering and navigation', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':include["Second"]' }]
+      children: [{ type: 'text', value: '::include["Second"]' }]
     }
     const second: Element = {
       type: 'element',
@@ -349,12 +349,38 @@ describe('Passage rendering and navigation', () => {
     expect(text).toBeInTheDocument()
   })
 
+  it('ignores inline include directive', async () => {
+    const start: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':include["Second"]' }]
+    }
+    const second: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '2', name: 'Second' },
+      children: [{ type: 'text', value: 'Inner text' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [start, second],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(screen.queryByText('Inner text')).not.toBeInTheDocument()
+    })
+  })
+
   it('includes a passage using a state key with include directive', async () => {
     const start: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':include{passage=part}' }]
+      children: [{ type: 'text', value: '::include{passage=part}' }]
     }
     const second: Element = {
       type: 'element',
@@ -380,13 +406,13 @@ describe('Passage rendering and navigation', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':include["Second"]' }]
+      children: [{ type: 'text', value: '::include["Second"]' }]
     }
     const second: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '2', name: 'Second' },
-      children: [{ type: 'text', value: ':::set[visited=true]\n:::' }]
+      children: [{ type: 'text', value: '::set[visited=true]\n:::' }]
     }
 
     useStoryDataStore.setState({
@@ -411,7 +437,7 @@ describe('Passage rendering and navigation', () => {
       children: [
         {
           type: 'text',
-          value: ':include["Second"]\n:::if[true]\nAfter\n:::'
+          value: '::include["Second"]\n:::if[true]\nAfter\n:::'
         }
       ]
     }

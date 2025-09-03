@@ -68,7 +68,7 @@ export const WithEvents: StoryObj = {
 :option{value="blue" label="Blue"}
 
 :::onFocus
-  :set[focused=true]
+  ::set[focused=true]
 :::
 
 :::onBlur

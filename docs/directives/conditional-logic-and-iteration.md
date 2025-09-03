@@ -81,7 +81,7 @@ Combining with other directives and links:
 
 You unlock the door.
 
-:set[door_opened=true]
+::set[door_opened=true]
 
 [[Enter->Hallway]]
 
@@ -113,7 +113,7 @@ Item: :show[item]
 With ranges:
 
 ```md
-:createRange[r=0]{min=1 max=3}
+::createRange[r=0]{min=1 max=3}
 
 :::for[x in r]
 

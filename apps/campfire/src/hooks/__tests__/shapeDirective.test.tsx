@@ -56,6 +56,32 @@ describe('shape directive', () => {
     expect(svg.style.filter).toContain('drop-shadow')
   })
 
+  it('renders a SlideShape component with props via leaf directive', () => {
+    const md =
+      ':::reveal\n::shape{x=10 y=20 w=100 h=50 type="rect" stroke="red" fill="blue" radius=5 shadow=true className="rounded" layerClassName="wrapper" data-test="ok"}\n:::\n'
+    render(<MarkdownRunner markdown={md} />)
+    const el = document.querySelector(
+      '[data-testid="slideShape"]'
+    ) as HTMLElement
+    expect(el).toBeTruthy()
+    expect(el.className).toContain('campfire-layer')
+    expect(el.className).toContain('campfire-slide-layer')
+    expect(el.className).toContain('wrapper')
+    expect(el.style.left).toBe('10px')
+    expect(el.style.top).toBe('20px')
+    expect(el.style.width).toBe('100px')
+    expect(el.style.height).toBe('50px')
+    expect(el.getAttribute('data-test')).toBe('ok')
+    const svg = el.querySelector('svg') as SVGSVGElement
+    const rect = svg.querySelector('rect') as SVGRectElement
+    expect(rect.getAttribute('stroke')).toBe('red')
+    expect(rect.getAttribute('fill')).toBe('blue')
+    expect(rect.getAttribute('rx')).toBe('5')
+    expect(getSvgClassName(svg)).toContain('campfire-slide-shape')
+    expect(svg.classList.contains('rounded')).toBe(true)
+    expect(svg.style.filter).toContain('drop-shadow')
+  })
+
   it('applies shape presets with overrides', () => {
     const md =
       ':preset{type="shape" name="box" x=5 y=5 w=10 h=10 fill="red"}\n:::reveal\n:shape{from="box" y=20 type="rect"}\n:::\n'
@@ -71,7 +97,7 @@ describe('shape directive', () => {
   })
 
   it('does not render stray colons after shape blocks', () => {
-    const md = ':shape{type="rect"}\n:::if[true]\nHi\n:::\n'
+    const md = '::shape{type="rect"}\n:::if[true]\nHi\n:::\n'
     render(<MarkdownRunner markdown={md} />)
     const text = document.body.textContent || ''
     expect(text).not.toContain(':::')

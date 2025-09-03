@@ -42,7 +42,7 @@ describe('Checkbox directive', () => {
         {
           type: 'text',
           value:
-            ':::checkbox[agree]\n:::onFocus\n:set[focused=true]\n:::\n:::onMouseEnter\n:set[hovered=true]\n:::\n:::\n'
+            ':::checkbox[agree]\n:::onFocus\n::set[focused=true]\n:::\n:::onMouseEnter\n::set[hovered=true]\n:::\n:::\n'
         }
       ]
     }

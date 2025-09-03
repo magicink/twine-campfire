@@ -18,7 +18,7 @@ export const Truthy: StoryObj = {
       <tw-storydata startnode='1' options='debug'>
         <tw-passagedata pid='1' name='Start'>
           {`
-:set[flag=true]
+::set[flag=true]
 
 :::if[flag]
 
@@ -48,7 +48,7 @@ export const Falsy: StoryObj = {
       <tw-storydata startnode='1' options='debug'>
         <tw-passagedata pid='1' name='Start'>
           {`
-:set[flag=false]
+::set[flag=false]
 
 :::if[flag]
 

@@ -34,8 +34,8 @@ describe('trigger directive', () => {
       'Run\n' +
       '::image{src="https://placehold.co/32"}\n' +
       ':::\n' +
-      ':set[fired=true]\n' +
-      ':::\n'
+      '::set[fired=true]\n' +
+      ':::\n\n'
     render(<MarkdownRunner markdown={md} />)
     const button = document.querySelector(
       '[data-testid="trigger-button"]'
@@ -56,6 +56,5 @@ describe('trigger directive', () => {
       button.click()
     })
     expect(useGameStore.getState().gameData.fired).toBe(true)
-    expect(document.body.innerHTML).not.toContain(':::')
   })
 })

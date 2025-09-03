@@ -35,7 +35,7 @@ describe('Passage trigger directives', () => {
         {
           type: 'text',
           value:
-            ':::trigger{label="Fire" className="extra"}\n:::set[fired=true]\n:::\n:::'
+            ':::trigger{label="Fire" className="extra"}\n::set[fired=true]\n:::\n:::'
         }
       ]
     }
@@ -80,7 +80,7 @@ describe('Passage trigger directives', () => {
         {
           type: 'text',
           value:
-            ':::trigger{label="Stop" disabled}\n:::set[stopped=true]\n:::\n:::'
+            ':::trigger{label="Stop" disabled}\n::set[stopped=true]\n:::\n:::'
         }
       ]
     }
@@ -105,7 +105,7 @@ describe('Passage trigger directives', () => {
         {
           type: 'text',
           value:
-            ':::trigger{label="Go" disabled=false}\n:::set[go=true]\n:::\n:::'
+            ':::trigger{label="Go" disabled=false}\n::set[go=true]\n:::\n:::'
         }
       ]
     }
@@ -129,7 +129,7 @@ describe('Passage trigger directives', () => {
       children: [
         {
           type: 'text',
-          value: ':::trigger{label=Fire}\n:::set[fired=true]\n:::\n:::'
+          value: ':::trigger{label=Fire}\n::set[fired=true]\n:::\n:::'
         }
       ]
     }
@@ -149,7 +149,7 @@ describe('Passage trigger directives', () => {
         {
           type: 'text',
           value:
-            ':::trigger{label="Do"}\n:::onMouseEnter\n:set[hovered=true]\n:::\n:::onFocus\n:set[focused=true]\n:::\n:::onBlur\n:set[blurred=true]\n:::\n:set[clicked=true]\n:::\n'
+            ':::trigger{label="Do"}\n:::onMouseEnter\n::set[hovered=true]\n:::\n:::onFocus\n::set[focused=true]\n:::\n:::onBlur\n::set[blurred=true]\n:::\n::set[clicked=true]\n:::\n'
         }
       ]
     }
@@ -178,7 +178,7 @@ describe('Passage trigger directives', () => {
       children: [
         {
           type: 'text',
-          value: ':::trigger{label="Fire"}\n:::set[fired=true]\n:::\n:::'
+          value: ':::trigger{label="Fire"}\n::set[fired=true]\n:::\n:::'
         }
       ]
     }
@@ -224,7 +224,7 @@ describe('Passage trigger directives', () => {
             ':::wrapper{as="span" className="fancy"}\n' +
             'Styled Label\n' +
             ':::\n' +
-            ':::set[fired=true]\n' +
+            '::set[fired=true]\n' +
             ':::\n' +
             ':::'
         }
