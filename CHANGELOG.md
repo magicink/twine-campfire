@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.100.1](https://github.com/magicink/twine-campfire/compare/v1.100.0...v1.100.1) (2025-09-03)
+
+
+### Bug Fixes
+
+* process sibling input event directives ([#634](https://github.com/magicink/twine-campfire/issues/634)) ([1664dd9](https://github.com/magicink/twine-campfire/commit/1664dd90f162d5dde754c23bf47e9cde7f61de57))
+
 ## [1.100.0](https://github.com/magicink/twine-campfire/compare/v1.99.0...v1.100.0) (2025-09-03)
 
 
