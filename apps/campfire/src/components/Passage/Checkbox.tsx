@@ -7,36 +7,21 @@ import {
   checkboxStyles,
   checkboxIndicatorStyles
 } from '@campfire/utils/remarkStyles'
+import type { BoundFieldProps } from './BoundFieldProps'
 
 interface CheckboxProps
   extends Omit<
-    JSX.ButtonHTMLAttributes<HTMLButtonElement>,
-    | 'className'
-    | 'value'
-    | 'defaultValue'
-    | 'onFocus'
-    | 'onBlur'
-    | 'onMouseEnter'
-    | 'onMouseLeave'
-    | 'disabled'
-  > {
-  /** Key in game state to bind the checkbox value to. */
-  stateKey: string
-  /** Additional CSS classes for the checkbox element. */
-  className?: string | string[]
-  /** Serialized directives to run on mouse enter. */
-  onMouseEnter?: string
-  /** Serialized directives to run on mouse leave. */
-  onMouseLeave?: string
-  /** Serialized directives to run on focus. */
-  onFocus?: string
-  /** Serialized directives to run on blur. */
-  onBlur?: string
-  /** Initial value if the state key is unset. */
-  initialValue?: boolean
-  /** Boolean or state key controlling the disabled state. */
-  disabled?: boolean | string
-}
+      JSX.ButtonHTMLAttributes<HTMLButtonElement>,
+      | 'className'
+      | 'value'
+      | 'defaultValue'
+      | 'onFocus'
+      | 'onBlur'
+      | 'onMouseEnter'
+      | 'onMouseLeave'
+      | 'disabled'
+    >,
+    BoundFieldProps<boolean> {}
 
 /**
  * Checkbox bound to a game state key. Updates the key on user interaction.
