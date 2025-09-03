@@ -16,22 +16,20 @@ import {
   isDirectiveNode,
   removeNode
 } from '@campfire/utils/directiveUtils'
+import {
+  applyAdditionalAttributes,
+  getClassAttr,
+  getStyleAttr,
+  removeDirectiveMarker,
+  isMarkerParagraph
+} from '@campfire/utils/directiveHandlerUtils'
 
 const DIRECTIVE_MARKER = ':::'
 
 export interface FormHandlerContext {
   addError: (msg: string) => void
   getGameData: () => Record<string, unknown>
-  getClassAttr: (attrs: Record<string, unknown>) => string
-  getStyleAttr: (attrs: Record<string, unknown>) => string | undefined
-  applyAdditionalAttributes: (
-    source: Record<string, unknown>,
-    target: Record<string, unknown>,
-    exclude: readonly string[]
-  ) => void
-  removeDirectiveMarker: (parent: Parent, index: number) => void
   isWhitespaceNode: (node: RootContent) => boolean
-  isMarkerParagraph: (node: RootContent) => boolean
   interactiveEvents: Set<string>
   handleWrapper: DirectiveHandler
 }
@@ -46,12 +44,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
   const {
     addError,
     getGameData,
-    getClassAttr,
-    getStyleAttr,
-    applyAdditionalAttributes,
-    removeDirectiveMarker,
     isWhitespaceNode,
-    isMarkerParagraph,
     interactiveEvents,
     handleWrapper
   } = ctx
@@ -106,8 +99,8 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr = getClassAttr(attrs)
-      const styleAttr = getStyleAttr(attrs)
+      const classAttr = getClassAttr(attrs, getGameData())
+      const styleAttr = getStyleAttr(attrs, getGameData())
       const placeholder =
         typeof attrs.placeholder === 'string' ? attrs.placeholder : undefined
       const initialValue =
@@ -121,14 +114,12 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       if (styleAttr) props.style = styleAttr
       if (placeholder) props.placeholder = placeholder
       if (initialValue) props.initialValue = initialValue
-      applyAdditionalAttributes(attrs, props, [
-        'className',
-        'style',
-        'placeholder',
-        'type',
-        'value',
-        'defaultValue'
-      ])
+      applyAdditionalAttributes(
+        attrs,
+        props,
+        ['className', 'style', 'placeholder', 'type', 'value', 'defaultValue'],
+        addError
+      )
       const node: Parent = {
         type: 'paragraph',
         children: [],
@@ -148,8 +139,8 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr = getClassAttr(attrs)
-      const styleAttr = getStyleAttr(attrs)
+      const classAttr = getClassAttr(attrs, getGameData())
+      const styleAttr = getStyleAttr(attrs, getGameData())
       const placeholder =
         typeof attrs.placeholder === 'string' ? attrs.placeholder : undefined
       const initialValue =
@@ -194,14 +185,12 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       if (events.onMouseLeave) props.onMouseLeave = events.onMouseLeave
       if (events.onFocus) props.onFocus = events.onFocus
       if (events.onBlur) props.onBlur = events.onBlur
-      applyAdditionalAttributes(attrs, props, [
-        'className',
-        'style',
-        'placeholder',
-        'type',
-        'value',
-        'defaultValue'
-      ])
+      applyAdditionalAttributes(
+        attrs,
+        props,
+        ['className', 'style', 'placeholder', 'type', 'value', 'defaultValue'],
+        addError
+      )
       const node: Parent = {
         type: 'paragraph',
         children: [],
@@ -232,8 +221,8 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr = getClassAttr(attrs)
-      const styleAttr = getStyleAttr(attrs)
+      const classAttr = getClassAttr(attrs, getGameData())
+      const styleAttr = getStyleAttr(attrs, getGameData())
       const initialValue =
         typeof attrs.value === 'string'
           ? attrs.value
@@ -246,13 +235,12 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
       if (styleAttr) props.style = styleAttr
       if (initialValue) props.initialValue = initialValue
-      applyAdditionalAttributes(attrs, props, [
-        'className',
-        'style',
-        'value',
-        'defaultValue',
-        'checked'
-      ])
+      applyAdditionalAttributes(
+        attrs,
+        props,
+        ['className', 'style', 'value', 'defaultValue', 'checked'],
+        addError
+      )
       const node: Parent = {
         type: 'paragraph',
         children: [],
@@ -273,8 +261,8 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr = getClassAttr(attrs)
-      const styleAttr = getStyleAttr(attrs)
+      const classAttr = getClassAttr(attrs, getGameData())
+      const styleAttr = getStyleAttr(attrs, getGameData())
       const initialValue =
         typeof attrs.value === 'string'
           ? attrs.value
@@ -318,13 +306,12 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       if (events.onMouseLeave) props.onMouseLeave = events.onMouseLeave
       if (events.onFocus) props.onFocus = events.onFocus
       if (events.onBlur) props.onBlur = events.onBlur
-      applyAdditionalAttributes(attrs, props, [
-        'className',
-        'style',
-        'value',
-        'defaultValue',
-        'checked'
-      ])
+      applyAdditionalAttributes(
+        attrs,
+        props,
+        ['className', 'style', 'value', 'defaultValue', 'checked'],
+        addError
+      )
       const node: Parent = {
         type: 'paragraph',
         children: [],
@@ -355,8 +342,8 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr = getClassAttr(attrs)
-      const styleAttr = getStyleAttr(attrs)
+      const classAttr = getClassAttr(attrs, getGameData())
+      const styleAttr = getStyleAttr(attrs, getGameData())
       const valueAttr = typeof attrs.value === 'string' ? attrs.value : ''
       const initialValue =
         typeof attrs.defaultValue === 'string'
@@ -371,13 +358,12 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
       if (styleAttr) props.style = styleAttr
       if (initialValue) props.initialValue = initialValue
-      applyAdditionalAttributes(attrs, props, [
-        'className',
-        'style',
-        'value',
-        'defaultValue',
-        'checked'
-      ])
+      applyAdditionalAttributes(
+        attrs,
+        props,
+        ['className', 'style', 'value', 'defaultValue', 'checked'],
+        addError
+      )
       const node: Parent = {
         type: 'emphasis',
         children: [],
@@ -398,8 +384,8 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr = getClassAttr(attrs)
-      const styleAttr = getStyleAttr(attrs)
+      const classAttr = getClassAttr(attrs, getGameData())
+      const styleAttr = getStyleAttr(attrs, getGameData())
       const valueAttr = typeof attrs.value === 'string' ? attrs.value : ''
       const initialValue =
         typeof attrs.defaultValue === 'string'
@@ -445,13 +431,12 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       if (events.onMouseLeave) props.onMouseLeave = events.onMouseLeave
       if (events.onFocus) props.onFocus = events.onFocus
       if (events.onBlur) props.onBlur = events.onBlur
-      applyAdditionalAttributes(attrs, props, [
-        'className',
-        'style',
-        'value',
-        'defaultValue',
-        'checked'
-      ])
+      applyAdditionalAttributes(
+        attrs,
+        props,
+        ['className', 'style', 'value', 'defaultValue', 'checked'],
+        addError
+      )
       const node: Parent = {
         type: 'paragraph',
         children: [],
@@ -482,8 +467,8 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr = getClassAttr(attrs)
-      const styleAttr = getStyleAttr(attrs)
+      const classAttr = getClassAttr(attrs, getGameData())
+      const styleAttr = getStyleAttr(attrs, getGameData())
       const placeholder =
         typeof attrs.placeholder === 'string' ? attrs.placeholder : undefined
       const initialValue =
@@ -497,13 +482,12 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       if (styleAttr) props.style = styleAttr
       if (placeholder) props.placeholder = placeholder
       if (initialValue) props.initialValue = initialValue
-      applyAdditionalAttributes(attrs, props, [
-        'className',
-        'style',
-        'placeholder',
-        'value',
-        'defaultValue'
-      ])
+      applyAdditionalAttributes(
+        attrs,
+        props,
+        ['className', 'style', 'placeholder', 'value', 'defaultValue'],
+        addError
+      )
       const node: Parent = {
         type: 'paragraph',
         children: [],
@@ -524,8 +508,8 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr = getClassAttr(attrs)
-      const styleAttr = getStyleAttr(attrs)
+      const classAttr = getClassAttr(attrs, getGameData())
+      const styleAttr = getStyleAttr(attrs, getGameData())
       const placeholder =
         typeof attrs.placeholder === 'string' ? attrs.placeholder : undefined
       const initialValue =
@@ -571,13 +555,12 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       if (events.onMouseLeave) props.onMouseLeave = events.onMouseLeave
       if (events.onFocus) props.onFocus = events.onFocus
       if (events.onBlur) props.onBlur = events.onBlur
-      applyAdditionalAttributes(attrs, props, [
-        'className',
-        'style',
-        'placeholder',
-        'value',
-        'defaultValue'
-      ])
+      applyAdditionalAttributes(
+        attrs,
+        props,
+        ['className', 'style', 'placeholder', 'value', 'defaultValue'],
+        addError
+      )
       const node: Parent = {
         type: 'paragraph',
         children: [],
@@ -617,17 +600,17 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       console.error(msg)
       addError(msg)
     }
-    const classAttr = getClassAttr(attrs)
-    const styleAttr = getStyleAttr(attrs)
+    const classAttr = getClassAttr(attrs, getGameData())
+    const styleAttr = getStyleAttr(attrs, getGameData())
     const props: Record<string, unknown> = { value }
     if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
     if (styleAttr) props.style = styleAttr
-    applyAdditionalAttributes(attrs, props, [
-      'value',
-      'label',
-      'className',
-      'style'
-    ])
+    applyAdditionalAttributes(
+      attrs,
+      props,
+      ['value', 'label', 'className', 'style'],
+      addError
+    )
 
     if (directive.type === 'leafDirective') {
       const labelAttr =
@@ -678,8 +661,8 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       console.error(msg)
       addError(msg)
     }
-    const classAttr = getClassAttr(attrs)
-    const styleAttr = getStyleAttr(attrs)
+    const classAttr = getClassAttr(attrs, getGameData())
+    const styleAttr = getStyleAttr(attrs, getGameData())
     const initialValue =
       typeof attrs.value === 'string'
         ? attrs.value
@@ -723,12 +706,12 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
     if (events.onMouseLeave) props.onMouseLeave = events.onMouseLeave
     if (events.onFocus) props.onFocus = events.onFocus
     if (events.onBlur) props.onBlur = events.onBlur
-    applyAdditionalAttributes(attrs, props, [
-      'className',
-      'style',
-      'value',
-      'defaultValue'
-    ])
+    applyAdditionalAttributes(
+      attrs,
+      props,
+      ['className', 'style', 'value', 'defaultValue'],
+      addError
+    )
     const node: Parent = {
       type: 'paragraph',
       children: options as RootContent[],
@@ -759,9 +742,9 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
             | undefined)
         : rawLabel
     const defaultLabel = evaluatedLabel ?? getLabel(container)
-    const classAttr = getClassAttr(attrs)
+    const classAttr = getClassAttr(attrs, getGameData())
     const disabledAttr = attrs.disabled
-    const styleAttr = getStyleAttr(attrs)
+    const styleAttr = getStyleAttr(attrs, getGameData())
     const processedForLabel = runDirectiveBlock(
       expandIndentedCode(container.children as RootContent[]),
       { wrapper: handleWrapper }
@@ -825,7 +808,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       } else {
         const first = wrappersRaw[0]
         const wattrs = (first.attributes || {}) as Record<string, unknown>
-        const classAttr = getClassAttr(wattrs)
+        const classAttr = getClassAttr(wattrs, getGameData())
         const labelEl: Parent = {
           type: 'paragraph',
           children: (first.children as RootContent[]) || [],
