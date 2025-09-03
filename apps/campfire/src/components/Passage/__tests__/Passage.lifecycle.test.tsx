@@ -234,7 +234,7 @@ describe('Passage lifecycle directives', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':::onExit\n:goto[Two]\n:::' }]
+      children: [{ type: 'text', value: ':::onExit\n::goto[Two]\n:::' }]
     }
 
     useStoryDataStore.setState({
