@@ -973,13 +973,39 @@ export const useDirectiveHandlers = () => {
     return removeNode(parent, index)
   }
 
+  /**
+   * Converts `::option` or `:::option` directives into option elements. The leaf
+   * form uses the `label` attribute for display text, while the container form
+   * renders its child nodes, allowing formatting via directives like
+   * `wrapper`. Inline `:option` directives are rejected.
+   *
+   * @param directive - The option directive node.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within its parent.
+   * @returns The index of the inserted node or removal result.
+   */
   const handleOption: DirectiveHandler = (directive, parent, index) => {
     if (!parent || typeof index !== 'number') return
+    if (directive.type === 'textDirective') {
+      const msg = 'option cannot be used as an inline directive'
+      console.error(msg)
+      addError(msg)
+      return removeNode(parent, index)
+    }
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const value = typeof attrs.value === 'string' ? attrs.value : undefined
-    const label = typeof attrs.label === 'string' ? attrs.label : undefined
-    if (!value || !label) {
-      const msg = 'option requires value and label attributes'
+    if (!value) {
+      const msg = 'option requires a value attribute'
+      console.error(msg)
+      addError(msg)
+      return removeNode(parent, index)
+    }
+    const labelAttr =
+      directive.type === 'leafDirective' && typeof attrs.label === 'string'
+        ? attrs.label
+        : undefined
+    if (directive.type === 'leafDirective' && !labelAttr) {
+      const msg = 'option leaf directives require a label attribute'
       console.error(msg)
       addError(msg)
       return removeNode(parent, index)
@@ -991,12 +1017,6 @@ export const useDirectiveHandlers = () => {
     }
     const classAttr = getClassAttr(attrs)
     const styleAttr = getStyleAttr(attrs)
-    const initialValue =
-      typeof attrs.value === 'string'
-        ? attrs.value
-        : typeof attrs.defaultValue === 'string'
-          ? attrs.defaultValue
-          : undefined
     const props: Record<string, unknown> = { value }
     if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
     if (styleAttr) props.style = styleAttr
@@ -1006,14 +1026,34 @@ export const useDirectiveHandlers = () => {
       'className',
       'style'
     ])
+
+    if (directive.type === 'leafDirective') {
+      const node: Parent = {
+        type: 'paragraph',
+        children: [{ type: 'text', value: labelAttr! }],
+        data: { hName: 'option', hProperties: props as Properties }
+      }
+      return replaceWithIndentation(directive, parent, index, [
+        node as RootContent
+      ])
+    }
+
+    const container = directive as ContainerDirective
+    const rawChildren = runDirectiveBlock(
+      expandIndentedCode(container.children as RootContent[])
+    )
+    const children = rawChildren.filter(node => !isWhitespaceNode(node))
     const node: Parent = {
       type: 'paragraph',
-      children: [{ type: 'text', value: label }],
+      children: children as RootContent[],
       data: { hName: 'option', hProperties: props as Properties }
     }
-    return replaceWithIndentation(directive, parent, index, [
+    const newIndex = replaceWithIndentation(directive, parent, index, [
       node as RootContent
     ])
+    const markerIndex = newIndex + 1
+    removeDirectiveMarker(parent, markerIndex)
+    return [SKIP, newIndex]
   }
 
   /**
