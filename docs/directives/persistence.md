@@ -97,3 +97,25 @@ backticks unless referencing a state key.
 | Input | Description           |
 | ----- | --------------------- |
 | id    | Storage key to remove |
+
+### `listSavedGames`
+
+Retrieve metadata for existing saves. This helper scans `localStorage` for
+keys starting with `campfire.save` and returns their labels, passage ids, and
+timestamps when available. Call the function in a directive expression and
+build a list of triggers that load each save when clicked:
+
+```md
+::set[saves=listSavedGames()]
+:::for[save in saves]
+:::trigger{label=save.label||save.id}
+::load{id=save.id}
+:::
+:::
+```
+
+Provide a custom prefix to scan a different namespace:
+
+```md
+::set[demoSaves=listSavedGames('demo-')]
+```

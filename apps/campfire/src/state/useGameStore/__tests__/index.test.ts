@@ -1,4 +1,4 @@
-import { useGameStore } from '../index'
+import { useGameStore, listSavedGames } from '../index'
 import { describe, it, expect, beforeEach } from 'bun:test'
 
 // Reset store state before each test
@@ -12,6 +12,7 @@ beforeEach(() => {
     loading: false
   })
   useGameStore.getState().init({})
+  localStorage.clear()
 })
 
 describe('useGameStore', () => {
@@ -113,5 +114,39 @@ describe('useGameStore', () => {
     expect(useGameStore.getState().errors).toEqual(['test'])
     useGameStore.getState().clearErrors()
     expect(useGameStore.getState().errors).toEqual([])
+  })
+
+  it('lists saved games and skips malformed entries', () => {
+    localStorage.clear()
+    localStorage.setItem(
+      'campfire.save.one',
+      JSON.stringify({ label: 'One', currentPassageId: '1', timestamp: 1 })
+    )
+    localStorage.setItem(
+      'campfire.save.two',
+      JSON.stringify({ currentPassageId: '2' })
+    )
+    localStorage.setItem('campfire.save.bad', '{invalid')
+    localStorage.setItem('other', JSON.stringify({ currentPassageId: '3' }))
+
+    const saves = listSavedGames()
+    expect(saves).toHaveLength(2)
+    expect(saves).toEqual(
+      expect.arrayContaining([
+        {
+          id: 'campfire.save.one',
+          label: 'One',
+          currentPassageId: '1',
+          timestamp: 1
+        },
+        { id: 'campfire.save.two', currentPassageId: '2' }
+      ])
+    )
+  })
+
+  it('exposes listSavedGames globally for directive expressions', () => {
+    expect((globalThis as { listSavedGames?: unknown }).listSavedGames).toBe(
+      listSavedGames
+    )
   })
 })

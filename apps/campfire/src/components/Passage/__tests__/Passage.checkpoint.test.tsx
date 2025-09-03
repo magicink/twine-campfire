@@ -353,6 +353,74 @@ describe('Passage checkpoint directives', () => {
     expect(useGameStore.getState().loading).toBe(false)
   })
 
+  it('lists saves and loads a selected entry', async () => {
+    localStorage.setItem(
+      'campfire.save1',
+      JSON.stringify({
+        label: 'One',
+        gameData: { hp: 1 },
+        lockedKeys: {},
+        onceKeys: {},
+        checkpoints: {},
+        currentPassageId: '2'
+      })
+    )
+    localStorage.setItem(
+      'campfire.save2',
+      JSON.stringify({
+        label: 'Two',
+        gameData: { hp: 2 },
+        lockedKeys: {},
+        onceKeys: {},
+        checkpoints: {},
+        currentPassageId: '3'
+      })
+    )
+
+    const start: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            '::set[saves=listSavedGames()]\n' +
+            ':::for[save in saves]\n' +
+            ':::trigger{label=save.label||save.id}\n' +
+            '::load{id=save.id}\n' +
+            ':::\n' +
+            ':::'
+        }
+      ]
+    }
+    const second: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '2', name: 'Second' },
+      children: [{ type: 'text', value: 'Second' }]
+    }
+    const third: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '3', name: 'Third' },
+      children: [{ type: 'text', value: 'Third' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [start, second, third],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+    const buttons = await screen.findAllByRole('button')
+    expect(buttons.map(b => b.textContent)).toEqual(['One', 'Two'])
+
+    act(() => {
+      buttons[1].click()
+    })
+  })
+
   it('stores error when loadCheckpoint cannot find a checkpoint', async () => {
     const logged: unknown[] = []
     const orig = console.error
