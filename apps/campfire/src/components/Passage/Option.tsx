@@ -14,6 +14,21 @@ export interface OptionProps
 }
 
 /**
+ * Generate a deterministic, valid HTML id for an option value.
+ *
+ * @param value - Raw option value.
+ * @returns Sanitized id string.
+ */
+export const getOptionId = (value: string) => {
+  const slug = value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+  return `option-${slug}`
+}
+
+/**
  * Option element used within a select directive.
  *
  * @param className - Optional additional classes.
@@ -40,7 +55,7 @@ export const Option = ({
           background: 'oklch(0.98 0 0)',
           ...(style ?? {})
         }
-  const id = `option-${value.replace(/\s+/g, '-')}`
+  const id = getOptionId(value)
   return (
     <button
       type='button'

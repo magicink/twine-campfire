@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'bun:test'
 import { render, fireEvent } from '@testing-library/preact'
 import { Select } from '@campfire/components/Passage/Select'
-import { Option } from '@campfire/components/Passage/Option'
+import { Option, getOptionId } from '@campfire/components/Passage/Option'
 import { useGameStore } from '@campfire/state/useGameStore'
 
 /**
@@ -148,19 +148,40 @@ describe('Select', () => {
     useGameStore.setState({ gameData: {} })
     const { getByTestId } = render(
       <Select stateKey='field'>
-        <Option value='a'>A</Option>
-        <Option value='b'>B</Option>
+        <Option value='Value One'>One</Option>
+        <Option value='Value Two!'>Two</Option>
       </Select>
     )
     const trigger = getByTestId('select')
     fireEvent.keyDown(trigger, { key: 'ArrowDown' })
     await new Promise(r => setTimeout(r, 0))
-    expect(trigger.getAttribute('aria-activedescendant')).toBe('option-a')
+    expect(trigger.getAttribute('aria-activedescendant')).toBe(
+      getOptionId('Value One')
+    )
     fireEvent.keyDown(trigger, { key: 'ArrowDown' })
-    expect(trigger.getAttribute('aria-activedescendant')).toBe('option-b')
+    expect(trigger.getAttribute('aria-activedescendant')).toBe(
+      getOptionId('Value Two!')
+    )
     fireEvent.keyDown(trigger, { key: 'Enter' })
     expect(
       (useGameStore.getState().gameData as Record<string, unknown>).field
-    ).toBe('b')
+    ).toBe('Value Two!')
+  })
+
+  it('sanitizes option ids for special characters', async () => {
+    useGameStore.setState({ gameData: {} })
+    const { getByTestId, getByRole } = render(
+      <Select stateKey='field'>
+        <Option value='A B!'>AB</Option>
+      </Select>
+    )
+    const trigger = getByTestId('select')
+    fireEvent.click(trigger)
+    const option = getByRole('option')
+    const expected = getOptionId('A B!')
+    expect(option.id).toBe(expected)
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' })
+    await new Promise(r => setTimeout(r, 0))
+    expect(trigger.getAttribute('aria-activedescendant')).toBe(expected)
   })
 })
