@@ -83,12 +83,15 @@ export const createNavigationHandlers = (ctx: NavigationHandlerContext) => {
    * Retrieves a string or numeric value from the game state by key.
    *
    * @param key - The game state key to read.
+   * @param data - The game state snapshot to inspect.
    * @returns The value as a string if present, otherwise undefined.
    */
-  const getStateValue = (key: string): string | undefined => {
-    const data = getGameData()
+  const getStateValue = (
+    key: string,
+    data: Record<string, unknown>
+  ): string | undefined => {
     if (!Object.hasOwn(data, key)) return undefined
-    const value = (data as Record<string, unknown>)[key]
+    const value = data[key]
     return typeof value === 'string' || typeof value === 'number'
       ? String(value)
       : undefined
@@ -113,10 +116,11 @@ export const createNavigationHandlers = (ctx: NavigationHandlerContext) => {
     }
     const attr =
       typeof attrs.passage === 'string' ? attrs.passage.trim() : undefined
-    return attr
-      ? (getQuotedValue(attr) ??
-          (NUMERIC_PATTERN.test(attr) ? attr : getStateValue(attr)))
-      : undefined
+    if (!attr) return undefined
+    const quoted = getQuotedValue(attr)
+    if (quoted) return quoted
+    if (NUMERIC_PATTERN.test(attr)) return attr
+    return getStateValue(attr, getGameData())
   }
 
   /**
