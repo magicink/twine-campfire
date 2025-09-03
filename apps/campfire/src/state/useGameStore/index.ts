@@ -71,6 +71,52 @@ export interface Checkpoint<T = Record<string, unknown>>
   timestamp: number
 }
 
+export interface SavedGame {
+  /** Storage key for the save */
+  id: string
+  /** Optional label for the save */
+  label?: string
+  /** Passage where the save occurs */
+  currentPassageId?: string
+  /** Timestamp recorded when the save was created */
+  timestamp?: number
+}
+
+/**
+ * Lists saved game entries in local storage.
+ *
+ * @param prefix - Key prefix to match against storage entries.
+ * @returns An array of saved game metadata.
+ */
+export const listSavedGames = (prefix = 'campfire.save'): SavedGame[] => {
+  const saves: SavedGame[] = []
+  if (typeof localStorage === 'undefined') return saves
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i)
+    if (!key || !key.startsWith(prefix)) continue
+    const raw = localStorage.getItem(key)
+    if (!raw) continue
+    try {
+      const data = JSON.parse(raw) as {
+        label?: string
+        currentPassageId?: string
+        timestamp?: number
+      }
+      saves.push({
+        id: key,
+        label: data.label,
+        currentPassageId: data.currentPassageId,
+        timestamp: data.timestamp
+      })
+    } catch {
+      // skip malformed entries
+    }
+  }
+  return saves
+}
+;(globalThis as { listSavedGames?: typeof listSavedGames }).listSavedGames =
+  listSavedGames
+
 export const useGameStore = create(
   subscribeWithSelector<InternalState<Record<string, unknown>>>((set, get) => {
     const immer = setImmer<InternalState<Record<string, unknown>>>(set)
