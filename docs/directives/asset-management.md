@@ -42,7 +42,7 @@ Supports a `from` attribute to apply presets and uses `layerClassName` and `laye
 Preload an image for later use.
 
 ```md
-:preloadImage[titleScreen]{src='images/title.png'}
+::preloadImage[titleScreen]{src='images/title.png'}
 ```
 
 | Attribute | Description                     |
@@ -57,7 +57,7 @@ Preload an image for later use.
 Preload an audio file for later use.
 
 ```md
-:preloadAudio[click]{src='audio/click.wav'}
+::preloadAudio[click]{src='audio/click.wav'}
 ```
 
 | Attribute | Description                    |
@@ -70,7 +70,7 @@ Preload an audio file for later use.
 Play a one-off sound effect.
 
 ```md
-:sound[click]{volume=0.5 delay=200}
+::sound[click]{volume=0.5 delay=200}
 ```
 
 | Attribute | Description                         |
@@ -86,8 +86,8 @@ Play a one-off sound effect.
 Control background music. Use `stop=true` to stop.
 
 ```md
-:bgm[forest]{volume=0.4 loop=true fade=1000}
-:bgm{stop=true fade=500}
+::bgm[forest]{volume=0.4 loop=true fade=1000}
+::bgm{stop=true fade=500}
 ```
 
 | Attribute | Description                                    |
@@ -104,7 +104,7 @@ Control background music. Use `stop=true` to stop.
 Set global volume levels.
 
 ```md
-:volume{bgm=0.2 sfx=0.8}
+::volume{bgm=0.2 sfx=0.8}
 ```
 
 | Attribute | Description                      |

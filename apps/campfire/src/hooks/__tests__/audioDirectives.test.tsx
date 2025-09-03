@@ -34,7 +34,7 @@ describe('audio directives', () => {
     const nodes = unified()
       .use(remarkParse)
       .use(remarkDirective)
-      .parse(":sound[click]{src='click.wav' volume=0.5 delay=100}")
+      .parse("::sound[click]{src='click.wav' volume=0.5 delay=100}")
       .children as RootContent[]
     runDirectiveBlock(nodes, handlers)
     expect(spy).toHaveBeenCalled()
@@ -46,7 +46,7 @@ describe('audio directives', () => {
     const nodes = unified()
       .use(remarkParse)
       .use(remarkDirective)
-      .parse(":bgm[theme]{src='theme.mp3' volume=0.4 loop=false fade=200}")
+      .parse("::bgm[theme]{src='theme.mp3' volume=0.4 loop=false fade=200}")
       .children as RootContent[]
     runDirectiveBlock(nodes, handlers)
     expect(spy).toHaveBeenCalled()
@@ -58,7 +58,7 @@ describe('audio directives', () => {
     const nodes = unified()
       .use(remarkParse)
       .use(remarkDirective)
-      .parse(":sound{src='beep.mp3'}").children as RootContent[]
+      .parse("::sound{src='beep.mp3'}").children as RootContent[]
     runDirectiveBlock(nodes, handlers)
     expect(spy).toHaveBeenCalled()
     expect(spy.mock.calls[0][0]).toBe('beep.mp3')
@@ -71,7 +71,7 @@ describe('audio directives', () => {
     const nodes = unified()
       .use(remarkParse)
       .use(remarkDirective)
-      .parse(":bgm{src='ambient.mp3'}").children as RootContent[]
+      .parse("::bgm{src='ambient.mp3'}").children as RootContent[]
     runDirectiveBlock(nodes, handlers)
     expect(spy).toHaveBeenCalled()
     expect(spy.mock.calls[0][0]).toBe('ambient.mp3')
@@ -84,7 +84,7 @@ describe('audio directives', () => {
     const nodes = unified()
       .use(remarkParse)
       .use(remarkDirective)
-      .parse(':bgm{stop=true fade=300}').children as RootContent[]
+      .parse('::bgm{stop=true fade=300}').children as RootContent[]
     runDirectiveBlock(nodes, handlers)
     expect(spy).toHaveBeenCalledWith(300)
     spy.mockRestore()
@@ -96,7 +96,7 @@ describe('audio directives', () => {
     const nodes = unified()
       .use(remarkParse)
       .use(remarkDirective)
-      .parse(':volume{bgm=0.2 sfx=0.7}').children as RootContent[]
+      .parse('::volume{bgm=0.2 sfx=0.7}').children as RootContent[]
     runDirectiveBlock(nodes, handlers)
     expect(bgmSpy).toHaveBeenCalledWith(0.2)
     expect(sfxSpy).toHaveBeenCalledWith(0.7)
