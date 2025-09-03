@@ -36,6 +36,7 @@ General
 - Wrap literal strings in quotes or backticks unless referencing a state key.
 - To pass an object or array via an attribute, do not wrap the JSON in quotes, e.g., `:d{options={a:1}}` or valid JSON `:d{options={"a":1}}`.
 - Safe attribute characters: attribute extraction only accepts values composed of safe characters to reduce injection risk.
+- New directive attributes must be exposed through their handlers and accompanied by directive tests verifying their behavior.
 
 Special cases (validation enforced by remark plugin)
 
