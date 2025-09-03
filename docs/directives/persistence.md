@@ -108,8 +108,7 @@ build a list of triggers that load each save when clicked:
 ```md
 ::set[saves=listSavedGames()]
 :::for[save in saves]
-:::trigger
-:show[save.label ?? save.id]
+:::trigger{label=save.label||save.id}
 ::load{id=save.id}
 :::
 :::

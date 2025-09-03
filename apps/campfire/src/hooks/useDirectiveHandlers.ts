@@ -52,6 +52,7 @@ import {
 } from '@campfire/utils/math'
 import {
   parseTypedValue,
+  parseAttributeValue,
   extractKeyValue,
   replaceWithIndentation,
   expandIndentedCode,
@@ -1881,8 +1882,14 @@ export const useDirectiveHandlers = () => {
       addError(msg)
     }
     // Default label from attribute or container label paragraph
-    const defaultLabel =
-      typeof attrs.label === 'string' ? attrs.label : getLabel(container)
+    const rawLabel = typeof attrs.label === 'string' ? attrs.label : undefined
+    const evaluatedLabel =
+      rawLabel && /[.()?:|&]/.test(rawLabel)
+        ? (parseAttributeValue(rawLabel, { type: 'string' }, gameData) as
+            | string
+            | undefined)
+        : rawLabel
+    const defaultLabel = evaluatedLabel ?? getLabel(container)
     const classAttr = getClassAttr(attrs)
     const disabledAttr = attrs.disabled
     const styleAttr = getStyleAttr(attrs)
