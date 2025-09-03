@@ -76,19 +76,38 @@ export const requireLeafDirective = (
  * @param index - Index of the marker within the parent.
  */
 export const removeDirectiveMarker = (parent: Parent, index: number): void => {
-  const marker = parent.children[index] as Paragraph
-  if (!marker || marker.type !== 'paragraph') return
-  let text = (marker.children[0] as MdText | undefined)?.value ?? ''
+  const node = parent.children[index] as RootContent | undefined
+  if (!node) return
+  if (node.type === 'text') {
+    let text = (node as MdText).value
+    if (text.trim() === DIRECTIVE_MARKER) {
+      parent.children.splice(index, 1)
+      return
+    }
+    text = text.split(DIRECTIVE_MARKER).join('')
+    if (text === (node as MdText).value) return
+    if (text.trim()) {
+      ;(node as MdText).value = text
+    } else {
+      parent.children.splice(index, 1)
+    }
+    return
+  }
+  if (node.type !== 'paragraph') return
+  const first = (node as Paragraph).children[0]
+  if (!first || first.type !== 'text') return
+  let text = (first as MdText).value
   if (text.trim() === DIRECTIVE_MARKER) {
     parent.children.splice(index, 1)
     return
   }
-  text = text.replace(DIRECTIVE_MARKER, '')
-  if (!text.trim()) {
-    parent.children.splice(index, 1)
+  text = text.split(DIRECTIVE_MARKER).join('')
+  if (text === (first as MdText).value) return
+  if (text.trim()) {
+    ;(first as MdText).value = text
     return
   }
-  ;(marker.children[0] as MdText).value = text
+  parent.children.splice(index, 1)
 }
 
 /**
