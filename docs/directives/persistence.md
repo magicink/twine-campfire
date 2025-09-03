@@ -102,15 +102,16 @@ backticks unless referencing a state key.
 
 Retrieve metadata for existing saves. This helper scans `localStorage` for
 keys starting with `campfire.save` and returns their labels, passage ids, and
-timestamps when available.
-Call the function in a directive expression and iterate over the results:
+timestamps when available. Call the function in a directive expression and
+build a list of triggers that load each save when clicked:
 
 ```md
 ::set[saves=listSavedGames()]
 :::for[save in saves]
-
-:show[save.id]
-
+:::trigger
+:show[save.label ?? save.id]
+::load{id=save.id}
+:::
 :::
 ```
 
