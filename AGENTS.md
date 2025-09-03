@@ -2,6 +2,7 @@
 
 - Always run a type check (`bun tsc` or `tsc`) before committing. This helps catch type errors early.
 - After making changes, run `bun test` to verify the test suite passes.
+- Run Prettier (`bunx prettier . --write`) once just before finishing up your changes.
 - When writing tests, exercise both truthy and falsey paths for conditional logic.
 - Prefer arrow functions for holding functions when possible.
 - Include JSDoc comments for all functions and components.
