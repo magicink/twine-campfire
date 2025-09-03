@@ -74,6 +74,7 @@ import {
   type StateManagerType
 } from '@campfire/state/stateManager'
 import { createStateHandlers } from './handlers/stateHandlers'
+import { createControlFlowHandlers } from './handlers/controlFlowHandlers'
 
 const NUMERIC_PATTERN = /^\d+$/
 const ALLOWED_ONEXIT_DIRECTIVES = new Set([
@@ -401,121 +402,6 @@ export const useDirectiveHandlers = () => {
   }
 
   /**
-   * Serializes `:::if` directive blocks into `<if>` components that
-   * evaluate a test expression against game data and render optional
-   * fallback content when the expression is falsy.
-   */
-  const handleIf: DirectiveHandler = (directive, parent, index) => {
-    // TODO(campfire): Add tests for truthy/falsy branches, nested containers,
-    // and marker-only closing nodes appearing as paragraph vs. bare text.
-    if (!parent || typeof index !== 'number') return
-    const container = directive as ContainerDirective
-    const children = container.children as RootContent[]
-    let expr = getLabel(container) || ''
-    if (!expr) {
-      const attrs = container.attributes || {}
-      const [firstKey, firstValue] = Object.entries(attrs)[0] || []
-      if (firstKey) {
-        if (firstValue === '' || typeof firstValue === 'undefined') {
-          expr = firstKey
-        } else {
-          const valStr = String(firstValue).trim()
-          const valueExpr =
-            valStr === 'true' ||
-            valStr === 'false' ||
-            /^-?\d+(?:\.\d+)?$/.test(valStr)
-              ? valStr
-              : JSON.stringify(valStr)
-          expr = `${firstKey} === ${valueExpr}`
-        }
-      }
-    }
-    const elseIndex = children.findIndex(
-      child =>
-        child.type === 'containerDirective' &&
-        (child as ContainerDirective).name === 'else'
-    )
-    const elseSiblingIndex = parent.children.findIndex(
-      (child, i) =>
-        i > index &&
-        child.type === 'containerDirective' &&
-        (child as ContainerDirective).name === 'else'
-    )
-    let fallbackNodes: RootContent[] | undefined
-    let main = children
-    if (elseIndex !== -1) {
-      const next = children[elseIndex] as ContainerDirective
-      main = children.slice(0, elseIndex)
-      fallbackNodes = next.children as RootContent[]
-    } else if (elseSiblingIndex !== -1) {
-      const next = parent.children[elseSiblingIndex] as ContainerDirective
-      fallbackNodes = next.children as RootContent[]
-      const markerIndex = removeNode(parent, elseSiblingIndex)
-      if (typeof markerIndex === 'number') {
-        removeDirectiveMarker(parent, markerIndex)
-      }
-    }
-    /**
-     * Strips directive labels, runs preprocessing and removes empty text nodes.
-     *
-     * @param nodes - Nodes to prepare for serialization.
-     * @returns Cleaned array without whitespace-only text nodes.
-     */
-    const processNodes = (nodes: RootContent[]): RootContent[] => {
-      const cloned = nodes.map(node => structuredClone(node))
-      const processed = runDirectiveBlock(expandIndentedCode(cloned))
-      const stripped = stripLabel(processed).map(node => {
-        if (node.type === 'paragraph' && node.children.length === 1) {
-          const child = node.children[0] as any
-          if (
-            child.type === 'containerDirective' &&
-            (child as ContainerDirective).name === 'if'
-          ) {
-            return child
-          }
-        }
-        return node
-      })
-      return stripped.filter(
-        node => !(isTextNode(node) && node.value.trim() === '')
-      )
-    }
-    const content = JSON.stringify(processNodes(main))
-    const fallback = fallbackNodes
-      ? JSON.stringify(processNodes(fallbackNodes))
-      : undefined
-    const node: Parent = {
-      type: 'paragraph',
-      children: [],
-      data: {
-        hName: 'if',
-        hProperties: fallback
-          ? { test: expr, content, fallback }
-          : { test: expr, content }
-      }
-    }
-    const newIndex = replaceWithIndentation(directive, parent, index, [
-      node as RootContent
-    ])
-    // Remove closing directive markers after the trigger block, skipping any whitespace-only nodes
-    let markerIndex = newIndex + 1
-    while (markerIndex < parent.children.length) {
-      const sibling = parent.children[markerIndex] as RootContent
-      if (isMarkerParagraph(sibling)) {
-        parent.children.splice(markerIndex, 1)
-        // Do not advance index; next sibling shifts into current index
-        continue
-      }
-      if (isWhitespaceNode(sibling)) {
-        markerIndex++
-        continue
-      }
-      break
-    }
-    return [SKIP, newIndex]
-  }
-
-  /**
    * Merges scoped state changes back into the parent state while optionally
    * excluding a loop variable key.
    *
@@ -542,231 +428,34 @@ export const useDirectiveHandlers = () => {
     onceKeys = state.getOnceKeys()
   }
 
-  /**
-   * Repeats the directive block for each item in an iterable expression.
-   *
-   * @param directive - The `for` directive node.
-   * @param parent - Parent node containing the directive.
-   * @param index - Index of the directive within the parent.
-   * @returns Visitor instruction tuple.
-   */
-  const handleFor: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
-    const container = directive as ContainerDirective
-    const label = getLabel(container).trim()
-    const match = label.match(/^([A-Za-z_$][\w$]*)\s+in\s+(.+)$/)
-    if (!match) {
-      const msg = `Malformed for directive: ${label}`
-      console.error(msg)
-      addError(msg)
-      const removed = removeNode(parent, index)
-      if (typeof removed === 'number') removeDirectiveMarker(parent, removed)
-      return [SKIP, index]
-    }
-    const varKey = ensureKey(match[1], parent, index)
-    if (!varKey) return [SKIP, index]
-    const expr = match[2]
-
-    let iterableValue: unknown
-    try {
-      iterableValue = evalExpression(expr, gameData)
-      if (typeof iterableValue === 'undefined') {
-        iterableValue = parseTypedValue(expr, gameData)
-      }
-    } catch (error) {
-      console.warn(
-        `Failed to evaluate expression in for directive: ${expr}`,
-        error
-      )
-      iterableValue = parseTypedValue(expr, gameData)
-    }
-
-    let items: unknown[] = []
-    if (Array.isArray(iterableValue)) {
-      items = iterableValue
-    } else if (isRange(iterableValue)) {
-      for (let v = iterableValue.min; v <= iterableValue.max; v++) {
-        items.push(v)
-      }
-    }
-
-    const template = stripLabel(container.children as RootContent[])
-    const serializedTemplate = JSON.stringify(template)
-
-    /**
-     * Retrieves directive metadata from a node.
-     *
-     * @param node - The node to inspect.
-     * @returns The directive's hName and hProperties if available.
-     */
-    const getNodeData = (
-      node: unknown
-    ): { hName?: string; hProperties?: Record<string, unknown> } =>
-      (
-        node as {
-          data?: { hName?: string; hProperties?: Record<string, unknown> }
-        }
-      ).data || {}
-
-    const output: RootContent[] = []
-    for (const item of items) {
-      const scoped = state.createScope()
-      const prevState = state
-      state = scoped
-      gameData = scoped.getState()
-      lockedKeys = scoped.getLockedKeys()
-      onceKeys = scoped.getOnceKeys()
-
-      setValue(varKey, item)
-
-      const cloned = JSON.parse(serializedTemplate) as RootContent[]
-      const processed = runDirectiveBlock(
-        expandIndentedCode(cloned),
-        handlersRef.current
-      )
-
-      /**
-       * Expands loop variable references within the node tree by:
-       *
-       * - Replacing `show` directives that reference the loop variable with
-       *   plain text nodes containing the current item value.
-       * - Evaluating serialized `if` directive blocks and inlining their
-       *   `content` or `fallback` nodes so conditional checks involving the
-       *   loop variable resolve correctly without relying on state after the
-       *   loop iteration.
-       *
-       * @param nodes - Nodes to process for in-place expansion.
-       */
-      const expandLoopVars = (nodes: RootContent[]): void => {
-        for (let i = 0; i < nodes.length; i++) {
-          const node = nodes[i]
-          if (
-            (isTextNode(node) &&
-              node.data?.hName === 'show' &&
-              node.data.hProperties?.['data-key'] === varKey) ||
-            (node.type === 'textDirective' &&
-              (node as { name?: string }).name === 'show' &&
-              toString(node) === varKey)
-          ) {
-            nodes[i] = { type: 'text', value: String(item) }
-            continue
-          }
-          const { hName, hProperties: props } = getNodeData(node)
-          if (hName === 'if' && props) {
-            const testExpr = String(props.test)
-            let passes = false
-            try {
-              passes = Boolean(evalExpression(testExpr, gameData))
-            } catch {
-              try {
-                passes = Boolean(parseTypedValue(testExpr, gameData))
-              } catch {
-                passes = false
-              }
-            }
-            const key = passes ? 'content' : 'fallback'
-            const selected = props[key as 'content' | 'fallback']
-            const parsed =
-              typeof selected === 'string'
-                ? (JSON.parse(selected) as RootContent[])
-                : []
-            expandLoopVars(parsed)
-            nodes.splice(i, 1, ...parsed)
-            i += parsed.length - 1
-            continue
-          }
-          if ('children' in node) {
-            expandLoopVars(((node as Parent).children as RootContent[]) || [])
-          }
-        }
-      }
-
-      expandLoopVars(processed)
-      output.push(...processed)
-
-      mergeScopedChanges(prevState, scoped, varKey)
-    }
-
-    const newIndex = replaceWithIndentation(directive, parent, index, output)
-    const markerIndex = newIndex + output.length
-    removeDirectiveMarker(parent, markerIndex)
-    const offset = output.length > 0 ? output.length - 1 : 0
-    return [SKIP, newIndex + offset]
-  }
-
-  /**
-   * Inlines the children of `:::else` directives when present.
-   */
-  const handleElse: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
-    const container = directive as ContainerDirective
-    const content = stripLabel(container.children as RootContent[])
-    const newIndex = replaceWithIndentation(directive, parent, index, content)
-    const markerIndex = newIndex + content.length
-    removeDirectiveMarker(parent, markerIndex)
-    const offset = content.length > 0 ? content.length - 1 : 0
-    return [SKIP, newIndex + offset]
-  }
-
-  /**
-   * Executes a block of directives against a temporary state and commits
-   * the resulting changes in a single update.
-   * Only data directives are allowed; nested batch directives are not supported.
-   */
-  const handleBatch: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
-    if (
-      parent.type === 'containerDirective' &&
-      (parent as ContainerDirective).name === 'batch'
-    ) {
-      const msg = 'Nested batch directives are not allowed'
-      console.error(msg)
-      addError(msg)
-      removeNode(parent, index)
-      return [SKIP, index]
-    }
-
-    const container = directive as ContainerDirective
-    const allowed = ALLOWED_BATCH_DIRECTIVES
-    const expanded = expandIndentedCode(container.children as RootContent[])
-    const processedForFilter = runDirectiveBlock(expanded)
-    const stripped = stripLabel(processedForFilter)
-    const [filtered, invalid, nested] = filterDirectiveChildren(
-      stripped,
-      allowed,
-      BANNED_BATCH_DIRECTIVES
-    )
-    if (nested) {
-      const msg = 'Nested batch directives are not allowed'
-      console.error(msg)
-      addError(msg)
-    }
-    if (invalid) {
-      const allowedList = [...allowed].join(', ')
-      const msg = `batch only supports directives: ${allowedList}`
-      console.error(msg)
-      addError(msg)
-    }
-
-    const scoped = state.createScope()
-    const prevState = state
-    state = scoped
-    gameData = scoped.getState()
-    lockedKeys = scoped.getLockedKeys()
-    onceKeys = scoped.getOnceKeys()
-
-    runDirectiveBlock(expandIndentedCode(filtered), handlersRef.current)
-
-    const changes = scoped.getChanges()
-    state = prevState
-    state.applyChanges(changes)
-    gameData = state.getState()
-    lockedKeys = state.getLockedKeys()
-    onceKeys = state.getOnceKeys()
-
-    removeNode(parent, index)
-    return [SKIP, index]
-  }
+  const controlFlowHandlers = createControlFlowHandlers({
+    addError,
+    setValue,
+    mergeScopedChanges,
+    handlersRef,
+    getState: () => state,
+    setState: s => {
+      state = s
+    },
+    getGameData: () => gameData,
+    setGameData: data => {
+      gameData = data
+    },
+    getLockedKeys: () => lockedKeys,
+    setLockedKeys: keys => {
+      lockedKeys = keys
+    },
+    getOnceKeys: () => onceKeys,
+    setOnceKeys: keys => {
+      onceKeys = keys
+    },
+    removeDirectiveMarker,
+    isTextNode,
+    isWhitespaceNode,
+    isMarkerParagraph,
+    allowedBatchDirectives: ALLOWED_BATCH_DIRECTIVES,
+    bannedBatchDirectives: BANNED_BATCH_DIRECTIVES
+  })
 
   /**
    * Converts an `:input` directive into an Input component bound to game state.
@@ -3738,10 +3427,7 @@ export const useDirectiveHandlers = () => {
     const handlers = {
       ...stateDirectiveHandlers,
       show: handleShow,
-      if: handleIf,
-      for: handleFor,
-      else: handleElse,
-      batch: handleBatch,
+      ...controlFlowHandlers,
       option: handleOption,
       select: handleSelect,
       trigger: handleTrigger,
