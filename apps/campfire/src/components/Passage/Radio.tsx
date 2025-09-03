@@ -4,37 +4,23 @@ import { useDirectiveEvents } from '@campfire/hooks/useDirectiveEvents'
 import { mergeClasses, evalExpression } from '@campfire/utils/core'
 import { useGameStore } from '@campfire/state/useGameStore'
 import { radioStyles, radioIndicatorStyles } from '@campfire/utils/remarkStyles'
+import type { BoundFieldProps } from './BoundFieldProps'
 
 interface RadioProps
   extends Omit<
-    JSX.ButtonHTMLAttributes<HTMLButtonElement>,
-    | 'className'
-    | 'value'
-    | 'defaultValue'
-    | 'onFocus'
-    | 'onBlur'
-    | 'onMouseEnter'
-    | 'onMouseLeave'
-    | 'disabled'
-  > {
-  /** Key in game state to bind the radio selection to. */
-  stateKey: string
+      JSX.ButtonHTMLAttributes<HTMLButtonElement>,
+      | 'className'
+      | 'value'
+      | 'defaultValue'
+      | 'onFocus'
+      | 'onBlur'
+      | 'onMouseEnter'
+      | 'onMouseLeave'
+      | 'disabled'
+    >,
+    BoundFieldProps<string> {
   /** Value represented by this radio button. */
   value: string
-  /** Additional CSS classes for the radio element. */
-  className?: string | string[]
-  /** Serialized directives to run on mouse enter. */
-  onMouseEnter?: string
-  /** Serialized directives to run on mouse leave. */
-  onMouseLeave?: string
-  /** Serialized directives to run on focus. */
-  onFocus?: string
-  /** Serialized directives to run on blur. */
-  onBlur?: string
-  /** Initial value if the state key is unset. */
-  initialValue?: string
-  /** Boolean or state key controlling the disabled state. */
-  disabled?: boolean | string
 }
 
 /**
