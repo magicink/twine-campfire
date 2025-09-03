@@ -1,8 +1,5 @@
 import type { JSX } from 'preact'
-import {
-  useStoryDataStore,
-  type StoryDataState
-} from '@campfire/state/useStoryDataStore'
+import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
 import { mergeClasses } from '@campfire/utils/core'
 
 interface LinkButtonProps
@@ -27,9 +24,7 @@ export const LinkButton = ({
   className,
   ...rest
 }: LinkButtonProps) => {
-  const setCurrent = useStoryDataStore(
-    (state: StoryDataState) => state.setCurrentPassage
-  )
+  const setCurrentPassage = useStoryDataStore.use.setCurrentPassage()
   const pid = rest['data-pid']
   const name = rest['data-name']
   return (
@@ -48,7 +43,7 @@ export const LinkButton = ({
         if (e.defaultPrevented) return
         const target = pid ?? name
         if (target) {
-          setCurrent(target)
+          setCurrentPassage(target)
         }
       }}
     >
