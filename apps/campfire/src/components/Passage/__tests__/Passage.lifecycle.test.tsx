@@ -87,7 +87,7 @@ describe('Passage lifecycle directives', () => {
     const root = unified()
       .use(remarkParse)
       .use(remarkDirective)
-      .parse(':::batch\n::set[a=1]\n::unset{key=old}\n:::') as Root
+      .parse(':::batch\n::set[a=1]\n::unset[old]\n:::') as Root
     const content = JSON.stringify(root.children)
     const { unmount } = render(<OnExit content={content} />)
     act(() => {
