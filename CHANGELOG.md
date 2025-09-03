@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.100.0](https://github.com/magicink/twine-campfire/compare/v1.99.0...v1.100.0) (2025-09-03)
+
+
+### Features
+
+* **directives:** support id attributes for visual components ([#614](https://github.com/magicink/twine-campfire/issues/614)) ([5773d4c](https://github.com/magicink/twine-campfire/commit/5773d4c479a164bd4bb96db97581f65a02a2cd9b))
+* interpolate className and style attributes ([#618](https://github.com/magicink/twine-campfire/issues/618)) ([4fc0cb3](https://github.com/magicink/twine-campfire/commit/4fc0cb3dffe7e924a5faa86cb3f4064516dcc4ed))
+* restrict state directives to leaf form ([#622](https://github.com/magicink/twine-campfire/issues/622)) ([aed37a0](https://github.com/magicink/twine-campfire/commit/aed37a045db08da86c34037fc5b013eb213e0596))
+* **store:** list saved games ([#628](https://github.com/magicink/twine-campfire/issues/628)) ([454830b](https://github.com/magicink/twine-campfire/commit/454830bb30e91338807526eaa12bc954fbda0c3e))
+* support leaf image directive ([#621](https://github.com/magicink/twine-campfire/issues/621)) ([e532f2f](https://github.com/magicink/twine-campfire/commit/e532f2fed82060e29e358c2672dd1792e6bb02bb))
+* support state-driven disabled directives ([#617](https://github.com/magicink/twine-campfire/issues/617)) ([96652c2](https://github.com/magicink/twine-campfire/commit/96652c24845ce2d68372845272ba8b5657578bc7))
+
+
+### Bug Fixes
+
+* avoid paragraph wrapper around image directive ([#619](https://github.com/magicink/twine-campfire/issues/619)) ([a30e5d2](https://github.com/magicink/twine-campfire/commit/a30e5d234a9261fe4f71bcc146058839e674bf55))
+* restrict asset directives to leaf usage ([#625](https://github.com/magicink/twine-campfire/issues/625)) ([f03e205](https://github.com/magicink/twine-campfire/commit/f03e20569d6405ea83d91d2e3b33a7befb562bdb))
+* **utils:** preserve hyphenated strings during attr parsing ([#620](https://github.com/magicink/twine-campfire/issues/620)) ([4a02bf1](https://github.com/magicink/twine-campfire/commit/4a02bf14c41cf7d7a273bebf217c53b3034b3f73))
+* **wrapper:** allow image directives inside trigger wrapper ([#612](https://github.com/magicink/twine-campfire/issues/612)) ([0e1b665](https://github.com/magicink/twine-campfire/commit/0e1b6650b9ecda7d67976e09ab8752e8663dcbc5))
+
 ## [1.99.0](https://github.com/magicink/twine-campfire/compare/v1.98.0...v1.99.0) (2025-09-02)
 
 
