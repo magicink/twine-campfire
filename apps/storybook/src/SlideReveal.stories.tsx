@@ -25,6 +25,7 @@ const render: StoryObj<typeof SlideReveal>['render'] = () => (
         at={0}
         className='rounded'
         style={{ border: '2px solid oklch(0.85 0.1 200)' }}
+        onEnter='[]'
       >
         <SlideText
           as='h2'
