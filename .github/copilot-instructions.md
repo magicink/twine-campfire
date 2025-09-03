@@ -65,6 +65,7 @@ If a container directive nests another container and is followed by an inline di
 - If a directive attribute's value is surrounded by quotes or backticks, it MUST be treated as a string and NEVER converted into JSON, even if the contents of the string appear to be JSON.
 - Wrap string values in quotes or backticks unless referencing a state key.
 - To pass an object via an attribute, do not wrap the object in quotes (e.g., `:directive{attribute={key: val}}`).
+- When adding new directive attributes, expose them via the directive API and extend directive tests to cover them.
 
 ## Notes
 
