@@ -239,7 +239,7 @@ describe('Passage game state directives', () => {
         {
           type: 'text',
           value:
-            '\n:::batch\n::set[visited=true]\n::push{key=items value=sword}\n::unset{key=old}\n:::\n\n'
+            '\n:::batch\n::set[visited=true]\n::push{key=items value=sword}\n::unset[old]\n:::\n\n'
         }
       ]
     }
@@ -1061,7 +1061,7 @@ describe('Passage game state directives', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: '::unset{key=flag}' }]
+      children: [{ type: 'text', value: '::unset[flag]' }]
     }
 
     useStoryDataStore.setState({

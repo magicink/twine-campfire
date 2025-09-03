@@ -138,7 +138,11 @@ export const useDirectiveHandlers = () => {
   // TODO(campfire): This module is very large; consider splitting handlers
   // into focused files (e.g., state, array, deck/slide, overlay) to improve
   // maintainability and enable more targeted unit tests.
-  let state = createStateManager<Record<string, unknown>>()
+  const stateRef = useRef<StateManagerType<Record<string, unknown>>>()
+  if (!stateRef.current) {
+    stateRef.current = createStateManager<Record<string, unknown>>()
+  }
+  let state = stateRef.current
   let gameData = state.getState()
   let lockedKeys = state.getLockedKeys()
   let onceKeys = state.getOnceKeys()
@@ -769,7 +773,8 @@ export const useDirectiveHandlers = () => {
     if (typeof invalid !== 'undefined') return invalid
     const attrs = directive.attributes || {}
     const key = ensureKey(
-      (attrs as Record<string, unknown>).key ?? toString(directive),
+      (attrs as Record<string, unknown>).key ??
+        (hasLabel(directive) ? directive.label : toString(directive)),
       parent,
       index
     )
@@ -1342,6 +1347,31 @@ export const useDirectiveHandlers = () => {
         expandIndentedCode(container.children as RootContent[])
       )
       const { events } = extractEventProps(rawChildren)
+
+      // Collect subsequent sibling event directives to support scenarios
+      // where parser emits event blocks as siblings rather than children.
+      const start = index + 1
+      const extras: RootContent[] = []
+      let cursor = start
+      while (cursor < parent.children.length) {
+        const sib = parent.children[cursor] as RootContent
+        if (
+          sib.type === 'containerDirective' &&
+          INTERACTIVE_EVENTS.has((sib as ContainerDirective).name)
+        ) {
+          extras.push(sib)
+          parent.children.splice(cursor, 1)
+          continue
+        }
+        if (isMarkerParagraph(sib) || isMarkerText(sib)) {
+          parent.children.splice(cursor, 1)
+        }
+        break
+      }
+      if (extras.length) {
+        const { events: extraEvents } = extractEventProps(extras)
+        Object.assign(events, extraEvents)
+      }
       const props: Record<string, unknown> = { stateKey: key }
       if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
       if (styleAttr) props.style = styleAttr
@@ -1452,6 +1482,31 @@ export const useDirectiveHandlers = () => {
         expandIndentedCode(container.children as RootContent[])
       )
       const { events } = extractEventProps(rawChildren)
+
+      // Collect subsequent sibling event directives to support scenarios
+      // where parser emits event blocks as siblings rather than children.
+      const start = index + 1
+      const extras: RootContent[] = []
+      let cursor = start
+      while (cursor < parent.children.length) {
+        const sib = parent.children[cursor] as RootContent
+        if (
+          sib.type === 'containerDirective' &&
+          INTERACTIVE_EVENTS.has((sib as ContainerDirective).name)
+        ) {
+          extras.push(sib)
+          parent.children.splice(cursor, 1)
+          continue
+        }
+        if (isMarkerParagraph(sib) || isMarkerText(sib)) {
+          parent.children.splice(cursor, 1)
+        }
+        break
+      }
+      if (extras.length) {
+        const { events: extraEvents } = extractEventProps(extras)
+        Object.assign(events, extraEvents)
+      }
       const props: Record<string, unknown> = { stateKey: key }
       if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
       if (styleAttr) props.style = styleAttr
@@ -1661,6 +1716,32 @@ export const useDirectiveHandlers = () => {
         expandIndentedCode(container.children as RootContent[])
       )
       const { events } = extractEventProps(rawChildren)
+
+      // Collect subsequent sibling event directives to support scenarios
+      // where parser emits event blocks as siblings rather than children.
+      const start = index + 1
+      const extras: RootContent[] = []
+      let cursor = start
+      while (cursor < parent.children.length) {
+        const sib = parent.children[cursor] as RootContent
+        if (
+          sib.type === 'containerDirective' &&
+          INTERACTIVE_EVENTS.has((sib as ContainerDirective).name)
+        ) {
+          extras.push(sib)
+          parent.children.splice(cursor, 1)
+          continue
+        }
+        if (isMarkerParagraph(sib) || isMarkerText(sib)) {
+          parent.children.splice(cursor, 1)
+        }
+        break
+      }
+      if (extras.length) {
+        const { events: extraEvents } = extractEventProps(extras)
+        Object.assign(events, extraEvents)
+      }
+
       const props: Record<string, unknown> = { stateKey: key }
       if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
       if (styleAttr) props.style = styleAttr
@@ -1738,6 +1819,14 @@ export const useDirectiveHandlers = () => {
     ])
   }
 
+  /**
+   * Converts a `:select` directive into a Select component bound to game state.
+   *
+   * @param directive - The select directive node.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within its parent.
+   * @returns The index of the inserted node.
+   */
   const handleSelect: DirectiveHandler = (directive, parent, index) => {
     if (!parent || typeof index !== 'number') return
     const container = directive as ContainerDirective
@@ -1762,6 +1851,32 @@ export const useDirectiveHandlers = () => {
       expandIndentedCode(container.children as RootContent[])
     )
     const { events, remaining } = extractEventProps(rawChildren)
+
+    // Collect subsequent sibling event directives to support scenarios
+    // where parser emits event blocks as siblings rather than children.
+    const start = index + 1
+    const extras: RootContent[] = []
+    let cursor = start
+    while (cursor < parent.children.length) {
+      const sib = parent.children[cursor] as RootContent
+      if (
+        sib.type === 'containerDirective' &&
+        INTERACTIVE_EVENTS.has((sib as ContainerDirective).name)
+      ) {
+        extras.push(sib)
+        parent.children.splice(cursor, 1)
+        continue
+      }
+      if (isMarkerParagraph(sib) || isMarkerText(sib)) {
+        parent.children.splice(cursor, 1)
+      }
+      break
+    }
+    if (extras.length) {
+      const { events: extraEvents } = extractEventProps(extras)
+      Object.assign(events, extraEvents)
+    }
+
     const options = remaining.filter(node => !isWhitespaceNode(node))
     const props: Record<string, unknown> = { stateKey: key }
     if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)

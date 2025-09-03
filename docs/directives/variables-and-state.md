@@ -91,10 +91,10 @@ Use this to store a random value that should not change on subsequent runs.
 
 ### `unset`
 
-Remove a key from state. This directive is leaf-only and cannot wrap content.
+Remove a key from state. Provide the state key as the directive label. This directive is leaf-only and cannot wrap content.
 
 ```md
-::unset{key=visited}
+::unset[visited]
 ```
 
 | Input | Description         |
