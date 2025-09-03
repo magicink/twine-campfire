@@ -464,6 +464,10 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       removeDirectiveMarker(parent, markerIndex)
       return [SKIP, newIndex]
     }
+    const msg = 'radio can only be used as a leaf or container directive'
+    console.error(msg)
+    addError(msg)
+    return removeNode(parent, index)
   }
 
   const handleTextarea: DirectiveHandler = (directive, parent, index) => {
