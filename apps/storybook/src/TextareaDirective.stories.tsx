@@ -48,7 +48,7 @@ export const WithEvents: StoryObj = {
   ::set[focused=true]
 :::
 :::onBlur
-  :unset[focused]
+  ::unset{key=focused}
 :::
 :::if[focused]
 

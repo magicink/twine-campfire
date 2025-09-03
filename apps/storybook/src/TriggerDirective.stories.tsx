@@ -31,7 +31,7 @@ You clicked the button!
 :::
 
 :::onExit
-  :unset[test]
+  ::unset{key=test}
 :::
 `}
         </tw-passagedata>
