@@ -171,8 +171,26 @@ export const filterDirectiveChildren = (
   let bannedFound = false
   children.forEach(child => {
     if (child.type === 'paragraph') {
-      if (toString(child).trim().length === 0) return
-      invalidOther = true
+      let paragraphInvalid = false
+      child.children.forEach(grand => {
+        if (isDirectiveNode(grand)) {
+          if (banned?.has(grand.name)) {
+            bannedFound = true
+            return
+          }
+          if (allowed.has(grand.name)) {
+            filtered.push(grand)
+            return
+          }
+          paragraphInvalid = true
+          return
+        }
+        if (grand.type === 'text' && toString(grand).trim().length === 0) {
+          return
+        }
+        paragraphInvalid = true
+      })
+      if (paragraphInvalid) invalidOther = true
       return
     }
     if (child.type === 'text') {

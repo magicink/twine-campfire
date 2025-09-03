@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test'
-import type { RootContent } from 'mdast'
-import type { LeafDirective } from 'mdast-util-directive'
+import type { Paragraph, RootContent } from 'mdast'
+import type { LeafDirective, TextDirective } from 'mdast-util-directive'
 import { filterDirectiveChildren } from '../hooks/useDirectiveHandlers'
 
 describe('filterDirectiveChildren', () => {
@@ -60,5 +60,31 @@ describe('filterDirectiveChildren', () => {
       new Set(['unset'])
     )
     expect(banned).toBe(true)
+  })
+
+  it('collects inline directives in paragraphs', () => {
+    const inline: TextDirective = {
+      type: 'textDirective',
+      name: 'set',
+      children: []
+    }
+    const para: Paragraph = { type: 'paragraph', children: [inline] }
+    const [filtered, invalid] = filterDirectiveChildren([para], allowed)
+    expect(filtered).toEqual([inline])
+    expect(invalid).toBe(false)
+  })
+
+  it('flags paragraphs mixing text with directives', () => {
+    const inline: TextDirective = {
+      type: 'textDirective',
+      name: 'set',
+      children: []
+    }
+    const para: Paragraph = {
+      type: 'paragraph',
+      children: [{ type: 'text', value: 'oops' }, inline]
+    }
+    const [, invalid] = filterDirectiveChildren([para], allowed)
+    expect(invalid).toBe(true)
   })
 })
