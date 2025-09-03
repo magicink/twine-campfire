@@ -15,8 +15,6 @@ import type { Element, Properties } from 'hast'
 import type { ContainerDirective } from 'mdast-util-directive'
 import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
 import { type Checkpoint, useGameStore } from '@campfire/state/useGameStore'
-import { AudioManager } from '@campfire/audio/AudioManager'
-import { ImageManager } from '@campfire/image/ImageManager'
 import {
   type DirectiveNode,
   type ExtractedAttrs,
@@ -29,8 +27,7 @@ import {
   isDirectiveNode,
   isRange,
   removeNode,
-  stripLabel,
-  runWithIdOrSrc
+  stripLabel
 } from '@campfire/utils/directiveUtils'
 import { parseNumericValue } from '@campfire/utils/math'
 import {
@@ -72,6 +69,7 @@ import { createStateHandlers } from './handlers/stateHandlers'
 import { createControlFlowHandlers } from './handlers/controlFlowHandlers'
 import { createFormHandlers } from './handlers/formHandlers'
 import { createNavigationHandlers } from './handlers/navigationHandlers'
+import { createMediaHandlers } from './handlers/mediaHandlers'
 
 const NUMERIC_PATTERN = /^\d+$/
 const ALLOWED_ONEXIT_DIRECTIVES = new Set([
@@ -152,9 +150,6 @@ export const useDirectiveHandlers = () => {
   const onExitSeenRef = useRef(false)
   const onExitErrorRef = useRef(false)
   const lastPassageIdRef = useRef<string | undefined>(undefined)
-  const audio = AudioManager.getInstance()
-  const images = ImageManager.getInstance()
-
   let includeDepth = 0
 
   /**
@@ -608,148 +603,6 @@ export const useDirectiveHandlers = () => {
       return replaceWithIndentation(directive, parent, index, [node])
     }
     return index
-  }
-
-  /**
-   * Preloads an audio track into the AudioManager cache.
-   *
-   * @param directive - The directive node being processed.
-   * @param parent - Parent node containing the directive.
-   * @param index - Index of the directive within the parent.
-   * @returns The index of the removed node.
-   */
-  const handlePreloadAudio: DirectiveHandler = (directive, parent, index) => {
-    const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
-    const { attrs } = extractAttributes(directive, parent, index, {
-      id: { type: 'string' },
-      src: { type: 'string' }
-    })
-    const id = hasLabel(directive) ? directive.label : attrs.id
-    const src = attrs.src
-    if (id && src) {
-      audio.load(id, src)
-    } else {
-      addError('preloadAudio directive requires an id/label and src')
-    }
-    return removeNode(parent, index)
-  }
-
-  /**
-   * Preloads an image asset into cache.
-   *
-   * @param directive - The directive node being processed.
-   * @param parent - Parent node containing the directive.
-   * @param index - Index of the directive within the parent.
-   * @returns The index of the removed node.
-   */
-  const handlePreloadImage: DirectiveHandler = (directive, parent, index) => {
-    const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
-    const { attrs } = extractAttributes(directive, parent, index, {
-      id: { type: 'string' },
-      src: { type: 'string' }
-    })
-    const id = hasLabel(directive) ? directive.label : attrs.id
-    const src = attrs.src
-    if (id && src) {
-      void images.load(id, src)
-    } else {
-      addError('preloadImage directive requires an id/label and src')
-    }
-    return removeNode(parent, index)
-  }
-
-  /**
-   * Plays a sound effect or preloaded audio track.
-   *
-   * @param directive - The directive node being processed.
-   * @param parent - Parent node containing the directive.
-   * @param index - Index of the directive within the parent.
-   * @returns The index of the removed node.
-   */
-  const handleSound: DirectiveHandler = (directive, parent, index) => {
-    const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
-    const { attrs } = extractAttributes(directive, parent, index, {
-      id: { type: 'string' },
-      src: { type: 'string' },
-      volume: { type: 'number' },
-      delay: { type: 'number' }
-    })
-    const volume = typeof attrs.volume === 'number' ? attrs.volume : undefined
-    const delay = typeof attrs.delay === 'number' ? attrs.delay : undefined
-    runWithIdOrSrc(
-      directive,
-      attrs,
-      (id, opts) => audio.playSfx(id, opts),
-      { volume, delay },
-      'sound directive requires id or src',
-      addError
-    )
-    return removeNode(parent, index)
-  }
-
-  /**
-   * Controls background music playback, allowing start, stop and fade.
-   *
-   * @param directive - The directive node being processed.
-   * @param parent - Parent node containing the directive.
-   * @param index - Index of the directive within the parent.
-   * @returns The index of the removed node.
-   */
-  const handleBgm: DirectiveHandler = (directive, parent, index) => {
-    const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
-    const { attrs } = extractAttributes(directive, parent, index, {
-      id: { type: 'string' },
-      src: { type: 'string' },
-      stop: { type: 'boolean' },
-      volume: { type: 'number' },
-      loop: { type: 'boolean' },
-      fade: { type: 'number' }
-    })
-    const stop = attrs.stop === true
-    const volume = typeof attrs.volume === 'number' ? attrs.volume : undefined
-    const loop = attrs.loop === false ? false : true
-    const fade = typeof attrs.fade === 'number' ? attrs.fade : undefined
-    if (stop) {
-      audio.stopBgm(fade)
-    } else {
-      runWithIdOrSrc(
-        directive,
-        attrs,
-        (id, opts) => audio.playBgm(id, opts),
-        { volume, loop, fade },
-        'bgm directive requires id or src',
-        addError
-      )
-    }
-    return removeNode(parent, index)
-  }
-
-  /**
-   * Adjusts global audio volume levels for BGM and sound effects.
-   *
-   * @param directive - The directive node being processed.
-   * @param parent - Parent node containing the directive.
-   * @param index - Index of the directive within the parent.
-   * @returns The index of the removed node.
-   */
-  const handleVolume: DirectiveHandler = (directive, parent, index) => {
-    const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
-    const { attrs } = extractAttributes(directive, parent, index, {
-      bgm: { type: 'number' },
-      sfx: { type: 'number' }
-    })
-    if (typeof attrs.bgm === 'number') {
-      audio.setBgmVolume(attrs.bgm)
-    }
-    if (typeof attrs.sfx === 'number') {
-      audio.setSfxVolume(attrs.sfx)
-    }
-    return removeNode(parent, index)
   }
 
   /**
@@ -1556,6 +1409,8 @@ export const useDirectiveHandlers = () => {
     }
   })
 
+  const mediaHandlers = createMediaHandlers({ addError })
+
   /**
    * Converts a `:text` directive into a SlideText element.
    *
@@ -2256,11 +2111,7 @@ export const useDirectiveHandlers = () => {
       deck: handleDeck,
       lang: handleLang,
       ...navigationHandlers,
-      preloadImage: handlePreloadImage,
-      preloadAudio: handlePreloadAudio,
-      sound: handleSound,
-      bgm: handleBgm,
-      volume: handleVolume,
+      ...mediaHandlers,
       save: handleSave,
       load: handleLoad,
       clearSave: handleClearSave,
