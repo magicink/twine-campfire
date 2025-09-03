@@ -169,4 +169,31 @@ describe('Select directive', () => {
       (useGameStore.getState().gameData as Record<string, unknown>).color
     ).toBe('red')
   })
+
+  it('clears state on blur after focus', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            ':::select[color]\n:option{value="red" label="Red"}\n:::onFocus\n::set[focused=true]\n:::\n:::onBlur\n::unset[focused]\n:::\n:::\n'
+        }
+      ]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    const select = await screen.findByTestId('select')
+    expect(useGameStore.getState().gameData.focused).toBeUndefined()
+    act(() => {
+      ;(select as HTMLButtonElement).focus()
+    })
+    expect(useGameStore.getState().gameData.focused).toBe(true)
+    act(() => {
+      select.dispatchEvent(new FocusEvent('focusout', { bubbles: true }))
+    })
+    expect(useGameStore.getState().gameData.focused).toBeUndefined()
+  })
 })
