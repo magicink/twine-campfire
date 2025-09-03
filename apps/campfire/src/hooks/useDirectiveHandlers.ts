@@ -2,14 +2,7 @@ import { useEffect, useMemo, useRef } from 'preact/hooks'
 import i18next from 'i18next'
 import { SKIP } from 'unist-util-visit'
 import { toString } from 'mdast-util-to-string'
-import { unified } from 'unified'
-import remarkParse from 'remark-parse'
-import remarkGfm from 'remark-gfm'
-import remarkDirective from 'remark-directive'
 import type { DirectiveHandler } from '@campfire/remark-campfire'
-import remarkCampfire, {
-  remarkCampfireIndentation
-} from '@campfire/remark-campfire'
 import type {
   Parent,
   Paragraph,
@@ -18,16 +11,10 @@ import type {
   InlineCode
 } from 'mdast'
 import type { Node } from 'unist'
-import type {
-  Element,
-  ElementContent,
-  Properties,
-  Text as HastText
-} from 'hast'
+import type { Element, Properties } from 'hast'
 import type { ContainerDirective } from 'mdast-util-directive'
 import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
 import { type Checkpoint, useGameStore } from '@campfire/state/useGameStore'
-import { markTitleOverridden } from '@campfire/state/titleState'
 import { AudioManager } from '@campfire/audio/AudioManager'
 import { ImageManager } from '@campfire/image/ImageManager'
 import {
@@ -84,6 +71,7 @@ import {
 import { createStateHandlers } from './handlers/stateHandlers'
 import { createControlFlowHandlers } from './handlers/controlFlowHandlers'
 import { createFormHandlers } from './handlers/formHandlers'
+import { createNavigationHandlers } from './handlers/navigationHandlers'
 
 const NUMERIC_PATTERN = /^\d+$/
 const ALLOWED_ONEXIT_DIRECTIVES = new Set([
@@ -167,7 +155,6 @@ export const useDirectiveHandlers = () => {
   const audio = AudioManager.getInstance()
   const images = ImageManager.getInstance()
 
-  const MAX_INCLUDE_DEPTH = 10
   let includeDepth = 0
 
   /**
@@ -621,90 +608,6 @@ export const useDirectiveHandlers = () => {
       return replaceWithIndentation(directive, parent, index, [node])
     }
     return index
-  }
-
-  /**
-   * Extracts the content of a string wrapped in matching quotes or backticks.
-   *
-   * @param value - The raw string to inspect.
-   * @returns The inner string if quoted, otherwise undefined.
-   */
-  const getQuotedValue = (value: string): string | undefined => {
-    const match = value.trim().match(QUOTE_PATTERN)
-    return match ? match[2] : undefined
-  }
-
-  /**
-   * Retrieves a string or numeric value from the game state by key.
-   *
-   * @param key - The game state key to read.
-   * @returns The value as a string if present, otherwise undefined.
-   */
-  const getStateValue = (key: string): string | undefined => {
-    if (!Object.hasOwn(gameData, key)) return undefined
-    const value = (gameData as Record<string, unknown>)[key]
-    return typeof value === 'string' || typeof value === 'number'
-      ? String(value)
-      : undefined
-  }
-
-  /**
-   * Resolves a passage target from directive text or attributes.
-   *
-   * @param rawText - The trimmed text content of the directive.
-   * @param attrs - Attributes associated with the directive.
-   * @returns The passage id or name if recognized, otherwise undefined.
-   */
-  const resolvePassageTarget = (
-    rawText: string,
-    attrs: Record<string, unknown>
-  ): string | undefined => {
-    if (rawText) {
-      return (
-        getQuotedValue(rawText) ??
-        (NUMERIC_PATTERN.test(rawText) ? rawText : undefined)
-      )
-    }
-    const attr =
-      typeof attrs.passage === 'string' ? attrs.passage.trim() : undefined
-    return attr
-      ? (getQuotedValue(attr) ??
-          (NUMERIC_PATTERN.test(attr) ? attr : getStateValue(attr)))
-      : undefined
-  }
-
-  /**
-   * Handles the `:goto` directive, which navigates to another passage.
-   * Passage names must be wrapped in matching quotes or backticks, while
-   * unquoted numbers are treated as passage IDs. When the `passage` attribute
-   * is an unquoted string, its value is looked up as a key in the game state.
-   * All other inputs are ignored.
-   *
-   * @param directive - The directive node representing the goto directive.
-   * @param parent - The parent AST node containing this directive.
-   * @param index - The index of the directive node within its parent.
-   * @returns The new index after replacement.
-   */
-  const handleGoto: DirectiveHandler = (directive, parent, index) => {
-    const attrs = (directive.attributes || {}) as Record<string, unknown>
-    const rawText = toString(directive).trim()
-    const target = resolvePassageTarget(rawText, attrs)
-
-    const passage = target
-      ? NUMERIC_PATTERN.test(target)
-        ? getPassageById(target)
-        : getPassageByName(target)
-      : null
-
-    if (passage && target) {
-      setCurrentPassage(target)
-    } else if (rawText || attrs.passage) {
-      const msg = `Passage not found: ${rawText || attrs.passage}`
-      console.error(msg)
-      addError(msg)
-    }
-
-    return removeNode(parent, index)
   }
 
   /**
@@ -1637,6 +1540,22 @@ export const useDirectiveHandlers = () => {
     handleWrapper
   })
 
+  const navigationHandlers = createNavigationHandlers({
+    addError,
+    setCurrentPassage,
+    getPassageById,
+    getPassageByName,
+    getGameData: () => gameData,
+    handlersRef,
+    getIncludeDepth: () => includeDepth,
+    incrementIncludeDepth: () => {
+      includeDepth++
+    },
+    decrementIncludeDepth: () => {
+      includeDepth--
+    }
+  })
+
   /**
    * Converts a `:text` directive into a SlideText element.
    *
@@ -2313,98 +2232,6 @@ export const useDirectiveHandlers = () => {
     return [SKIP, newIndex]
   }
 
-  /**
-   * Handles the `:title` directive, which overrides the page title for the current passage.
-   * The directive's value must be wrapped in matching quotes or backticks. If the
-   * directive is used inside an included passage, it is ignored. When valid, the
-   * document title is updated and marked as overridden.
-   *
-   * @param directive - The directive node representing the title directive.
-   * @param parent - The parent AST node containing this directive.
-   * @param index - The index of the directive node within its parent.
-   * @returns The new index after replacement.
-   */
-  const handleTitle: DirectiveHandler = (directive, parent, index) => {
-    if (includeDepth > 0) return removeNode(parent, index)
-    const raw = toString(directive).trim()
-    const title = getQuotedValue(raw)
-    if (title) {
-      document.title = i18next.t(title)
-      markTitleOverridden()
-    } else if (raw) {
-      const msg =
-        'Title directive value must be wrapped in matching quotes or backticks'
-      console.error(msg)
-      addError(msg)
-    }
-    return removeNode(parent, index)
-  }
-
-  /**
-   * Handles the `:include` directive, which inserts the content of another passage.
-   * Passage names must be wrapped in matching quotes or backticks, while unquoted
-   * numbers are treated as passage IDs. When the `passage` attribute is an
-   * unquoted string, its value is looked up as a key in the game state. Inputs
-   * that do not match these patterns are ignored. Prevents infinite recursion by
-   * limiting the include depth.
-   *
-   * @param directive - The directive node representing the include directive.
-   * @param parent - The parent AST node containing this directive.
-   * @param index - The index of the directive node within its parent.
-   * @returns The new index after replacement, or removes the node if not found or on error.
-   */
-  const handleInclude: DirectiveHandler = (directive, parent, index) => {
-    const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
-    const attrs = (directive.attributes || {}) as Record<string, unknown>
-    const rawText = toString(directive).trim()
-    const target = resolvePassageTarget(rawText, attrs)
-
-    if (!parent || typeof index !== 'number' || !target) {
-      return removeNode(parent, index)
-    }
-
-    if (includeDepth >= MAX_INCLUDE_DEPTH) {
-      console.warn('Max include depth reached')
-      return removeNode(parent, index)
-    }
-
-    const passage = NUMERIC_PATTERN.test(target)
-      ? getPassageById(target)
-      : getPassageByName(target)
-
-    if (!passage) return removeNode(parent, index)
-
-    const text = passage.children
-      .map((child: ElementContent) =>
-        child.type === 'text' ? (child as HastText).value : ''
-      )
-      .join('')
-
-    const processor = unified()
-      .use(remarkParse)
-      .use(remarkGfm)
-      .use(remarkDirective)
-      .use(remarkCampfireIndentation)
-      .use(remarkCampfire, { handlers: handlersRef.current })
-
-    includeDepth++
-    const tree = processor.parse(text)
-    processor.runSync(tree)
-    includeDepth--
-
-    const newIndex = replaceWithIndentation(
-      directive,
-      parent,
-      index,
-      tree.children as RootContent[]
-    )
-    return [
-      SKIP,
-      newIndex + Math.max(0, (tree.children as RootContent[]).length - 1)
-    ]
-  }
-
   return useMemo(() => {
     // noinspection JSUnusedGlobalSymbols
     const handlers = {
@@ -2428,9 +2255,7 @@ export const useDirectiveHandlers = () => {
       preset: handlePreset,
       deck: handleDeck,
       lang: handleLang,
-      include: handleInclude,
-      title: handleTitle,
-      goto: handleGoto,
+      ...navigationHandlers,
       preloadImage: handlePreloadImage,
       preloadAudio: handlePreloadAudio,
       sound: handleSound,
