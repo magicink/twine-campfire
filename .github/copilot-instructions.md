@@ -73,3 +73,4 @@ If a container directive nests another container and is followed by an inline di
 - Trust these instructions and search the repository only if information is missing or incorrect.
 - Define colors using `oklch()` notation instead of hex or other color formats.
 - Ensure tests cover both truthy and falsey paths for conditional logic.
+- Tag `@codex` in any comment.
