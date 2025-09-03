@@ -61,7 +61,7 @@ export const useSerializedDirectiveRunner = (content: string) => {
     runDirectiveBlock(processed, handlers)
   }
 
-  const gameData = useGameStore(state => state.gameData)
+  const gameData = useGameStore.use.gameData()
 
   return useCallback(() => {
     // TODO(campfire): Profile large blocks to avoid long
