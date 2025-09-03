@@ -1,6 +1,6 @@
 import { produce } from 'immer'
 import type { Draft } from 'immer'
-import type { StoreApi } from 'zustand'
+import type { StoreApi, UseBoundStore } from 'zustand'
 import rfdc from 'rfdc'
 import { clamp } from '@campfire/utils/directiveUtils'
 
@@ -21,6 +21,33 @@ export const setImmer =
   <T extends object>(set: SetFn<T>) =>
   (fn: (draft: Draft<T>) => void) =>
     set(produce<T>(fn))
+
+type WithSelectors<T extends object> = UseBoundStore<StoreApi<T>> & {
+  use: { [K in keyof T]: () => T[K] }
+}
+
+type WithOptionalSelectors<T extends object> = UseBoundStore<StoreApi<T>> & {
+  use?: { [K in keyof T]: () => T[K] }
+}
+
+/**
+ * Adds hook-based selectors to a Zustand store.
+ *
+ * @param store - The base Zustand store.
+ * @returns The store augmented with a memoized `use` object containing selectors.
+ */
+export const createSelectors = <T extends object>(
+  store: UseBoundStore<StoreApi<T>>
+): WithSelectors<T> => {
+  const typed = store as WithOptionalSelectors<T>
+  if (typed.use) return typed as WithSelectors<T>
+  const use = (typed.use = {} as WithSelectors<T>['use'])
+  const state = typed.getState()
+  for (const k of Object.keys(state) as Array<keyof T>) {
+    use[k] = () => typed(s => s[k])
+  }
+  return typed as WithSelectors<T>
+}
 
 /** Range value representation */
 export interface RangeValue {

@@ -20,8 +20,8 @@ export const Basic: StoryObj = {
           {`
 :::select[color]{label="Choose a color"}
 
-:option{value="red" label="Red"}
-:option{value="blue" label="Blue"}
+::option{value="red" label="Red"}
+::option{value="blue" label="Blue"}
 
 :::
 
@@ -64,8 +64,8 @@ export const WithEvents: StoryObj = {
           {`
 :::select[color]{label="Choose a color"}
 
-:option{value="red" label="Red"}
-:option{value="blue" label="Blue"}
+::option{value="red" label="Red"}
+::option{value="blue" label="Blue"}
 
 :::onFocus
   ::set[focused=true]

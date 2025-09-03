@@ -72,8 +72,8 @@ Render a dropdown bound to a game state key. Must be used as a container with ne
 
 ```md
 :::select[color]{label="Choose a color"}
-:option{value="red" label="Red"}
-:option{value="blue" label="Blue"}
+::option{value="red" label="Red"}
+::option{value="blue" label="Blue"}
 :::
 ```
 
@@ -90,12 +90,24 @@ The select button uses the same default styling as trigger and link buttons and 
 
 `option` directives accept the following inputs:
 
-| Input     | Description                        |
-| --------- | ---------------------------------- |
-| value     | Value to store when selected       |
-| label     | Text displayed for the option      |
-| className | Optional space-separated classes   |
-| style     | Optional inline style declarations |
+| Input     | Description                               |
+| --------- | ----------------------------------------- |
+| value     | Value to store when selected              |
+| label     | Text displayed for the option (leaf form) |
+| className | Optional space-separated classes          |
+| style     | Optional inline style declarations        |
+
+Container form:
+
+```md
+:::select[color]{label="Choose a color"}
+:::option{value="red"}
+:::wrapper{className="fancy"}Red:::
+:::
+:::
+```
+
+The container form uses its content for the option label, enabling formatting via directives like `wrapper`.
 
 ### `checkbox`
 

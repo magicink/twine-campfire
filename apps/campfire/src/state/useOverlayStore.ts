@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import type { ComponentChild } from 'preact'
+import { createSelectors } from '@campfire/state/utils'
 
 export interface OverlayItem {
   /** Unique name for the overlay passage */
@@ -32,7 +33,7 @@ export interface OverlayState {
 /**
  * Global store holding processed overlay components.
  */
-export const useOverlayStore = create<OverlayState>(set => ({
+const useOverlayStoreBase = create<OverlayState>(set => ({
   overlays: [],
   setOverlays: items => set({ overlays: items }),
   showOverlay: name =>
@@ -60,3 +61,6 @@ export const useOverlayStore = create<OverlayState>(set => ({
       )
     }))
 }))
+
+/** Zustand store with selector hooks for overlays. */
+export const useOverlayStore = createSelectors(useOverlayStoreBase)

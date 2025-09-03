@@ -1,3 +1,5 @@
+import { h } from 'preact'
+import { render, screen } from '@testing-library/preact'
 import { useGameStore, listSavedGames } from '../index'
 import { describe, it, expect, beforeEach } from 'bun:test'
 
@@ -148,5 +150,22 @@ describe('useGameStore', () => {
     expect((globalThis as { listSavedGames?: unknown }).listSavedGames).toBe(
       listSavedGames
     )
+  })
+
+  it('provides selector hooks via `use`', () => {
+    useGameStore.setState({ gameData: { hp: 2 } })
+
+    /** Test component displaying health */
+    const Test = () => {
+      const data = useGameStore.use.gameData() as Record<string, unknown>
+      return h(
+        'span',
+        { class: 'campfire-test', 'data-testid': 'hp' },
+        String(data.hp)
+      )
+    }
+
+    render(h(Test, {}))
+    expect(screen.getByTestId('hp').textContent).toBe('2')
   })
 })
