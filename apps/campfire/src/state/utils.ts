@@ -22,9 +22,13 @@ export const setImmer =
   (fn: (draft: Draft<T>) => void) =>
     set(produce<T>(fn))
 
-type WithSelectors<S> = S extends { getState: () => infer T }
-  ? S & { use: { [K in keyof T]: () => T[K] } }
-  : never
+type WithSelectors<T extends object> = UseBoundStore<StoreApi<T>> & {
+  use: { [K in keyof T]: () => T[K] }
+}
+
+type WithOptionalSelectors<T extends object> = UseBoundStore<StoreApi<T>> & {
+  use?: { [K in keyof T]: () => T[K] }
+}
 
 /**
  * Adds hook-based selectors to a Zustand store.
@@ -32,17 +36,17 @@ type WithSelectors<S> = S extends { getState: () => infer T }
  * @param store - The base Zustand store.
  * @returns The store augmented with a memoized `use` object containing selectors.
  */
-export const createSelectors = <S extends UseBoundStore<StoreApi<object>>>(
-  store: S
-) => {
-  const typed = store as WithSelectors<typeof store>
-  if ((typed as any).use) return typed
-  typed.use = {} as Record<string, () => unknown>
-  for (const k of Object.keys(typed.getState())) {
-    ;(typed.use as Record<string, unknown>)[k] = () =>
-      typed(s => s[k as keyof typeof s])
+export const createSelectors = <T extends object>(
+  store: UseBoundStore<StoreApi<T>>
+): WithSelectors<T> => {
+  const typed = store as WithOptionalSelectors<T>
+  if (typed.use) return typed as WithSelectors<T>
+  const use = (typed.use = {} as WithSelectors<T>['use'])
+  const state = typed.getState()
+  for (const k of Object.keys(state) as Array<keyof T>) {
+    use[k] = () => typed(s => s[k])
   }
-  return typed
+  return typed as WithSelectors<T>
 }
 
 /** Range value representation */

@@ -1000,16 +1000,6 @@ export const useDirectiveHandlers = () => {
       addError(msg)
       return removeNode(parent, index)
     }
-    const labelAttr =
-      directive.type === 'leafDirective' && typeof attrs.label === 'string'
-        ? attrs.label
-        : undefined
-    if (directive.type === 'leafDirective' && !labelAttr) {
-      const msg = 'option leaf directives require a label attribute'
-      console.error(msg)
-      addError(msg)
-      return removeNode(parent, index)
-    }
     if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
       const msg = 'class is a reserved attribute. Use className instead.'
       console.error(msg)
@@ -1028,9 +1018,17 @@ export const useDirectiveHandlers = () => {
     ])
 
     if (directive.type === 'leafDirective') {
+      const labelAttr =
+        typeof attrs.label === 'string' ? attrs.label : undefined
+      if (!labelAttr) {
+        const msg = 'option leaf directives require a label attribute'
+        console.error(msg)
+        addError(msg)
+        return removeNode(parent, index)
+      }
       const node: Parent = {
         type: 'paragraph',
-        children: [{ type: 'text', value: labelAttr! }],
+        children: [{ type: 'text', value: labelAttr }],
         data: { hName: 'option', hProperties: props as Properties }
       }
       return replaceWithIndentation(directive, parent, index, [
