@@ -13,8 +13,9 @@
 1. **Install**: Always run `bun install` after cloning or switching branches.
 2. **Type check**: Run `bun run typecheck` (which executes `tsc --noEmit`).
 3. **Test**: Run `bun test`.
-4. **Build**: Use `bun run build` to regenerate `dist/format.js`. This cleans `apps/campfire/dist`, bundles with Rollup, then assembles the final story format.
-5. Use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages.
+4. **Format**: Run `bunx prettier . --write` once before committing the final changes.
+5. **Build**: Use `bun run build` to regenerate `dist/format.js`. This cleans `apps/campfire/dist`, bundles with Rollup, then assembles the final story format.
+6. Use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages.
 
 ## Project Layout
 
