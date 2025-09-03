@@ -122,7 +122,7 @@ describe('Textarea directive', () => {
     ).toBe('Existing')
   })
 
-  it('retains state on blur after focus', async () => {
+  it('clears state on blur after focus', async () => {
     const passage: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
@@ -144,6 +144,6 @@ describe('Textarea directive', () => {
     })
     expect(useGameStore.getState().gameData.focused).toBe(true)
     textarea.dispatchEvent(new FocusEvent('focusout', { bubbles: true }))
-    expect(useGameStore.getState().gameData.focused).toBe(true)
+    expect(useGameStore.getState().gameData.focused).toBeUndefined()
   })
 })

@@ -1716,6 +1716,32 @@ export const useDirectiveHandlers = () => {
         expandIndentedCode(container.children as RootContent[])
       )
       const { events } = extractEventProps(rawChildren)
+
+      // Collect subsequent sibling event directives to support scenarios
+      // where parser emits event blocks as siblings rather than children.
+      const start = index + 1
+      const extras: RootContent[] = []
+      let cursor = start
+      while (cursor < parent.children.length) {
+        const sib = parent.children[cursor] as RootContent
+        if (
+          sib.type === 'containerDirective' &&
+          INTERACTIVE_EVENTS.has((sib as ContainerDirective).name)
+        ) {
+          extras.push(sib)
+          parent.children.splice(cursor, 1)
+          continue
+        }
+        if (isMarkerParagraph(sib) || isMarkerText(sib)) {
+          parent.children.splice(cursor, 1)
+        }
+        break
+      }
+      if (extras.length) {
+        const { events: extraEvents } = extractEventProps(extras)
+        Object.assign(events, extraEvents)
+      }
+
       const props: Record<string, unknown> = { stateKey: key }
       if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
       if (styleAttr) props.style = styleAttr
