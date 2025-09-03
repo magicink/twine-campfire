@@ -15,6 +15,10 @@ import {
   parseTypedValue,
   isRange
 } from '@campfire/utils/directiveUtils'
+import {
+  removeDirectiveMarker,
+  isMarkerParagraph
+} from '@campfire/utils/directiveHandlerUtils'
 import { evalExpression } from '@campfire/utils/core'
 import type { StateManagerType } from '@campfire/state/stateManager'
 
@@ -50,14 +54,10 @@ export interface ControlFlowHandlerContext {
   getOnceKeys: () => Record<string, true>
   /** Replaces once-only state keys. */
   setOnceKeys: (keys: Record<string, true>) => void
-  /** Removes directive marker nodes from the AST. */
-  removeDirectiveMarker: (parent: Parent, index: number) => void
   /** Determines if a node is a text node. */
   isTextNode: (node: RootContent) => node is MdText
   /** Determines if a node is whitespace-only. */
   isWhitespaceNode: (node: RootContent) => boolean
-  /** Determines if a node is a paragraph containing only directive markers. */
-  isMarkerParagraph: (node: RootContent) => boolean
   /** Directives allowed within a batch block. */
   allowedBatchDirectives: Set<string>
   /** Directives disallowed within a batch block. */
@@ -84,10 +84,8 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
     setLockedKeys,
     getOnceKeys,
     setOnceKeys,
-    removeDirectiveMarker,
     isTextNode,
     isWhitespaceNode,
-    isMarkerParagraph,
     allowedBatchDirectives,
     bannedBatchDirectives
   } = ctx

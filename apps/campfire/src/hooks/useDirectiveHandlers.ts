@@ -6,10 +6,7 @@ import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
 import remarkDirective from 'remark-directive'
-import type {
-  DirectiveHandler,
-  DirectiveHandlerResult
-} from '@campfire/remark-campfire'
+import type { DirectiveHandler } from '@campfire/remark-campfire'
 import remarkCampfire, {
   remarkCampfireIndentation
 } from '@campfire/remark-campfire'
@@ -58,6 +55,17 @@ import {
   applyKeyValue,
   runDirectiveBlock
 } from '@campfire/utils/directiveUtils'
+import {
+  getClassAttr,
+  getStyleAttr,
+  requireLeafDirective,
+  removeDirectiveMarker,
+  isMarkerParagraph,
+  parseDeckSize,
+  parseThemeValue,
+  applyAdditionalAttributes,
+  mergeAttrs
+} from '@campfire/utils/directiveHandlerUtils'
 import { DEFAULT_DECK_HEIGHT, DEFAULT_DECK_WIDTH } from '@campfire/constants'
 import type {
   Transition,
@@ -125,12 +133,6 @@ const INTERACTIVE_EVENTS = new Set([
   'onBlur'
 ])
 
-/**
- * When both parsed dimensions are less than or equal to this threshold, the
- * value is treated as an aspect ratio instead of explicit pixel dimensions.
- */
-const ASPECT_RATIO_THRESHOLD = 100
-
 export const useDirectiveHandlers = () => {
   // TODO(campfire): This module is very large; consider splitting handlers
   // into focused files (e.g., state, array, deck/slide, overlay) to improve
@@ -185,55 +187,6 @@ export const useDirectiveHandlers = () => {
     resetDirectiveState()
   }, [currentPassageId])
 
-  /**
-   * Interpolates template placeholders in an attribute string using game data.
-   *
-   * @param value - Raw attribute value that may contain `${}` expressions.
-   * @returns The interpolated string when placeholders are present.
-   */
-  const interpolateAttr = (value?: string): string | undefined =>
-    value && value.includes('${') ? interpolateString(value, gameData) : value
-
-  /**
-   * Retrieves and interpolates the `className` attribute from a directive.
-   *
-   * @param attrs - Attribute map from the directive.
-   * @returns The processed class string, or an empty string when absent.
-   */
-  const getClassAttr = (attrs: Record<string, unknown>): string =>
-    interpolateAttr(
-      typeof attrs.className === 'string' ? attrs.className : undefined
-    ) || ''
-
-  /**
-   * Retrieves and interpolates the `style` attribute from a directive.
-   *
-   * @param attrs - Attribute map from the directive.
-   * @returns The processed style string, or undefined when absent.
-   */
-  const getStyleAttr = (attrs: Record<string, unknown>): string | undefined =>
-    interpolateAttr(typeof attrs.style === 'string' ? attrs.style : undefined)
-
-  /**
-   * Ensures a directive is used in leaf form. Logs an error and removes the node otherwise.
-   *
-   * @param directive - The directive to validate.
-   * @param parent - Parent node containing the directive.
-   * @param index - Index of the directive within the parent.
-   * @returns The index of the removed node when invalid, otherwise undefined.
-   */
-  const requireLeafDirective = (
-    directive: DirectiveNode,
-    parent: Parent | undefined,
-    index: number | undefined
-  ): DirectiveHandlerResult | undefined => {
-    if (directive.type === 'leafDirective') return
-    const msg = `${directive.name} can only be used as a leaf directive`
-    console.error(msg)
-    addError(msg)
-    return removeNode(parent, index)
-  }
-
   const refreshState = () => {
     gameData = state.getState()
     lockedKeys = state.getLockedKeys()
@@ -244,8 +197,7 @@ export const useDirectiveHandlers = () => {
     getState: () => state,
     getGameData: () => gameData,
     refreshState,
-    addError,
-    requireLeafDirective
+    addError
   })
 
   /**
@@ -276,11 +228,11 @@ export const useDirectiveHandlers = () => {
       console.error(msg)
       addError(msg)
     }
-    const classAttr = getClassAttr(attrs)
-    const styleAttr = getStyleAttr(attrs)
+    const classAttr = getClassAttr(attrs, gameData)
+    const styleAttr = getStyleAttr(attrs, gameData)
     if (classAttr) props.className = classAttr
     if (styleAttr) props.style = styleAttr
-    applyAdditionalAttributes(attrs, props, ['className', 'style'])
+    applyAdditionalAttributes(attrs, props, ['className', 'style'], addError)
     const node: MdText = {
       type: 'text',
       value: '',
@@ -303,51 +255,6 @@ export const useDirectiveHandlers = () => {
    */
   const isTextNode = (node: RootContent): node is MdText => node.type === 'text'
 
-  /**
-   * Removes a paragraph containing only directive markers from the parent.
-   * Supports multiple markers separated by whitespace or collapsed together.
-   *
-   * @param parent - The parent node that may contain the marker.
-   * @param index - The index of the potential marker node.
-   */
-  const removeDirectiveMarker = (parent: Parent, index: number) => {
-    const marker = parent.children[index]
-    if (!marker || marker.type !== 'paragraph') return
-    if (marker.children.length > 0 && marker.children.every(isTextNode)) {
-      const combined = marker.children
-        .map(child => (child as MdText).value)
-        .join('')
-        .trim()
-      const stripped = combined.replace(/\s+/g, '')
-      const parts = stripped.split(DIRECTIVE_MARKER) // ensure only marker tokens remain
-      if (stripped.length > 0 && parts.every(part => part === '')) {
-        parent.children.splice(index, 1)
-      }
-    }
-  }
-
-  /**
-   * Determines whether a paragraph consists solely of directive markers.
-   *
-   * @param node - Node to examine.
-   * @returns True if the node contains only marker tokens and whitespace.
-   */
-  const isMarkerParagraph = (node: RootContent): boolean => {
-    // TODO(campfire): Verify we never treat mixed-content paragraphs
-    // (markers + other text) as pure markers; add tests for both cases
-    // and ensure whitespace/indentation variants are handled.
-    if (
-      node.type === 'paragraph' &&
-      node.children.length > 0 &&
-      node.children.every(isTextNode)
-    ) {
-      const combined = node.children.map(c => (c as MdText).value).join('')
-      const stripped = combined.replace(/\s+/g, '')
-      const parts = stripped.split(DIRECTIVE_MARKER)
-      return stripped.length > 0 && parts.every(part => part === '')
-    }
-    return false
-  }
   const isWhitespaceNode = (node: RootContent): boolean =>
     (node.type === 'text' && node.value.trim() === '') ||
     (node.type === 'paragraph' &&
@@ -402,10 +309,8 @@ export const useDirectiveHandlers = () => {
     setOnceKeys: keys => {
       onceKeys = keys
     },
-    removeDirectiveMarker,
     isTextNode,
     isWhitespaceNode,
-    isMarkerParagraph,
     allowedBatchDirectives: ALLOWED_BATCH_DIRECTIVES,
     bannedBatchDirectives: BANNED_BATCH_DIRECTIVES
   })
@@ -476,7 +381,7 @@ export const useDirectiveHandlers = () => {
    * @returns The new index after removing the directive.
    */
   const handleLang: DirectiveHandler = (directive, parent, index) => {
-    const invalid = requireLeafDirective(directive, parent, index)
+    const invalid = requireLeafDirective(directive, parent, index, addError)
     if (typeof invalid !== 'undefined') return invalid
     const locale = toString(directive).trim()
 
@@ -504,7 +409,7 @@ export const useDirectiveHandlers = () => {
    * @returns The new index after processing.
    */
   const handleTranslations: DirectiveHandler = (directive, parent, index) => {
-    const invalid = requireLeafDirective(directive, parent, index)
+    const invalid = requireLeafDirective(directive, parent, index, addError)
     if (typeof invalid !== 'undefined') return invalid
     const locale =
       getLabel(directive as ContainerDirective) || toString(directive).trim()
@@ -587,8 +492,8 @@ export const useDirectiveHandlers = () => {
       { state: gameData }
     )
     if (attrs.ns) ns = attrs.ns
-    const classAttr = getClassAttr(attrs)
-    const styleAttr = getStyleAttr(attrs)
+    const classAttr = getClassAttr(attrs, gameData)
+    const styleAttr = getStyleAttr(attrs, gameData)
     const keyPattern = /^[A-Za-z_$][A-Za-z0-9_$]*(?::[A-Za-z0-9_.$-]+)?$/
     let props: Properties
     if (key || keyPattern.test(raw)) {
@@ -811,7 +716,7 @@ export const useDirectiveHandlers = () => {
    * @returns The index of the removed node.
    */
   const handlePreloadAudio: DirectiveHandler = (directive, parent, index) => {
-    const invalid = requireLeafDirective(directive, parent, index)
+    const invalid = requireLeafDirective(directive, parent, index, addError)
     if (typeof invalid !== 'undefined') return invalid
     const { attrs } = extractAttributes(directive, parent, index, {
       id: { type: 'string' },
@@ -836,7 +741,7 @@ export const useDirectiveHandlers = () => {
    * @returns The index of the removed node.
    */
   const handlePreloadImage: DirectiveHandler = (directive, parent, index) => {
-    const invalid = requireLeafDirective(directive, parent, index)
+    const invalid = requireLeafDirective(directive, parent, index, addError)
     if (typeof invalid !== 'undefined') return invalid
     const { attrs } = extractAttributes(directive, parent, index, {
       id: { type: 'string' },
@@ -861,7 +766,7 @@ export const useDirectiveHandlers = () => {
    * @returns The index of the removed node.
    */
   const handleSound: DirectiveHandler = (directive, parent, index) => {
-    const invalid = requireLeafDirective(directive, parent, index)
+    const invalid = requireLeafDirective(directive, parent, index, addError)
     if (typeof invalid !== 'undefined') return invalid
     const { attrs } = extractAttributes(directive, parent, index, {
       id: { type: 'string' },
@@ -891,7 +796,7 @@ export const useDirectiveHandlers = () => {
    * @returns The index of the removed node.
    */
   const handleBgm: DirectiveHandler = (directive, parent, index) => {
-    const invalid = requireLeafDirective(directive, parent, index)
+    const invalid = requireLeafDirective(directive, parent, index, addError)
     if (typeof invalid !== 'undefined') return invalid
     const { attrs } = extractAttributes(directive, parent, index, {
       id: { type: 'string' },
@@ -929,7 +834,7 @@ export const useDirectiveHandlers = () => {
    * @returns The index of the removed node.
    */
   const handleVolume: DirectiveHandler = (directive, parent, index) => {
-    const invalid = requireLeafDirective(directive, parent, index)
+    const invalid = requireLeafDirective(directive, parent, index, addError)
     if (typeof invalid !== 'undefined') return invalid
     const { attrs } = extractAttributes(directive, parent, index, {
       bgm: { type: 'number' },
@@ -952,7 +857,7 @@ export const useDirectiveHandlers = () => {
    * @param index - Index of the directive within the parent.
    */
   const handleSave: DirectiveHandler = (directive, parent, index) => {
-    const invalid = requireLeafDirective(directive, parent, index)
+    const invalid = requireLeafDirective(directive, parent, index, addError)
     if (typeof invalid !== 'undefined') return invalid
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const id = typeof attrs.id === 'string' ? attrs.id : 'campfire.save'
@@ -986,7 +891,7 @@ export const useDirectiveHandlers = () => {
    * @param index - Index of the directive within the parent.
    */
   const handleLoad: DirectiveHandler = (directive, parent, index) => {
-    const invalid = requireLeafDirective(directive, parent, index)
+    const invalid = requireLeafDirective(directive, parent, index, addError)
     if (typeof invalid !== 'undefined') return invalid
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const id = typeof attrs.id === 'string' ? attrs.id : 'campfire.save'
@@ -1034,7 +939,7 @@ export const useDirectiveHandlers = () => {
    * @param index - Index of the directive within the parent.
    */
   const handleClearSave: DirectiveHandler = (directive, parent, index) => {
-    const invalid = requireLeafDirective(directive, parent, index)
+    const invalid = requireLeafDirective(directive, parent, index, addError)
     if (typeof invalid !== 'undefined') return invalid
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const id = typeof attrs.id === 'string' ? attrs.id : 'campfire.save'
@@ -1053,7 +958,7 @@ export const useDirectiveHandlers = () => {
   }
 
   const handleCheckpoint: DirectiveHandler = (directive, parent, index) => {
-    const invalid = requireLeafDirective(directive, parent, index)
+    const invalid = requireLeafDirective(directive, parent, index, addError)
     if (typeof invalid !== 'undefined') return invalid
     if (lastPassageIdRef.current !== currentPassageId) {
       resetDirectiveState()
@@ -1097,7 +1002,7 @@ export const useDirectiveHandlers = () => {
    * @returns The index at which processing should continue.
    */
   const handleLoadCheckpoint: DirectiveHandler = (directive, parent, index) => {
-    const invalid = requireLeafDirective(directive, parent, index)
+    const invalid = requireLeafDirective(directive, parent, index, addError)
     if (typeof invalid !== 'undefined') return invalid
     if (includeDepth > 0) return removeNode(parent, index)
     const cp = loadCheckpointFn()
@@ -1122,99 +1027,12 @@ export const useDirectiveHandlers = () => {
     parent,
     index
   ) => {
-    const invalid = requireLeafDirective(directive, parent, index)
+    const invalid = requireLeafDirective(directive, parent, index, addError)
     if (typeof invalid !== 'undefined') return invalid
     if (includeDepth > 0) return removeNode(parent, index)
     useGameStore.setState({ checkpoints: {} })
     return removeNode(parent, index)
   }
-
-  /**
-   * Parses a deck size string such as "1920x1080" or an aspect ratio like
-   * "16x9" into a width/height object. Aspect ratios assume a default width of
-   * {@link DEFAULT_DECK_WIDTH} pixels.
-   *
-   * @param value - Raw size attribute value.
-   * @returns Parsed deck size object.
-   */
-  const parseDeckSize = (value: string): { width: number; height: number } => {
-    const match = value.match(/^(\d+)x(\d+)$/)
-    if (match) {
-      const w = parseInt(match[1], 10)
-      const h = parseInt(match[2], 10)
-      if (w <= ASPECT_RATIO_THRESHOLD && h <= ASPECT_RATIO_THRESHOLD) {
-        const width = DEFAULT_DECK_WIDTH
-        const height = Math.round((width * h) / w)
-        return { width, height }
-      }
-      return { width: w, height: h }
-    }
-    return { width: DEFAULT_DECK_WIDTH, height: DEFAULT_DECK_HEIGHT }
-  }
-
-  /**
-   * Parses a theme attribute value, accepting either a string token or a JSON
-   * object string.
-   *
-   * @param value - Raw theme attribute value.
-   * @returns Theme token map when parsable.
-   */
-  const parseThemeValue = (
-    value: unknown
-  ): Record<string, string | number> | undefined => {
-    if (!value) return undefined
-    if (typeof value === 'string') {
-      try {
-        return JSON.parse(value)
-      } catch {
-        return { theme: value }
-      }
-    }
-    if (typeof value === 'object')
-      return value as Record<string, string | number>
-    return undefined
-  }
-
-  /**
-   * Copies attributes from a source map into a target props object, excluding
-   * keys specified in {@link exclude}. Emits an error if the `class` attribute
-   * is encountered, as it is reserved.
-   *
-   * @param source - Raw attribute map.
-   * @param target - Props object to receive the attributes.
-   * @param exclude - Keys to omit when copying.
-   */
-  const applyAdditionalAttributes = (
-    source: Record<string, unknown>,
-    target: Record<string, unknown>,
-    exclude: readonly string[]
-  ) => {
-    for (const key of Object.keys(source)) {
-      if (key === 'class') {
-        const msg = 'class is a reserved attribute. Use className instead.'
-        console.error(msg)
-        addError(msg)
-        throw new Error(msg)
-      }
-      if (key === 'classes' || key === 'layerClass' || key === 'layerClasses')
-        continue
-      if (!exclude.includes(key)) {
-        target[key] = source[key]
-      }
-    }
-  }
-
-  /**
-   * Merges preset attributes with raw directive attributes.
-   *
-   * @param preset - Attributes defined in the preset.
-   * @param raw - Attributes provided on the directive.
-   * @returns Combined attribute map with directive attributes taking precedence.
-   */
-  const mergeAttrs = <T extends Record<string, unknown>>(
-    preset: Partial<T> | undefined,
-    raw: T
-  ): T => ({ ...(preset || {}), ...raw })
 
   /**
    * Stores attribute presets for reuse by other directives.
@@ -1577,7 +1395,7 @@ export const useDirectiveHandlers = () => {
         if (preset.interruptBehavior)
           props.interruptBehavior = preset.interruptBehavior
         if (preset.onEnter) props.onEnter = preset.onEnter
-        applyAdditionalAttributes(preset, props, REVEAL_EXCLUDES)
+        applyAdditionalAttributes(preset, props, REVEAL_EXCLUDES, addError)
       }
       if (typeof attrs.at === 'number') props.at = attrs.at
       if (typeof attrs.exitAt === 'number') props.exitAt = attrs.exitAt
@@ -1604,16 +1422,19 @@ export const useDirectiveHandlers = () => {
       if (attrs.onEnter) props.onEnter = attrs.onEnter
       const mergedRaw = mergeAttrs(preset, raw)
       const classAttr =
-        typeof mergedRaw.className === 'string' ? getClassAttr(mergedRaw) : ''
+        typeof mergedRaw.className === 'string'
+          ? getClassAttr(mergedRaw, gameData)
+          : ''
       if (classAttr) props.className = classAttr
-      const styleAttr = getStyleAttr(mergedRaw)
+      const styleAttr = getStyleAttr(mergedRaw, gameData)
       if (styleAttr) props.style = styleAttr
       if (attrs.id) props.id = attrs.id
-      applyAdditionalAttributes(mergedRaw, props, [
-        ...REVEAL_EXCLUDES,
-        'from',
-        'id'
-      ])
+      applyAdditionalAttributes(
+        mergedRaw,
+        props,
+        [...REVEAL_EXCLUDES, 'from', 'id'],
+        addError
+      )
       return props
     }
   )
@@ -1643,7 +1464,7 @@ export const useDirectiveHandlers = () => {
         if (typeof preset.rotate === 'number') props.rotate = preset.rotate
         if (typeof preset.scale === 'number') props.scale = preset.scale
         if (preset.anchor) props.anchor = preset.anchor
-        applyAdditionalAttributes(preset, props, LAYER_EXCLUDES)
+        applyAdditionalAttributes(preset, props, LAYER_EXCLUDES, addError)
       }
       if (typeof attrs.x === 'number') props.x = attrs.x
       if (typeof attrs.y === 'number') props.y = attrs.y
@@ -1657,17 +1478,17 @@ export const useDirectiveHandlers = () => {
       props['data-testid'] = 'layer'
       let classAttr = ''
       if (typeof attrs.className === 'string')
-        classAttr = getClassAttr({ className: attrs.className })
+        classAttr = getClassAttr({ className: attrs.className }, gameData)
       else if (typeof mergedRaw.className === 'string')
-        classAttr = getClassAttr({ className: mergedRaw.className })
+        classAttr = getClassAttr({ className: mergedRaw.className }, gameData)
       if (classAttr) props.className = classAttr
       if (attrs.id) props.id = attrs.id
-      applyAdditionalAttributes(mergedRaw, props, [
-        ...LAYER_EXCLUDES,
-        'from',
-        'layerClassName',
-        'id'
-      ])
+      applyAdditionalAttributes(
+        mergedRaw,
+        props,
+        [...LAYER_EXCLUDES, 'from', 'layerClassName', 'id'],
+        addError
+      )
       return props
     },
     undefined,
@@ -1766,17 +1587,19 @@ export const useDirectiveHandlers = () => {
       const mergedRaw = mergeAttrs(preset, raw)
       props['data-testid'] = 'wrapper'
       const classAttr =
-        typeof mergedRaw.className === 'string' ? getClassAttr(mergedRaw) : ''
+        typeof mergedRaw.className === 'string'
+          ? getClassAttr(mergedRaw, gameData)
+          : ''
       props.className = ['campfire-wrapper', classAttr]
         .filter(Boolean)
         .join(' ')
       if (attrs.id) props.id = attrs.id
-      applyAdditionalAttributes(mergedRaw, props, [
-        'as',
-        'className',
-        'from',
-        'id'
-      ])
+      applyAdditionalAttributes(
+        mergedRaw,
+        props,
+        ['as', 'className', 'from', 'id'],
+        addError
+      )
       return props
     },
     children =>
@@ -1809,12 +1632,7 @@ export const useDirectiveHandlers = () => {
   } = createFormHandlers({
     addError,
     getGameData: () => gameData,
-    getClassAttr,
-    getStyleAttr,
-    applyAdditionalAttributes,
-    removeDirectiveMarker,
     isWhitespaceNode,
-    isMarkerParagraph,
     interactiveEvents: INTERACTIVE_EVENTS,
     handleWrapper
   })
@@ -1894,7 +1712,8 @@ export const useDirectiveHandlers = () => {
     const rawStyle = mergedRaw.style
     if (rawStyle) {
       if (typeof rawStyle === 'string') {
-        style.push(interpolateAttr(rawStyle) || rawStyle)
+        const styleAttr = getStyleAttr({ style: rawStyle }, gameData)
+        if (styleAttr) style.push(styleAttr)
       } else if (typeof rawStyle === 'object') {
         const entries = Object.entries(rawStyle as Record<string, unknown>).map(
           ([k, v]) => `${k}:${v}`
@@ -1915,11 +1734,11 @@ export const useDirectiveHandlers = () => {
     if (style.length) props.style = style.join(';')
     const classAttr =
       typeof mergedRaw.className === 'string'
-        ? getClassAttr(mergedRaw)
+        ? getClassAttr(mergedRaw, gameData)
         : undefined
     const layerClassAttr =
       typeof mergedRaw.layerClassName === 'string'
-        ? interpolateAttr(mergedRaw.layerClassName) || mergedRaw.layerClassName
+        ? getClassAttr({ className: mergedRaw.layerClassName }, gameData)
         : undefined
     const classes = ['text-base', 'font-normal']
     if (classAttr) classes.unshift(classAttr)
@@ -1929,28 +1748,33 @@ export const useDirectiveHandlers = () => {
     if (mergedAttrs.layerId) props.layerId = mergedAttrs.layerId
     props['data-component'] = 'slideText'
     props['data-as'] = tagName
-    applyAdditionalAttributes(mergedRaw, props, [
-      'x',
-      'y',
-      'w',
-      'h',
-      'z',
-      'rotate',
-      'scale',
-      'anchor',
-      'as',
-      'align',
-      'size',
-      'weight',
-      'lineHeight',
-      'color',
-      'style',
-      'className',
-      'layerClassName',
-      'id',
-      'layerId',
-      'from'
-    ])
+    applyAdditionalAttributes(
+      mergedRaw,
+      props,
+      [
+        'x',
+        'y',
+        'w',
+        'h',
+        'z',
+        'rotate',
+        'scale',
+        'anchor',
+        'as',
+        'align',
+        'size',
+        'weight',
+        'lineHeight',
+        'color',
+        'style',
+        'className',
+        'layerClassName',
+        'id',
+        'layerId',
+        'from'
+      ],
+      addError
+    )
     const processed = runDirectiveBlock(
       expandIndentedCode(container.children as RootContent[]),
       handlersRef.current
@@ -1977,7 +1801,7 @@ export const useDirectiveHandlers = () => {
    */
   const handleImage: DirectiveHandler = (directive, parent, index) => {
     if (!parent || typeof index !== 'number') return
-    const invalid = requireLeafDirective(directive, parent, index)
+    const invalid = requireLeafDirective(directive, parent, index, addError)
     if (typeof invalid !== 'undefined') return invalid
     const { attrs } = extractAttributes<ImageSchema>(
       directive,
@@ -2004,32 +1828,40 @@ export const useDirectiveHandlers = () => {
     if (typeof mergedAttrs.scale === 'number') props.scale = mergedAttrs.scale
     if (mergedAttrs.anchor) props.anchor = mergedAttrs.anchor
     if (mergedAttrs.alt) props.alt = mergedAttrs.alt
-    const mergedStyle = getStyleAttr({ style: mergedAttrs.style })
+    const mergedStyle = getStyleAttr({ style: mergedAttrs.style }, gameData)
     if (mergedStyle) props.style = mergedStyle
-    const mergedClass = getClassAttr({ className: mergedAttrs.className })
+    const mergedClass = getClassAttr(
+      { className: mergedAttrs.className },
+      gameData
+    )
     if (mergedClass) props.className = mergedClass
     if (mergedAttrs.layerClassName)
       props.layerClassName = mergedAttrs.layerClassName
     if (mergedAttrs.id) props.id = mergedAttrs.id
     if (mergedAttrs.layerId) props.layerId = mergedAttrs.layerId
-    applyAdditionalAttributes(mergedRaw, props, [
-      'x',
-      'y',
-      'w',
-      'h',
-      'z',
-      'rotate',
-      'scale',
-      'anchor',
-      'src',
-      'alt',
-      'style',
-      'className',
-      'layerClassName',
-      'id',
-      'layerId',
-      'from'
-    ])
+    applyAdditionalAttributes(
+      mergedRaw,
+      props,
+      [
+        'x',
+        'y',
+        'w',
+        'h',
+        'z',
+        'rotate',
+        'scale',
+        'anchor',
+        'src',
+        'alt',
+        'style',
+        'className',
+        'layerClassName',
+        'id',
+        'layerId',
+        'from'
+      ],
+      addError
+    )
     const data = {
       hName: 'slideImage',
       hProperties: props as Properties
@@ -2097,41 +1929,52 @@ export const useDirectiveHandlers = () => {
       props.radius = mergedAttrs.radius
     if (typeof mergedAttrs.shadow === 'boolean')
       props.shadow = mergedAttrs.shadow
-    const mergedStyle = getStyleAttr(mergedAttrs as Record<string, unknown>)
+    const mergedStyle = getStyleAttr(
+      mergedAttrs as Record<string, unknown>,
+      gameData
+    )
     if (mergedStyle) props.style = mergedStyle
-    const mergedClass = getClassAttr(mergedAttrs as Record<string, unknown>)
+    const mergedClass = getClassAttr(
+      mergedAttrs as Record<string, unknown>,
+      gameData
+    )
     if (mergedClass) props.className = mergedClass
     if (mergedAttrs.layerClassName)
       props.layerClassName = mergedAttrs.layerClassName
     if (mergedAttrs.id) props.id = mergedAttrs.id
     if (mergedAttrs.layerId) props.layerId = mergedAttrs.layerId
-    applyAdditionalAttributes(mergedRaw, props, [
-      'x',
-      'y',
-      'w',
-      'h',
-      'z',
-      'rotate',
-      'scale',
-      'anchor',
-      'type',
-      'points',
-      'x1',
-      'y1',
-      'x2',
-      'y2',
-      'stroke',
-      'strokeWidth',
-      'fill',
-      'radius',
-      'shadow',
-      'style',
-      'className',
-      'layerClassName',
-      'id',
-      'layerId',
-      'from'
-    ])
+    applyAdditionalAttributes(
+      mergedRaw,
+      props,
+      [
+        'x',
+        'y',
+        'w',
+        'h',
+        'z',
+        'rotate',
+        'scale',
+        'anchor',
+        'type',
+        'points',
+        'x1',
+        'y1',
+        'x2',
+        'y2',
+        'stroke',
+        'strokeWidth',
+        'fill',
+        'radius',
+        'shadow',
+        'style',
+        'className',
+        'layerClassName',
+        'id',
+        'layerId',
+        'from'
+      ],
+      addError
+    )
     const node: Parent = {
       type: 'paragraph',
       children: [],
@@ -2213,7 +2056,12 @@ export const useDirectiveHandlers = () => {
     if (attrs.onEnter) props.onEnter = attrs.onEnter
     if (attrs.onExit) props.onExit = attrs.onExit
     const mergedRaw = mergeAttrs(preset, raw)
-    applyAdditionalAttributes(mergedRaw, props, [...SLIDE_EXCLUDES, 'from'])
+    applyAdditionalAttributes(
+      mergedRaw,
+      props,
+      [...SLIDE_EXCLUDES, 'from'],
+      addError
+    )
     return props
   }
 
@@ -2281,7 +2129,7 @@ export const useDirectiveHandlers = () => {
           const t = parseThemeValue(preset.theme)
           if (t) deckProps.theme = t
         }
-        applyAdditionalAttributes(preset, deckProps, DECK_EXCLUDES)
+        applyAdditionalAttributes(preset, deckProps, DECK_EXCLUDES, addError)
       }
     }
     if (typeof deckAttrs.size === 'string') {
@@ -2314,11 +2162,12 @@ export const useDirectiveHandlers = () => {
       deckProps.a11y = deckAttrs.a11y
     }
     const rawDeckAttrs = (directive.attributes || {}) as Record<string, unknown>
-    applyAdditionalAttributes(rawDeckAttrs, deckProps, [
-      ...DECK_EXCLUDES,
-      'from',
-      'id'
-    ])
+    applyAdditionalAttributes(
+      rawDeckAttrs,
+      deckProps,
+      [...DECK_EXCLUDES, 'from', 'id'],
+      addError
+    )
 
     const slides: Parent[] = []
 
@@ -2505,7 +2354,7 @@ export const useDirectiveHandlers = () => {
    * @returns The new index after replacement, or removes the node if not found or on error.
    */
   const handleInclude: DirectiveHandler = (directive, parent, index) => {
-    const invalid = requireLeafDirective(directive, parent, index)
+    const invalid = requireLeafDirective(directive, parent, index, addError)
     if (typeof invalid !== 'undefined') return invalid
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const rawText = toString(directive).trim()

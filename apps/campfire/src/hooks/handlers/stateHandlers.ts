@@ -14,6 +14,7 @@ import {
   applyKeyValue,
   isRange
 } from '@campfire/utils/directiveUtils'
+import { requireLeafDirective } from '@campfire/utils/directiveHandlerUtils'
 import {
   getRandomInt,
   getRandomItem,
@@ -35,12 +36,6 @@ export interface StateHandlerContext {
   refreshState: () => void
   /** Records an error message. */
   addError: (msg: string) => void
-  /** Validates that a directive is used in leaf form. */
-  requireLeafDirective: (
-    directive: DirectiveNode,
-    parent: Parent | undefined,
-    index: number | undefined
-  ) => DirectiveHandlerResult | undefined
 }
 
 /**
@@ -50,13 +45,7 @@ export interface StateHandlerContext {
  * @returns An object containing directive handlers and helpers.
  */
 export const createStateHandlers = (ctx: StateHandlerContext) => {
-  const {
-    getState,
-    getGameData,
-    refreshState,
-    addError,
-    requireLeafDirective
-  } = ctx
+  const { getState, getGameData, refreshState, addError } = ctx
 
   /**
    * Parses a comma-separated list of items into typed values.
@@ -129,7 +118,7 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
     index: number | undefined,
     lock = false
   ): DirectiveHandlerResult => {
-    const invalid = requireLeafDirective(directive, parent, index)
+    const invalid = requireLeafDirective(directive, parent, index, addError)
     if (typeof invalid !== 'undefined') return invalid
     const rawLabel = hasLabel(directive) ? directive.label : undefined
     const textContent = toString(directive)
@@ -209,7 +198,7 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
     index: number | undefined,
     lock = false
   ): DirectiveHandlerResult => {
-    const invalid = requireLeafDirective(directive, parent, index)
+    const invalid = requireLeafDirective(directive, parent, index, addError)
     if (typeof invalid !== 'undefined') return invalid
     const splitItems = (input: string): string[] => {
       const result: string[] = []
@@ -300,7 +289,7 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
     parent: Parent | undefined,
     index: number | undefined
   ): DirectiveHandlerResult => {
-    const invalid = requireLeafDirective(directive, parent, index)
+    const invalid = requireLeafDirective(directive, parent, index, addError)
     if (typeof invalid !== 'undefined') return invalid
     const parsed = extractKeyValue(directive, parent, index, addError)
     if (!parsed) return index
@@ -376,7 +365,7 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
     index: number | undefined,
     lock = false
   ): DirectiveHandlerResult => {
-    const invalid = requireLeafDirective(directive, parent, index)
+    const invalid = requireLeafDirective(directive, parent, index, addError)
     if (typeof invalid !== 'undefined') return invalid
     const label = hasLabel(directive) ? directive.label : toString(directive)
     const key = ensureKey(label.trim(), parent, index)
@@ -453,7 +442,7 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
       op: 'push' | 'pop' | 'shift' | 'unshift' | 'splice' | 'concat'
     ): DirectiveHandler =>
     (directive, parent, index) => {
-      const invalid = requireLeafDirective(directive, parent, index)
+      const invalid = requireLeafDirective(directive, parent, index, addError)
       if (typeof invalid !== 'undefined') return invalid
       const attrs = directive.attributes || {}
       const key = ensureKey(
@@ -552,7 +541,7 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
    * @returns The index of the removed node, if any.
    */
   const handleUnset: DirectiveHandler = (directive, parent, index) => {
-    const invalid = requireLeafDirective(directive, parent, index)
+    const invalid = requireLeafDirective(directive, parent, index, addError)
     if (typeof invalid !== 'undefined') return invalid
     const attrs = directive.attributes || {}
     const key = ensureKey(
