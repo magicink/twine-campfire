@@ -70,6 +70,7 @@ import { createControlFlowHandlers } from './handlers/controlFlowHandlers'
 import { createFormHandlers } from './handlers/formHandlers'
 import { createNavigationHandlers } from './handlers/navigationHandlers'
 import { createMediaHandlers } from './handlers/mediaHandlers'
+import { createPersistenceHandlers } from './handlers/persistenceHandlers'
 
 const NUMERIC_PATTERN = /^\d+$/
 const ALLOWED_ONEXIT_DIRECTIVES = new Set([
@@ -137,7 +138,7 @@ export const useDirectiveHandlers = () => {
   const loadCheckpointFn = useGameStore.use.loadCheckpoint()
   const setLoading = useGameStore.use.setLoading()
   const addError = useGameStore.use.addError()
-  const currentPassageId = useStoryDataStore.use.currentPassageId!()
+  const currentPassageId = useStoryDataStore.use.currentPassageId!() as string
   const setCurrentPassage = useStoryDataStore.use.setCurrentPassage()
   const getPassageById = useStoryDataStore.use.getPassageById()
   const getPassageByName = useStoryDataStore.use.getPassageByName()
@@ -603,191 +604,6 @@ export const useDirectiveHandlers = () => {
       return replaceWithIndentation(directive, parent, index, [node])
     }
     return index
-  }
-
-  /**
-   * Saves the current game state to local storage.
-   *
-   * @param directive - The directive node being processed.
-   * @param parent - Parent node containing the directive.
-   * @param index - Index of the directive within the parent.
-   */
-  const handleSave: DirectiveHandler = (directive, parent, index) => {
-    const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
-    const attrs = (directive.attributes || {}) as Record<string, unknown>
-    const id = typeof attrs.id === 'string' ? attrs.id : 'campfire.save'
-    setLoading(true)
-    try {
-      if (typeof localStorage !== 'undefined') {
-        const cps = useGameStore.getState().checkpoints
-        const data = {
-          gameData: { ...(state.getState() as Record<string, unknown>) },
-          lockedKeys: { ...state.getLockedKeys() },
-          onceKeys: { ...state.getOnceKeys() },
-          checkpoints: { ...cps },
-          currentPassageId
-        }
-        localStorage.setItem(id, JSON.stringify(data))
-      }
-    } catch (error) {
-      console.error('Error saving game state:', error)
-      addError('Failed to save game state')
-    } finally {
-      setLoading(false)
-    }
-    return removeNode(parent, index)
-  }
-
-  /**
-   * Loads a game state from local storage.
-   *
-   * @param directive - The directive node being processed.
-   * @param parent - Parent node containing the directive.
-   * @param index - Index of the directive within the parent.
-   */
-  const handleLoad: DirectiveHandler = (directive, parent, index) => {
-    const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
-    const attrs = (directive.attributes || {}) as Record<string, unknown>
-    const id = typeof attrs.id === 'string' ? attrs.id : 'campfire.save'
-    setLoading(true)
-    try {
-      if (typeof localStorage !== 'undefined') {
-        const raw = localStorage.getItem(id)
-        if (raw) {
-          const data = JSON.parse(raw) as {
-            gameData?: Record<string, unknown>
-            lockedKeys?: Record<string, true>
-            onceKeys?: Record<string, true>
-            checkpoints?: Record<string, Checkpoint<Record<string, unknown>>>
-            currentPassageId?: string
-          }
-          useGameStore.setState({
-            gameData: { ...(data.gameData || {}) },
-            lockedKeys: { ...(data.lockedKeys || {}) },
-            onceKeys: { ...(data.onceKeys || {}) },
-            checkpoints: { ...(data.checkpoints || {}) }
-          })
-          if (data.currentPassageId) {
-            setCurrentPassage(data.currentPassageId)
-          } else {
-            const msg = 'Saved game state has no current passage'
-            console.error(msg)
-            addError(msg)
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Error loading game state:', error)
-      addError('Failed to load game state')
-    } finally {
-      setLoading(false)
-    }
-    return removeNode(parent, index)
-  }
-
-  /**
-   * Clears a saved game state from local storage.
-   *
-   * @param directive - The directive node being processed.
-   * @param parent - Parent node containing the directive.
-   * @param index - Index of the directive within the parent.
-   */
-  const handleClearSave: DirectiveHandler = (directive, parent, index) => {
-    const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
-    const attrs = (directive.attributes || {}) as Record<string, unknown>
-    const id = typeof attrs.id === 'string' ? attrs.id : 'campfire.save'
-    setLoading(true)
-    try {
-      if (typeof localStorage !== 'undefined') {
-        localStorage.removeItem(id)
-      }
-    } catch (error) {
-      console.error('Error clearing saved game state:', error)
-      addError('Failed to clear saved game state')
-    } finally {
-      setLoading(false)
-    }
-    return removeNode(parent, index)
-  }
-
-  const handleCheckpoint: DirectiveHandler = (directive, parent, index) => {
-    const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
-    if (lastPassageIdRef.current !== currentPassageId) {
-      resetDirectiveState()
-    }
-    if (includeDepth > 0) return removeNode(parent, index)
-    const attrs = (directive.attributes || {}) as Record<string, unknown>
-    const id = ensureKey(attrs.id, parent, index)
-    if (!id) return index
-    if (checkpointErrorRef.current) {
-      return removeNode(parent, index)
-    }
-    if (checkpointIdRef.current) {
-      removeCheckpoint(checkpointIdRef.current)
-      checkpointIdRef.current = null
-      checkpointErrorRef.current = true
-      const msg = 'Multiple checkpoints in a single passage are not allowed'
-      console.error(msg)
-      addError(msg)
-      return removeNode(parent, index)
-    }
-    checkpointIdRef.current = id
-    const label =
-      typeof attrs.label === 'string' ? i18next.t(attrs.label) : undefined
-    saveCheckpoint(id, {
-      gameData: { ...(gameData as Record<string, unknown>) },
-      lockedKeys: { ...lockedKeys },
-      onceKeys: { ...onceKeys },
-      currentPassageId,
-      label
-    })
-    return removeNode(parent, index)
-  }
-
-  /**
-   * Handles the `::loadCheckpoint` directive, which loads the saved checkpoint.
-   * If the directive is used inside an included passage, it is ignored.
-   *
-   * @param directive - The directive node representing `:loadCheckpoint`.
-   * @param parent - The parent AST node containing this directive.
-   * @param index - The index of this directive within the parent's children.
-   * @returns The index at which processing should continue.
-   */
-  const handleLoadCheckpoint: DirectiveHandler = (directive, parent, index) => {
-    const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
-    if (includeDepth > 0) return removeNode(parent, index)
-    const cp = loadCheckpointFn()
-    if (cp?.currentPassageId) {
-      setCurrentPassage(cp.currentPassageId)
-    }
-    return removeNode(parent, index)
-  }
-
-  /**
-   * Handles the `::clearCheckpoint` directive, which removes the currently saved
-   * checkpoint. If the directive is used inside an included passage, it is
-   * ignored.
-   *
-   * @param directive - The directive node representing `:clearCheckpoint`.
-   * @param parent - The parent AST node containing this directive.
-   * @param index - The index of this directive within the parent's children.
-   * @returns The index at which processing should continue.
-   */
-  const handleClearCheckpoint: DirectiveHandler = (
-    directive,
-    parent,
-    index
-  ) => {
-    const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
-    if (includeDepth > 0) return removeNode(parent, index)
-    useGameStore.setState({ checkpoints: {} })
-    return removeNode(parent, index)
   }
 
   /**
@@ -1410,6 +1226,30 @@ export const useDirectiveHandlers = () => {
   })
 
   const mediaHandlers = createMediaHandlers({ addError })
+
+  const { handlers: persistenceHandlers } = createPersistenceHandlers({
+    getState: () => state,
+    getCurrentPassageId: () => currentPassageId,
+    getLastPassageId: () => lastPassageIdRef.current,
+    resetDirectiveState,
+    setCurrentPassage,
+    setLoading,
+    addError,
+    getCheckpoints: () => useGameStore.getState().checkpoints,
+    saveCheckpoint,
+    removeCheckpoint,
+    loadCheckpoint: () => loadCheckpointFn(),
+    setGameStoreState: useGameStore.setState,
+    getIncludeDepth: () => includeDepth,
+    getCheckpointId: () => checkpointIdRef.current,
+    setCheckpointId: id => {
+      checkpointIdRef.current = id
+    },
+    getCheckpointError: () => checkpointErrorRef.current,
+    setCheckpointError: err => {
+      checkpointErrorRef.current = err
+    }
+  })
 
   /**
    * Converts a `:text` directive into a SlideText element.
@@ -2112,12 +1952,7 @@ export const useDirectiveHandlers = () => {
       lang: handleLang,
       ...navigationHandlers,
       ...mediaHandlers,
-      save: handleSave,
-      load: handleLoad,
-      clearSave: handleClearSave,
-      checkpoint: handleCheckpoint,
-      clearCheckpoint: handleClearCheckpoint,
-      loadCheckpoint: handleLoadCheckpoint,
+      ...persistenceHandlers,
       translations: handleTranslations,
       t: handleTranslate
     }
