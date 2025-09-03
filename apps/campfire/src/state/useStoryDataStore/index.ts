@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { setImmer } from '@campfire/state/utils'
+import { setImmer, createSelectors } from '@campfire/state/utils'
 import type { Element } from 'hast'
 
 export interface StoryDataState {
@@ -16,7 +16,7 @@ export interface StoryDataState {
   getPassageByName: (name: string) => Element | undefined
 }
 
-export const useStoryDataStore = create<StoryDataState>((set, get) => {
+const useStoryDataStoreBase = create<StoryDataState>((set, get) => {
   const immer = setImmer<StoryDataState>(set)
   return {
     storyData: {},
@@ -54,3 +54,6 @@ export const useStoryDataStore = create<StoryDataState>((set, get) => {
       get().passages.find(p => p.properties?.name === name)
   }
 })
+
+/** Story data store with selector helpers. */
+export const useStoryDataStore = createSelectors(useStoryDataStoreBase)

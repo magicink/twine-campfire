@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
-import { setImmer } from '@campfire/state/utils'
+import { setImmer, createSelectors } from '@campfire/state/utils'
 
 export interface GameState<T = Record<string, unknown>> {
   /** Arbitrary game state */
@@ -117,7 +117,8 @@ export const listSavedGames = (prefix = 'campfire.save'): SavedGame[] => {
 ;(globalThis as { listSavedGames?: typeof listSavedGames }).listSavedGames =
   listSavedGames
 
-export const useGameStore = create(
+/** Internal instance of the game store. */
+const useGameStoreBase = create(
   subscribeWithSelector<InternalState<Record<string, unknown>>>((set, get) => {
     const immer = setImmer<InternalState<Record<string, unknown>>>(set)
     return {
@@ -225,3 +226,6 @@ export const useGameStore = create(
     }
   })
 )
+
+/** Global store managing game state and persistence. */
+export const useGameStore = createSelectors(useGameStoreBase)
