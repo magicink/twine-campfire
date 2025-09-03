@@ -56,6 +56,8 @@ export interface ControlFlowHandlerContext {
   isTextNode: (node: RootContent) => node is MdText
   /** Determines if a node is whitespace-only. */
   isWhitespaceNode: (node: RootContent) => boolean
+  /** Determines if a node is a paragraph containing only directive markers. */
+  isMarkerParagraph: (node: RootContent) => boolean
   /** Directives allowed within a batch block. */
   allowedBatchDirectives: Set<string>
   /** Directives disallowed within a batch block. */
@@ -85,6 +87,7 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
     removeDirectiveMarker,
     isTextNode,
     isWhitespaceNode,
+    isMarkerParagraph,
     allowedBatchDirectives,
     bannedBatchDirectives
   } = ctx
@@ -180,7 +183,7 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
     const newIndex = replaceWithIndentation(directive, parent, index, [
       node as RootContent
     ])
-    // Remove closing directive markers after the trigger block, skipping any whitespace-only nodes
+    // Remove closing directive markers after the if block, skipping whitespace-only nodes
     let markerIndex = newIndex + 1
     while (markerIndex < parent.children.length) {
       const sibling = parent.children[markerIndex]
@@ -188,8 +191,9 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
         markerIndex++
         continue
       }
-      const removed = removeDirectiveMarker(parent, markerIndex)
-      if (typeof removed !== 'undefined') markerIndex = removed
+      if (isMarkerParagraph(sibling)) {
+        removeDirectiveMarker(parent, markerIndex)
+      }
       break
     }
     return [SKIP, newIndex]

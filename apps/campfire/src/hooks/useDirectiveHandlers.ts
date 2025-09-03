@@ -452,6 +452,7 @@ export const useDirectiveHandlers = () => {
     removeDirectiveMarker,
     isTextNode,
     isWhitespaceNode,
+    isMarkerParagraph,
     allowedBatchDirectives: ALLOWED_BATCH_DIRECTIVES,
     bannedBatchDirectives: BANNED_BATCH_DIRECTIVES
   })
