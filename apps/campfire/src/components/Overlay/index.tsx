@@ -7,7 +7,7 @@ import { h } from 'preact'
  * @returns Container with all processed overlays.
  */
 export const Overlay = () => {
-  const overlays = useOverlayStore(state => state.overlays)
+  const overlays = useOverlayStore.use.overlays()
   return (
     <div
       className='campfire-overlay absolute inset-0 pointer-events-none'
