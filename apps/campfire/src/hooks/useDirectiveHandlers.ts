@@ -187,15 +187,6 @@ export const useDirectiveHandlers = () => {
     resetDirectiveState()
   }, [currentPassageId])
 
-  /**
-   * Interpolates template placeholders in an attribute string using game data.
-   *
-   * @param value - Raw attribute value that may contain `${}` expressions.
-   * @returns The interpolated string when placeholders are present.
-   */
-  const interpolateAttr = (value?: string): string | undefined =>
-    value && value.includes('${') ? interpolateString(value, gameData) : value
-
   const refreshState = () => {
     gameData = state.getState()
     lockedKeys = state.getLockedKeys()
@@ -1721,7 +1712,8 @@ export const useDirectiveHandlers = () => {
     const rawStyle = mergedRaw.style
     if (rawStyle) {
       if (typeof rawStyle === 'string') {
-        style.push(interpolateAttr(rawStyle) || rawStyle)
+        const styleAttr = getStyleAttr({ style: rawStyle }, gameData)
+        if (styleAttr) style.push(styleAttr)
       } else if (typeof rawStyle === 'object') {
         const entries = Object.entries(rawStyle as Record<string, unknown>).map(
           ([k, v]) => `${k}:${v}`
@@ -1746,7 +1738,7 @@ export const useDirectiveHandlers = () => {
         : undefined
     const layerClassAttr =
       typeof mergedRaw.layerClassName === 'string'
-        ? interpolateAttr(mergedRaw.layerClassName) || mergedRaw.layerClassName
+        ? getClassAttr({ className: mergedRaw.layerClassName }, gameData)
         : undefined
     const classes = ['text-base', 'font-normal']
     if (classAttr) classes.unshift(classAttr)
