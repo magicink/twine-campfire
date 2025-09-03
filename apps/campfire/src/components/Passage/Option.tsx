@@ -9,6 +9,8 @@ export interface OptionProps
   className?: string | string[]
   /** Callback fired when this option is selected. */
   onSelectOption?: (value: string) => void
+  /** Whether this option is currently selected. */
+  selected?: boolean
 }
 
 /**
@@ -27,6 +29,7 @@ export const Option = ({
   children,
   onSelectOption,
   value,
+  selected,
   ...rest
 }: OptionProps) => {
   const mergedStyle =
@@ -37,10 +40,14 @@ export const Option = ({
           background: 'oklch(0.98 0 0)',
           ...(style ?? {})
         }
+  const id = `option-${value.replace(/\s+/g, '-')}`
   return (
     <button
       type='button'
       data-testid='option'
+      role='option'
+      id={id}
+      aria-selected={selected}
       className={mergeClasses(
         'campfire-option',
         'w-full text-left px-2 py-2 transition-colors hover:bg-[oklch(0.9_0_0)]',
