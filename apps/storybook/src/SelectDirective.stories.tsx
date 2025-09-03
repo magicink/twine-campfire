@@ -75,11 +75,28 @@ export const WithEvents: StoryObj = {
   ::unset[focused]
 :::
 
+:::
+
 :::if[focused]
 
 Focused!
 
 :::
+
+:::if[color]
+
+You chose
+:::
+
+  :::if[color === "red"]
+
+  :show[color]{style="color: var(--color-destructive-500)"}.
+
+:::
+
+  :::if[color === "blue"]
+
+  :show[color]{style="color: var(--color-primary-500)"}.
 
 :::
           `}
