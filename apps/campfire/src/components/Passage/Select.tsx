@@ -70,22 +70,21 @@ export const Select = ({
   disabled,
   ...rest
 }: SelectProps) => {
-  const value = useGameStore(state => state.gameData[stateKey]) as
-    | string
-    | undefined
-  const setGameData = useGameStore(state => state.setGameData)
-  const isDisabled = useGameStore(state => {
+  const gameData = useGameStore.use.gameData()
+  const value = gameData[stateKey] as string | undefined
+  const setGameData = useGameStore.use.setGameData()
+  const isDisabled = (() => {
     if (typeof disabled === 'string') {
       if (disabled === '' || disabled === 'true') return true
       if (disabled === 'false') return false
       try {
-        return Boolean(evalExpression(disabled, state.gameData))
+        return Boolean(evalExpression(disabled, gameData))
       } catch {
         return false
       }
     }
     return Boolean(disabled)
-  })
+  })()
   const directiveEvents = useDirectiveEvents(
     onMouseEnter,
     onMouseLeave,
