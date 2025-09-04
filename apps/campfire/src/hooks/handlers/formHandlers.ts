@@ -185,7 +185,6 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       if (events.onMouseLeave) props.onMouseLeave = events.onMouseLeave
       if (events.onFocus) props.onFocus = events.onFocus
       if (events.onBlur) props.onBlur = events.onBlur
-      if (events.onChange) props.onChange = events.onChange
       applyAdditionalAttributes(
         attrs,
         props,
@@ -307,7 +306,6 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       if (events.onMouseLeave) props.onMouseLeave = events.onMouseLeave
       if (events.onFocus) props.onFocus = events.onFocus
       if (events.onBlur) props.onBlur = events.onBlur
-      if (events.onChange) props.onChange = events.onChange
       applyAdditionalAttributes(
         attrs,
         props,
@@ -433,7 +431,6 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       if (events.onMouseLeave) props.onMouseLeave = events.onMouseLeave
       if (events.onFocus) props.onFocus = events.onFocus
       if (events.onBlur) props.onBlur = events.onBlur
-      if (events.onChange) props.onChange = events.onChange
       applyAdditionalAttributes(
         attrs,
         props,
@@ -558,7 +555,6 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       if (events.onMouseLeave) props.onMouseLeave = events.onMouseLeave
       if (events.onFocus) props.onFocus = events.onFocus
       if (events.onBlur) props.onBlur = events.onBlur
-      if (events.onChange) props.onChange = events.onChange
       applyAdditionalAttributes(
         attrs,
         props,
@@ -719,7 +715,6 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
     if (events.onMouseLeave) props.onMouseLeave = events.onMouseLeave
     if (events.onFocus) props.onFocus = events.onFocus
     if (events.onBlur) props.onBlur = events.onBlur
-    if (events.onChange) props.onChange = events.onChange
     applyAdditionalAttributes(
       attrs,
       props,

@@ -218,7 +218,6 @@ Use event directives inside `input`, `select`, or `trigger` blocks to run direct
 | `onMouseLeave` | is no longer hovered      |
 | `onFocus`      | receives focus            |
 | `onBlur`       | loses focus               |
-| `onChange`     | value changes             |
 
 ## Passage event blocks
 

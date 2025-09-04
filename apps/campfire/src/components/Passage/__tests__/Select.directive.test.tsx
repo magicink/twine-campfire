@@ -158,29 +158,6 @@ describe('Select directive', () => {
     expect(useGameStore.getState().gameData.hovered).toBe(true)
   })
 
-  it('runs onChange directives when selection changes', async () => {
-    const passage: Element = {
-      type: 'element',
-      tagName: 'tw-passagedata',
-      properties: { pid: '1', name: 'Start' },
-      children: [
-        {
-          type: 'text',
-          value:
-            ':::select[color]\n::option{value="red" label="Red"}\n::option{value="blue" label="Blue"}\n:::onChange\n::set[changed=true]\n:::\n:::\n'
-        }
-      ]
-    }
-    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-    render(<Passage />)
-    const select = await screen.findByTestId('select')
-    expect(useGameStore.getState().gameData.changed).toBeUndefined()
-    fireEvent.click(select)
-    await new Promise(r => setTimeout(r, 0))
-    fireEvent.click(screen.getAllByTestId('option')[0])
-    expect(useGameStore.getState().gameData.changed).toBe(true)
-  })
-
   it('removes directive markers for container selects', async () => {
     const passage: Element = {
       type: 'element',

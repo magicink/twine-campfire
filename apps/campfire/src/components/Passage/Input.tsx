@@ -19,7 +19,6 @@ interface InputProps
       | 'onMouseEnter'
       | 'onMouseLeave'
       | 'disabled'
-      | 'onChange'
     >,
     BoundFieldProps<string> {}
 
@@ -32,7 +31,6 @@ interface InputProps
  * @param onMouseLeave - Serialized directives to run on mouse leave.
  * @param onFocus - Serialized directives to run on focus.
  * @param onBlur - Serialized directives to run on blur.
- * @param onChange - Serialized directives to run on value change.
  * @param rest - Additional input element attributes.
  * @returns The rendered input element.
  */
@@ -43,7 +41,6 @@ export const Input = ({
   onMouseLeave,
   onFocus,
   onBlur,
-  onChange,
   onInput,
   initialValue,
   disabled,
@@ -67,8 +64,7 @@ export const Input = ({
     onMouseEnter,
     onMouseLeave,
     onFocus,
-    onBlur,
-    onChange
+    onBlur
   )
   const setGameData = useGameStore.use.setGameData()
   useEffect(() => {

@@ -16,8 +16,6 @@ export interface BoundFieldProps<V> {
   onFocus?: string
   /** Serialized directives to run on blur. */
   onBlur?: string
-  /** Serialized directives to run on value change. */
-  onChange?: string
   /** Initial value if the state key is unset. */
   initialValue?: V
   /** Boolean or state key controlling the disabled state. */

@@ -76,10 +76,6 @@ export const WithEvents: StoryObj = {
   ::unset[focused]
 :::
 
-:::onChange
-  ::set[changed=true]
-:::
-
 :::
 
 :::if[focused]
@@ -105,11 +101,6 @@ You chose
 
 :::
 
-:::if[changed]
-
-Changed!
-
-:::
             `}
         </tw-passagedata>
       </tw-storydata>

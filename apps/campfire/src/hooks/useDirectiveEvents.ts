@@ -13,21 +13,18 @@ const clone = rfdc()
  * @param onMouseLeave - Serialized directives to run on mouse leave.
  * @param onFocus - Serialized directives to run on focus.
  * @param onBlur - Serialized directives to run on blur.
- * @param onChange - Serialized directives to run on change.
  * @returns Object containing event handlers.
  */
 export const useDirectiveEvents = (
   onMouseEnter?: string,
   onMouseLeave?: string,
   onFocus?: string,
-  onBlur?: string,
-  onChange?: string
+  onBlur?: string
 ): {
   onMouseEnter?: JSX.HTMLAttributes<HTMLElement>['onMouseEnter']
   onMouseLeave?: JSX.HTMLAttributes<HTMLElement>['onMouseLeave']
   onFocus?: JSX.HTMLAttributes<HTMLElement>['onFocus']
   onBlur?: JSX.HTMLAttributes<HTMLElement>['onBlur']
-  onChange?: () => void
 } => {
   const handlers = useDirectiveHandlers()
 
@@ -47,7 +44,6 @@ export const useDirectiveEvents = (
     onMouseEnter: createHandler(onMouseEnter),
     onMouseLeave: createHandler(onMouseLeave),
     onFocus: createHandler(onFocus),
-    onBlur: createHandler(onBlur),
-    onChange: createHandler(onChange)
+    onBlur: createHandler(onBlur)
   }
 }
