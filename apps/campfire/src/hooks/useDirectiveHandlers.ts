@@ -93,6 +93,7 @@ const ALLOWED_ONEXIT_DIRECTIVES = new Set([
   'for',
   'batch'
 ])
+const ALLOWED_EFFECT_DIRECTIVES = ALLOWED_ONEXIT_DIRECTIVES
 const ALLOWED_BATCH_DIRECTIVES = new Set(
   [...ALLOWED_ONEXIT_DIRECTIVES].filter(name => name !== 'batch')
 )
@@ -289,6 +290,58 @@ export const useDirectiveHandlers = () => {
     allowedBatchDirectives: ALLOWED_BATCH_DIRECTIVES,
     bannedBatchDirectives: BANNED_BATCH_DIRECTIVES
   })
+
+  /**
+   * Processes an `effect` directive and serializes its contents.
+   *
+   * @param directive - The effect directive node.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within the parent.
+   * @returns The index of the inserted node.
+   */
+  const handleEffect: DirectiveHandler = (directive, parent, index) => {
+    if (!parent || typeof index !== 'number') return
+    const { attrs, label } = extractAttributes(
+      directive,
+      parent,
+      index,
+      { watch: { type: 'string' } },
+      { label: true }
+    )
+    const rawWatch = String(attrs.watch ?? label ?? '')
+    const watch = rawWatch
+      .split(/[\s,]+/)
+      .map(k => k.trim())
+      .filter(Boolean)
+    const container = directive as ContainerDirective
+    const allowed = ALLOWED_EFFECT_DIRECTIVES
+    const rawChildren = runDirectiveBlock(
+      expandIndentedCode(container.children as RootContent[])
+    )
+    const processedChildren = stripLabel(rawChildren)
+    const [filtered, invalid] = filterDirectiveChildren(
+      processedChildren,
+      allowed
+    )
+    if (invalid) {
+      const allowedList = [...allowed].join(', ')
+      const msg = `effect only supports directives: ${allowedList}`
+      console.error(msg)
+      addError(msg)
+    }
+    const content = JSON.stringify(filtered)
+    const node: Parent = {
+      type: 'paragraph',
+      children: [{ type: 'text', value: '' }],
+      data: { hName: 'effect', hProperties: { watch, content } }
+    }
+    const newIndex = replaceWithIndentation(directive, parent, index, [
+      node as RootContent
+    ])
+    const markerIndex = newIndex + 1
+    removeDirectiveMarker(parent, markerIndex)
+    return [SKIP, newIndex]
+  }
 
   /**
    * Converts an `:input` directive into an Input component bound to game state.
@@ -1686,6 +1739,7 @@ export const useDirectiveHandlers = () => {
       checkbox: handleCheckbox,
       radio: handleRadio,
       textarea: handleTextarea,
+      effect: handleEffect,
       onExit: handleOnExit,
       reveal: handleReveal,
       layer: handleLayer,

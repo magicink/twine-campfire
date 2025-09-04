@@ -256,3 +256,20 @@ Only one `onExit` block is allowed per passage. Its contents are hidden, and it 
 | Input    | Description                  |
 | -------- | ---------------------------- |
 | _(none)_ | This directive has no inputs |
+
+### `effect`
+
+Run data directives when watched state keys change.
+
+```md
+::set[hp=10]
+:::effect[hp]
+::set[changed=true]
+:::
+```
+
+Provide state keys to `watch` either as a label or attribute. The block runs once on mount and again whenever any watched key updates. Only the following directives are supported inside an `effect` block: `if`, `set`, `setOnce`, `array`, `arrayOnce`, `unset`, `random`, `randomOnce`, and `batch`.
+
+| Input | Description                                             |
+| ----- | ------------------------------------------------------- |
+| watch | Space- or comma-separated list of state keys to observe |
