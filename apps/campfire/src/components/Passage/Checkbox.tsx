@@ -20,6 +20,7 @@ interface CheckboxProps
       | 'onMouseEnter'
       | 'onMouseLeave'
       | 'disabled'
+      | 'onChange'
     >,
     BoundFieldProps<boolean> {}
 
@@ -32,6 +33,7 @@ interface CheckboxProps
  * @param onMouseLeave - Serialized directives to run on mouse leave.
  * @param onFocus - Serialized directives to run on focus.
  * @param onBlur - Serialized directives to run on blur.
+ * @param onChange - Serialized directives to run on value change.
  * @param rest - Additional button element attributes.
  * @returns The rendered checkbox element.
  */
@@ -42,6 +44,7 @@ export const Checkbox = ({
   onMouseLeave,
   onFocus,
   onBlur,
+  onChange,
   onClick,
   initialValue,
   disabled,
@@ -61,11 +64,12 @@ export const Checkbox = ({
     }
     return Boolean(disabled)
   })()
-  const directiveEvents = useDirectiveEvents(
+  const { onChange: changeHandler, ...directiveEvents } = useDirectiveEvents(
     onMouseEnter,
     onMouseLeave,
     onFocus,
-    onBlur
+    onBlur,
+    onChange
   )
   const setGameData = useGameStore.use.setGameData()
   useEffect(() => {
@@ -93,6 +97,7 @@ export const Checkbox = ({
         onClick?.(e)
         if (e.defaultPrevented || isDisabled) return
         setGameData({ [stateKey]: !checked })
+        changeHandler?.()
       }}
     >
       <span

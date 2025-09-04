@@ -43,7 +43,8 @@ You chose
   :show[color]{style="color: var(--color-primary-500)"}.
 
 :::
-          `}
+
+    `}
         </tw-passagedata>
       </tw-storydata>
       <Campfire />
@@ -75,6 +76,10 @@ export const WithEvents: StoryObj = {
   ::unset[focused]
 :::
 
+:::onChange
+  ::set[changed=true]
+:::
+
 :::
 
 :::if[focused]
@@ -99,7 +104,13 @@ You chose
   :show[color]{style="color: var(--color-primary-500)"}.
 
 :::
-          `}
+
+:::if[changed]
+
+Changed!
+
+:::
+            `}
         </tw-passagedata>
       </tw-storydata>
       <Campfire />

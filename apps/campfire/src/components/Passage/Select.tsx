@@ -31,6 +31,7 @@ interface SelectProps
       | 'onMouseEnter'
       | 'onMouseLeave'
       | 'disabled'
+      | 'onChange'
     >,
     BoundFieldProps<string> {
   /** Optional input event handler. */
@@ -48,6 +49,7 @@ interface SelectProps
  * @param onMouseLeave - Serialized directives to run on mouse leave.
  * @param onFocus - Serialized directives to run on focus.
  * @param onBlur - Serialized directives to run on blur.
+ * @param onChange - Serialized directives to run on value change.
  * @param style - Optional inline styles for the select element.
  * @param label - Text shown when no option is selected.
  * @param rest - Additional select element attributes.
@@ -60,6 +62,7 @@ export const Select = ({
   onMouseLeave,
   onFocus,
   onBlur,
+  onChange,
   onInput,
   style,
   children,
@@ -83,11 +86,12 @@ export const Select = ({
     }
     return Boolean(disabled)
   })()
-  const directiveEvents = useDirectiveEvents(
+  const { onChange: changeHandler, ...directiveEvents } = useDirectiveEvents(
     onMouseEnter,
     onMouseLeave,
     onFocus,
-    onBlur
+    onBlur,
+    onChange
   )
   const [open, setOpen] = useState(false)
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
@@ -104,6 +108,7 @@ export const Select = ({
   const handleSelect = (val: string) => {
     setGameData({ [stateKey]: val })
     onInput?.({} as any)
+    changeHandler?.()
     setOpen(false)
   }
   useEffect(() => {

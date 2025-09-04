@@ -19,6 +19,7 @@ interface TextareaProps
       | 'onMouseEnter'
       | 'onMouseLeave'
       | 'disabled'
+      | 'onChange'
     >,
     BoundFieldProps<string> {}
 
@@ -31,6 +32,7 @@ interface TextareaProps
  * @param onMouseLeave - Serialized directives to run on mouse leave.
  * @param onFocus - Serialized directives to run on focus.
  * @param onBlur - Serialized directives to run on blur.
+ * @param onChange - Serialized directives to run on value change.
  * @param rest - Additional textarea element attributes.
  * @returns The rendered textarea element.
  */
@@ -41,6 +43,7 @@ export const Textarea = ({
   onMouseLeave,
   onFocus,
   onBlur,
+  onChange,
   onInput,
   initialValue,
   disabled,
@@ -64,7 +67,8 @@ export const Textarea = ({
     onMouseEnter,
     onMouseLeave,
     onFocus,
-    onBlur
+    onBlur,
+    onChange
   )
   const setGameData = useGameStore.use.setGameData()
   useEffect(() => {

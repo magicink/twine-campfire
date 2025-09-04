@@ -109,7 +109,8 @@ const INTERACTIVE_EVENTS = new Set([
   'onMouseEnter',
   'onMouseLeave',
   'onFocus',
-  'onBlur'
+  'onBlur',
+  'onChange'
 ])
 
 export const useDirectiveHandlers = () => {
