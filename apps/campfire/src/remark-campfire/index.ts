@@ -260,13 +260,13 @@ const remarkCampfire =
   (options: RemarkCampfireOptions = {}) =>
   (tree: Root, file: VFile) => {
     const content = typeof file.value === 'string' ? file.value : undefined
-    const parentMap = new WeakMap<Parent, Parent | undefined>()
+    const relations = new WeakMap<Parent, { parent: Parent; index: number }>()
     const pendingRemoval: Array<{ parent: Parent; index: number }> = []
     visit(
       tree,
       (node: Node, index: number | undefined, parent: Parent | undefined) => {
-        if (parent && typeof (node as Parent).children !== 'undefined') {
-          parentMap.set(node as Parent, parent)
+        if (parent && typeof index === 'number') {
+          relations.set(node as Parent, { parent, index })
         }
         if (node.type === 'paragraph' && parent && typeof index === 'number') {
           const paragraph = node as ParagraphWithData
@@ -281,8 +281,7 @@ const remarkCampfire =
             )
           })
           if (!hasContent) {
-            parent.children.splice(index, 1)
-            return index
+            pendingRemoval.push({ parent, index })
           }
           return
         }
@@ -398,14 +397,9 @@ const remarkCampfire =
                 )
               })
               if (!hasContent) {
-                const grand = parentMap.get(parent)
-                if (grand) {
-                  const pIndex = grand.children.indexOf(
-                    parent as unknown as RootContent
-                  )
-                  if (pIndex > -1) {
-                    pendingRemoval.push({ parent: grand, index: pIndex })
-                  }
+                const info = relations.get(parent as Parent)
+                if (info) {
+                  pendingRemoval.push(info)
                 }
               }
             }
