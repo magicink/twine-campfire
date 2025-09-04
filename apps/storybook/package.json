@@ -12,6 +12,7 @@
     "react-dom": "npm:@preact/compat"
   },
   "devDependencies": {
+    "@storybook/addon-docs": "^8.6.14",
     "@storybook/preact": "^8.6.14",
     "@storybook/preact-vite": "^8.6.14",
     "typescript": "^5.3.3"

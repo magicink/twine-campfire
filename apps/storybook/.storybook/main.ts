@@ -2,7 +2,8 @@ import path from 'node:path'
 import type { StorybookConfig } from '@storybook/preact-vite'
 
 const config: StorybookConfig = {
-  stories: ['../src/**/*.stories.@(ts|tsx)'],
+  stories: ['../src/**/*.stories.@(ts|tsx|mdx)'],
+  addons: ['@storybook/addon-docs'],
   framework: {
     name: '@storybook/preact-vite',
     options: {}
