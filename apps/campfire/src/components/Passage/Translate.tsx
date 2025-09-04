@@ -1,4 +1,5 @@
 import type { JSX } from 'preact'
+import { useEffect } from 'preact/hooks'
 import { useTranslation } from 'react-i18next'
 import i18next from 'i18next'
 import { useGameStore } from '@campfire/state/useGameStore'
@@ -34,7 +35,20 @@ interface TranslateProps {
 export const Translate = ({ className, style, ...props }: TranslateProps) => {
   const addError = useGameStore.use.addError()
   const gameData = useGameStore.use.gameData()
+  // Subscribe to the active locale so translations re-render when it changes.
+  const lang = useGameStore(
+    state => (state.gameData as Record<string, unknown>).lang
+  )
   const { t } = useTranslation(undefined, { i18n: i18next })
+  useEffect(() => {
+    if (
+      typeof lang === 'string' &&
+      i18next.isInitialized &&
+      i18next.resolvedLanguage !== lang
+    ) {
+      void i18next.changeLanguage(lang)
+    }
+  }, [lang])
   let ns = props['data-i18n-ns']
   let tKey = props['data-i18n-key']
   const expr = props['data-i18n-expr']
@@ -96,6 +110,7 @@ export const Translate = ({ className, style, ...props }: TranslateProps) => {
   }
   return (
     <span
+      key={lang}
       className={mergeClasses('campfire-translate', className)}
       style={mergedStyle}
       data-testid='translate'

@@ -340,6 +340,40 @@ describe('Passage i18n directives', () => {
     expect(await screen.findByText('Bonjour')).toBeInTheDocument()
   })
 
+  it('re-renders translation when lang state changes', async () => {
+    i18next.addResource('en-US', 'ui', 'greet', 'Hello')
+    i18next.addResource('fr', 'ui', 'greet', 'Bonjour')
+    useGameStore.setState({ gameData: { lang: 'en-US' } })
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':::effect[lang]\n::lang[lang]\n:::\n:t[ui:greet]'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    expect(await screen.findByText('Hello')).toBeInTheDocument()
+
+    act(() => {
+      useGameStore.getState().setGameData({ lang: 'fr' })
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText('Bonjour')).toBeInTheDocument()
+    })
+  })
+
   it('adds translation via shorthand syntax', async () => {
     const passage: Element = {
       type: 'element',
