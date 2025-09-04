@@ -89,12 +89,8 @@ export const Campfire = ({
     return passages
   }
 
-  const initialize = (
-    doc: Document | undefined = typeof document === 'undefined'
-      ? undefined
-      : document
-  ) => {
-    if (!doc || typeof doc.querySelector !== 'function') return
+  const initialize = (doc: Document | undefined = globalThis.document) => {
+    if (!doc?.querySelector) return
     const el = doc.querySelector('tw-storydata')
     if (!el) return
     const tree = fromDom(el)

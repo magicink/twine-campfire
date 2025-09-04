@@ -5,11 +5,9 @@
  * @param {Document | undefined} doc - The document to apply styles to. Defaults to the global document if available.
  */
 export const applyUserStyles = (
-  doc: Document | undefined = typeof document === 'undefined'
-    ? undefined
-    : document
+  doc: Document | undefined = globalThis.document
 ) => {
-  if (!doc || typeof doc.querySelector !== 'function') return
+  if (!doc?.querySelector) return
   const container = doc.querySelector('tw-storydata')
   const el = container?.querySelector(
     '#twine-user-stylesheet'

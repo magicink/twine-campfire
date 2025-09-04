@@ -97,7 +97,7 @@ export const createPersistenceHandlers = (ctx: PersistenceHandlerContext) => {
     const id = typeof attrs.id === 'string' ? attrs.id : 'campfire.save'
     setLoading(true)
     try {
-      if (typeof localStorage !== 'undefined') {
+      if ('localStorage' in globalThis) {
         const cps = getCheckpoints()
         const state = getState()
         const data = {
@@ -107,7 +107,7 @@ export const createPersistenceHandlers = (ctx: PersistenceHandlerContext) => {
           checkpoints: { ...cps },
           currentPassageId: getCurrentPassageId()
         }
-        localStorage.setItem(id, JSON.stringify(data))
+        globalThis.localStorage.setItem(id, JSON.stringify(data))
       }
     } catch (error) {
       console.error('Error saving game state:', error)
@@ -132,8 +132,8 @@ export const createPersistenceHandlers = (ctx: PersistenceHandlerContext) => {
     const id = typeof attrs.id === 'string' ? attrs.id : 'campfire.save'
     setLoading(true)
     try {
-      if (typeof localStorage !== 'undefined') {
-        const raw = localStorage.getItem(id)
+      if ('localStorage' in globalThis) {
+        const raw = globalThis.localStorage.getItem(id)
         if (raw) {
           const data = JSON.parse(raw) as {
             gameData?: Record<string, unknown>
@@ -180,8 +180,8 @@ export const createPersistenceHandlers = (ctx: PersistenceHandlerContext) => {
     const id = typeof attrs.id === 'string' ? attrs.id : 'campfire.save'
     setLoading(true)
     try {
-      if (typeof localStorage !== 'undefined') {
-        localStorage.removeItem(id)
+      if ('localStorage' in globalThis) {
+        globalThis.localStorage.removeItem(id)
       }
     } catch (error) {
       console.error('Error clearing saved game state:', error)

@@ -151,19 +151,13 @@ export const getTranslationOptions = (src: {
  * @returns The base URL string.
  */
 export const getBaseUrl = (): string => {
-  if (
-    typeof window !== 'undefined' &&
-    window.location?.origin &&
-    window.location.origin !== 'null'
-  ) {
-    return window.location.origin
+  const origin = globalThis.window?.location?.origin
+  if (origin && origin !== 'null') {
+    return origin
   }
-  if (
-    typeof document !== 'undefined' &&
-    document.baseURI &&
-    document.baseURI !== 'about:blank'
-  ) {
-    return document.baseURI
+  const baseURI = globalThis.document?.baseURI
+  if (baseURI && baseURI !== 'about:blank') {
+    return baseURI
   }
   return 'http://localhost'
 }

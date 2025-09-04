@@ -90,11 +90,12 @@ export interface SavedGame {
  */
 export const listSavedGames = (prefix = 'campfire.save'): SavedGame[] => {
   const saves: SavedGame[] = []
-  if (typeof localStorage === 'undefined') return saves
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i)
+  if (!('localStorage' in globalThis)) return saves
+  const ls = globalThis.localStorage
+  for (let i = 0; i < ls.length; i++) {
+    const key = ls.key(i)
     if (!key || !key.startsWith(prefix)) continue
-    const raw = localStorage.getItem(key)
+    const raw = ls.getItem(key)
     if (!raw) continue
     try {
       const data = JSON.parse(raw) as {
