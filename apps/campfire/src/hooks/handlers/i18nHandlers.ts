@@ -7,6 +7,7 @@ import type { Properties } from 'hast'
 import type { DirectiveNode } from '@campfire/utils/directiveUtils'
 import {
   extractAttributes,
+  extractKeyValue,
   getLabel,
   hasLabel,
   removeNode,
@@ -112,6 +113,41 @@ export const createI18nHandlers = (ctx: I18nHandlerContext) => {
       const msg = 'Translations directive expects [locale]{ns:key="value"}'
       console.error(msg)
       addError(msg)
+    }
+    return removeNode(parent, index)
+  }
+
+  /**
+   * Registers a display label for a locale using
+   * `::setLanguageLabel[code="label"]`.
+   *
+   * @param directive - Directive node containing the locale mapping.
+   * @param parent - Parent node of the directive.
+   * @param index - Index of the directive within its parent.
+   * @returns The new index after removing the directive.
+   */
+  const handleSetLanguageLabel: DirectiveHandler = (
+    directive,
+    parent,
+    index
+  ) => {
+    const invalid = requireLeafDirective(directive, parent, index, addError)
+    if (typeof invalid !== 'undefined') return invalid
+    const kv = extractKeyValue(
+      directive as DirectiveNode,
+      parent,
+      index,
+      addError
+    )
+    if (!kv) return index
+    const { key: locale, valueRaw } = kv
+    const match = valueRaw.match(QUOTE_PATTERN)
+    const label = match ? match[2] : valueRaw
+    if (i18next.isInitialized) {
+      if (!i18next.hasResourceBundle(locale, 'language')) {
+        i18next.addResourceBundle(locale, 'language', {}, true, true)
+      }
+      i18next.addResource(locale, 'language', 'label', label)
     }
     return removeNode(parent, index)
   }
@@ -298,6 +334,7 @@ export const createI18nHandlers = (ctx: I18nHandlerContext) => {
   return {
     lang: handleLang,
     translations: handleTranslations,
+    setLanguageLabel: handleSetLanguageLabel,
     t: handleTranslate
   }
 }

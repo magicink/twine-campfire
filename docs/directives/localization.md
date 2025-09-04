@@ -70,4 +70,20 @@ Attributes on `:t` become interpolation variables for i18next.
 | ns:key | Namespace and key to translate  |
 | value  | Translated string               |
 
+### `setLanguageLabel`
+
+Provide a display label for a locale. Use as a leaf directive.
+
+```md
+::setLanguageLabel[fr="Français"]
+```
+
+Replace `fr` with the locale code and supply the label in quotes. The label is
+stored in i18next under the `language` namespace for the specified locale.
+
+| Input     | Description                  |
+| --------- | ---------------------------- |
+| lang_code | Locale code to label         |
+| label     | Display label for the locale |
+
 Campfire prints descriptive error messages to the browser console when it encounters invalid markup.

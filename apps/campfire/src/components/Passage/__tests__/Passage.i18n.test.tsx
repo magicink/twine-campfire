@@ -364,6 +364,26 @@ describe('Passage i18n directives', () => {
     expect(text).toBeInTheDocument()
   })
 
+  it('sets language label with setLanguageLabel directive', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: '::setLanguageLabel[fr="Français"]' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(i18next.t('label', { lng: 'fr', ns: 'language' })).toBe('Français')
+    })
+  })
+
   it('reports error when multiple pairs are provided', async () => {
     const passage: Element = {
       type: 'element',
