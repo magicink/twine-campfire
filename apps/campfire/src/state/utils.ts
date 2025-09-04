@@ -128,8 +128,7 @@ export class StateManager<T extends Record<string, unknown>> {
     }, this.data)
 
   /** Checks if a value exists at the given path. */
-  hasValue = (path: string): boolean =>
-    typeof this.getValue(path) !== 'undefined'
+  hasValue = (path: string): boolean => this.getValue(path) !== undefined
 
   /** Records a modified top-level key. */
   private record = (key: string) => {

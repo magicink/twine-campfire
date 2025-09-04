@@ -1209,7 +1209,7 @@ export const useDirectiveHandlers = () => {
   const handleImage: DirectiveHandler = (directive, parent, index) => {
     if (!parent || typeof index !== 'number') return
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     const { attrs } = extractAttributes<ImageSchema>(
       directive,
       parent,

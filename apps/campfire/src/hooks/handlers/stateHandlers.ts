@@ -119,7 +119,7 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
     lock = false
   ): DirectiveHandlerResult => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     const rawLabel = hasLabel(directive) ? directive.label : undefined
     const textContent = toString(directive)
     let shorthand: string | undefined
@@ -199,7 +199,7 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
     lock = false
   ): DirectiveHandlerResult => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     const splitItems = (input: string): string[] => {
       const result: string[] = []
       let current = ''
@@ -290,7 +290,7 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
     index: number | undefined
   ): DirectiveHandlerResult => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     const parsed = extractKeyValue(directive, parent, index, addError)
     if (!parsed) return index
     const { key, valueRaw } = parsed
@@ -366,7 +366,7 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
     lock = false
   ): DirectiveHandlerResult => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     const label = hasLabel(directive) ? directive.label : toString(directive)
     const key = ensureKey(label.trim(), parent, index)
     if (!key) return index
@@ -443,7 +443,7 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
     ): DirectiveHandler =>
     (directive, parent, index) => {
       const invalid = requireLeafDirective(directive, parent, index, addError)
-      if (typeof invalid !== 'undefined') return invalid
+      if (invalid !== undefined) return invalid
       const attrs = directive.attributes || {}
       const key = ensureKey(
         (attrs as Record<string, unknown>).key,
@@ -542,7 +542,7 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
    */
   const handleUnset: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     const attrs = directive.attributes || {}
     const key = ensureKey(
       (attrs as Record<string, unknown>).key ??

@@ -87,7 +87,7 @@ export const createI18nHandlers = (ctx: I18nHandlerContext) => {
    */
   const handleLang: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     const locale = toString(directive).trim()
 
     // Basic locale validation: e.g., "en", "en-US", "fr", "zh-CN"
@@ -115,7 +115,7 @@ export const createI18nHandlers = (ctx: I18nHandlerContext) => {
    */
   const handleTranslations: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     const locale =
       getLabel(directive as ContainerDirective) || toString(directive).trim()
     const attrs = directive.attributes as Record<string, unknown>
@@ -165,7 +165,7 @@ export const createI18nHandlers = (ctx: I18nHandlerContext) => {
     index
   ) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     const kv = extractKeyValue(
       directive as DirectiveNode,
       parent,
