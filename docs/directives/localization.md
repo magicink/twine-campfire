@@ -103,7 +103,7 @@ can be called from directive expressions.
 The final `languages` array will contain `{code, label}` pairs for each locale
 with a defined label.
 
-Combine `setLanguageLabel` and `getLanguages` to build a language picker. Wrap the `lang` directive in an `onChange` block so the active locale updates when a new option is chosen:
+Combine `setLanguageLabel` and `getLanguages` to build a language picker. Watch the `lang` state with an `effect` block so the active locale updates whenever the selection changes:
 
 ```md
 ::set[lang="en-US"]
@@ -117,14 +117,13 @@ Combine `setLanguageLabel` and `getLanguages` to build a language picker. Wrap t
 
 ::set[languages=getLanguages()]
 
+:::effect[watch=lang]
 ::lang[lang]
+:::
 
 :::select[lang]{label="Choose a language"}
 :::for[l in languages]
 ::option{value=l.code label=l.label}
-:::
-:::onChange
-::lang[lang]
 :::
 :::
 

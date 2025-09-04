@@ -29,14 +29,13 @@ export const LanguageSelect: StoryObj = {
 
 ::set[languages=getLanguages()]
 
+:::effect[watch=lang]
 ::lang[lang]
+:::
 
 :::select[lang]{label="Choose a language" data-testid="language-select"}
 :::for[l in languages]
 ::option{value=l.code label=l.label}
-:::
-:::onChange
-::lang[lang]
 :::
 :::
 
