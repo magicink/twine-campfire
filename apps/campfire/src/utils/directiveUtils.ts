@@ -501,7 +501,7 @@ export const extractAttributes = <S extends AttributeSchema>(
   ][]) {
     const raw = attrs[name as string]
     let value = parseAttributeValue(raw, spec, state)
-    if (value === undefined && typeof spec.default !== 'undefined') {
+    if (value === undefined && spec.default !== undefined) {
       value = spec.default
     }
     if (name === keyAttr) {
@@ -574,7 +574,7 @@ export const parseTypedValue = (
       if (!key) continue
       const value = part.slice(colon + 1)
       const parsed = parseTypedValue(value, data)
-      if (typeof parsed !== 'undefined') obj[key] = parsed
+      if (parsed !== undefined) obj[key] = parsed
     }
     return obj
   }
