@@ -1,12 +1,19 @@
 import { visit } from 'unist-util-visit'
-import type { Root, Parent, Paragraph, Text, InlineCode } from 'mdast'
+import type { SKIP } from 'unist-util-visit'
+import type {
+  Root,
+  RootContent,
+  Parent,
+  Paragraph,
+  Text,
+  InlineCode
+} from 'mdast'
 import type { Node, Data } from 'unist'
 import type {
   ContainerDirective,
   LeafDirective,
   TextDirective
 } from 'mdast-util-directive'
-import type { SKIP } from 'unist-util-visit'
 import type { VFile } from 'vfile'
 
 export type DirectiveNode = ContainerDirective | LeafDirective | TextDirective
@@ -253,9 +260,31 @@ const remarkCampfire =
   (options: RemarkCampfireOptions = {}) =>
   (tree: Root, file: VFile) => {
     const content = typeof file.value === 'string' ? file.value : undefined
+    const relations = new WeakMap<Parent, { parent: Parent; index: number }>()
+    const pendingRemoval: Array<{ parent: Parent; index: number }> = []
     visit(
       tree,
       (node: Node, index: number | undefined, parent: Parent | undefined) => {
+        if (parent && typeof index === 'number') {
+          relations.set(node as Parent, { parent, index })
+        }
+        if (node.type === 'paragraph' && parent && typeof index === 'number') {
+          const paragraph = node as ParagraphWithData
+          // Preserve paragraphs transformed into custom elements
+          if (paragraph.data?.hName) return
+          // TODO(campfire): Do not remove marker-only paragraphs/text at the
+          // remark stage. Double-check we only strip paragraphs that are truly
+          // whitespace-only. Add regression tests for this sentinel.
+          const hasContent = paragraph.children.some(child => {
+            return !(
+              child.type === 'text' && (child as Text).value.trim() === ''
+            )
+          })
+          if (!hasContent) {
+            pendingRemoval.push({ parent, index })
+          }
+          return
+        }
         if (
           node &&
           (node.type === 'textDirective' ||
@@ -355,35 +384,33 @@ const remarkCampfire =
             }
           }
           const handler = options.handlers?.[directive.name]
+          let result: DirectiveHandlerResult | void = undefined
           if (handler) {
-            return handler(directive, parent, index)
+            result = handler(directive, parent, index)
           }
+          if (parent && parent.type === 'paragraph') {
+            const paragraph = parent as ParagraphWithData
+            if (!paragraph.data?.hName) {
+              const hasContent = paragraph.children.some(child => {
+                return !(
+                  child.type === 'text' && (child as Text).value.trim() === ''
+                )
+              })
+              if (!hasContent) {
+                const info = relations.get(parent as Parent)
+                if (info) {
+                  pendingRemoval.push(info)
+                }
+              }
+            }
+          }
+          return result
         }
       }
     )
-
-    visit(
-      tree,
-      (node: Node, index: number | undefined, parent: Parent | undefined) => {
-        if (node.type === 'paragraph' && parent && typeof index === 'number') {
-          const paragraph = node as ParagraphWithData
-          // Preserve paragraphs transformed into custom elements
-          if (paragraph.data?.hName) return
-          // TODO(campfire): Do not remove marker-only paragraphs/text at the
-          // remark stage. Double-check we only strip paragraphs that are truly
-          // whitespace-only. Add regression tests for this sentinel.
-          const hasContent = paragraph.children.some(child => {
-            return !(
-              child.type === 'text' && (child as Text).value.trim() === ''
-            )
-          })
-          if (!hasContent) {
-            parent.children.splice(index, 1)
-            return index
-          }
-        }
-      }
-    )
+    for (const { parent: grand, index: pIndex } of pendingRemoval.reverse()) {
+      grand.children.splice(pIndex, 1)
+    }
   }
 
 export default remarkCampfire
