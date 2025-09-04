@@ -51,10 +51,8 @@ const normalizeDirectiveIndentation = (input: string): string =>
  */
 export const useOverlayProcessor = (): void => {
   const handlers = useDirectiveHandlers()
-  const overlays = useStoryDataStore(
-    (state: StoryDataState) => state.overlayPassages
-  )
-  const setOverlays = useOverlayStore(state => state.setOverlays)
+  const overlays = useStoryDataStore.use.overlayPassages()
+  const setOverlays = useOverlayStore.use.setOverlays()
 
   /**
    * Deck component bound to the overlay deck store.
