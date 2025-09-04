@@ -4,19 +4,23 @@ import { AssetManager } from '@campfire/utils/AssetManager'
  * Manages image asset loading and caching.
  */
 export class ImageManager extends AssetManager<HTMLImageElement> {
-  // TODO(campfire): Track in-flight requests and dedupe concurrent loads for
-  // the same id/src; expose a clear() method to free cache entries when
-  // memory is constrained.
+  /** Map of image ids to in-flight load promises. */
+  private inFlight: Map<string, Promise<HTMLImageElement>> = new Map()
+
   /**
    * Preloads an image and caches it by id.
    *
    * @param id - Unique identifier for the image.
    * @param src - Source URL of the image.
-   * @returns A promise that resolves when the image is loaded.
+   * @returns A promise resolving with the loaded image element.
    */
-  load(id: string, src: string): Promise<void> {
-    if (this.cache.has(id)) return Promise.resolve()
-    return new Promise((resolve, reject) => {
+  load(id: string, src: string): Promise<HTMLImageElement> {
+    const cached = this.cache.get(id)
+    if (cached) return Promise.resolve(cached)
+    const pending = this.inFlight.get(id)
+    if (pending) return pending
+
+    const promise = new Promise<HTMLImageElement>((resolve, reject) => {
       const img = new Image()
       const cleanup = () => {
         img.onload = null
@@ -24,8 +28,7 @@ export class ImageManager extends AssetManager<HTMLImageElement> {
       }
       img.onload = () => {
         cleanup()
-        this.cache.set(id, img)
-        resolve()
+        resolve(img)
       }
       img.onerror = err => {
         cleanup()
@@ -40,6 +43,39 @@ export class ImageManager extends AssetManager<HTMLImageElement> {
         return
       }
     })
+
+    const wrapped = promise
+      .then(img => {
+        if (this.inFlight.get(id) === wrapped) {
+          this.cache.set(id, img)
+          this.inFlight.delete(id)
+        }
+        return img
+      })
+      .catch(err => {
+        if (this.inFlight.get(id) === wrapped) {
+          this.inFlight.delete(id)
+        }
+        throw err
+      })
+
+    this.inFlight.set(id, wrapped)
+    return wrapped
+  }
+
+  /**
+   * Clears cached images.
+   *
+   * @param id - Optional identifier of the image to clear; clears all if omitted.
+   */
+  clear(id?: string): void {
+    if (id) {
+      this.cache.delete(id)
+      this.inFlight.delete(id)
+      return
+    }
+    this.cache.clear()
+    this.inFlight.clear()
   }
 
   /**

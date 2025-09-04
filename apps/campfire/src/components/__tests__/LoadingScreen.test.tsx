@@ -24,7 +24,7 @@ describe('LoadingScreen', () => {
     const audioSpy = spyOn(audio, 'load').mockImplementation(() =>
       Promise.resolve()
     )
-    let resolveImage: () => void = () => {}
+    let resolveImage: (value: HTMLImageElement) => void = () => {}
     const imageSpy = spyOn(images, 'load').mockImplementation(
       () =>
         new Promise(res => {
@@ -47,7 +47,7 @@ describe('LoadingScreen', () => {
     expect(bar.getAttribute('role')).toBe('progressbar')
     expect(bar.getAttribute('aria-valuenow')).toBe('50')
     expect(screen.getByTestId('loading-bar-fill').style.width).toBe('50%')
-    resolveImage()
+    resolveImage(new Image())
     await new Promise(r => setTimeout(r, 0))
     expect(bar.getAttribute('aria-valuenow')).toBe('100')
     expect(screen.getByTestId('loading-bar-fill').style.width).toBe('100%')
