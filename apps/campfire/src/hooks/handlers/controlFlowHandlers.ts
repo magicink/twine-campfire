@@ -98,7 +98,7 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
       const attrs = container.attributes || {}
       const [firstKey, firstValue] = Object.entries(attrs)[0] || []
       if (firstKey) {
-        if (firstValue === '' || typeof firstValue === 'undefined') {
+        if (firstValue === '' || firstValue === undefined) {
           expr = firstKey
         } else {
           const valStr = String(firstValue).trim()
@@ -223,7 +223,7 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
     let iterableValue: unknown
     try {
       iterableValue = evalExpression(expr, getGameData())
-      if (typeof iterableValue === 'undefined') {
+      if (iterableValue === undefined) {
         iterableValue = parseTypedValue(expr, getGameData())
       }
     } catch (error) {

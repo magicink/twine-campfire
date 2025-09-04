@@ -38,7 +38,7 @@ export const createMediaHandlers = (ctx: MediaHandlerContext) => {
    */
   const handlePreloadAudio: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     const { attrs } = extractAttributes(directive, parent, index, {
       id: { type: 'string' },
       src: { type: 'string' }
@@ -63,7 +63,7 @@ export const createMediaHandlers = (ctx: MediaHandlerContext) => {
    */
   const handlePreloadImage: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     const { attrs } = extractAttributes(directive, parent, index, {
       id: { type: 'string' },
       src: { type: 'string' }
@@ -88,7 +88,7 @@ export const createMediaHandlers = (ctx: MediaHandlerContext) => {
    */
   const handleSound: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     const { attrs } = extractAttributes(directive, parent, index, {
       id: { type: 'string' },
       src: { type: 'string' },
@@ -118,7 +118,7 @@ export const createMediaHandlers = (ctx: MediaHandlerContext) => {
    */
   const handleBgm: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     const { attrs } = extractAttributes(directive, parent, index, {
       id: { type: 'string' },
       src: { type: 'string' },
@@ -156,7 +156,7 @@ export const createMediaHandlers = (ctx: MediaHandlerContext) => {
    */
   const handleVolume: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     const { attrs } = extractAttributes(directive, parent, index, {
       bgm: { type: 'number' },
       sfx: { type: 'number' }

@@ -434,7 +434,7 @@ const validateRequiredAttribute = (
   value: unknown,
   errors: string[]
 ): boolean => {
-  if (typeof value === 'undefined') {
+  if (value === undefined) {
     if (spec.required)
       errors.push(
         `Directive "${directive}" missing required attribute "${name}"`
@@ -501,7 +501,7 @@ export const extractAttributes = <S extends AttributeSchema>(
   ][]) {
     const raw = attrs[name as string]
     let value = parseAttributeValue(raw, spec, state)
-    if (typeof value === 'undefined' && typeof spec.default !== 'undefined') {
+    if (value === undefined && typeof spec.default !== 'undefined') {
       value = spec.default
     }
     if (name === keyAttr) {

@@ -92,7 +92,7 @@ export const createPersistenceHandlers = (ctx: PersistenceHandlerContext) => {
    */
   const handleSave: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const id = typeof attrs.id === 'string' ? attrs.id : 'campfire.save'
     setLoading(true)
@@ -127,7 +127,7 @@ export const createPersistenceHandlers = (ctx: PersistenceHandlerContext) => {
    */
   const handleLoad: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const id = typeof attrs.id === 'string' ? attrs.id : 'campfire.save'
     setLoading(true)
@@ -175,7 +175,7 @@ export const createPersistenceHandlers = (ctx: PersistenceHandlerContext) => {
    */
   const handleClearSave: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const id = typeof attrs.id === 'string' ? attrs.id : 'campfire.save'
     setLoading(true)
@@ -201,7 +201,7 @@ export const createPersistenceHandlers = (ctx: PersistenceHandlerContext) => {
    */
   const handleCheckpoint: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     if (getLastPassageId() !== getCurrentPassageId()) {
       resetDirectiveState()
     }
@@ -245,7 +245,7 @@ export const createPersistenceHandlers = (ctx: PersistenceHandlerContext) => {
    */
   const handleLoadCheckpoint: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     if (getIncludeDepth() > 0) return removeNode(parent, index)
     const cp = loadCheckpoint()
     if (cp?.currentPassageId) {
@@ -267,7 +267,7 @@ export const createPersistenceHandlers = (ctx: PersistenceHandlerContext) => {
     index
   ) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     if (getIncludeDepth() > 0) return removeNode(parent, index)
     setGameStoreState({ checkpoints: {} })
     return removeNode(parent, index)
