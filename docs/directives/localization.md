@@ -102,3 +102,30 @@ can be called from directive expressions.
 
 The final `languages` array will contain `{code, label}` pairs for each locale
 with a defined label.
+
+Combine `setLanguageLabel` and `getLanguages` to build a language picker:
+
+```md
+::set[lang="en-US"]
+::setLanguageLabel[en-US="English (US)"]
+::setLanguageLabel[fr="Français"]
+::setLanguageLabel[th="ไทย"]
+
+::translations[en-US]{ui:greet="Hello"}
+::translations[fr]{ui:greet="Bonjour"}
+::translations[th]{ui:greet="สวัสดี"}
+
+::set[languages=getLanguages()]
+
+::lang[lang]
+
+:::select[lang]{label="Choose a language"}
+:::for[l in languages]
+::option{value=l.code label=l.label}
+:::
+:::
+
+:t[ui:greet]
+```
+
+Omit quotes around attribute values when referencing state keys or expressions.

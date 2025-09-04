@@ -33,7 +33,7 @@ export const LanguageSelect: StoryObj = {
 
 :::select[lang]{label="Choose a language" data-testid="language-select"}
 :::for[l in languages]
-::option{value="\${l.code}" label="\${l.label}"}
+::option{value=l.code label=l.label}
 :::
 :::
 
