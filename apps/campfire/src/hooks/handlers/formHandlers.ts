@@ -23,13 +23,13 @@ import {
   removeDirectiveMarker,
   isMarkerParagraph
 } from '@campfire/utils/directiveHandlerUtils'
+import { isWhitespaceRootContent } from '@campfire/utils/nodePredicates'
 
 const DIRECTIVE_MARKER = ':::'
 
 export interface FormHandlerContext {
   addError: (msg: string) => void
   getGameData: () => Record<string, unknown>
-  isWhitespaceNode: (node: RootContent) => boolean
   interactiveEvents: Set<string>
   handleWrapper: DirectiveHandler
 }
@@ -41,13 +41,7 @@ export interface FormHandlerContext {
  */
 
 export const createFormHandlers = (ctx: FormHandlerContext) => {
-  const {
-    addError,
-    getGameData,
-    isWhitespaceNode,
-    interactiveEvents,
-    handleWrapper
-  } = ctx
+  const { addError, getGameData, interactiveEvents, handleWrapper } = ctx
 
   const isMarkerText = (node: RootContent): boolean => {
     if (node.type !== 'text') return false
@@ -71,7 +65,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         events[name] = JSON.stringify(
           stripLabel((node as ContainerDirective).children as RootContent[])
         )
-      } else if (!isWhitespaceNode(node)) {
+      } else if (!isWhitespaceRootContent(node)) {
         remaining.push(node)
       }
     }
@@ -644,7 +638,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
     const rawChildren = runDirectiveBlock(
       expandIndentedCode(container.children as RootContent[])
     )
-    const children = rawChildren.filter(node => !isWhitespaceNode(node))
+    const children = rawChildren.filter(node => !isWhitespaceRootContent(node))
     const node: Parent = {
       type: 'paragraph',
       children: children as RootContent[],
@@ -706,7 +700,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       Object.assign(events, extraEvents)
     }
 
-    const options = remaining.filter(node => !isWhitespaceNode(node))
+    const options = remaining.filter(node => !isWhitespaceRootContent(node))
     const props: Record<string, unknown> = { stateKey: key }
     if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
     if (styleAttr) props.style = styleAttr
@@ -836,10 +830,10 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
           if (child.type === 'paragraph') {
             flat.push(
               ...((child as Paragraph).children as RootContent[]).filter(
-                c => !isWhitespaceNode(c)
+                c => !isWhitespaceRootContent(c)
               )
             )
-          } else if (!isWhitespaceNode(child)) {
+          } else if (!isWhitespaceRootContent(child)) {
             flat.push(child)
           }
         })

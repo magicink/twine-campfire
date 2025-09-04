@@ -63,6 +63,7 @@ import { createNavigationHandlers } from './handlers/navigationHandlers'
 import { createMediaHandlers } from './handlers/mediaHandlers'
 import { createPersistenceHandlers } from './handlers/persistenceHandlers'
 import { createI18nHandlers } from './handlers/i18nHandlers'
+import { isWhitespaceRootContent } from '@campfire/utils/nodePredicates'
 
 const NUMERIC_PATTERN = /^\d+$/
 const ALLOWED_ONEXIT_DIRECTIVES = new Set([
@@ -230,12 +231,7 @@ export const useDirectiveHandlers = () => {
    * @returns Whether the node is an `MdText` node.
    */
   const isTextNode = (node: RootContent): node is MdText => node.type === 'text'
-
-  const isWhitespaceNode = (node: RootContent): boolean =>
-    (node.type === 'text' && node.value.trim() === '') ||
-    (node.type === 'paragraph' &&
-      node.children.every(isTextNode) &&
-      (toString(node).trim() === '' || isMarkerParagraph(node)))
+  const isWhitespaceNode = isWhitespaceRootContent
 
   /**
    * Merges scoped state changes back into the parent state while optionally
@@ -286,7 +282,6 @@ export const useDirectiveHandlers = () => {
       onceKeys = keys
     },
     isTextNode,
-    isWhitespaceNode,
     allowedBatchDirectives: ALLOWED_BATCH_DIRECTIVES,
     bannedBatchDirectives: BANNED_BATCH_DIRECTIVES
   })
@@ -998,7 +993,6 @@ export const useDirectiveHandlers = () => {
   } = createFormHandlers({
     addError,
     getGameData: () => gameData,
-    isWhitespaceNode,
     interactiveEvents: INTERACTIVE_EVENTS,
     handleWrapper
   })
