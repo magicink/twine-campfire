@@ -1,4 +1,5 @@
 import type { JSX } from 'preact'
+import { useRef } from 'preact/hooks'
 import type { RootContent } from 'mdast'
 import rfdc from 'rfdc'
 import { runDirectiveBlock } from '@campfire/utils/directiveUtils'
@@ -28,22 +29,36 @@ export const useDirectiveEvents = (
 } => {
   const handlers = useDirectiveHandlers()
 
-  const createHandler = (content?: string) =>
-    content
-      ? () =>
-          runDirectiveBlock(
-            clone(JSON.parse(content)) as RootContent[],
-            handlers
-          )
-      : undefined
+  const enterRef = useRef<RootContent[]>()
+  const leaveRef = useRef<RootContent[]>()
+  const focusRef = useRef<RootContent[]>()
+  const blurRef = useRef<RootContent[]>()
+
+  if (onMouseEnter && !enterRef.current)
+    enterRef.current = clone(JSON.parse(onMouseEnter)) as RootContent[]
+  if (onMouseLeave && !leaveRef.current)
+    leaveRef.current = clone(JSON.parse(onMouseLeave)) as RootContent[]
+  if (onFocus && !focusRef.current)
+    focusRef.current = clone(JSON.parse(onFocus)) as RootContent[]
+  if (onBlur && !blurRef.current)
+    blurRef.current = clone(JSON.parse(onBlur)) as RootContent[]
+
+  /**
+   * Creates an event handler that executes pre-parsed directive nodes.
+   *
+   * @param nodes - Directive nodes to execute.
+   * @returns Event handler or undefined.
+   */
+  const createHandler = (nodes?: RootContent[]) =>
+    nodes ? () => runDirectiveBlock(clone(nodes), handlers) : undefined
 
   // TODO(campfire): Consider debouncing mouse events and preventing re-entry
   // while a directive block is running; add tests for both handler present
   // and undefined paths per repository guidelines.
   return {
-    onMouseEnter: createHandler(onMouseEnter),
-    onMouseLeave: createHandler(onMouseLeave),
-    onFocus: createHandler(onFocus),
-    onBlur: createHandler(onBlur)
+    onMouseEnter: createHandler(enterRef.current),
+    onMouseLeave: createHandler(leaveRef.current),
+    onFocus: createHandler(focusRef.current),
+    onBlur: createHandler(blurRef.current)
   }
 }
