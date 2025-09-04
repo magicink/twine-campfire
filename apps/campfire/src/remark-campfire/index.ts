@@ -207,6 +207,9 @@ const ensureQuotedAttribute = (
     file.message(message, directive)
     return
   }
+  if (!raw) {
+    return
+  }
   if (!matches.quoted) {
     if (
       allowStateKey &&
