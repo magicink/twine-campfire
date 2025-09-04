@@ -91,19 +91,14 @@ Campfire prints descriptive error messages to the browser console when it encoun
 ### `getLanguages`
 
 Return all locales that have a user-facing label. Each entry includes the
-locale `code` and its `label`.
-
-```ts
-import { getLanguages } from '@campfire/hooks/handlers/i18nHandlers'
-
-const languages = getLanguages()
-// => [{ code: 'en-US', label: 'English (US)' }, { code: 'fr', label: 'Français' }]
-```
-
-Populate a state variable with the available languages:
+locale `code` and its `label`. The utility is exposed on the global object so it
+can be called from directive expressions.
 
 ```md
 ::setLanguageLabel[en-US="English (US)"]
 ::setLanguageLabel[fr="Français"]
 ::set[languages=getLanguages()]
 ```
+
+The final `languages` array will contain `{code, label}` pairs for each locale
+with a defined label.
