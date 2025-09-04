@@ -177,6 +177,12 @@ const getAttributeRegex = (name: string) => {
   return cached
 }
 
+/** Precomputed regex matches for a directive attribute. */
+interface AttributeMatches {
+  quoted: RegExpMatchArray | null
+  unquoted: RegExpMatchArray | null
+}
+
 /**
  * Ensures that a directive attribute is a quoted string unless it references a
  * state key.
@@ -195,10 +201,7 @@ const ensureQuotedAttribute = (
   raw: string | undefined,
   file: VFile,
   message: string,
-  matches: {
-    quoted: RegExpMatchArray | null
-    unquoted: RegExpMatchArray | null
-  },
+  matches: AttributeMatches,
   allowStateKey = false
 ) => {
   const attrs = directive.attributes as Record<string, unknown>
@@ -220,6 +223,29 @@ const ensureQuotedAttribute = (
     }
     delete attrs[name]
     file.message(message, directive)
+  }
+}
+
+/**
+ * Creates a getter that returns cached attribute matches for a directive's raw
+ * substring.
+ *
+ * @param raw - Raw directive substring used for matching.
+ * @returns Function returning cached matches for an attribute name.
+ */
+const createMatchGetter = (raw: string | undefined) => {
+  const cache: Record<string, AttributeMatches> = {}
+  return (name: string): AttributeMatches => {
+    let cached = cache[name]
+    if (!cached) {
+      const { quoted, unquoted } = getAttributeRegex(name)
+      cached = {
+        quoted: raw ? raw.match(quoted) : null,
+        unquoted: raw ? raw.match(unquoted) : null
+      }
+      cache[name] = cached
+    }
+    return cached
   }
 }
 
@@ -252,25 +278,7 @@ const remarkCampfire =
                   directive.position?.end.offset ?? 0
                 )
               : undefined
-            const matchCache: Record<
-              string,
-              {
-                quoted: RegExpMatchArray | null
-                unquoted: RegExpMatchArray | null
-              }
-            > = {}
-            const getMatches = (name: string) => {
-              let cached = matchCache[name]
-              if (!cached) {
-                const { quoted, unquoted } = getAttributeRegex(name)
-                cached = {
-                  quoted: raw ? raw.match(quoted) : null,
-                  unquoted: raw ? raw.match(unquoted) : null
-                }
-                matchCache[name] = cached
-              }
-              return cached
-            }
+            const getMatches = createMatchGetter(raw)
             if (
               directive.name === 'trigger' &&
               Object.prototype.hasOwnProperty.call(
@@ -333,20 +341,14 @@ const remarkCampfire =
                         child.position?.end.offset ?? 0
                       )
                     : undefined
-                  const childMatches = (() => {
-                    const { quoted, unquoted } = getAttributeRegex('transition')
-                    return {
-                      quoted: childRaw ? childRaw.match(quoted) : null,
-                      unquoted: childRaw ? childRaw.match(unquoted) : null
-                    }
-                  })()
+                  const getChildMatches = createMatchGetter(childRaw)
                   ensureQuotedAttribute(
                     child as DirectiveNode,
                     'transition',
                     childRaw,
                     file,
                     MSG_SLIDE_TRANSITION_UNQUOTED,
-                    childMatches
+                    getChildMatches('transition')
                   )
                 }
               }
