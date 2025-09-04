@@ -114,10 +114,8 @@ export const Passage = () => {
   const passage = useStoryDataStore((state: StoryDataState) =>
     state.getCurrentPassage()
   )
-  const storyData = useStoryDataStore(
-    (state: StoryDataState) => state.storyData
-  )
-  const resetDeck = useDeckStore(state => state.reset)
+  const storyData = useStoryDataStore.use.storyData()
+  const resetDeck = useDeckStore.use.reset()
   const [content, setContent] = useState<ComponentChild | null>(null)
   const prevPassageId = useRef<string | undefined>(undefined)
 
