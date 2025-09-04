@@ -232,14 +232,22 @@ const ensureQuotedAttribute = (
 const remarkCampfire =
   (options: RemarkCampfireOptions = {}) =>
   (tree: Root, file: VFile) => {
+    const paragraphs: { node: ParagraphWithData; parent: Parent }[] = []
+
     visit(
       tree,
       (node: Node, index: number | undefined, parent: Parent | undefined) => {
+        if (!parent || typeof index !== 'number') return
+
+        if (node.type === 'paragraph') {
+          paragraphs.push({ node: node as ParagraphWithData, parent })
+          return
+        }
+
         if (
-          node &&
-          (node.type === 'textDirective' ||
-            node.type === 'leafDirective' ||
-            node.type === 'containerDirective')
+          node.type === 'textDirective' ||
+          node.type === 'leafDirective' ||
+          node.type === 'containerDirective'
         ) {
           const directive = node as DirectiveNode
           if (
@@ -319,28 +327,21 @@ const remarkCampfire =
       }
     )
 
-    visit(
-      tree,
-      (node: Node, index: number | undefined, parent: Parent | undefined) => {
-        if (node.type === 'paragraph' && parent && typeof index === 'number') {
-          const paragraph = node as ParagraphWithData
-          // Preserve paragraphs transformed into custom elements
-          if (paragraph.data?.hName) return
-          // TODO(campfire): Do not remove marker-only paragraphs/text at the
-          // remark stage. Double-check we only strip paragraphs that are truly
-          // whitespace-only. Add regression tests for this sentinel.
-          const hasContent = paragraph.children.some(child => {
-            return !(
-              child.type === 'text' && (child as Text).value.trim() === ''
-            )
-          })
-          if (!hasContent) {
-            parent.children.splice(index, 1)
-            return index
-          }
-        }
+    for (const { node: paragraph, parent } of paragraphs) {
+      const index = parent.children.indexOf(paragraph)
+      if (index === -1) continue
+      // Preserve paragraphs transformed into custom elements
+      if (paragraph.data?.hName) continue
+      // TODO(campfire): Do not remove marker-only paragraphs/text at the
+      // remark stage. Double-check we only strip paragraphs that are truly
+      // whitespace-only. Add regression tests for this sentinel.
+      const hasContent = paragraph.children.some(child => {
+        return !(child.type === 'text' && (child as Text).value.trim() === '')
+      })
+      if (!hasContent) {
+        parent.children.splice(index, 1)
       }
-    )
+    }
   }
 
 export default remarkCampfire
