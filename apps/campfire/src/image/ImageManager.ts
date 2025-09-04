@@ -44,20 +44,13 @@ export class ImageManager extends AssetManager<HTMLImageElement> {
       }
     })
 
-    const wrapped = promise
-      .then(img => {
-        if (this.inFlight.get(id) === wrapped) {
-          this.cache.set(id, img)
-          this.inFlight.delete(id)
-        }
-        return img
-      })
-      .catch(err => {
-        if (this.inFlight.get(id) === wrapped) {
-          this.inFlight.delete(id)
-        }
-        throw err
-      })
+    let wrapped = promise.then(img => {
+      if (this.inFlight.get(id) === wrapped) this.cache.set(id, img)
+      return img
+    })
+    wrapped = wrapped.finally(() => {
+      if (this.inFlight.get(id) === wrapped) this.inFlight.delete(id)
+    })
 
     this.inFlight.set(id, wrapped)
     return wrapped
