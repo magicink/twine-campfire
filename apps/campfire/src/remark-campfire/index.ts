@@ -183,55 +183,47 @@ const getAttributeRegex = (name: string) => {
  *
  * @param directive - Directive node being processed.
  * @param name - Attribute name to verify.
+ * @param raw - Raw substring for the directive.
  * @param file - VFile used for error reporting.
  * @param message - Error message to emit when validation fails.
+ * @param matches - Precomputed regular expression matches for the attribute.
  * @param allowStateKey - Whether unquoted state keys are permitted.
  */
 const ensureQuotedAttribute = (
   directive: DirectiveNode,
   name: string,
+  raw: string | undefined,
   file: VFile,
   message: string,
+  matches: {
+    quoted: RegExpMatchArray | null
+    unquoted: RegExpMatchArray | null
+  },
   allowStateKey = false
 ) => {
-  // TODO(campfire): Performance: avoid repeatedly slicing file.value and
-  // re-compiling regex per directive. Consider passing the raw directive
-  // substring into the handler or caching a precomputed map of offsets.
-  const content = typeof file.value === 'string' ? file.value : undefined
-  if (content) {
-    const raw = content.slice(
-      directive.position?.start.offset ?? 0,
-      directive.position?.end.offset ?? 0
-    )
-    const { quoted: quotedRegex, unquoted: unquotedRegex } =
-      getAttributeRegex(name)
-    const quotedMatch = raw.match(quotedRegex)
-    const attrs = directive.attributes as Record<string, unknown>
-    if (typeof attrs[name] !== 'string') {
-      delete attrs[name]
-      file.message(message, directive)
+  const attrs = directive.attributes as Record<string, unknown>
+  if (typeof attrs[name] !== 'string') {
+    delete attrs[name]
+    file.message(message, directive)
+    return
+  }
+  if (!matches.quoted) {
+    if (
+      allowStateKey &&
+      matches.unquoted &&
+      STATE_KEY_PATTERN.test(matches.unquoted[1])
+    ) {
       return
     }
-    if (!quotedMatch) {
-      if (allowStateKey) {
-        const unquotedMatch = raw.match(unquotedRegex)
-        if (unquotedMatch && STATE_KEY_PATTERN.test(unquotedMatch[1])) return
-      }
-      delete attrs[name]
-      file.message(message, directive)
-    }
-  } else {
-    const attrs = directive.attributes as Record<string, unknown>
-    if (typeof attrs[name] !== 'string') {
-      delete attrs[name]
-      file.message(message, directive)
-    }
+    delete attrs[name]
+    file.message(message, directive)
   }
 }
 
 const remarkCampfire =
   (options: RemarkCampfireOptions = {}) =>
   (tree: Root, file: VFile) => {
+    const content = typeof file.value === 'string' ? file.value : undefined
     visit(
       tree,
       (node: Node, index: number | undefined, parent: Parent | undefined) => {
@@ -251,6 +243,31 @@ const remarkCampfire =
             parseFallbackAttributes(directive, parent, index)
           }
           if (directive.attributes) {
+            const raw = content
+              ? content.slice(
+                  directive.position?.start.offset ?? 0,
+                  directive.position?.end.offset ?? 0
+                )
+              : undefined
+            const matchCache: Record<
+              string,
+              {
+                quoted: RegExpMatchArray | null
+                unquoted: RegExpMatchArray | null
+              }
+            > = {}
+            const getMatches = (name: string) => {
+              let cached = matchCache[name]
+              if (!cached) {
+                const { quoted, unquoted } = getAttributeRegex(name)
+                cached = {
+                  quoted: raw ? raw.match(quoted) : null,
+                  unquoted: raw ? raw.match(unquoted) : null
+                }
+                matchCache[name] = cached
+              }
+              return cached
+            }
             if (
               directive.name === 'trigger' &&
               Object.prototype.hasOwnProperty.call(
@@ -261,8 +278,10 @@ const remarkCampfire =
               ensureQuotedAttribute(
                 directive,
                 'label',
+                raw,
                 file,
-                MSG_TRIGGER_LABEL_UNQUOTED
+                MSG_TRIGGER_LABEL_UNQUOTED,
+                getMatches('label')
               )
             }
             if (
@@ -275,16 +294,20 @@ const remarkCampfire =
               ensureQuotedAttribute(
                 directive,
                 'transition',
+                raw,
                 file,
-                MSG_SLIDE_TRANSITION_UNQUOTED
+                MSG_SLIDE_TRANSITION_UNQUOTED,
+                getMatches('transition')
               )
             }
             if ('id' in directive.attributes) {
               ensureQuotedAttribute(
                 directive,
                 'id',
+                raw,
                 file,
                 MSG_ID_UNQUOTED,
+                getMatches('id'),
                 true
               )
             }
@@ -301,11 +324,26 @@ const remarkCampfire =
                     'transition'
                   )
                 ) {
+                  const childRaw = content
+                    ? content.slice(
+                        child.position?.start.offset ?? 0,
+                        child.position?.end.offset ?? 0
+                      )
+                    : undefined
+                  const childMatches = (() => {
+                    const { quoted, unquoted } = getAttributeRegex('transition')
+                    return {
+                      quoted: childRaw ? childRaw.match(quoted) : null,
+                      unquoted: childRaw ? childRaw.match(unquoted) : null
+                    }
+                  })()
                   ensureQuotedAttribute(
                     child as DirectiveNode,
                     'transition',
+                    childRaw,
                     file,
-                    MSG_SLIDE_TRANSITION_UNQUOTED
+                    MSG_SLIDE_TRANSITION_UNQUOTED,
+                    childMatches
                   )
                 }
               }
