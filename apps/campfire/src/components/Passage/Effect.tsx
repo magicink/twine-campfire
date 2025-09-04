@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'preact/hooks'
 import type { RootContent } from 'mdast'
 import rfdc from 'rfdc'
+import { shallow } from 'zustand/shallow'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { runDirectiveBlock } from '@campfire/utils/directiveUtils'
 import { useGameStore } from '@campfire/state/useGameStore'
@@ -43,7 +44,8 @@ export const Effect = ({ watch, content }: EffectProps) => {
     const unsubscribe = (useGameStore.subscribe as any)(
       (state: any) =>
         keys.map(key => (state.gameData as Record<string, unknown>)[key]),
-      (_: unknown, __: unknown) => queueMicrotask(run)
+      (_: unknown, __: unknown) => queueMicrotask(run),
+      { equalityFn: shallow }
     )
     return unsubscribe
   }, [handlers, baseNodes, watch])
