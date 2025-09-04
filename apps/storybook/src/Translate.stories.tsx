@@ -24,21 +24,33 @@ export const Examples: StoryObj<typeof Translate> = {
 
     /**
      * Initializes i18next with translation resources and updates language.
+     * Adds resource bundles when i18next is already initialized.
      */
     const init = async () => {
+      const resources = {
+        'en-US': { translation: { hello: 'Hello, {{player}}!' } },
+        fr: { translation: { hello: 'Bonjour {{player}}!' } },
+        th: { translation: { hello: 'สวัสดี {{player}}!' } },
+        ja: { translation: { hello: 'こんにちは、{{player}}さん！' } }
+      }
+
       if (!i18next.isInitialized) {
         await i18next.use(initReactI18next).init({
           lng: lang,
-          resources: {
-            'en-US': { translation: { hello: 'Hello, {{player}}!' } },
-            fr: { translation: { hello: 'Bonjour {{player}}!' } },
-            th: { translation: { hello: 'สวัสดี {{player}}!' } },
-            ja: { translation: { hello: 'こんにちは、{{player}}さん！' } }
-          },
+          resources,
           fallbackLng: 'en-US',
           interpolation: { escapeValue: false }
         })
       } else {
+        Object.entries(resources).forEach(([lng, res]) => {
+          i18next.addResourceBundle(
+            lng,
+            'translation',
+            res.translation,
+            true,
+            true
+          )
+        })
         await i18next.changeLanguage(lang)
       }
     }

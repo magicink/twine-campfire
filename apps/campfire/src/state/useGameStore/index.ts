@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
-import { setImmer } from '@campfire/state/utils'
+import { setImmer, createSelectors } from '@campfire/state/utils'
 
 export interface GameState<T = Record<string, unknown>> {
   /** Arbitrary game state */
@@ -117,7 +117,8 @@ export const listSavedGames = (prefix = 'campfire.save'): SavedGame[] => {
 ;(globalThis as { listSavedGames?: typeof listSavedGames }).listSavedGames =
   listSavedGames
 
-export const useGameStore = create(
+/** Internal instance of the game store. */
+const useGameStoreBase = create(
   subscribeWithSelector<InternalState<Record<string, unknown>>>((set, get) => {
     const immer = setImmer<InternalState<Record<string, unknown>>>(set)
     return {
@@ -225,3 +226,33 @@ export const useGameStore = create(
     }
   })
 )
+
+/** Global store managing game state and persistence. */
+export const useGameStore = createSelectors(useGameStoreBase)
+
+type SubscribeWithSelector<T> = <U>(
+  selector: (state: T) => U,
+  listener: (selectedState: U, previousState: U) => void,
+  options?: { equalityFn?: (a: U, b: U) => boolean }
+) => () => void
+
+/**
+ * Subscribes to selected game state with type safety.
+ *
+ * Wraps the store's `subscribe` to support selectors while preserving types.
+ *
+ * @param selector - Function selecting a slice of state.
+ * @param listener - Callback fired with current and previous selections.
+ * @param options - Subscription options, including an equality function.
+ * @returns Unsubscribe callback.
+ */
+export const subscribeGameStore = <U>(
+  selector: (state: GameState<Record<string, unknown>>) => U,
+  listener: (selected: U, previous: U) => void,
+  options?: { equalityFn?: (a: U, b: U) => boolean }
+): (() => void) =>
+  (
+    useGameStore.subscribe as unknown as SubscribeWithSelector<
+      GameState<Record<string, unknown>>
+    >
+  )(selector, listener, options)

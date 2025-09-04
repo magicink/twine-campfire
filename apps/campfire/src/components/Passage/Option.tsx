@@ -9,6 +9,23 @@ export interface OptionProps
   className?: string | string[]
   /** Callback fired when this option is selected. */
   onSelectOption?: (value: string) => void
+  /** Whether this option is currently selected. */
+  selected?: boolean
+}
+
+/**
+ * Generate a deterministic, valid HTML id for an option value.
+ *
+ * @param value - Raw option value.
+ * @returns Sanitized id string.
+ */
+export const getOptionId = (value: string) => {
+  const slug = value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+  return `option-${slug}`
 }
 
 /**
@@ -27,6 +44,7 @@ export const Option = ({
   children,
   onSelectOption,
   value,
+  selected,
   ...rest
 }: OptionProps) => {
   const mergedStyle =
@@ -37,10 +55,14 @@ export const Option = ({
           background: 'oklch(0.98 0 0)',
           ...(style ?? {})
         }
+  const id = getOptionId(value)
   return (
     <button
       type='button'
       data-testid='option'
+      role='option'
+      id={id}
+      aria-selected={selected}
       className={mergeClasses(
         'campfire-option',
         'w-full text-left px-2 py-2 transition-colors hover:bg-[oklch(0.9_0_0)]',

@@ -8,7 +8,7 @@ const meta: Meta = {
 export default meta
 
 /**
- * Demonstrates the `select` directive bound to game state.
+ * Demonstrates the `select` directive bound to game state with keyboard navigation.
  *
  * @returns Campfire story showcasing the `select` directive.
  */
@@ -20,8 +20,8 @@ export const Basic: StoryObj = {
           {`
 :::select[color]{label="Choose a color"}
 
-:option{value="red" label="Red"}
-:option{value="blue" label="Blue"}
+::option{value="red" label="Red"}
+::option{value="blue" label="Blue"}
 
 :::
 
@@ -43,7 +43,8 @@ You chose
   :show[color]{style="color: var(--color-primary-500)"}.
 
 :::
-          `}
+
+    `}
         </tw-passagedata>
       </tw-storydata>
       <Campfire />
@@ -64,8 +65,8 @@ export const WithEvents: StoryObj = {
           {`
 :::select[color]{label="Choose a color"}
 
-:option{value="red" label="Red"}
-:option{value="blue" label="Blue"}
+::option{value="red" label="Red"}
+::option{value="blue" label="Blue"}
 
 :::onFocus
   ::set[focused=true]
@@ -75,14 +76,32 @@ export const WithEvents: StoryObj = {
   ::unset[focused]
 :::
 
+:::
+
 :::if[focused]
 
 Focused!
 
 :::
 
+:::if[color]
+
+You chose
 :::
-          `}
+
+  :::if[color === "red"]
+
+  :show[color]{style="color: var(--color-destructive-500)"}.
+
+:::
+
+  :::if[color === "blue"]
+
+  :show[color]{style="color: var(--color-primary-500)"}.
+
+:::
+
+            `}
         </tw-passagedata>
       </tw-storydata>
       <Campfire />

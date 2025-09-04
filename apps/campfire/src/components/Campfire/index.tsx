@@ -33,18 +33,11 @@ export const Campfire = ({
 }) => {
   const [i18nInitialized, setI18nInitialized] = useState(i18next.isInitialized)
   const [startNodeId, setStartNodeId] = useState<string>()
-  const passage = useStoryDataStore((state: StoryDataState) =>
-    state.getCurrentPassage()
-  )
-  const setPassages = useStoryDataStore(
-    (state: StoryDataState) => state.setPassages
-  )
-  const setOverlayPassages = useStoryDataStore(
-    (state: StoryDataState) => state.setOverlayPassages
-  )
-  const setStoryData = useStoryDataStore(
-    (state: StoryDataState) => state.setStoryData
-  )
+  const getCurrentPassage = useStoryDataStore.use.getCurrentPassage()
+  const passage = getCurrentPassage()
+  const setPassages = useStoryDataStore.use.setPassages()
+  const setOverlayPassages = useStoryDataStore.use.setOverlayPassages()
+  const setStoryData = useStoryDataStore.use.setStoryData()
 
   useOverlayProcessor()
 

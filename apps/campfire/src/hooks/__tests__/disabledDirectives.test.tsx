@@ -32,7 +32,7 @@ describe('disabled state directives', () => {
     const md =
       ':input[name]{disabled=disabled}\n' +
       ':::select[color]{disabled=disabled}\n' +
-      ':option{value="r" label="Red"}\n' +
+      '::option{value="r" label="Red"}\n' +
       ':::\n' +
       ':radio[choice]{value="a" disabled=disabled}\n' +
       ':checkbox[check]{disabled=disabled}\n' +
@@ -78,7 +78,7 @@ describe('disabled state directives', () => {
     const md =
       ':input[name]{disabled="count>2"}\n' +
       ':::select[color]{disabled="count>2"}\n' +
-      ':option{value="r" label="Red"}\n' +
+      '::option{value="r" label="Red"}\n' +
       ':::\n' +
       ':radio[choice]{value="a" disabled="count>2"}\n' +
       ':checkbox[check]{disabled="count>2"}\n' +

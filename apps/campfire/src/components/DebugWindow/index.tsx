@@ -13,10 +13,7 @@ import {
   remarkHeadingStyles,
   remarkParagraphStyles
 } from '@campfire/utils/remarkStyles'
-import {
-  useStoryDataStore,
-  type StoryDataState
-} from '@campfire/state/useStoryDataStore'
+import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
 import { useGameStore } from '@campfire/state/useGameStore'
 import i18next from 'i18next'
 import type { Element, Text, Content } from 'hast'
@@ -69,13 +66,10 @@ const normalizeDirectiveIndentation = (input: string): string =>
  * Also displays passage information when the debug option is enabled.
  */
 export const DebugWindow = () => {
-  const storyData = useStoryDataStore(
-    (state: StoryDataState) => state.storyData
-  )
-  const passages = useStoryDataStore((state: StoryDataState) => state.passages)
-  const currentPassage = useStoryDataStore((state: StoryDataState) =>
-    state.getCurrentPassage()
-  )
+  const storyData = useStoryDataStore.use.storyData()
+  const passages = useStoryDataStore.use.passages()
+  const getCurrentPassage = useStoryDataStore.use.getCurrentPassage()
+  const currentPassage = getCurrentPassage()
   const rawPassage = getRawPassage(currentPassage)
   const handlers = useDirectiveHandlers()
   const processor = useMemo(
@@ -122,7 +116,7 @@ export const DebugWindow = () => {
       i18next.off('removed', update)
     }
   }, [])
-  const gameData = useGameStore(state => state.gameData)
+  const gameData = useGameStore.use.gameData()
   const [visible, setVisible] = useState(true)
   const [minimized, setMinimized] = useState(false)
   const [tab, setTab] = useState<Tab>(TAB_GAME)

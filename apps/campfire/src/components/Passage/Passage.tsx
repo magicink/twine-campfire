@@ -28,6 +28,7 @@ import { If } from '@campfire/components/Passage/If'
 import { Show } from '@campfire/components/Passage/Show'
 import { Translate } from '@campfire/components/Passage/Translate'
 import { OnExit } from '@campfire/components/Passage/OnExit'
+import { Effect } from '@campfire/components/Passage/Effect'
 import { Deck } from '@campfire/components/Deck/Deck'
 import {
   Slide,
@@ -96,6 +97,7 @@ export const Passage = () => {
           if: If,
           show: Show,
           translate: Translate,
+          effect: Effect,
           onExit: OnExit,
           deck: Deck,
           slide: Slide,

@@ -15,12 +15,12 @@ import { TriggerButton } from '@campfire/components/Passage/TriggerButton'
 import { Show } from '@campfire/components/Passage/Show'
 import { Translate } from '@campfire/components/Passage/Translate'
 import { OnExit } from '@campfire/components/Passage/OnExit'
+import { SlideReveal } from '@campfire/components/Deck/Slide/SlideReveal'
 import {
-  SlideReveal,
   SlideText,
   SlideImage,
   SlideShape
-} from '@campfire/components/Deck/Slide'
+} from '@campfire/components/Deck/Slide/SlideElements'
 import { rehypeSlideText } from '@campfire/utils/rehypeSlideText'
 
 interface IfProps {
@@ -66,7 +66,7 @@ export const If = ({ test, content, fallback }: IfProps) => {
     })
     return proc
   }, [handlers])
-  const gameData = useGameStore(state => state.gameData)
+  const gameData = useGameStore.use.gameData()
   let condition = false
   try {
     const fn = new Function('data', `with (data) { return (${test}) }`) as (

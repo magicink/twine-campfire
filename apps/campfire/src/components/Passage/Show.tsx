@@ -24,8 +24,8 @@ interface ShowProps {
  * Updates automatically when the underlying data changes.
  */
 export const Show = ({ className, style, ...props }: ShowProps) => {
-  const addError = useGameStore(state => state.addError)
-  const gameData = useGameStore(state => state.gameData)
+  const addError = useGameStore.use.addError()
+  const gameData = useGameStore.use.gameData()
   const expr = props['data-expr']
 
   const mergedStyle =

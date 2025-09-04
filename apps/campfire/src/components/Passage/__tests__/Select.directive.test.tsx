@@ -24,7 +24,7 @@ describe('Select directive', () => {
         {
           type: 'text',
           value:
-            ':::select[color]{label="Choose"}\n:option{value="red" label="Red"}\n:::\n'
+            ':::select[color]{label="Choose"}\n::option{value="red" label="Red"}\n:::\n'
         }
       ]
     }
@@ -61,7 +61,7 @@ describe('Select directive', () => {
         {
           type: 'text',
           value:
-            ':::select[color]{className="extra" style="color:blue"}\n:option{value="red" label="Red"}\n:option{value="blue" label="Blue"}\n:::\n'
+            ':::select[color]{className="extra" style="color:blue"}\n::option{value="red" label="Red"}\n::option{value="blue" label="Blue"}\n:::\n'
         }
       ]
     }
@@ -78,6 +78,57 @@ describe('Select directive', () => {
     ).toBe('blue')
   })
 
+  it('renders container options with wrapper formatting', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            ':::select[color]\n:::option{value="red"}\n\n:::wrapper{className="bold"}\nRed\n:::\n\n:::\n:::\n'
+        }
+      ]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    const select = await screen.findByTestId('select')
+    fireEvent.click(select)
+    await new Promise(r => setTimeout(r, 0))
+    const option = screen.getByTestId('option')
+    expect(option.textContent).toBe('Red')
+    expect(option.querySelector('.campfire-wrapper')).not.toBeNull()
+  })
+
+  it('selects values from options formatted with wrapper directives', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            ':::select[color]\n:::option{value="red"}\n:::wrapper{className="bold"}\nRed\n:::\n:::\n:::\n'
+        }
+      ]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    const select = await screen.findByTestId('select')
+    fireEvent.click(select)
+    await new Promise(r => setTimeout(r, 0))
+    const option = screen.getByTestId('option')
+    expect(option.querySelector('.campfire-wrapper')?.classList).toContain(
+      'bold'
+    )
+    fireEvent.click(option)
+    expect(
+      (useGameStore.getState().gameData as Record<string, unknown>).color
+    ).toBe('red')
+  })
+
   it('runs event directives only on interaction', async () => {
     const passage: Element = {
       type: 'element',
@@ -87,7 +138,7 @@ describe('Select directive', () => {
         {
           type: 'text',
           value:
-            ':::select[color]\n:option{value="red" label="Red"}\n:option{value="blue" label="Blue"}\n:::onFocus\n::set[focused=true]\n:::\n:::onBlur\n::set[blurred=true]\n:::\n:::onMouseEnter\n::set[hovered=true]\n:::\n:::\n'
+            ':::select[color]\n::option{value="red" label="Red"}\n::option{value="blue" label="Blue"}\n:::onFocus\n::set[focused=true]\n:::\n:::onBlur\n::set[blurred=true]\n:::\n:::onMouseEnter\n::set[hovered=true]\n:::\n:::\n'
         }
       ]
     }
@@ -115,7 +166,7 @@ describe('Select directive', () => {
       children: [
         {
           type: 'text',
-          value: ':::select[color]\n:option{value="red" label="Red"}\n:::\n'
+          value: ':::select[color]\n::option{value="red" label="Red"}\n:::\n'
         }
       ]
     }
@@ -134,7 +185,7 @@ describe('Select directive', () => {
         {
           type: 'text',
           value:
-            ':::select[color]{value="blue"}\n:option{value="red" label="Red"}\n:option{value="blue" label="Blue"}\n:::\n'
+            ':::select[color]{value="blue"}\n::option{value="red" label="Red"}\n::option{value="blue" label="Blue"}\n:::\n'
         }
       ]
     }
@@ -156,7 +207,7 @@ describe('Select directive', () => {
         {
           type: 'text',
           value:
-            ':::select[color]{value="blue"}\n:option{value="red" label="Red"}\n:option{value="blue" label="Blue"}\n:::\n'
+            ':::select[color]{value="blue"}\n::option{value="red" label="Red"}\n::option{value="blue" label="Blue"}\n:::\n'
         }
       ]
     }
@@ -179,7 +230,7 @@ describe('Select directive', () => {
         {
           type: 'text',
           value:
-            ':::select[color]\n:option{value="red" label="Red"}\n:::onFocus\n::set[focused=true]\n:::\n:::onBlur\n::unset[focused]\n:::\n:::\n'
+            ':::select[color]\n::option{value="red" label="Red"}\n:::onFocus\n::set[focused=true]\n:::\n:::onBlur\n::unset[focused]\n:::\n:::\n'
         }
       ]
     }
@@ -195,5 +246,32 @@ describe('Select directive', () => {
       select.dispatchEvent(new FocusEvent('focusout', { bubbles: true }))
     })
     expect(useGameStore.getState().gameData.focused).toBeUndefined()
+  })
+
+  it('evaluates value and label expressions', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            '::set[code="en"]\n' +
+            '::set[label="English"]\n' +
+            ':::select[lang]{label="Choose"}\n' +
+            '::option{value=code label=label}\n' +
+            ':::\n'
+        }
+      ]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    const select = await screen.findByTestId('select')
+    fireEvent.click(select)
+    await new Promise(r => setTimeout(r, 0))
+    const options = screen.getAllByTestId('option')
+    expect(options[0].id).toBe('option-en')
+    expect(options[0].textContent).toBe('English')
   })
 })

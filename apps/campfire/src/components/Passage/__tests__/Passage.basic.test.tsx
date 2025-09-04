@@ -107,7 +107,7 @@ describe('Passage rendering and navigation', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':title["Custom"]' }]
+      children: [{ type: 'text', value: '::title["Custom"]' }]
     }
 
     useStoryDataStore.setState({
@@ -133,7 +133,7 @@ describe('Passage rendering and navigation', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':title[Custom]' }]
+      children: [{ type: 'text', value: '::title[Custom]' }]
     }
 
     useStoryDataStore.setState({
@@ -154,6 +154,38 @@ describe('Passage rendering and navigation', () => {
     console.error = orig
   })
 
+  it('ignores inline title directive', async () => {
+    const logged: unknown[] = []
+    const orig = console.error
+    console.error = (...args: unknown[]) => {
+      logged.push(args)
+    }
+
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':title["Custom"]' }]
+    }
+
+    useStoryDataStore.setState({
+      storyData: { name: 'Story' },
+      passages: [passage],
+      currentPassageId: '1'
+    })
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(logged).toHaveLength(1)
+      expect(useGameStore.getState().errors).toEqual([
+        'title can only be used as a leaf directive'
+      ])
+      expect(document.title).toBe('Story: Start')
+    })
+
+    console.error = orig
+  })
+
   it('ignores title directive in included passages', async () => {
     const start: Element = {
       type: 'element',
@@ -165,7 +197,7 @@ describe('Passage rendering and navigation', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '2', name: 'Second' },
-      children: [{ type: 'text', value: ':title["Other"]' }]
+      children: [{ type: 'text', value: '::title["Other"]' }]
     }
 
     useStoryDataStore.setState({
@@ -247,7 +279,7 @@ describe('Passage rendering and navigation', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':goto["Second"]' }]
+      children: [{ type: 'text', value: '::goto["Second"]' }]
     }
     const second: Element = {
       type: 'element',
@@ -274,7 +306,7 @@ describe('Passage rendering and navigation', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':goto[2]' }]
+      children: [{ type: 'text', value: '::goto[2]' }]
     }
     const second: Element = {
       type: 'element',
@@ -301,7 +333,7 @@ describe('Passage rendering and navigation', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':goto{passage=next}' }]
+      children: [{ type: 'text', value: '::goto{passage=next}' }]
     }
     const second: Element = {
       type: 'element',
@@ -322,6 +354,45 @@ describe('Passage rendering and navigation', () => {
       expect(screen.getByText('Second text')).toBeInTheDocument()
       expect(useStoryDataStore.getState().currentPassageId).toBe('Second')
     })
+  })
+
+  it('ignores inline goto directive', async () => {
+    const logged: unknown[] = []
+    const orig = console.error
+    console.error = (...args: unknown[]) => {
+      logged.push(args)
+    }
+
+    const start: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: ':goto["Second"]' }]
+    }
+    const second: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '2', name: 'Second' },
+      children: [{ type: 'text', value: 'Second text' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [start, second],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(screen.queryByText('Second text')).not.toBeInTheDocument()
+      expect(useStoryDataStore.getState().currentPassageId).toBe('1')
+      expect(logged).toHaveLength(1)
+      expect(useGameStore.getState().errors).toEqual([
+        'goto can only be used as a leaf directive'
+      ])
+    })
+
+    console.error = orig
   })
 
   it('renders included passage content', async () => {

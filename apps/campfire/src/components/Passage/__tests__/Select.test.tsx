@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'bun:test'
 import { render, fireEvent } from '@testing-library/preact'
 import { Select } from '@campfire/components/Passage/Select'
-import { Option } from '@campfire/components/Passage/Option'
+import { Option, getOptionId } from '@campfire/components/Passage/Option'
 import { useGameStore } from '@campfire/state/useGameStore'
 
 /**
@@ -123,5 +123,65 @@ describe('Select', () => {
     fireEvent.keyDown(document, { key: 'Escape' })
     await new Promise(r => setTimeout(r, 0))
     expect(queryByRole('listbox')).toBeNull()
+  })
+
+  it('applies ARIA attributes for listbox control', async () => {
+    useGameStore.setState({ gameData: {} })
+    const { getByTestId, getByRole } = render(
+      <Select stateKey='field'>
+        <Option value='a'>A</Option>
+      </Select>
+    )
+    const trigger = getByTestId('select')
+    expect(trigger.getAttribute('aria-haspopup')).toBe('listbox')
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+    fireEvent.click(trigger)
+    await new Promise(r => setTimeout(r, 0))
+    const listbox = getByRole('listbox')
+    expect(trigger.getAttribute('aria-controls')).toBe(listbox.id)
+    expect(trigger.getAttribute('aria-expanded')).toBe('true')
+    const option = getByRole('option')
+    expect(option.getAttribute('aria-selected')).toBe('false')
+  })
+
+  it('supports arrow-key navigation', async () => {
+    useGameStore.setState({ gameData: {} })
+    const { getByTestId } = render(
+      <Select stateKey='field'>
+        <Option value='Value One'>One</Option>
+        <Option value='Value Two!'>Two</Option>
+      </Select>
+    )
+    const trigger = getByTestId('select')
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' })
+    await new Promise(r => setTimeout(r, 0))
+    expect(trigger.getAttribute('aria-activedescendant')).toBe(
+      getOptionId('Value One')
+    )
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' })
+    expect(trigger.getAttribute('aria-activedescendant')).toBe(
+      getOptionId('Value Two!')
+    )
+    fireEvent.keyDown(trigger, { key: 'Enter' })
+    expect(
+      (useGameStore.getState().gameData as Record<string, unknown>).field
+    ).toBe('Value Two!')
+  })
+
+  it('sanitizes option ids for special characters', async () => {
+    useGameStore.setState({ gameData: {} })
+    const { getByTestId, getByRole } = render(
+      <Select stateKey='field'>
+        <Option value='A B!'>AB</Option>
+      </Select>
+    )
+    const trigger = getByTestId('select')
+    fireEvent.click(trigger)
+    const option = getByRole('option')
+    const expected = getOptionId('A B!')
+    expect(option.id).toBe(expected)
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' })
+    await new Promise(r => setTimeout(r, 0))
+    expect(trigger.getAttribute('aria-activedescendant')).toBe(expected)
   })
 })

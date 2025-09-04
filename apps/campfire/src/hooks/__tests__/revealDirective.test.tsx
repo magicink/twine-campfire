@@ -107,6 +107,14 @@ describe('reveal directive', () => {
     expect(style).toContain('color: red')
   })
 
+  it('maps onEnter from attributes and presets', () => {
+    const md =
+      ':preset{type="reveal" name="start" onEnter="a"}\n:::reveal{from="start" onEnter="b"}\nHi\n:::'
+    render(<MarkdownRunner markdown={md} />)
+    const reveal = findReveal(output)!
+    expect(reveal.props.onEnter).toBe('b')
+  })
+
   it('does not render stray colons when reveal contains directives', () => {
     const md = `:::reveal\n:::if[true]\nHi\n:::\n:::\n`
     render(<MarkdownRunner markdown={md} />)
