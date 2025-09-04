@@ -35,6 +35,9 @@ export const LanguageSelect: StoryObj = {
 :::for[l in languages]
 ::option{value=l.code label=l.label}
 :::
+:::onChange
+::lang[lang]
+:::
 :::
 
 :t[ui:greet]
