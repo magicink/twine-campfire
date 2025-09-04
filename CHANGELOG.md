@@ -1,5 +1,30 @@
 # Changelog
 
+## [1.101.0](https://github.com/magicink/twine-campfire/compare/v1.100.1...v1.101.0) (2025-09-04)
+
+
+### Features
+
+* add setLanguageLabel directive and getlanguages utility ([#667](https://github.com/magicink/twine-campfire/issues/667)) ([4a41f69](https://github.com/magicink/twine-campfire/commit/4a41f694e1883f1796c961226050bfcf46369b42))
+* **campfire:** extract persistence directive handlers ([#659](https://github.com/magicink/twine-campfire/issues/659)) ([5e6ed0b](https://github.com/magicink/twine-campfire/commit/5e6ed0bca86c8c8e6d572321d5af7958f0f1529b))
+* extract control flow directive handlers ([#639](https://github.com/magicink/twine-campfire/issues/639)) ([ac36d22](https://github.com/magicink/twine-campfire/commit/ac36d22658650eec9c1e83b0cfe82c7be53552e8))
+* extract directive helper utilities ([#654](https://github.com/magicink/twine-campfire/issues/654)) ([a152c0d](https://github.com/magicink/twine-campfire/commit/a152c0d66112854d08bb3eff44a935217227ae9f))
+* extract form directive handlers ([#645](https://github.com/magicink/twine-campfire/issues/645)) ([5810e0b](https://github.com/magicink/twine-campfire/commit/5810e0beadcf217dfed790852b1e663e3b61da60))
+* extract media directive handlers ([#657](https://github.com/magicink/twine-campfire/issues/657)) ([5e57312](https://github.com/magicink/twine-campfire/commit/5e57312ecf7f112aa477d06cfbcd0c377b569213))
+* extract navigation handlers ([#655](https://github.com/magicink/twine-campfire/issues/655)) ([ebacbf7](https://github.com/magicink/twine-campfire/commit/ebacbf708d29fd0571d9a62efa19fb96ba0aa312))
+* extract state directive handlers ([#637](https://github.com/magicink/twine-campfire/issues/637)) ([9dceaf4](https://github.com/magicink/twine-campfire/commit/9dceaf4eaaa2b24f4dbcda490a2deeee2c5a7576))
+* **reveal:** support onEnter handlers ([#642](https://github.com/magicink/twine-campfire/issues/642)) ([f150809](https://github.com/magicink/twine-campfire/commit/f150809301e3cce5209f8bc8e455e4be91443a43))
+* **select:** improve accessibility and keyboard navigation ([#664](https://github.com/magicink/twine-campfire/issues/664)) ([0ffed85](https://github.com/magicink/twine-campfire/commit/0ffed850484f9d6092ffb9e457260458fa6c0b7f))
+* **state:** add selector helpers for Zustand stores ([#643](https://github.com/magicink/twine-campfire/issues/643)) ([daf0e18](https://github.com/magicink/twine-campfire/commit/daf0e18bfc1ad71090fc56adebb46e21cca3fa0e))
+
+
+### Bug Fixes
+
+* avoid circular dependency in If component ([#666](https://github.com/magicink/twine-campfire/issues/666)) ([90b5480](https://github.com/magicink/twine-campfire/commit/90b548011083e724d6f73956328f9510e894c289))
+* correct select directive syntax ([#658](https://github.com/magicink/twine-campfire/issues/658)) ([910bd3b](https://github.com/magicink/twine-campfire/commit/910bd3b062b94f8423bfda0f64cc0d7c8144607c))
+* enforce leaf usage for navigation directives ([#656](https://github.com/magicink/twine-campfire/issues/656)) ([8c7286a](https://github.com/magicink/twine-campfire/commit/8c7286a08519dd76e3d6643789c35467cb25cb05))
+* use selector for setCurrentPassage ([#653](https://github.com/magicink/twine-campfire/issues/653)) ([b250632](https://github.com/magicink/twine-campfire/commit/b2506322d5fe412eb1ca259dfb501d22b02dbb95))
+
 ## [1.100.1](https://github.com/magicink/twine-campfire/compare/v1.100.0...v1.100.1) (2025-09-03)
 
 
