@@ -1,9 +1,11 @@
 import path from 'node:path'
+import { indexer } from '@storybook/mdx2-csf'
 import type { StorybookConfig } from '@storybook/preact-vite'
 
 const config: StorybookConfig = {
   stories: ['../src/**/*.stories.@(ts|tsx|mdx)'],
   addons: ['@storybook/addon-docs'],
+  indexers: async existing => [...existing, indexer],
   framework: {
     name: '@storybook/preact-vite',
     options: {}
