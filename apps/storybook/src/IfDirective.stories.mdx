@@ -1,0 +1,76 @@
+import { Meta, Canvas, Story } from '@storybook/blocks'
+import { Campfire } from '@campfire/components'
+
+<Meta title='Campfire/Directives/If' />
+
+# If Directive
+
+Shows content conditionally based on a flag.
+
+<Canvas>
+  <Story name="Truthy">
+    {/**
+     * Shows content when the condition is true.
+     *
+     * @returns Campfire story demonstrating `if` with a truthy value.
+     */}
+    {() => (
+      <>
+        <tw-storydata startnode='1' options='debug'>
+          <tw-passagedata pid='1' name='Start'>
+            {`
+::set[flag=true]
+
+:::if[flag]
+
+Flag is true
+
+:::else
+
+Flag is false
+
+:::
+`}
+</tw-passagedata>
+</tw-storydata>
+
+<Campfire />
+</>
+)}
+
+  </Story>
+</Canvas>
+
+<Canvas>
+  <Story name="Falsy">
+    {/**
+     * Shows fallback content when the condition is false.
+     *
+     * @returns Campfire story demonstrating `if` with a falsy value.
+     */}
+    {() => (
+      <>
+        <tw-storydata startnode='1' options='debug'>
+          <tw-passagedata pid='1' name='Start'>
+            {`
+::set[flag=false]
+
+:::if[flag]
+
+Flag is true
+
+:::else
+
+Flag is false
+
+:::
+`}
+</tw-passagedata>
+</tw-storydata>
+
+<Campfire />
+</>
+)}
+
+  </Story>
+</Canvas>
