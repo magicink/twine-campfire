@@ -1532,7 +1532,7 @@ export const useDirectiveHandlers = () => {
         if (typeof preset.size === 'string')
           deckProps.size = parseDeckSize(preset.size as string)
         if (preset.transition) deckProps.transition = preset.transition
-        if (typeof preset.theme !== 'undefined') {
+        if ('theme' in preset) {
           const t = parseThemeValue(preset.theme)
           if (t) deckProps.theme = t
         }
@@ -1543,7 +1543,7 @@ export const useDirectiveHandlers = () => {
       deckProps.size = parseDeckSize(deckAttrs.size)
     }
     if (deckAttrs.transition) deckProps.transition = deckAttrs.transition
-    if (typeof deckAttrs.theme !== 'undefined') {
+    if ('theme' in deckAttrs) {
       const theme = parseThemeValue(deckAttrs.theme)
       if (theme) deckProps.theme = theme
     }

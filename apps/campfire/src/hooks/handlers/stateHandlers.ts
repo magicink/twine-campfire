@@ -150,7 +150,7 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
       const key = ensureKey(keyRaw, parent, index)
       if (!key) return
       const parsed = parseTypedValue(valueRaw, getGameData())
-      if (typeof parsed !== 'undefined') {
+      if (parsed !== undefined) {
         safe[key] = parsed
       }
     }
@@ -393,9 +393,9 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
 
     let value: unknown
     const optionList = attrs.from as unknown[] | undefined
-    const hasFrom = typeof attrs.from !== 'undefined'
-    const hasMin = typeof attrs.min !== 'undefined'
-    const hasMax = typeof attrs.max !== 'undefined'
+    const hasFrom = 'from' in attrs
+    const hasMin = 'min' in attrs
+    const hasMax = 'max' in attrs
 
     if (hasFrom) {
       if (optionList && optionList.length) {
