@@ -36,6 +36,27 @@ export interface I18nHandlerContext {
 }
 
 /**
+ * Retrieves all locales with defined language labels.
+ *
+ * @returns Array of language codes and their corresponding labels.
+ */
+export const getLanguages = (): { code: string; label: string }[] => {
+  if (!i18next.isInitialized) return []
+  const store = i18next.services.resourceStore.data as Record<
+    string,
+    { language?: { label?: unknown } }
+  >
+  return Object.entries(store).reduce<{ code: string; label: string }[]>(
+    (acc, [code, namespaces]) => {
+      const label = namespaces.language?.label
+      if (typeof label === 'string') acc.push({ code, label })
+      return acc
+    },
+    []
+  )
+}
+
+/**
  * Creates handlers for localization directives.
  *
  * @param ctx - Context providing state access and utilities.

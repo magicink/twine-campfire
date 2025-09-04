@@ -87,3 +87,15 @@ stored in i18next under the `language` namespace for the specified locale.
 | label     | Display label for the locale |
 
 Campfire prints descriptive error messages to the browser console when it encounters invalid markup.
+
+### `getLanguages`
+
+Return all locales that have a user-facing label. Each entry includes the
+locale `code` and its `label`.
+
+```ts
+import { getLanguages } from '@campfire/hooks/handlers/i18nHandlers'
+
+const languages = getLanguages()
+// => [{ code: 'en-US', label: 'English (US)' }, { code: 'fr', label: 'Français' }]
+```

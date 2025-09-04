@@ -7,6 +7,7 @@ import { Passage } from '@campfire/components/Passage/Passage'
 import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
 import { useGameStore } from '@campfire/state/useGameStore'
 import { resetStores } from '@campfire/test-utils/helpers'
+import { getLanguages } from '@campfire/hooks/handlers/i18nHandlers'
 
 describe('Passage i18n directives', () => {
   beforeEach(async () => {
@@ -382,6 +383,41 @@ describe('Passage i18n directives', () => {
     await waitFor(() => {
       expect(i18next.t('label', { lng: 'fr', ns: 'language' })).toBe('Français')
     })
+  })
+
+  it('lists languages with getLanguages', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        { type: 'text', value: '::setLanguageLabel[fr="Français"]\n' },
+        { type: 'text', value: '::setLanguageLabel[en-US="English (US)"]' }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(
+        getLanguages().sort((a, b) => a.code.localeCompare(b.code))
+      ).toEqual([
+        { code: 'en-US', label: 'English (US)' },
+        { code: 'fr', label: 'Français' }
+      ])
+    })
+  })
+
+  it('returns empty array when i18n is not initialized', () => {
+    const original = i18next.isInitialized
+    ;(i18next as unknown as { isInitialized: boolean }).isInitialized = false
+    expect(getLanguages()).toEqual([])
+    ;(i18next as unknown as { isInitialized: boolean }).isInitialized = original
   })
 
   it('reports error when multiple pairs are provided', async () => {
