@@ -4,7 +4,10 @@ import rfdc from 'rfdc'
 import { shallow } from 'zustand/shallow'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { runDirectiveBlock } from '@campfire/utils/directiveUtils'
-import { useGameStore } from '@campfire/state/useGameStore'
+import {
+  subscribeGameStore,
+  type GameState
+} from '@campfire/state/useGameStore'
 
 const clone = rfdc()
 
@@ -41,10 +44,10 @@ export const Effect = ({ watch, content }: EffectProps) => {
       : String(watch ?? '')
           .split(/[\s,]+/)
           .filter(Boolean)
-    const unsubscribe = (useGameStore.subscribe as any)(
-      (state: any) =>
+    const unsubscribe = subscribeGameStore(
+      (state: GameState<Record<string, unknown>>) =>
         keys.map(key => (state.gameData as Record<string, unknown>)[key]),
-      (_: unknown, __: unknown) => queueMicrotask(run),
+      () => queueMicrotask(run),
       { equalityFn: shallow }
     )
     return unsubscribe

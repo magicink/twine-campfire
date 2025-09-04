@@ -55,8 +55,17 @@ export const getLanguages = (): { code: string; label: string }[] => {
     []
   )
 }
-;(globalThis as { getLanguages?: typeof getLanguages }).getLanguages =
-  getLanguages
+
+/**
+ * Registers localization helpers on the global scope.
+ *
+ * Exposes {@link getLanguages} so directive expressions can call it without
+ * importing the module.
+ */
+export const registerI18nGlobals = (): void => {
+  ;(globalThis as { getLanguages?: typeof getLanguages }).getLanguages =
+    getLanguages
+}
 
 /**
  * Creates handlers for localization directives.
@@ -65,6 +74,7 @@ export const getLanguages = (): { code: string; label: string }[] => {
  * @returns An object containing the i18n directive handlers.
  */
 export const createI18nHandlers = (ctx: I18nHandlerContext) => {
+  registerI18nGlobals()
   const { addError, getGameData } = ctx
 
   /**
