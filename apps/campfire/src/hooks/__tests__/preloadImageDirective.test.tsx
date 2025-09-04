@@ -25,7 +25,9 @@ beforeEach(() => {
 
 describe('preloadImage directive', () => {
   it('preloads images via ImageManager', () => {
-    const spy = spyOn(ImageManager.getInstance(), 'load').mockResolvedValue()
+    const spy = spyOn(ImageManager.getInstance(), 'load').mockResolvedValue(
+      new Image()
+    )
     const directive = {
       type: 'leafDirective',
       name: 'preloadImage',
