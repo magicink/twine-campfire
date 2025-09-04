@@ -21,6 +21,7 @@ import {
 } from '@campfire/utils/directiveHandlerUtils'
 import { evalExpression } from '@campfire/utils/core'
 import type { StateManagerType } from '@campfire/state/stateManager'
+import { isWhitespaceRootContent } from '@campfire/utils/nodePredicates'
 
 /**
  * Context required to create control flow directive handlers.
@@ -56,8 +57,6 @@ export interface ControlFlowHandlerContext {
   setOnceKeys: (keys: Record<string, true>) => void
   /** Determines if a node is a text node. */
   isTextNode: (node: RootContent) => node is MdText
-  /** Determines if a node is whitespace-only. */
-  isWhitespaceNode: (node: RootContent) => boolean
   /** Directives allowed within a batch block. */
   allowedBatchDirectives: Set<string>
   /** Directives disallowed within a batch block. */
@@ -85,7 +84,6 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
     getOnceKeys,
     setOnceKeys,
     isTextNode,
-    isWhitespaceNode,
     allowedBatchDirectives,
     bannedBatchDirectives
   } = ctx
@@ -185,7 +183,7 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
     let markerIndex = newIndex + 1
     while (markerIndex < parent.children.length) {
       const sibling = parent.children[markerIndex]
-      if (isWhitespaceNode(sibling)) {
+      if (isWhitespaceRootContent(sibling)) {
         markerIndex++
         continue
       }
