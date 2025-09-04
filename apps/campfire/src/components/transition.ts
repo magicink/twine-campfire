@@ -9,8 +9,8 @@ import {
  * @returns True if reduced motion is preferred.
  */
 export const prefersReducedMotion = (): boolean =>
-  typeof window !== 'undefined' &&
-  window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true
+  globalThis.window?.matchMedia?.('(prefers-reduced-motion: reduce)')
+    ?.matches === true
 
 /**
  * Default transition used when none is provided.
