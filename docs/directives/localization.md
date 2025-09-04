@@ -99,3 +99,11 @@ import { getLanguages } from '@campfire/hooks/handlers/i18nHandlers'
 const languages = getLanguages()
 // => [{ code: 'en-US', label: 'English (US)' }, { code: 'fr', label: 'Français' }]
 ```
+
+Populate a state variable with the available languages:
+
+```md
+::setLanguageLabel[en-US="English (US)"]
+::setLanguageLabel[fr="Français"]
+::set[languages=getLanguages()]
+```

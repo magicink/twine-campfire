@@ -413,6 +413,42 @@ describe('Passage i18n directives', () => {
     })
   })
 
+  it('sets languages array via set directive', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        { type: 'text', value: '::setLanguageLabel[fr="Français"]\n' },
+        {
+          type: 'text',
+          value: '::setLanguageLabel[en-US="English (US)"]\n'
+        },
+        { type: 'text', value: '::set[languages=getLanguages()]' }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      const languages = [
+        ...(useGameStore.getState().gameData.languages as {
+          code: string
+          label: string
+        }[])
+      ].sort((a, b) => a.code.localeCompare(b.code))
+      expect(languages).toEqual([
+        { code: 'en-US', label: 'English (US)' },
+        { code: 'fr', label: 'Français' }
+      ])
+    })
+  })
+
   it('returns empty array when i18n is not initialized', () => {
     const original = i18next.isInitialized
     ;(i18next as unknown as { isInitialized: boolean }).isInitialized = false

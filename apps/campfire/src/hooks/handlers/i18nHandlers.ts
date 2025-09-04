@@ -55,6 +55,8 @@ export const getLanguages = (): { code: string; label: string }[] => {
     []
   )
 }
+;(globalThis as { getLanguages?: typeof getLanguages }).getLanguages =
+  getLanguages
 
 /**
  * Creates handlers for localization directives.
