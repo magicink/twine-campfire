@@ -7,6 +7,7 @@ import { Passage } from '@campfire/components/Passage/Passage'
 import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
 import { useGameStore } from '@campfire/state/useGameStore'
 import { resetStores } from '@campfire/test-utils/helpers'
+import { getLanguages } from '@campfire/hooks/handlers/i18nHandlers'
 
 describe('Passage i18n directives', () => {
   beforeEach(async () => {
@@ -339,6 +340,40 @@ describe('Passage i18n directives', () => {
     expect(await screen.findByText('Bonjour')).toBeInTheDocument()
   })
 
+  it('re-renders translation when lang state changes', async () => {
+    i18next.addResource('en-US', 'ui', 'greet', 'Hello')
+    i18next.addResource('fr', 'ui', 'greet', 'Bonjour')
+    useGameStore.setState({ gameData: { lang: 'en-US' } })
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':::effect[lang]\n::lang[lang]\n:::\n:t[ui:greet]'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    expect(await screen.findByText('Hello')).toBeInTheDocument()
+
+    act(() => {
+      useGameStore.getState().setGameData({ lang: 'fr' })
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText('Bonjour')).toBeInTheDocument()
+    })
+  })
+
   it('adds translation via shorthand syntax', async () => {
     const passage: Element = {
       type: 'element',
@@ -362,6 +397,97 @@ describe('Passage i18n directives', () => {
 
     const text = await screen.findByText('Hello there')
     expect(text).toBeInTheDocument()
+  })
+
+  it('sets language label with setLanguageLabel directive', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: '::setLanguageLabel[fr="Français"]' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(i18next.t('label', { lng: 'fr', ns: 'language' })).toBe('Français')
+    })
+  })
+
+  it('lists languages with getLanguages', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        { type: 'text', value: '::setLanguageLabel[fr="Français"]\n' },
+        { type: 'text', value: '::setLanguageLabel[en-US="English (US)"]' }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(
+        getLanguages().sort((a, b) => a.code.localeCompare(b.code))
+      ).toEqual([
+        { code: 'en-US', label: 'English (US)' },
+        { code: 'fr', label: 'Français' }
+      ])
+    })
+  })
+
+  it('sets languages array via set directive', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        { type: 'text', value: '::setLanguageLabel[fr="Français"]\n' },
+        {
+          type: 'text',
+          value: '::setLanguageLabel[en-US="English (US)"]\n'
+        },
+        { type: 'text', value: '::set[languages=getLanguages()]' }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      const languages = [
+        ...(useGameStore.getState().gameData.languages as {
+          code: string
+          label: string
+        }[])
+      ].sort((a, b) => a.code.localeCompare(b.code))
+      expect(languages).toEqual([
+        { code: 'en-US', label: 'English (US)' },
+        { code: 'fr', label: 'Français' }
+      ])
+    })
+  })
+
+  it('returns empty array when i18n is not initialized', () => {
+    const original = i18next.isInitialized
+    ;(i18next as unknown as { isInitialized: boolean }).isInitialized = false
+    expect(getLanguages()).toEqual([])
+    ;(i18next as unknown as { isInitialized: boolean }).isInitialized = original
   })
 
   it('reports error when multiple pairs are provided', async () => {

@@ -96,6 +96,7 @@ Forbidden
 
 - `batch` inside `batch` is forbidden. Handlers MUST remove nested `batch` and report an error.
 - `onExit` content: only allows a defined allowlist of data directives. Other nodes are invalid and should be reported.
+- `effect` content: only allows a defined allowlist of data directives. Other nodes are invalid and should be reported.
 
 ## Error Handling
 

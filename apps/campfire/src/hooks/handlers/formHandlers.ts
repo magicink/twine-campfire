@@ -588,8 +588,13 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       return removeNode(parent, index)
     }
     const attrs = (directive.attributes || {}) as Record<string, unknown>
-    const value = typeof attrs.value === 'string' ? attrs.value : undefined
-    if (!value) {
+    const rawValue = attrs.value
+    const value = parseAttributeValue(
+      rawValue,
+      { type: 'string' },
+      getGameData()
+    )
+    if (value == null || String(value) === '') {
       const msg = 'option requires a value attribute'
       console.error(msg)
       addError(msg)
@@ -602,7 +607,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
     }
     const classAttr = getClassAttr(attrs, getGameData())
     const styleAttr = getStyleAttr(attrs, getGameData())
-    const props: Record<string, unknown> = { value }
+    const props: Record<string, unknown> = { value: String(value) }
     if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
     if (styleAttr) props.style = styleAttr
     applyAdditionalAttributes(
@@ -613,9 +618,13 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
     )
 
     if (directive.type === 'leafDirective') {
-      const labelAttr =
-        typeof attrs.label === 'string' ? attrs.label : undefined
-      if (!labelAttr) {
+      const rawLabel = attrs.label
+      const labelAttr = parseAttributeValue(
+        rawLabel,
+        { type: 'string' },
+        getGameData()
+      )
+      if (labelAttr == null) {
         const msg = 'option leaf directives require a label attribute'
         console.error(msg)
         addError(msg)
@@ -623,7 +632,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       }
       const node: Parent = {
         type: 'paragraph',
-        children: [{ type: 'text', value: labelAttr }],
+        children: [{ type: 'text', value: String(labelAttr) }],
         data: { hName: 'option', hProperties: props as Properties }
       }
       return replaceWithIndentation(directive, parent, index, [

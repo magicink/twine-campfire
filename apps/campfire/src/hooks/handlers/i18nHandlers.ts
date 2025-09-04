@@ -7,6 +7,7 @@ import type { Properties } from 'hast'
 import type { DirectiveNode } from '@campfire/utils/directiveUtils'
 import {
   extractAttributes,
+  extractKeyValue,
   getLabel,
   hasLabel,
   removeNode,
@@ -35,12 +36,45 @@ export interface I18nHandlerContext {
 }
 
 /**
+ * Retrieves all locales with defined language labels.
+ *
+ * @returns Array of language codes and their corresponding labels.
+ */
+export const getLanguages = (): { code: string; label: string }[] => {
+  if (!i18next.isInitialized) return []
+  const store = i18next.services.resourceStore.data as Record<
+    string,
+    { language?: { label?: unknown } }
+  >
+  return Object.entries(store).reduce<{ code: string; label: string }[]>(
+    (acc, [code, namespaces]) => {
+      const label = namespaces.language?.label
+      if (typeof label === 'string') acc.push({ code, label })
+      return acc
+    },
+    []
+  )
+}
+
+/**
+ * Registers localization helpers on the global scope.
+ *
+ * Exposes {@link getLanguages} so directive expressions can call it without
+ * importing the module.
+ */
+export const registerI18nGlobals = (): void => {
+  ;(globalThis as { getLanguages?: typeof getLanguages }).getLanguages =
+    getLanguages
+}
+
+/**
  * Creates handlers for localization directives.
  *
  * @param ctx - Context providing state access and utilities.
  * @returns An object containing the i18n directive handlers.
  */
 export const createI18nHandlers = (ctx: I18nHandlerContext) => {
+  registerI18nGlobals()
   const { addError, getGameData } = ctx
 
   /**
@@ -112,6 +146,41 @@ export const createI18nHandlers = (ctx: I18nHandlerContext) => {
       const msg = 'Translations directive expects [locale]{ns:key="value"}'
       console.error(msg)
       addError(msg)
+    }
+    return removeNode(parent, index)
+  }
+
+  /**
+   * Registers a display label for a locale using
+   * `::setLanguageLabel[code="label"]`.
+   *
+   * @param directive - Directive node containing the locale mapping.
+   * @param parent - Parent node of the directive.
+   * @param index - Index of the directive within its parent.
+   * @returns The new index after removing the directive.
+   */
+  const handleSetLanguageLabel: DirectiveHandler = (
+    directive,
+    parent,
+    index
+  ) => {
+    const invalid = requireLeafDirective(directive, parent, index, addError)
+    if (typeof invalid !== 'undefined') return invalid
+    const kv = extractKeyValue(
+      directive as DirectiveNode,
+      parent,
+      index,
+      addError
+    )
+    if (!kv) return index
+    const { key: locale, valueRaw } = kv
+    const match = valueRaw.match(QUOTE_PATTERN)
+    const label = match ? match[2] : valueRaw
+    if (i18next.isInitialized) {
+      if (!i18next.hasResourceBundle(locale, 'language')) {
+        i18next.addResourceBundle(locale, 'language', {}, true, true)
+      }
+      i18next.addResource(locale, 'language', 'label', label)
     }
     return removeNode(parent, index)
   }
@@ -298,6 +367,7 @@ export const createI18nHandlers = (ctx: I18nHandlerContext) => {
   return {
     lang: handleLang,
     translations: handleTranslations,
+    setLanguageLabel: handleSetLanguageLabel,
     t: handleTranslate
   }
 }

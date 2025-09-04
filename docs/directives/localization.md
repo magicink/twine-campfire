@@ -70,4 +70,64 @@ Attributes on `:t` become interpolation variables for i18next.
 | ns:key | Namespace and key to translate  |
 | value  | Translated string               |
 
+### `setLanguageLabel`
+
+Provide a display label for a locale. Use as a leaf directive.
+
+```md
+::setLanguageLabel[fr="Français"]
+```
+
+Replace `fr` with the locale code and supply the label in quotes. The label is
+stored in i18next under the `language` namespace for the specified locale.
+
+| Input     | Description                  |
+| --------- | ---------------------------- |
+| lang_code | Locale code to label         |
+| label     | Display label for the locale |
+
 Campfire prints descriptive error messages to the browser console when it encounters invalid markup.
+
+### `getLanguages`
+
+Return all locales that have a user-facing label. Each entry includes the
+locale `code` and its `label`. The utility is exposed on the global object so it
+can be called from directive expressions.
+
+```md
+::setLanguageLabel[en-US="English (US)"]
+::setLanguageLabel[fr="Français"]
+::set[languages=getLanguages()]
+```
+
+The final `languages` array will contain `{code, label}` pairs for each locale
+with a defined label.
+
+Combine `setLanguageLabel` and `getLanguages` to build a language picker. Watch the `lang` state with an `effect` block so the active locale updates whenever the selection changes:
+
+```md
+::set[lang="en-US"]
+::setLanguageLabel[en-US="English (US)"]
+::setLanguageLabel[fr="Français"]
+::setLanguageLabel[th="ไทย"]
+
+::translations[en-US]{ui:greet="Hello"}
+::translations[fr]{ui:greet="Bonjour"}
+::translations[th]{ui:greet="สวัสดี"}
+
+::set[languages=getLanguages()]
+
+:::effect[watch=lang]
+::lang[lang]
+:::
+
+:::select[lang]{label="Choose a language"}
+:::for[l in languages]
+::option{value=l.code label=l.label}
+:::
+:::
+
+:t[ui:greet]
+```
+
+Omit quotes around attribute values when referencing state keys or expressions.

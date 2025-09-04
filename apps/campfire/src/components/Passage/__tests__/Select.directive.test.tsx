@@ -247,4 +247,31 @@ describe('Select directive', () => {
     })
     expect(useGameStore.getState().gameData.focused).toBeUndefined()
   })
+
+  it('evaluates value and label expressions', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            '::set[code="en"]\n' +
+            '::set[label="English"]\n' +
+            ':::select[lang]{label="Choose"}\n' +
+            '::option{value=code label=label}\n' +
+            ':::\n'
+        }
+      ]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    const select = await screen.findByTestId('select')
+    fireEvent.click(select)
+    await new Promise(r => setTimeout(r, 0))
+    const options = screen.getAllByTestId('option')
+    expect(options[0].id).toBe('option-en')
+    expect(options[0].textContent).toBe('English')
+  })
 })

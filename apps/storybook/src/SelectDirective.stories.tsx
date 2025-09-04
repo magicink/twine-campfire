@@ -43,7 +43,8 @@ You chose
   :show[color]{style="color: var(--color-primary-500)"}.
 
 :::
-          `}
+
+    `}
         </tw-passagedata>
       </tw-storydata>
       <Campfire />
@@ -99,7 +100,8 @@ You chose
   :show[color]{style="color: var(--color-primary-500)"}.
 
 :::
-          `}
+
+            `}
         </tw-passagedata>
       </tw-storydata>
       <Campfire />
