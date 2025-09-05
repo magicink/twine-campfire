@@ -6,7 +6,7 @@ import { mergeClasses, parseDisabledAttr } from '@campfire/utils/core'
 import { useGameStore } from '@campfire/state/useGameStore'
 import type { OptionProps } from './Option'
 import { getOptionId } from './Option'
-import type { BoundFieldElementProps } from './BoundFieldProps'
+import { fieldBaseStyles, type BoundFieldElementProps } from './BoundFieldProps'
 
 /** Counter used to generate deterministic IDs. */
 let idCounter = 0
@@ -18,8 +18,10 @@ let idCounter = 0
  * @returns The generated ID.
  */
 const generateId = (prefix: string) => `${prefix}-${++idCounter}`
-const selectStyles =
-  'file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-2 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive'
+const selectStyles = mergeClasses(
+  fieldBaseStyles,
+  'file:text-foreground selection:bg-primary selection:text-primary-foreground disabled:pointer-events-none min-w-0 h-9 px-2 py-1'
+)
 
 type SelectProps = Omit<
   BoundFieldElementProps<HTMLButtonElement, string>,
