@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/preact'
 import { Campfire } from '@campfire/components'
+import { DebugWindow } from './DebugWindow'
 
 const meta: Meta = {
   title: 'Campfire/Directives/Textarea'
@@ -28,6 +29,7 @@ You wrote: :show[bio]{className="text-purple-600"}
         </tw-passagedata>
       </tw-storydata>
       <Campfire />
+      <DebugWindow />
     </>
   )
 }
@@ -61,6 +63,7 @@ Focused!
         </tw-passagedata>
       </tw-storydata>
       <Campfire />
+      <DebugWindow />
     </>
   )
 }
