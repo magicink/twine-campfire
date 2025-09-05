@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/preact'
 import { Campfire } from '@campfire/components'
+import { DebugWindow } from './DebugWindow'
 
 const meta: Meta = {
   title: 'Campfire/Directives/Deck'
@@ -66,6 +67,7 @@ export const MultiPassage: StoryObj = {
         </tw-passagedata>
       </tw-storydata>
       <Campfire data-testid='campfire' />
+      <DebugWindow />
     </>
   )
 }

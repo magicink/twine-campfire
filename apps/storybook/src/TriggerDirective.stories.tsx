@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/preact'
 import { Campfire } from '@campfire/components'
+import { DebugWindow } from './DebugWindow'
 
 const meta: Meta = {
   title: 'Campfire/Directives/Trigger'
@@ -37,6 +38,7 @@ You clicked the button!
         </tw-passagedata>
       </tw-storydata>
       <Campfire />
+      <DebugWindow />
     </>
   )
 }
@@ -69,6 +71,7 @@ You hovered the button!
         </tw-passagedata>
       </tw-storydata>
       <Campfire />
+      <DebugWindow />
     </>
   )
 }
@@ -114,6 +117,7 @@ export const WithWrapperLabel: StoryObj = {
         </tw-passagedata>
       </tw-storydata>
       <Campfire />
+      <DebugWindow />
     </>
   )
 }

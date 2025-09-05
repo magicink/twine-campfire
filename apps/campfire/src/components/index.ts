@@ -15,7 +15,6 @@ export { Show } from '@campfire/components/Passage/Show'
 export { Translate } from '@campfire/components/Passage/Translate'
 export { OnExit } from '@campfire/components/Passage/OnExit'
 export { Effect } from '@campfire/components/Passage/Effect'
-export { DebugWindow } from '@campfire/components/DebugWindow'
 export { Deck } from '@campfire/components/Deck'
 export {
   Slide,
