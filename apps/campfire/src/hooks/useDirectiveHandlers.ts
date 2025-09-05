@@ -31,7 +31,8 @@ import {
   parseDeckSize,
   parseThemeValue,
   applyAdditionalAttributes,
-  mergeAttrs
+  mergeAttrs,
+  ensureParentIndex
 } from '@campfire/utils/directiveHandlerUtils'
 import type {
   Transition,
@@ -203,8 +204,10 @@ export const useDirectiveHandlers = () => {
         hProperties: props as Properties
       }
     }
-    if (parent && typeof index === 'number') {
-      return replaceWithIndentation(directive, parent, index, [node])
+    const pair = ensureParentIndex(parent, index)
+    if (pair) {
+      const [p, i] = pair
+      return replaceWithIndentation(directive, p, i, [node])
     }
     return index
   }
@@ -280,11 +283,13 @@ export const useDirectiveHandlers = () => {
    * @returns The index of the inserted node.
    */
   const handleEffect: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
     const { attrs, label } = extractAttributes(
       directive,
-      parent,
-      index,
+      p,
+      i,
       { watch: { type: 'string' } },
       { label: true }
     )
@@ -315,11 +320,11 @@ export const useDirectiveHandlers = () => {
       children: [{ type: 'text', value: '' }],
       data: { hName: 'effect', hProperties: { watch, content } }
     }
-    const newIndex = replaceWithIndentation(directive, parent, index, [
+    const newIndex = replaceWithIndentation(directive, p, i, [
       node as RootContent
     ])
     const markerIndex = newIndex + 1
-    removeDirectiveMarker(parent, markerIndex)
+    removeDirectiveMarker(p, markerIndex)
     return [SKIP, newIndex]
   }
 
@@ -334,12 +339,14 @@ export const useDirectiveHandlers = () => {
    * @returns The index of the inserted node.
    */
   const handleOnExit: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
     if (lastPassageIdRef.current !== currentPassageId) {
       resetDirectiveState()
     }
     if (onExitErrorRef.current) {
-      return removeNode(parent, index)
+      return removeNode(p, i)
     }
     if (onExitSeenRef.current) {
       onExitErrorRef.current = true
@@ -347,7 +354,7 @@ export const useDirectiveHandlers = () => {
         'Multiple onExit directives in a single passage are not allowed'
       console.error(msg)
       addError(msg)
-      return removeNode(parent, index)
+      return removeNode(p, i)
     }
     onExitSeenRef.current = true
     const container = directive as ContainerDirective
@@ -372,11 +379,11 @@ export const useDirectiveHandlers = () => {
       children: [{ type: 'text', value: '' }],
       data: { hName: 'onExit', hProperties: { content } }
     }
-    const newIndex = replaceWithIndentation(directive, parent, index, [
+    const newIndex = replaceWithIndentation(directive, p, i, [
       node as RootContent
     ])
     const markerIndex = newIndex + 1
-    removeDirectiveMarker(parent, markerIndex)
+    removeDirectiveMarker(p, markerIndex)
     return [SKIP, newIndex]
   }
 
@@ -389,11 +396,13 @@ export const useDirectiveHandlers = () => {
    * @returns The index of the removed node.
    */
   const handlePreset: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
     const { attrs: presetAttrs } = extractAttributes(
       directive,
-      parent,
-      index,
+      p,
+      i,
       {
         type: { type: 'string', required: true },
         name: { type: 'string', required: true }
@@ -418,8 +427,8 @@ export const useDirectiveHandlers = () => {
     }
     if (!presetsRef.current[target]) presetsRef.current[target] = {}
     presetsRef.current[target][name] = parsedAttrs
-    parent.children.splice(index, 1)
-    return index
+    p.children.splice(i, 1)
+    return i
   }
 
   /**
@@ -450,15 +459,17 @@ export const useDirectiveHandlers = () => {
       beforeRemove?: (parent: Parent, markerIndex: number) => void
     ): DirectiveHandler =>
     (directive, parent, index) => {
-      if (!parent || typeof index !== 'number') return
+      const pair = ensureParentIndex(parent, index)
+      if (!pair) return
+      const [p, i] = pair
       if (directive.type !== 'containerDirective') {
         const msg = `${directive.name} can only be used as a container directive`
         console.error(msg)
         addError(msg)
-        return removeNode(parent, index)
+        return removeNode(p, i)
       }
       const container = directive as ContainerDirective
-      const { attrs } = extractAttributes<S>(directive, parent, index, schema)
+      const { attrs } = extractAttributes<S>(directive, p, i, schema)
       const rawAttrs = (directive.attributes || {}) as Record<string, unknown>
       const processed = runDirectiveBlock(
         expandIndentedCode(container.children as RootContent[]),
@@ -475,12 +486,12 @@ export const useDirectiveHandlers = () => {
           hProperties: mapProps(attrs, rawAttrs) as Properties
         }
       }
-      const newIndex = replaceWithIndentation(directive, parent, index, [
+      const newIndex = replaceWithIndentation(directive, p, i, [
         node as RootContent
       ])
       const markerIndex = newIndex + 1
-      if (beforeRemove) beforeRemove(parent, markerIndex)
-      removeDirectiveMarker(parent, markerIndex)
+      if (beforeRemove) beforeRemove(p, markerIndex)
+      removeDirectiveMarker(p, markerIndex)
       return [SKIP, newIndex]
     }
 
@@ -1030,20 +1041,17 @@ export const useDirectiveHandlers = () => {
    * @returns The index of the inserted node.
    */
   const handleText: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
     if (directive.type !== 'containerDirective') {
       const msg = 'text can only be used as a container directive'
       console.error(msg)
       addError(msg)
-      return removeNode(parent, index)
+      return removeNode(p, i)
     }
     const container = directive as ContainerDirective
-    const { attrs } = extractAttributes<TextSchema>(
-      directive,
-      parent,
-      index,
-      textSchema
-    )
+    const { attrs } = extractAttributes<TextSchema>(directive, p, i, textSchema)
     const raw = (directive.attributes || {}) as Record<string, unknown>
     const preset = attrs.from
       ? presetsRef.current['text']?.[String(attrs.from)]
@@ -1170,9 +1178,7 @@ export const useDirectiveHandlers = () => {
       children: [{ type: 'text', value: content } as RootContent],
       data: { hName: tagName, hProperties: props as Properties }
     }
-    return replaceWithIndentation(directive, parent, index, [
-      node as RootContent
-    ])
+    return replaceWithIndentation(directive, p, i, [node as RootContent])
   }
 
   /**
@@ -1184,13 +1190,15 @@ export const useDirectiveHandlers = () => {
    * @returns The index of the inserted node.
    */
   const handleImage: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
-    const invalid = requireLeafDirective(directive, parent, index, addError)
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
+    const invalid = requireLeafDirective(directive, p, i, addError)
     if (invalid !== undefined) return invalid
     const { attrs } = extractAttributes<ImageSchema>(
       directive,
-      parent,
-      index,
+      p,
+      i,
       imageSchema
     )
     const raw = (directive.attributes || {}) as Record<string, unknown>
@@ -1251,9 +1259,7 @@ export const useDirectiveHandlers = () => {
       hProperties: props as Properties
     }
     const node: Parent = { type: 'paragraph', children: [], data }
-    return replaceWithIndentation(directive, parent, index, [
-      node as RootContent
-    ])
+    return replaceWithIndentation(directive, p, i, [node as RootContent])
   }
 
   /**
@@ -1265,7 +1271,9 @@ export const useDirectiveHandlers = () => {
    * @returns The index of the inserted node.
    */
   const handleShape: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
     if (
       directive.type !== 'textDirective' &&
       directive.type !== 'leafDirective'
@@ -1273,12 +1281,12 @@ export const useDirectiveHandlers = () => {
       const msg = 'shape can only be used as a leaf or text directive'
       console.error(msg)
       addError(msg)
-      return removeNode(parent, index)
+      return removeNode(p, i)
     }
     const { attrs } = extractAttributes<ShapeSchema>(
       directive,
-      parent,
-      index,
+      p,
+      i,
       shapeSchema
     )
     const raw = (directive.attributes || {}) as Record<string, unknown>
@@ -1364,9 +1372,7 @@ export const useDirectiveHandlers = () => {
       children: [],
       data: { hName: 'slideShape', hProperties: props as Properties }
     }
-    return replaceWithIndentation(directive, parent, index, [
-      node as RootContent
-    ])
+    return replaceWithIndentation(directive, p, i, [node as RootContent])
   }
 
   /**
@@ -1472,19 +1478,21 @@ export const useDirectiveHandlers = () => {
    * @returns Visitor instructions after replacement.
    */
   const handleDeck: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
     if (directive.type !== 'containerDirective') {
       const msg = 'deck can only be used as a container directive'
       console.error(msg)
       addError(msg)
-      return removeNode(parent, index)
+      return removeNode(p, i)
     }
     const container = directive as ContainerDirective
 
     const { attrs: deckAttrs } = extractAttributes(
       directive,
-      parent,
-      index,
+      p,
+      i,
       {
         size: { type: 'string' },
         transition: { type: 'string' },
@@ -1555,16 +1563,16 @@ export const useDirectiveHandlers = () => {
 
     const slides: Parent[] = []
 
-    let endPos = parent.children.length
-    for (let i = parent.children.length - 1; i > index; i--) {
-      if (isMarkerParagraph(parent.children[i] as RootContent)) {
-        endPos = i
+    let endPos = p.children.length
+    for (let j = p.children.length - 1; j > i; j--) {
+      if (isMarkerParagraph(p.children[j] as RootContent)) {
+        endPos = j
         break
       }
     }
-    const rawFollowing = parent.children.slice(index + 1, endPos)
-    if (endPos > index + 1) {
-      parent.children.splice(index + 1, endPos - (index + 1))
+    const rawFollowing = p.children.slice(i + 1, endPos)
+    if (endPos > i + 1) {
+      p.children.splice(i + 1, endPos - (i + 1))
     }
     const following = rawFollowing.filter(
       node =>
@@ -1690,10 +1698,10 @@ export const useDirectiveHandlers = () => {
       children: slides as RootContent[],
       data: { hName: 'deck', hProperties: deckProps as Properties }
     }
-    const newIndex = replaceWithIndentation(directive, parent, index, [
+    const newIndex = replaceWithIndentation(directive, p, i, [
       deckNode as RootContent
     ])
-    removeDirectiveMarker(parent, newIndex + 1)
+    removeDirectiveMarker(p, newIndex + 1)
     return [SKIP, newIndex]
   }
 
