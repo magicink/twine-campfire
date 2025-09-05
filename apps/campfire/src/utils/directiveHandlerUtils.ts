@@ -48,6 +48,25 @@ export const getStyleAttr = (
   )
 
 /**
+ * Interpolates all string values within an attribute map.
+ *
+ * @param attrs - Attributes to process.
+ * @param data - Current game data for interpolation.
+ * @returns New attribute map with interpolated strings.
+ */
+export const normalizeStringAttrs = <T extends Record<string, unknown>>(
+  attrs: T,
+  data: Record<string, unknown>
+): T => {
+  const result: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(attrs)) {
+    result[key] =
+      typeof value === 'string' ? interpolateAttr(value, data) : value
+  }
+  return result as T
+}
+
+/**
  * Ensures a directive is used in leaf form. Logs an error and removes the node otherwise.
  *
  * @param directive - The directive to validate.

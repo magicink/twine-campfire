@@ -3,6 +3,7 @@ import { render } from '@testing-library/preact'
 import type { ComponentChild } from 'preact'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { renderDirectiveMarkdown } from '@campfire/components/Deck/Slide'
+import { useGameStore } from '@campfire/state/useGameStore'
 
 let output: ComponentChild | null = null
 
@@ -49,6 +50,37 @@ describe('image directive', () => {
     expect(img.className).toContain('campfire-slide-image')
     expect(img.className).toContain('rounded')
     expect(img.style.border).toBe('1px solid red')
+  })
+
+  it('interpolates className, layerClassName, and style', () => {
+    useGameStore.setState({
+      gameData: { cls: 'rounded', layer: 'wrapper', border: '1px solid red' }
+    })
+    const md =
+      ':::reveal\n::image{src="https://example.com/cat.png" className="${cls}" layerClassName="${layer}" style="border:${border}"}\n:::\n'
+    render(<MarkdownRunner markdown={md} />)
+    const el = document.querySelector(
+      '[data-testid="slideImage"]'
+    ) as HTMLElement
+    expect(el.className).toContain('wrapper')
+    const img = el.querySelector('img') as HTMLImageElement
+    expect(img.className).toContain('rounded')
+    expect(img.style.border).toBe('1px solid red')
+  })
+
+  it('interpolates alt and id attributes', () => {
+    useGameStore.setState({
+      gameData: { altText: 'Kitten', imgId: 'cat-img' }
+    })
+    const md =
+      ':::reveal\n::image{src="https://example.com/cat.png" alt="${altText}" id="${imgId}"}\n:::\n'
+    render(<MarkdownRunner markdown={md} />)
+    const el = document.querySelector(
+      '[data-testid="slideImage"]'
+    ) as HTMLElement
+    const img = el.querySelector('img') as HTMLImageElement
+    expect(img.id).toBe('cat-img')
+    expect(img.getAttribute('alt')).toBe('Kitten')
   })
 
   it('handles hyphenated class names without evaluation', () => {

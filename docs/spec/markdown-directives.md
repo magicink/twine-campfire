@@ -34,7 +34,7 @@ General
 
 - Quoted or backticked values MUST be treated as strings; do not coerce or JSON-parse quoted strings even if they “look like” JSON.
 - Wrap literal strings in quotes or backticks unless referencing a state key.
-- To pass an object or array via an attribute, do not wrap the JSON in quotes, e.g., `:d{options={a:1}}` or valid JSON `:d{options={"a":1}}`.
+- All string attributes support `${...}` interpolation (e.g., `className`, `layerClassName`, `style`).
 - Safe attribute characters: attribute extraction only accepts values composed of safe characters to reduce injection risk.
 - New directive attributes must be exposed through their handlers and accompanied by directive tests verifying their behavior.
 
