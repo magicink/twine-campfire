@@ -22,7 +22,7 @@ export const Basic: StoryObj = {
 :textarea[bio]{placeholder="Enter bio"}
 :::if[bio]
 
-You wrote: :show[bio]{as="span" className="text-purple-600"}
+You wrote: :show[bio]{className="text-purple-600"}
 
 :::
 `}

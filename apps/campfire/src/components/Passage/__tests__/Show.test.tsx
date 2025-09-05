@@ -57,23 +57,20 @@ describe('Show', () => {
     expect(container.textContent).toBe('X')
   })
 
-  it('renders inside a custom element when `as` is provided', () => {
+  it('renders with a span wrapper by default and applies styling', () => {
     useGameStore.getState().setGameData({ hp: 10 })
-    render(
-      <Show as='span' data-key='hp' className='stat' style={{ color: 'red' }} />
-    )
+    render(<Show data-key='hp' className='stat' style={{ color: 'red' }} />)
     const el = screen.getByTestId('show') as HTMLElement
     expect(el.tagName).toBe('SPAN')
     expect(el.className).toContain('campfire-show')
     expect(el.className).toContain('stat')
-    expect((el as HTMLElement).style.color).toBe('red')
+    expect(el.style.color).toBe('red')
   })
 
-  it('ignores className and style without `as`', () => {
-    useGameStore.getState().setGameData({ hp: 5 })
-    const { container } = render(
-      <Show data-key='hp' className='foo' style={{ color: 'red' }} />
-    )
-    expect(container.innerHTML).toBe('5')
+  it('renders inside a custom element when `as` is provided', () => {
+    useGameStore.getState().setGameData({ hp: 10 })
+    render(<Show as='em' data-key='hp' />)
+    const el = screen.getByTestId('show') as HTMLElement
+    expect(el.tagName).toBe('EM')
   })
 })

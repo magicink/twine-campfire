@@ -201,12 +201,10 @@ export const useDirectiveHandlers = () => {
     }
     const asAttr = typeof attrs.as === 'string' ? attrs.as : undefined
     if (asAttr) props.as = asAttr
-    if (asAttr) {
-      const classAttr = getClassAttr(attrs, gameData)
-      const styleAttr = getStyleAttr(attrs, gameData)
-      if (classAttr) props.className = classAttr
-      if (styleAttr) props.style = styleAttr
-    }
+    const classAttr = getClassAttr(attrs, gameData)
+    const styleAttr = getStyleAttr(attrs, gameData)
+    if (classAttr) props.className = classAttr
+    if (styleAttr) props.style = styleAttr
     applyAdditionalAttributes(
       attrs,
       props,

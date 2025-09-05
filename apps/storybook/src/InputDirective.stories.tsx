@@ -21,7 +21,7 @@ export const Basic: StoryObj = {
           {`
 :input[name]{placeholder="Type your name"}
 :::if[name]
-  Hello, :show[name]{as="span" className="text-green-600"}!
+  Hello, :show[name]{className="text-green-600"}!
 :::
 `}
         </tw-passagedata>
@@ -57,7 +57,7 @@ export const WithEvents: StoryObj = {
 :::
 
 :::if[name]
-  Hello, :show[name]{as="span" className="text-green-600"}!
+  Hello, :show[name]{className="text-green-600"}!
 :::
           `}
         </tw-passagedata>
