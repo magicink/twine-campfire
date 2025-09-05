@@ -1,13 +1,6 @@
 import { visit } from 'unist-util-visit'
 import type { SKIP } from 'unist-util-visit'
-import type {
-  Root,
-  RootContent,
-  Parent,
-  Paragraph,
-  Text,
-  InlineCode
-} from 'mdast'
+import type { Root, Parent, Paragraph, Text, InlineCode } from 'mdast'
 import type { Node, Data } from 'unist'
 import type {
   ContainerDirective,

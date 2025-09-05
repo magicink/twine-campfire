@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/preact'
-import { h } from 'preact'
 import { Deck, Slide, SlideShape } from '@campfire/components'
 
 const meta: Meta<typeof SlideShape> = {

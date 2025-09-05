@@ -14,7 +14,7 @@ import remarkCampfire, { type DirectiveHandler } from '../index'
  * @param parent - Parent node containing the directive.
  * @param index - Index of the directive within its parent.
  */
-const replaceWithX: DirectiveHandler = (directive, parent, index) => {
+const replaceWithX: DirectiveHandler = (_directive, parent, index) => {
   if (!parent || typeof index !== 'number') return
   parent.children.splice(index, 1, { type: 'text', value: 'X' })
 }

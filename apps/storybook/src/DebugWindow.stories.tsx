@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/preact'
-import { h } from 'preact'
 import { DebugWindow } from '@campfire/components'
 import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
 import i18next from 'i18next'

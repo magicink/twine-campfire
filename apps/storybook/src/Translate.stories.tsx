@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/preact'
-import { h } from 'preact'
 import { useState } from 'preact/hooks'
 import { Translate } from '@campfire/components'
 import i18next from 'i18next'

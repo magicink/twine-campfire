@@ -6,7 +6,6 @@ import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { Deck } from '@campfire/components/Deck'
 import { Slide } from '@campfire/components/Deck/Slide'
 import { SlideReveal } from '@campfire/components/Deck/Slide'
-import { SlideText } from '@campfire/components/Deck/Slide'
 import { DEFAULT_DECK_HEIGHT, DEFAULT_DECK_WIDTH } from '@campfire/constants'
 import { renderDirectiveMarkdown } from '@campfire/components/Deck/Slide'
 

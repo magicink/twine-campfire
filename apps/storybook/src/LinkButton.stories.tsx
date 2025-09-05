@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/preact'
-import { h } from 'preact'
 import { LinkButton } from '@campfire/components'
 
 const meta: Meta<typeof LinkButton> = {

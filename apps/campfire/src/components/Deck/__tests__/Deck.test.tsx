@@ -397,7 +397,7 @@ describe('Deck', () => {
     const calls: Array<{ keyframes: Keyframe[] }> = []
     HTMLElement.prototype.animate = (
       k: Keyframe[] | PropertyIndexedKeyframes,
-      o?: number | KeyframeAnimationOptions
+      _o?: number | KeyframeAnimationOptions
     ) => {
       calls.push({ keyframes: k as Keyframe[] })
       return new StubAnimation() as unknown as Animation

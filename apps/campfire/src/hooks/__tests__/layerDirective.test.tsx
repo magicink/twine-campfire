@@ -64,7 +64,6 @@ describe('layer directive', () => {
       ':radio[choice]{value="c" disabled="true"}\n' +
       ':::\n'
     render(<MarkdownRunner markdown={md} />)
-    const layer = document.querySelector('[data-testid="layer"]') as HTMLElement
     expect(
       document.querySelector(
         '[data-testid="layer"] + [data-testid="wrapper"]'
@@ -91,10 +90,12 @@ describe('layer directive', () => {
       ':::\n' +
       ':::\n'
     render(<MarkdownRunner markdown={md} />)
-    const layer = document.querySelector('[data-testid="layer"]') as HTMLElement
-    const wrappers = layer.querySelectorAll('[data-testid="wrapper"]')
+    const layerEl = document.querySelector(
+      '[data-testid="layer"]'
+    ) as HTMLElement
+    const wrappers = layerEl.querySelectorAll('[data-testid="wrapper"]')
     expect(wrappers.length).toBe(3)
-    const radios = layer.querySelectorAll('[data-testid="radio"]')
+    const radios = layerEl.querySelectorAll('[data-testid="radio"]')
     expect(radios.length).toBe(3)
     expect(radios[2].hasAttribute('disabled')).toBe(true)
     expect(

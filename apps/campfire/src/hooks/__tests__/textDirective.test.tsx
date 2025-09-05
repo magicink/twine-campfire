@@ -1,10 +1,8 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { render } from '@testing-library/preact'
-import { Fragment } from 'preact/jsx-runtime'
 import type { ComponentChild } from 'preact'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { renderDirectiveMarkdown } from '@campfire/components/Deck/Slide'
-import { SlideText } from '@campfire/components/Deck/Slide'
 
 let output: ComponentChild | null = null
 
