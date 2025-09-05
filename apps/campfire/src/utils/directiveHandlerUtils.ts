@@ -70,6 +70,19 @@ export const requireLeafDirective = (
 }
 
 /**
+ * Validates that both `parent` and `index` are provided and returns them when valid.
+ *
+ * @param parent - Parent node potentially containing the directive.
+ * @param index - Index of the directive within the parent node.
+ * @returns A tuple of the parent and index when both are valid, otherwise undefined.
+ */
+export const ensureParentIndex = (
+  parent: Parent | undefined,
+  index: number | undefined
+): [Parent, number] | undefined =>
+  parent && typeof index === 'number' ? [parent, index] : undefined
+
+/**
  * Removes a directive marker paragraph or trims marker text from a paragraph.
  *
  * @param parent - Parent node containing the marker paragraph.

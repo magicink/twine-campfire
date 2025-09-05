@@ -14,7 +14,10 @@ import {
   applyKeyValue,
   isRange
 } from '@campfire/utils/directiveUtils'
-import { requireLeafDirective } from '@campfire/utils/directiveHandlerUtils'
+import {
+  ensureParentIndex,
+  requireLeafDirective
+} from '@campfire/utils/directiveHandlerUtils'
 import {
   getRandomInt,
   getRandomItem,
@@ -177,9 +180,11 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
       }
     }
 
-    if (parent && typeof index === 'number') {
-      parent.children.splice(index, 1)
-      return index
+    const pair = ensureParentIndex(parent, index)
+    if (pair) {
+      const [p, i] = pair
+      p.children.splice(i, 1)
+      return i
     }
   }
 
