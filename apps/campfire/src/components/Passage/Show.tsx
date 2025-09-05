@@ -56,7 +56,7 @@ export const Show = ({ as, className, style, ...props }: ShowProps) => {
   if (result == null) return null
   const display = isRange(result) ? result.value : result
   if (as) {
-    const Tag = as as any
+    const Tag = as as keyof JSX.IntrinsicElements | ComponentType<any>
     return (
       <Tag
         className={mergeClasses('campfire-show', className)}
