@@ -53,6 +53,17 @@ describe('for directive', () => {
     )
   })
 
+  it('preserves show attributes within loops', () => {
+    const md =
+      ':::for[x in [1,2,3]]\n' +
+      'Value :show[x]{as="span" className="stat"}\n' +
+      ':::'
+    render(<MarkdownRunner markdown={md} />)
+    const spans = document.querySelectorAll('span.campfire-show.stat')
+    expect(spans).toHaveLength(3)
+    expect(spans[0].textContent).toBe('1')
+  })
+
   it('evaluates nested if blocks using loop variables', () => {
     const md =
       '::array[fruits=["apple","banana","cherry"]]\n' +

@@ -316,7 +316,24 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
             (node as { name?: string }).name === 'show' &&
             toString(node) === varKey
           ) {
-            nodes[i] = { type: 'text', value: String(item) }
+            const attrs =
+              (node as { attributes?: Record<string, unknown> }).attributes ||
+              {}
+            if (Object.keys(attrs).length === 0) {
+              nodes[i] = { type: 'text', value: String(item) }
+            } else {
+              nodes[i] = {
+                type: 'text',
+                value: '',
+                data: {
+                  hName: 'show',
+                  hProperties: {
+                    ...attrs,
+                    'data-expr': JSON.stringify(item)
+                  }
+                }
+              }
+            }
             continue
           }
           const { hName, hProperties: props } = getNodeData(node)
