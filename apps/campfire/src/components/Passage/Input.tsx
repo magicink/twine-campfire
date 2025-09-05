@@ -1,26 +1,13 @@
-import type { JSX } from 'preact'
 import { useEffect } from 'preact/hooks'
 import { useDirectiveEvents } from '@campfire/hooks/useDirectiveEvents'
 import { mergeClasses, parseDisabledAttr } from '@campfire/utils/core'
 import { useGameStore } from '@campfire/state/useGameStore'
-import type { BoundFieldProps } from './BoundFieldProps'
+import type { BoundFieldElementProps } from './BoundFieldProps'
 
 const inputStyles =
   'file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive'
 
-interface InputProps
-  extends Omit<
-      JSX.InputHTMLAttributes<HTMLInputElement>,
-      | 'className'
-      | 'value'
-      | 'defaultValue'
-      | 'onFocus'
-      | 'onBlur'
-      | 'onMouseEnter'
-      | 'onMouseLeave'
-      | 'disabled'
-    >,
-    BoundFieldProps<string> {}
+type InputProps = BoundFieldElementProps<HTMLInputElement, string>
 
 /**
  * Text input bound to a game state key. Updates the key on user input.
