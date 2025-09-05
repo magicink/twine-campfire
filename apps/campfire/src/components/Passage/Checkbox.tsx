@@ -1,4 +1,3 @@
-import type { JSX } from 'preact'
 import { useEffect } from 'preact/hooks'
 import { useDirectiveEvents } from '@campfire/hooks/useDirectiveEvents'
 import { mergeClasses, parseDisabledAttr } from '@campfire/utils/core'
@@ -7,21 +6,9 @@ import {
   checkboxStyles,
   checkboxIndicatorStyles
 } from '@campfire/utils/remarkStyles'
-import type { BoundFieldProps } from './BoundFieldProps'
+import type { BoundFieldElementProps } from './BoundFieldProps'
 
-interface CheckboxProps
-  extends Omit<
-      JSX.ButtonHTMLAttributes<HTMLButtonElement>,
-      | 'className'
-      | 'value'
-      | 'defaultValue'
-      | 'onFocus'
-      | 'onBlur'
-      | 'onMouseEnter'
-      | 'onMouseLeave'
-      | 'disabled'
-    >,
-    BoundFieldProps<boolean> {}
+type CheckboxProps = BoundFieldElementProps<HTMLButtonElement, boolean>
 
 /**
  * Checkbox bound to a game state key. Updates the key on user interaction.

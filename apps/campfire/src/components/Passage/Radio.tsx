@@ -1,24 +1,11 @@
-import type { JSX } from 'preact'
 import { useEffect } from 'preact/hooks'
 import { useDirectiveEvents } from '@campfire/hooks/useDirectiveEvents'
 import { mergeClasses, parseDisabledAttr } from '@campfire/utils/core'
 import { useGameStore } from '@campfire/state/useGameStore'
 import { radioStyles, radioIndicatorStyles } from '@campfire/utils/remarkStyles'
-import type { BoundFieldProps } from './BoundFieldProps'
+import type { BoundFieldElementProps } from './BoundFieldProps'
 
-interface RadioProps
-  extends Omit<
-      JSX.ButtonHTMLAttributes<HTMLButtonElement>,
-      | 'className'
-      | 'value'
-      | 'defaultValue'
-      | 'onFocus'
-      | 'onBlur'
-      | 'onMouseEnter'
-      | 'onMouseLeave'
-      | 'disabled'
-    >,
-    BoundFieldProps<string> {
+type RadioProps = BoundFieldElementProps<HTMLButtonElement, string> & {
   /** Value represented by this radio button. */
   value: string
 }
