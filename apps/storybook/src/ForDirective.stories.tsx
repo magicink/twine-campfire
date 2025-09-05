@@ -22,7 +22,7 @@ export const Numbers: StoryObj = {
           {`
 :::for[x in [1,2,3]]
 
-Value :show[x]{className="text-sky-600"}
+Value :show[x]{as="span" className="text-sky-600"}
 
 :::
           `}
@@ -52,7 +52,7 @@ export const Fruits: StoryObj = {
 
   :::if[fruit !== "banana"]
 
-  - :show[fruit]{className="text-rose-600"}
+  - :show[fruit]{as="span" className="text-rose-600"}
 
   :::
 

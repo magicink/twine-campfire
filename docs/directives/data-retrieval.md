@@ -14,13 +14,15 @@ Display a key's value, the result of an expression, or an interpolated string.
 
 Replace the content with a key, template string, or JavaScript expression to display.
 
-| Input     | Description                            |
-| --------- | -------------------------------------- |
-| key       | State key to display                   |
-| className | Additional classes applied to the span |
-| style     | Inline styles applied to the span      |
+| Input     | Description                                               |
+| --------- | --------------------------------------------------------- |
+| key       | State key to display                                      |
+| as        | Element tag to wrap the output (defaults to fragment)     |
+| className | Additional classes applied to the element (requires `as`) |
+| style     | Inline styles applied to the element (requires `as`)      |
 
-The directive also supports `className` and `style` attributes for styling the rendered span.
+When `as` is omitted, the value is rendered without a wrapper. `className`
+and `style` only apply when `as` is defined.
 
 To read range data, access the range's properties with dot notation:
 

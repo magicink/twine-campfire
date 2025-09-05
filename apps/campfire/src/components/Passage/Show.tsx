@@ -1,4 +1,4 @@
-import type { JSX } from 'preact'
+import type { ComponentType, JSX } from 'preact'
 import { useGameStore } from '@campfire/state/useGameStore'
 import { isRange } from '@campfire/utils/directiveUtils'
 import {
@@ -12,18 +12,22 @@ interface ShowProps {
   'data-key'?: string
   /** Expression to evaluate and display */
   'data-expr'?: string
-  /** Additional CSS classes for the span element. */
+  /** Element or component tag to render. */
+  as?: keyof JSX.IntrinsicElements | ComponentType<any>
+  /** Additional CSS classes for the rendered element. */
   className?: string | string[]
-  /** Inline styles for the span element. */
+  /** Inline styles for the rendered element. */
   style?: string | JSX.CSSProperties
 }
 
 /**
  * Displays a value from the game store or the result of an expression.
  * Returns `null` when the referenced value is `null` or `undefined`.
+ * When `as` is provided, wraps the output with the specified element and
+ * applies `className` and `style`. Otherwise renders as a fragment.
  * Updates automatically when the underlying data changes.
  */
-export const Show = ({ className, style, ...props }: ShowProps) => {
+export const Show = ({ as: Tag, className, style, ...props }: ShowProps) => {
   const addError = useGameStore.use.addError()
   const gameData = useGameStore.use.gameData()
   const expr = props['data-expr']
@@ -40,15 +44,18 @@ export const Show = ({ className, style, ...props }: ShowProps) => {
       }
       if (result == null) return null
       const display = isRange(result) ? result.value : result
-      return (
-        <span
-          className={mergeClasses('campfire-show', className)}
-          style={mergedStyle}
-          data-testid='show'
-        >
-          {String(display)}
-        </span>
-      )
+      if (Tag) {
+        return (
+          <Tag
+            className={mergeClasses('campfire-show', className)}
+            style={mergedStyle}
+            data-testid='show'
+          >
+            {String(display)}
+          </Tag>
+        )
+      }
+      return <>{String(display)}</>
     } catch (error) {
       const msg = `Failed to evaluate show expression: ${expr}`
       console.error(msg, error)
@@ -62,13 +69,16 @@ export const Show = ({ className, style, ...props }: ShowProps) => {
     : undefined
   if (value == null) return null
   const displayValue = isRange(value) ? value.value : value
-  return (
-    <span
-      className={mergeClasses('campfire-show', className)}
-      style={mergedStyle}
-      data-testid='show'
-    >
-      {String(displayValue)}
-    </span>
-  )
+  if (Tag) {
+    return (
+      <Tag
+        className={mergeClasses('campfire-show', className)}
+        style={mergedStyle}
+        data-testid='show'
+      >
+        {String(displayValue)}
+      </Tag>
+    )
+  }
+  return <>{String(displayValue)}</>
 }

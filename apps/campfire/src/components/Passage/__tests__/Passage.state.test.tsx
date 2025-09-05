@@ -967,8 +967,8 @@ describe('Passage game state directives', () => {
     render(<Passage />)
 
     await waitFor(() => {
-      const span = screen.getByText('7')
-      expect(span.closest('p')?.textContent?.replace(/\s+/g, '')).toBe('HP:7')
+      expect(screen.getByText('HP: 7')).toBeInTheDocument()
+      expect(screen.queryByTestId('show')).toBeNull()
     })
   })
 
@@ -1021,12 +1021,38 @@ describe('Passage game state directives', () => {
     render(<Passage />)
 
     await waitFor(() => {
-      const span = screen.getByText('X')
-      expect(span.closest('p')?.textContent?.replace(/\s+/g, '')).toBe('ValueX')
+      expect(screen.getByText('Value X')).toBeInTheDocument()
+      expect(screen.queryByTestId('show')).toBeNull()
     })
   })
 
   it('applies className and style attributes to show directive', async () => {
+    useGameStore.setState(state => ({
+      ...state,
+      gameData: { hp: 7 }
+    }))
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: 'HP: :show[hp]{as="span" className="stat" style="color:blue"}'
+        }
+      ]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    await waitFor(() => {
+      const span = screen.getByText('7')
+      expect(span.className).toContain('stat')
+      expect(span).toHaveStyle('color: blue')
+      expect(span.closest('p')?.textContent?.replace(/\s+/g, '')).toBe('HP:7')
+    })
+  })
+
+  it('ignores className and style without as on show directive', async () => {
     useGameStore.setState(state => ({
       ...state,
       gameData: { hp: 7 }
@@ -1045,10 +1071,8 @@ describe('Passage game state directives', () => {
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
     render(<Passage />)
     await waitFor(() => {
-      const span = screen.getByText('7')
-      expect(span.className).toContain('stat')
-      expect(span).toHaveStyle('color: blue')
-      expect(span.closest('p')?.textContent?.replace(/\s+/g, '')).toBe('HP:7')
+      expect(screen.queryByTestId('show')).toBeNull()
+      expect(screen.getByText('HP: 7')).toBeInTheDocument()
     })
   })
 

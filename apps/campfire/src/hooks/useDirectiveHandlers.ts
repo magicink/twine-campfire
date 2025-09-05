@@ -190,17 +190,29 @@ export const useDirectiveHandlers = () => {
     const props: Record<string, unknown> = keyPattern.test(raw)
       ? { 'data-key': raw }
       : { 'data-expr': raw }
-    const attrs = (directive.attributes || {}) as Record<string, unknown>
+    const attrs = normalizeStringAttrs(
+      (directive.attributes || {}) as Record<string, unknown>,
+      gameData
+    )
     if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
       const msg = 'class is a reserved attribute. Use className instead.'
       console.error(msg)
       addError(msg)
     }
-    const classAttr = getClassAttr(attrs, gameData)
-    const styleAttr = getStyleAttr(attrs, gameData)
-    if (classAttr) props.className = classAttr
-    if (styleAttr) props.style = styleAttr
-    applyAdditionalAttributes(attrs, props, ['className', 'style'], addError)
+    const asAttr = typeof attrs.as === 'string' ? attrs.as : undefined
+    if (asAttr) props.as = asAttr
+    if (asAttr) {
+      const classAttr = getClassAttr(attrs, gameData)
+      const styleAttr = getStyleAttr(attrs, gameData)
+      if (classAttr) props.className = classAttr
+      if (styleAttr) props.style = styleAttr
+    }
+    applyAdditionalAttributes(
+      attrs,
+      props,
+      ['as', 'className', 'style'],
+      addError
+    )
     const node: MdText = {
       type: 'text',
       value: '',

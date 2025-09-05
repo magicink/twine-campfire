@@ -35,13 +35,13 @@ You chose
 
   :::if[color === "red"]
 
-  :show[color]{style="color: var(--color-destructive-500)"}.
+  :show[color]{as="span" style="color: var(--color-destructive-500)"}.
 
 :::
 
   :::if[color === "blue"]
 
-  :show[color]{style="color: var(--color-primary-500)"}.
+  :show[color]{as="span" style="color: var(--color-primary-500)"}.
 
 :::
 
@@ -93,13 +93,13 @@ You chose
 
   :::if[color === "red"]
 
-  :show[color]{style="color: var(--color-destructive-500)"}.
+  :show[color]{as="span" style="color: var(--color-destructive-500)"}.
 
 :::
 
   :::if[color === "blue"]
 
-  :show[color]{style="color: var(--color-primary-500)"}.
+  :show[color]{as="span" style="color: var(--color-primary-500)"}.
 
 :::
 
