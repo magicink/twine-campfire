@@ -57,9 +57,25 @@ describe('Show', () => {
     expect(container.textContent).toBe('X')
   })
 
-  it('renders with a span wrapper by default and applies styling', () => {
+  it('renders without a wrapper by default', () => {
     useGameStore.getState().setGameData({ hp: 10 })
-    render(<Show data-key='hp' className='stat' style={{ color: 'red' }} />)
+    const { container } = render(<Show data-key='hp' />)
+    expect(container.innerHTML).toBe('10')
+  })
+
+  it('ignores className and style without a wrapper', () => {
+    useGameStore.getState().setGameData({ hp: 10 })
+    const { container } = render(
+      <Show data-key='hp' className='stat' style={{ color: 'red' }} />
+    )
+    expect(container.innerHTML).toBe('10')
+  })
+
+  it('applies styling when a wrapper is provided', () => {
+    useGameStore.getState().setGameData({ hp: 10 })
+    render(
+      <Show as='span' data-key='hp' className='stat' style={{ color: 'red' }} />
+    )
     const el = screen.getByTestId('show') as HTMLElement
     expect(el.tagName).toBe('SPAN')
     expect(el.className).toContain('campfire-show')

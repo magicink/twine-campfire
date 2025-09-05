@@ -14,15 +14,15 @@ Display a key's value, the result of an expression, or an interpolated string.
 
 Replace the content with a key, template string, or JavaScript expression to display.
 
-| Input     | Description                                         |
-| --------- | --------------------------------------------------- |
-| key       | State key to display                                |
-| as        | Element tag to wrap the output (defaults to `span`) |
-| className | Additional classes applied to the element           |
-| style     | Inline styles applied to the element                |
+| Input     | Description                                               |
+| --------- | --------------------------------------------------------- |
+| key       | State key to display                                      |
+| as        | Element tag to wrap the output                            |
+| className | Additional classes applied to the element (requires `as`) |
+| style     | Inline styles applied to the element (requires `as`)      |
 
-When `as` is omitted, the value is wrapped in a `<span>` so `className`
-and `style` can be applied without specifying a custom element.
+By default, the value renders without a wrapper. Provide an `as` attribute
+to wrap the output and enable `className` and `style`.
 
 To read range data, access the range's properties with dot notation:
 

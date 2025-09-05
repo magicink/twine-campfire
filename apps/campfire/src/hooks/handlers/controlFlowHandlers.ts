@@ -297,12 +297,24 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
         for (let i = 0; i < nodes.length; i++) {
           const node = nodes[i]
           if (
-            (isTextNode(node) &&
-              node.data?.hName === 'show' &&
-              node.data.hProperties?.['data-key'] === varKey) ||
-            (node.type === 'textDirective' &&
-              (node as { name?: string }).name === 'show' &&
-              toString(node) === varKey)
+            isTextNode(node) &&
+            node.data?.hName === 'show' &&
+            node.data.hProperties?.['data-key'] === varKey
+          ) {
+            const props = node.data.hProperties as Record<string, unknown>
+            const hasExtra = Object.keys(props).some(key => key !== 'data-key')
+            if (hasExtra) {
+              props['data-expr'] = JSON.stringify(item)
+              delete props['data-key']
+            } else {
+              nodes[i] = { type: 'text', value: String(item) }
+            }
+            continue
+          }
+          if (
+            node.type === 'textDirective' &&
+            (node as { name?: string }).name === 'show' &&
+            toString(node) === varKey
           ) {
             nodes[i] = { type: 'text', value: String(item) }
             continue

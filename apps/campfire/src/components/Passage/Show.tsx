@@ -12,7 +12,7 @@ interface ShowProps {
   'data-key'?: string
   /** Expression to evaluate and display */
   'data-expr'?: string
-  /** Element or component tag to render (defaults to `span`). */
+  /** Element or component tag to render. */
   as?: keyof JSX.IntrinsicElements | ComponentType<any>
   /** Additional CSS classes for the rendered element. */
   className?: string | string[]
@@ -23,20 +23,14 @@ interface ShowProps {
 /**
  * Displays a value from the game store or the result of an expression.
  * Returns `null` when the referenced value is `null` or `undefined`.
- * Wraps the output with a `span` by default and applies any provided
- * `className` or `style`. Updates automatically when the underlying data
- * changes.
+ * Renders without a wrapper by default. Provide an `as` attribute to wrap
+ * the output in a custom element and apply `className` or `style`.
+ * Updates automatically when the underlying data changes.
  */
-export const Show = ({
-  as: Tag = 'span',
-  className,
-  style,
-  ...props
-}: ShowProps) => {
+export const Show = ({ as, className, style, ...props }: ShowProps) => {
   const addError = useGameStore.use.addError()
   const gameData = useGameStore.use.gameData()
   const expr = props['data-expr']
-
   const mergedStyle =
     typeof style === 'string' ? style : style ? { ...style } : undefined
   let result: unknown
@@ -61,13 +55,17 @@ export const Show = ({
   }
   if (result == null) return null
   const display = isRange(result) ? result.value : result
-  return (
-    <Tag
-      className={mergeClasses('campfire-show', className)}
-      style={mergedStyle}
-      data-testid='show'
-    >
-      {String(display)}
-    </Tag>
-  )
+  if (as) {
+    const Tag = as as any
+    return (
+      <Tag
+        className={mergeClasses('campfire-show', className)}
+        style={mergedStyle}
+        data-testid='show'
+      >
+        {String(display)}
+      </Tag>
+    )
+  }
+  return <>{String(display)}</>
 }
