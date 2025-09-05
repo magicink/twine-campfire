@@ -1,5 +1,10 @@
 import { describe, it, expect, afterEach } from 'bun:test'
-import { extractQuoted, getBaseUrl, mergeClasses } from '@campfire/utils/core'
+import {
+  extractQuoted,
+  getBaseUrl,
+  mergeClasses,
+  parseDisabledAttr
+} from '@campfire/utils/core'
 
 describe('extractQuoted', () => {
   it('unwraps single-quoted strings', () => {
@@ -72,5 +77,23 @@ describe('getBaseUrl', () => {
     delete (globalThis as { window?: unknown }).window
     delete (globalThis as { document?: unknown }).document
     expect(getBaseUrl()).toBe('http://localhost')
+  })
+})
+
+describe('parseDisabledAttr', () => {
+  it('handles boolean values', () => {
+    expect(parseDisabledAttr(true)).toBe(true)
+    expect(parseDisabledAttr(false)).toBe(false)
+  })
+
+  it('handles truthy and falsey strings', () => {
+    expect(parseDisabledAttr('')).toBe(true)
+    expect(parseDisabledAttr('true')).toBe(true)
+    expect(parseDisabledAttr('false')).toBe(false)
+  })
+
+  it('evaluates expressions against scope', () => {
+    expect(parseDisabledAttr('count > 0', { count: 1 })).toBe(true)
+    expect(parseDisabledAttr('count > 0', { count: 0 })).toBe(false)
   })
 })
