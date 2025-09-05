@@ -44,14 +44,27 @@ describe('layer directive', () => {
     expect(el.textContent).toContain('Content')
   })
 
-  it('applies layer presets with overrides', () => {
+  it('applies layer presets with overrides for numeric fields', () => {
     const md =
-      ':preset{type="layer" name="base" x=5 y=5 z=2}\n:::layer{from="base" y=10}\nHi\n:::'
+      ':preset{type="layer" name="base" x=5 y=5 w=50 h=60 z=2 rotate=15 scale=2 anchor="center"}\n' +
+      ':::layer{from="base" y=10 w=40 rotate=30 anchor="bottom-right"}\nHi\n:::'
     render(<MarkdownRunner markdown={md} />)
     const el = document.querySelector('[data-testid="layer"]') as HTMLElement
     expect(el.style.left).toBe('5px')
     expect(el.style.top).toBe('10px')
+    expect(el.style.width).toBe('40px')
+    expect(el.style.height).toBe('60px')
     expect(el.style.zIndex).toBe('2')
+    expect(el.style.transform).toBe('rotate(30deg) scale(2)')
+    expect(el.style.transformOrigin).toBe('100% 100%')
+  })
+
+  it('uses anchor from presets when not overridden', () => {
+    const md =
+      ':preset{type="layer" name="base" x=1 y=2 anchor="center"}\n:::layer{from="base"}\nHi\n:::'
+    render(<MarkdownRunner markdown={md} />)
+    const el = document.querySelector('[data-testid="layer"]') as HTMLElement
+    expect(el.style.transformOrigin).toBe('50% 50%')
   })
 
   it('handles nested container directives without stray markers', () => {

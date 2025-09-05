@@ -603,17 +603,18 @@ export const useDirectiveHandlers = () => {
     from: { type: 'string', expression: false }
   } as const
 
-  const LAYER_EXCLUDES = [
+  /** List of numeric attributes supported by layer directives. */
+  const LAYER_NUMERIC_ATTRS = [
     'x',
     'y',
     'w',
     'h',
     'z',
     'rotate',
-    'scale',
-    'anchor',
-    'id'
+    'scale'
   ] as const
+
+  const LAYER_EXCLUDES = [...LAYER_NUMERIC_ATTRS, 'anchor', 'id'] as const
 
   /** Schema describing supported wrapper directive attributes. */
   const wrapperSchema = {
@@ -799,23 +800,17 @@ export const useDirectiveHandlers = () => {
         ? presetsRef.current['layer']?.[String(attrs.from)]
         : undefined
       if (preset) {
-        if (typeof preset.x === 'number') props.x = preset.x
-        if (typeof preset.y === 'number') props.y = preset.y
-        if (typeof preset.w === 'number') props.w = preset.w
-        if (typeof preset.h === 'number') props.h = preset.h
-        if (typeof preset.z === 'number') props.z = preset.z
-        if (typeof preset.rotate === 'number') props.rotate = preset.rotate
-        if (typeof preset.scale === 'number') props.scale = preset.scale
+        for (const key of LAYER_NUMERIC_ATTRS) {
+          const value = preset[key]
+          if (typeof value === 'number') props[key] = value
+        }
         if (preset.anchor) props.anchor = preset.anchor
         applyAdditionalAttributes(preset, props, LAYER_EXCLUDES, addError)
       }
-      if (typeof attrs.x === 'number') props.x = attrs.x
-      if (typeof attrs.y === 'number') props.y = attrs.y
-      if (typeof attrs.w === 'number') props.w = attrs.w
-      if (typeof attrs.h === 'number') props.h = attrs.h
-      if (typeof attrs.z === 'number') props.z = attrs.z
-      if (typeof attrs.rotate === 'number') props.rotate = attrs.rotate
-      if (typeof attrs.scale === 'number') props.scale = attrs.scale
+      for (const key of LAYER_NUMERIC_ATTRS) {
+        const value = attrs[key]
+        if (typeof value === 'number') props[key] = value
+      }
       if (attrs.anchor) props.anchor = attrs.anchor
       const mergedRaw = mergeAttrs(preset, raw)
       props['data-testid'] = 'layer'
