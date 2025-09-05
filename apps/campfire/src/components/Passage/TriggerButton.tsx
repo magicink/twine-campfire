@@ -2,7 +2,7 @@ import type { RootContent } from 'mdast'
 import rfdc from 'rfdc'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { runDirectiveBlock } from '@campfire/utils/directiveUtils'
-import { mergeClasses, evalExpression } from '@campfire/utils/core'
+import { mergeClasses, parseDisabledAttr } from '@campfire/utils/core'
 import type { JSX } from 'preact'
 import { useDirectiveEvents } from '@campfire/hooks/useDirectiveEvents'
 import { useGameStore } from '@campfire/state/useGameStore'
@@ -66,18 +66,9 @@ export const TriggerButton = ({
     onFocus,
     onBlur
   )
-  const isDisabled = useGameStore(state => {
-    if (typeof disabled === 'string') {
-      if (disabled === '' || disabled === 'true') return true
-      if (disabled === 'false') return false
-      try {
-        return Boolean(evalExpression(disabled, state.gameData))
-      } catch {
-        return false
-      }
-    }
-    return Boolean(disabled)
-  })
+  const isDisabled = useGameStore(state =>
+    parseDisabledAttr(disabled, state.gameData)
+  )
   return (
     <button
       type='button'
