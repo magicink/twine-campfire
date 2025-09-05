@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/preact'
-import { h } from 'preact'
 import { Show } from '@campfire/components'
 import { useGameStore } from '@campfire/state/useGameStore'
 

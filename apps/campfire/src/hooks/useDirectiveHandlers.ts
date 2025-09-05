@@ -2,38 +2,24 @@ import { useEffect, useMemo, useRef } from 'preact/hooks'
 import { SKIP } from 'unist-util-visit'
 import { toString } from 'mdast-util-to-string'
 import type { DirectiveHandler } from '@campfire/remark-campfire'
-import type {
-  Parent,
-  Paragraph,
-  RootContent,
-  Text as MdText,
-  InlineCode
-} from 'mdast'
-import type { Node } from 'unist'
-import type { Element, Properties } from 'hast'
+import type { Parent, RootContent, Text as MdText, InlineCode } from 'mdast'
+import type { Properties } from 'hast'
 import type { ContainerDirective } from 'mdast-util-directive'
 import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
-import { type Checkpoint, useGameStore } from '@campfire/state/useGameStore'
+import { useGameStore } from '@campfire/state/useGameStore'
 import {
   type DirectiveNode,
   type ExtractedAttrs,
   type AttributeSchema,
-  ensureKey,
   filterDirectiveChildren,
   extractAttributes,
-  isDirectiveNode,
-  isRange,
   removeNode,
   stripLabel
 } from '@campfire/utils/directiveUtils'
 import { parseNumericValue } from '@campfire/utils/math'
 import {
-  parseTypedValue,
-  parseAttributeValue,
-  extractKeyValue,
   replaceWithIndentation,
   expandIndentedCode,
-  applyKeyValue,
   runDirectiveBlock
 } from '@campfire/utils/directiveUtils'
 import {
@@ -47,7 +33,6 @@ import {
   applyAdditionalAttributes,
   mergeAttrs
 } from '@campfire/utils/directiveHandlerUtils'
-import { DEFAULT_DECK_HEIGHT, DEFAULT_DECK_WIDTH } from '@campfire/constants'
 import type {
   Transition,
   Direction
@@ -617,9 +602,6 @@ export const useDirectiveHandlers = () => {
     id: { type: 'string' },
     from: { type: 'string', expression: false }
   } as const
-
-  type LayerSchema = typeof layerSchema
-  type LayerAttrs = ExtractedAttrs<LayerSchema>
 
   const LAYER_EXCLUDES = [
     'x',

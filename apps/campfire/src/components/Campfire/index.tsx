@@ -1,10 +1,7 @@
 import { useEffect, useState } from 'preact/hooks'
 import i18next from 'i18next'
 import { initReactI18next } from 'react-i18next'
-import {
-  type StoryDataState,
-  useStoryDataStore
-} from '@campfire/state/useStoryDataStore'
+import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
 import { useGameStore } from '@campfire/state/useGameStore'
 import { Passage } from '@campfire/components/Passage/Passage'
 import { DebugWindow } from '@campfire/components/DebugWindow'

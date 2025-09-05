@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/preact'
-import { h } from 'preact'
 import { Overlay } from '@campfire/components'
 import { useOverlayStore } from '@campfire/state/useOverlayStore'
 
