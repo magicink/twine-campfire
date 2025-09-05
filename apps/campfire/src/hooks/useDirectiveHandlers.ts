@@ -32,6 +32,7 @@ import {
   parseThemeValue,
   applyAdditionalAttributes,
   mergeAttrs,
+  normalizeStringAttrs,
   ensureParentIndex
 } from '@campfire/utils/directiveHandlerUtils'
 import type {
@@ -1209,30 +1210,26 @@ export const useDirectiveHandlers = () => {
       : undefined
     const mergedRaw = mergeAttrs<Record<string, unknown>>(preset, raw)
     const mergedAttrs = mergeAttrs<ImageAttrs>(preset, attrs)
-    const props: Record<string, unknown> = { src: mergedAttrs.src }
-    if (typeof mergedAttrs.x === 'number') props.x = mergedAttrs.x
-    if (typeof mergedAttrs.y === 'number') props.y = mergedAttrs.y
-    if (typeof mergedAttrs.w === 'number') props.w = mergedAttrs.w
-    if (typeof mergedAttrs.h === 'number') props.h = mergedAttrs.h
-    if (typeof mergedAttrs.z === 'number') props.z = mergedAttrs.z
-    if (typeof mergedAttrs.rotate === 'number')
-      props.rotate = mergedAttrs.rotate
-    if (typeof mergedAttrs.scale === 'number') props.scale = mergedAttrs.scale
-    if (mergedAttrs.anchor) props.anchor = mergedAttrs.anchor
-    if (mergedAttrs.alt) props.alt = mergedAttrs.alt
-    const mergedStyle = getStyleAttr({ style: mergedAttrs.style }, gameData)
-    if (mergedStyle) props.style = mergedStyle
-    const mergedClass = getClassAttr(
-      { className: mergedAttrs.className },
-      gameData
-    )
-    if (mergedClass) props.className = mergedClass
-    if (mergedAttrs.layerClassName)
-      props.layerClassName = mergedAttrs.layerClassName
-    if (mergedAttrs.id) props.id = mergedAttrs.id
-    if (mergedAttrs.layerId) props.layerId = mergedAttrs.layerId
+    const normRaw = normalizeStringAttrs(mergedRaw, gameData)
+    const normAttrs = normalizeStringAttrs(mergedAttrs, gameData)
+    const props: Record<string, unknown> = { src: normAttrs.src }
+    if (typeof normAttrs.x === 'number') props.x = normAttrs.x
+    if (typeof normAttrs.y === 'number') props.y = normAttrs.y
+    if (typeof normAttrs.w === 'number') props.w = normAttrs.w
+    if (typeof normAttrs.h === 'number') props.h = normAttrs.h
+    if (typeof normAttrs.z === 'number') props.z = normAttrs.z
+    if (typeof normAttrs.rotate === 'number') props.rotate = normAttrs.rotate
+    if (typeof normAttrs.scale === 'number') props.scale = normAttrs.scale
+    if (normAttrs.anchor) props.anchor = normAttrs.anchor
+    if (normAttrs.alt) props.alt = normAttrs.alt
+    if (normAttrs.className) props.className = normAttrs.className
+    if (normAttrs.layerClassName)
+      props.layerClassName = normAttrs.layerClassName
+    if (normAttrs.style) props.style = normAttrs.style
+    if (normAttrs.id) props.id = normAttrs.id
+    if (normAttrs.layerId) props.layerId = normAttrs.layerId
     applyAdditionalAttributes(
-      mergedRaw,
+      normRaw,
       props,
       [
         'x',
@@ -1298,45 +1295,39 @@ export const useDirectiveHandlers = () => {
       preset,
       attrs as unknown as Record<string, unknown>
     ) as ShapeAttrs & Record<string, unknown>
-    const props: Record<string, unknown> = { type: mergedAttrs.type }
-    if (typeof mergedAttrs.x === 'number') props.x = mergedAttrs.x
-    if (typeof mergedAttrs.y === 'number') props.y = mergedAttrs.y
-    if (typeof mergedAttrs.w === 'number') props.w = mergedAttrs.w
-    if (typeof mergedAttrs.h === 'number') props.h = mergedAttrs.h
-    if (typeof mergedAttrs.z === 'number') props.z = mergedAttrs.z
-    if (typeof mergedAttrs.rotate === 'number')
-      props.rotate = mergedAttrs.rotate
-    if (typeof mergedAttrs.scale === 'number') props.scale = mergedAttrs.scale
-    if (mergedAttrs.anchor) props.anchor = mergedAttrs.anchor
-    if (mergedAttrs.points) props.points = mergedAttrs.points
-    if (typeof mergedAttrs.x1 === 'number') props.x1 = mergedAttrs.x1
-    if (typeof mergedAttrs.y1 === 'number') props.y1 = mergedAttrs.y1
-    if (typeof mergedAttrs.x2 === 'number') props.x2 = mergedAttrs.x2
-    if (typeof mergedAttrs.y2 === 'number') props.y2 = mergedAttrs.y2
-    if (mergedAttrs.stroke) props.stroke = mergedAttrs.stroke
-    if (typeof mergedAttrs.strokeWidth === 'number')
-      props.strokeWidth = mergedAttrs.strokeWidth
-    if (mergedAttrs.fill) props.fill = mergedAttrs.fill
-    if (typeof mergedAttrs.radius === 'number')
-      props.radius = mergedAttrs.radius
-    if (typeof mergedAttrs.shadow === 'boolean')
-      props.shadow = mergedAttrs.shadow
-    const mergedStyle = getStyleAttr(
-      mergedAttrs as Record<string, unknown>,
+    const normRaw = normalizeStringAttrs(mergedRaw, gameData)
+    const normAttrs = normalizeStringAttrs(
+      mergedAttrs,
       gameData
-    )
-    if (mergedStyle) props.style = mergedStyle
-    const mergedClass = getClassAttr(
-      mergedAttrs as Record<string, unknown>,
-      gameData
-    )
-    if (mergedClass) props.className = mergedClass
-    if (mergedAttrs.layerClassName)
-      props.layerClassName = mergedAttrs.layerClassName
-    if (mergedAttrs.id) props.id = mergedAttrs.id
-    if (mergedAttrs.layerId) props.layerId = mergedAttrs.layerId
+    ) as ShapeAttrs & Record<string, unknown>
+    const props: Record<string, unknown> = { type: normAttrs.type }
+    if (typeof normAttrs.x === 'number') props.x = normAttrs.x
+    if (typeof normAttrs.y === 'number') props.y = normAttrs.y
+    if (typeof normAttrs.w === 'number') props.w = normAttrs.w
+    if (typeof normAttrs.h === 'number') props.h = normAttrs.h
+    if (typeof normAttrs.z === 'number') props.z = normAttrs.z
+    if (typeof normAttrs.rotate === 'number') props.rotate = normAttrs.rotate
+    if (typeof normAttrs.scale === 'number') props.scale = normAttrs.scale
+    if (normAttrs.anchor) props.anchor = normAttrs.anchor
+    if (normAttrs.points) props.points = normAttrs.points
+    if (typeof normAttrs.x1 === 'number') props.x1 = normAttrs.x1
+    if (typeof normAttrs.y1 === 'number') props.y1 = normAttrs.y1
+    if (typeof normAttrs.x2 === 'number') props.x2 = normAttrs.x2
+    if (typeof normAttrs.y2 === 'number') props.y2 = normAttrs.y2
+    if (normAttrs.stroke) props.stroke = normAttrs.stroke
+    if (typeof normAttrs.strokeWidth === 'number')
+      props.strokeWidth = normAttrs.strokeWidth
+    if (normAttrs.fill) props.fill = normAttrs.fill
+    if (typeof normAttrs.radius === 'number') props.radius = normAttrs.radius
+    if (typeof normAttrs.shadow === 'boolean') props.shadow = normAttrs.shadow
+    if (normAttrs.className) props.className = normAttrs.className
+    if (normAttrs.layerClassName)
+      props.layerClassName = normAttrs.layerClassName
+    if (normAttrs.style) props.style = normAttrs.style
+    if (normAttrs.id) props.id = normAttrs.id
+    if (normAttrs.layerId) props.layerId = normAttrs.layerId
     applyAdditionalAttributes(
-      mergedRaw,
+      normRaw,
       props,
       [
         'x',
