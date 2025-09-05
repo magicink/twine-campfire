@@ -1,5 +1,9 @@
 import type { JSX } from 'preact'
 
+/** Base Tailwind CSS classes shared by form field components. */
+export const fieldBaseStyles =
+  'placeholder:text-muted-foreground border-input focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 flex w-full rounded-md border bg-transparent text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm'
+
 /**
  * Common props for form fields bound to a game state key.
  *
