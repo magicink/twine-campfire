@@ -1222,10 +1222,15 @@ export const useDirectiveHandlers = () => {
     if (typeof normAttrs.scale === 'number') props.scale = normAttrs.scale
     if (normAttrs.anchor) props.anchor = normAttrs.anchor
     if (normAttrs.alt) props.alt = normAttrs.alt
-    if (normAttrs.className) props.className = normAttrs.className
-    if (normAttrs.layerClassName)
-      props.layerClassName = normAttrs.layerClassName
-    if (normAttrs.style) props.style = normAttrs.style
+    const classAttr = getClassAttr({ className: normAttrs.className }, gameData)
+    if (classAttr) props.className = classAttr
+    const layerClassAttr = getClassAttr(
+      { className: normAttrs.layerClassName },
+      gameData
+    )
+    if (layerClassAttr) props.layerClassName = layerClassAttr
+    const styleAttr = getStyleAttr({ style: normAttrs.style }, gameData)
+    if (styleAttr) props.style = styleAttr
     if (normAttrs.id) props.id = normAttrs.id
     if (normAttrs.layerId) props.layerId = normAttrs.layerId
     applyAdditionalAttributes(
@@ -1320,10 +1325,15 @@ export const useDirectiveHandlers = () => {
     if (normAttrs.fill) props.fill = normAttrs.fill
     if (typeof normAttrs.radius === 'number') props.radius = normAttrs.radius
     if (typeof normAttrs.shadow === 'boolean') props.shadow = normAttrs.shadow
-    if (normAttrs.className) props.className = normAttrs.className
-    if (normAttrs.layerClassName)
-      props.layerClassName = normAttrs.layerClassName
-    if (normAttrs.style) props.style = normAttrs.style
+    const classAttr = getClassAttr({ className: normAttrs.className }, gameData)
+    if (classAttr) props.className = classAttr
+    const layerClassAttr = getClassAttr(
+      { className: normAttrs.layerClassName },
+      gameData
+    )
+    if (layerClassAttr) props.layerClassName = layerClassAttr
+    const styleAttr = getStyleAttr({ style: normAttrs.style }, gameData)
+    if (styleAttr) props.style = styleAttr
     if (normAttrs.id) props.id = normAttrs.id
     if (normAttrs.layerId) props.layerId = normAttrs.layerId
     applyAdditionalAttributes(
