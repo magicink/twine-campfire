@@ -153,10 +153,11 @@ export const Select = ({
         if (opt) handleSelect(opt.props.value)
       }
     }
-  const activeId =
-    open && activeIndex !== null
-      ? getOptionId(optionNodes[activeIndex]!.props.value)
-      : undefined
+  const activeOption =
+    open && activeIndex !== null ? optionNodes[activeIndex] : undefined
+  const activeId = activeOption
+    ? getOptionId(activeOption.props.value)
+    : undefined
   return (
     <div ref={containerRef} className='inline-block relative'>
       <button
