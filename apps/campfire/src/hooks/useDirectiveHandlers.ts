@@ -119,7 +119,11 @@ export const useDirectiveHandlers = () => {
   const loadCheckpointFn = useGameStore.use.loadCheckpoint()
   const setLoading = useGameStore.use.setLoading()
   const addError = useGameStore.use.addError()
-  const currentPassageId = useStoryDataStore.use.currentPassageId!() as string
+  const currentPassageIdSelector = useStoryDataStore.use.currentPassageId
+  if (!currentPassageIdSelector) {
+    addError('currentPassageId selector is undefined')
+  }
+  const currentPassageId = currentPassageIdSelector?.() ?? ''
   const setCurrentPassage = useStoryDataStore.use.setCurrentPassage()
   const getPassageById = useStoryDataStore.use.getPassageById()
   const getPassageByName = useStoryDataStore.use.getPassageByName()
