@@ -3,6 +3,7 @@ import rfdc from 'rfdc'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { runDirectiveBlock } from '@campfire/utils/directiveUtils'
 import { mergeClasses, parseDisabledAttr } from '@campfire/utils/core'
+import { buttonBaseClasses } from './buttonBaseClasses'
 import type { JSX } from 'preact'
 import { useDirectiveEvents } from '@campfire/hooks/useDirectiveEvents'
 import { useGameStore } from '@campfire/state/useGameStore'
@@ -73,11 +74,7 @@ export const TriggerButton = ({
     <button
       type='button'
       data-testid='trigger-button'
-      className={mergeClasses(
-        'campfire-trigger',
-        "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 h-9 px-4 py-2 has-[>svg]:px-3",
-        className
-      )}
+      className={mergeClasses('campfire-trigger', buttonBaseClasses, className)}
       disabled={isDisabled}
       style={style}
       {...rest}
