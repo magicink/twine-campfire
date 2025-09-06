@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/preact'
-import { h } from 'preact'
 import { Input } from '@campfire/components'
 
 const meta: Meta<typeof Input> = {

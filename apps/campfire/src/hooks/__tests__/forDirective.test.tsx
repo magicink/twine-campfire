@@ -1,11 +1,8 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { render } from '@testing-library/preact'
 import { Fragment } from 'preact/jsx-runtime'
-import type { ComponentChild } from 'preact'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { renderDirectiveMarkdown } from '@campfire/components/Deck/Slide'
-
-let output: ComponentChild | null = null
 
 /**
  * Component used in tests to render markdown with directive handlers.
@@ -16,12 +13,10 @@ let output: ComponentChild | null = null
 const MarkdownRunner = ({ markdown }: { markdown: string }) => {
   const handlers = useDirectiveHandlers()
   const rendered = renderDirectiveMarkdown(markdown, handlers)
-  output = rendered
   return <Fragment>{rendered}</Fragment>
 }
 
 beforeEach(() => {
-  output = null
   document.body.innerHTML = ''
 })
 
@@ -56,6 +51,17 @@ describe('for directive', () => {
     expect(document.body.textContent?.replace(/\n/g, '')).toBe(
       'Value 1Value 2Value 3'
     )
+  })
+
+  it('preserves show attributes within loops', () => {
+    const md =
+      ':::for[x in [1,2,3]]\n' +
+      'Value :show[x]{as="span" className="stat"}\n' +
+      ':::'
+    render(<MarkdownRunner markdown={md} />)
+    const spans = document.querySelectorAll('span.campfire-show.stat')
+    expect(spans).toHaveLength(3)
+    expect(spans[0].textContent).toBe('1')
   })
 
   it('evaluates nested if blocks using loop variables', () => {

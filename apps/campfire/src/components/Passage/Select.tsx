@@ -2,11 +2,11 @@ import type { JSX, VNode } from 'preact'
 import { cloneElement, toChildArray } from 'preact'
 import { useEffect, useRef, useState } from 'preact/hooks'
 import { useDirectiveEvents } from '@campfire/hooks/useDirectiveEvents'
-import { mergeClasses, evalExpression } from '@campfire/utils/core'
+import { mergeClasses, parseDisabledAttr } from '@campfire/utils/core'
 import { useGameStore } from '@campfire/state/useGameStore'
 import type { OptionProps } from './Option'
 import { getOptionId } from './Option'
-import type { BoundFieldProps } from './BoundFieldProps'
+import { fieldBaseStyles, type BoundFieldElementProps } from './BoundFieldProps'
 
 /** Counter used to generate deterministic IDs. */
 let idCounter = 0
@@ -18,21 +18,15 @@ let idCounter = 0
  * @returns The generated ID.
  */
 const generateId = (prefix: string) => `${prefix}-${++idCounter}`
-const selectStyles =
-  'file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-2 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive'
+const selectStyles = mergeClasses(
+  fieldBaseStyles,
+  'file:text-foreground selection:bg-primary selection:text-primary-foreground disabled:pointer-events-none min-w-0 h-9 px-2 py-1'
+)
 
-interface SelectProps
-  extends Omit<
-      JSX.HTMLAttributes<HTMLButtonElement>,
-      | 'className'
-      | 'onInput'
-      | 'onFocus'
-      | 'onBlur'
-      | 'onMouseEnter'
-      | 'onMouseLeave'
-      | 'disabled'
-    >,
-    BoundFieldProps<string> {
+type SelectProps = Omit<
+  BoundFieldElementProps<HTMLButtonElement, string>,
+  'onInput'
+> & {
   /** Optional input event handler. */
   onInput?: JSX.HTMLAttributes<HTMLButtonElement>['onInput']
   /** Text shown when no option is selected. */
@@ -71,18 +65,7 @@ export const Select = ({
   const gameData = useGameStore.use.gameData()
   const value = gameData[stateKey] as string | undefined
   const setGameData = useGameStore.use.setGameData()
-  const isDisabled = (() => {
-    if (typeof disabled === 'string') {
-      if (disabled === '' || disabled === 'true') return true
-      if (disabled === 'false') return false
-      try {
-        return Boolean(evalExpression(disabled, gameData))
-      } catch {
-        return false
-      }
-    }
-    return Boolean(disabled)
-  })()
+  const isDisabled = parseDisabledAttr(disabled, gameData)
   const directiveEvents = useDirectiveEvents(
     onMouseEnter,
     onMouseLeave,
@@ -170,10 +153,11 @@ export const Select = ({
         if (opt) handleSelect(opt.props.value)
       }
     }
-  const activeId =
-    open && activeIndex !== null
-      ? getOptionId(optionNodes[activeIndex]!.props.value)
-      : undefined
+  const activeOption =
+    open && activeIndex !== null ? optionNodes[activeIndex] : undefined
+  const activeId = activeOption
+    ? getOptionId(activeOption.props.value)
+    : undefined
   return (
     <div ref={containerRef} className='inline-block relative'>
       <button

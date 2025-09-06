@@ -2,38 +2,24 @@ import { useEffect, useMemo, useRef } from 'preact/hooks'
 import { SKIP } from 'unist-util-visit'
 import { toString } from 'mdast-util-to-string'
 import type { DirectiveHandler } from '@campfire/remark-campfire'
-import type {
-  Parent,
-  Paragraph,
-  RootContent,
-  Text as MdText,
-  InlineCode
-} from 'mdast'
-import type { Node } from 'unist'
-import type { Element, Properties } from 'hast'
+import type { Parent, RootContent, Text as MdText, InlineCode } from 'mdast'
+import type { Properties } from 'hast'
 import type { ContainerDirective } from 'mdast-util-directive'
 import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
-import { type Checkpoint, useGameStore } from '@campfire/state/useGameStore'
+import { useGameStore } from '@campfire/state/useGameStore'
 import {
   type DirectiveNode,
   type ExtractedAttrs,
   type AttributeSchema,
-  ensureKey,
   filterDirectiveChildren,
   extractAttributes,
-  isDirectiveNode,
-  isRange,
   removeNode,
   stripLabel
 } from '@campfire/utils/directiveUtils'
 import { parseNumericValue } from '@campfire/utils/math'
 import {
-  parseTypedValue,
-  parseAttributeValue,
-  extractKeyValue,
   replaceWithIndentation,
   expandIndentedCode,
-  applyKeyValue,
   runDirectiveBlock
 } from '@campfire/utils/directiveUtils'
 import {
@@ -45,9 +31,10 @@ import {
   parseDeckSize,
   parseThemeValue,
   applyAdditionalAttributes,
-  mergeAttrs
+  mergeAttrs,
+  normalizeStringAttrs,
+  ensureParentIndex
 } from '@campfire/utils/directiveHandlerUtils'
-import { DEFAULT_DECK_HEIGHT, DEFAULT_DECK_WIDTH } from '@campfire/constants'
 import type {
   Transition,
   Direction
@@ -63,6 +50,7 @@ import { createNavigationHandlers } from './handlers/navigationHandlers'
 import { createMediaHandlers } from './handlers/mediaHandlers'
 import { createPersistenceHandlers } from './handlers/persistenceHandlers'
 import { createI18nHandlers } from './handlers/i18nHandlers'
+import { isWhitespaceRootContent } from '@campfire/utils/nodePredicates'
 
 const NUMERIC_PATTERN = /^\d+$/
 const ALLOWED_ONEXIT_DIRECTIVES = new Set([
@@ -131,7 +119,11 @@ export const useDirectiveHandlers = () => {
   const loadCheckpointFn = useGameStore.use.loadCheckpoint()
   const setLoading = useGameStore.use.setLoading()
   const addError = useGameStore.use.addError()
-  const currentPassageId = useStoryDataStore.use.currentPassageId!() as string
+  const currentPassageIdSelector = useStoryDataStore.use.currentPassageId
+  if (!currentPassageIdSelector) {
+    addError('currentPassageId selector is undefined')
+  }
+  const currentPassageId = currentPassageIdSelector?.() ?? ''
   const setCurrentPassage = useStoryDataStore.use.setCurrentPassage()
   const getPassageById = useStoryDataStore.use.getPassageById()
   const getPassageByName = useStoryDataStore.use.getPassageByName()
@@ -198,17 +190,29 @@ export const useDirectiveHandlers = () => {
     const props: Record<string, unknown> = keyPattern.test(raw)
       ? { 'data-key': raw }
       : { 'data-expr': raw }
-    const attrs = (directive.attributes || {}) as Record<string, unknown>
+    const attrs = normalizeStringAttrs(
+      (directive.attributes || {}) as Record<string, unknown>,
+      gameData
+    )
     if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
       const msg = 'class is a reserved attribute. Use className instead.'
       console.error(msg)
       addError(msg)
     }
-    const classAttr = getClassAttr(attrs, gameData)
-    const styleAttr = getStyleAttr(attrs, gameData)
-    if (classAttr) props.className = classAttr
-    if (styleAttr) props.style = styleAttr
-    applyAdditionalAttributes(attrs, props, ['className', 'style'], addError)
+    const asAttr = typeof attrs.as === 'string' ? attrs.as : undefined
+    if (asAttr) {
+      props.as = asAttr
+      const classAttr = getClassAttr(attrs, gameData)
+      const styleAttr = getStyleAttr(attrs, gameData)
+      if (classAttr) props.className = classAttr
+      if (styleAttr) props.style = styleAttr
+    }
+    applyAdditionalAttributes(
+      attrs,
+      props,
+      ['as', 'className', 'style'],
+      addError
+    )
     const node: MdText = {
       type: 'text',
       value: '',
@@ -217,8 +221,10 @@ export const useDirectiveHandlers = () => {
         hProperties: props as Properties
       }
     }
-    if (parent && typeof index === 'number') {
-      return replaceWithIndentation(directive, parent, index, [node])
+    const pair = ensureParentIndex(parent, index)
+    if (pair) {
+      const [p, i] = pair
+      return replaceWithIndentation(directive, p, i, [node])
     }
     return index
   }
@@ -230,12 +236,7 @@ export const useDirectiveHandlers = () => {
    * @returns Whether the node is an `MdText` node.
    */
   const isTextNode = (node: RootContent): node is MdText => node.type === 'text'
-
-  const isWhitespaceNode = (node: RootContent): boolean =>
-    (node.type === 'text' && node.value.trim() === '') ||
-    (node.type === 'paragraph' &&
-      node.children.every(isTextNode) &&
-      (toString(node).trim() === '' || isMarkerParagraph(node)))
+  const isWhitespaceNode = isWhitespaceRootContent
 
   /**
    * Merges scoped state changes back into the parent state while optionally
@@ -286,7 +287,6 @@ export const useDirectiveHandlers = () => {
       onceKeys = keys
     },
     isTextNode,
-    isWhitespaceNode,
     allowedBatchDirectives: ALLOWED_BATCH_DIRECTIVES,
     bannedBatchDirectives: BANNED_BATCH_DIRECTIVES
   })
@@ -300,11 +300,13 @@ export const useDirectiveHandlers = () => {
    * @returns The index of the inserted node.
    */
   const handleEffect: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
     const { attrs, label } = extractAttributes(
       directive,
-      parent,
-      index,
+      p,
+      i,
       { watch: { type: 'string' } },
       { label: true }
     )
@@ -335,11 +337,11 @@ export const useDirectiveHandlers = () => {
       children: [{ type: 'text', value: '' }],
       data: { hName: 'effect', hProperties: { watch, content } }
     }
-    const newIndex = replaceWithIndentation(directive, parent, index, [
+    const newIndex = replaceWithIndentation(directive, p, i, [
       node as RootContent
     ])
     const markerIndex = newIndex + 1
-    removeDirectiveMarker(parent, markerIndex)
+    removeDirectiveMarker(p, markerIndex)
     return [SKIP, newIndex]
   }
 
@@ -354,12 +356,14 @@ export const useDirectiveHandlers = () => {
    * @returns The index of the inserted node.
    */
   const handleOnExit: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
     if (lastPassageIdRef.current !== currentPassageId) {
       resetDirectiveState()
     }
     if (onExitErrorRef.current) {
-      return removeNode(parent, index)
+      return removeNode(p, i)
     }
     if (onExitSeenRef.current) {
       onExitErrorRef.current = true
@@ -367,7 +371,7 @@ export const useDirectiveHandlers = () => {
         'Multiple onExit directives in a single passage are not allowed'
       console.error(msg)
       addError(msg)
-      return removeNode(parent, index)
+      return removeNode(p, i)
     }
     onExitSeenRef.current = true
     const container = directive as ContainerDirective
@@ -392,11 +396,11 @@ export const useDirectiveHandlers = () => {
       children: [{ type: 'text', value: '' }],
       data: { hName: 'onExit', hProperties: { content } }
     }
-    const newIndex = replaceWithIndentation(directive, parent, index, [
+    const newIndex = replaceWithIndentation(directive, p, i, [
       node as RootContent
     ])
     const markerIndex = newIndex + 1
-    removeDirectiveMarker(parent, markerIndex)
+    removeDirectiveMarker(p, markerIndex)
     return [SKIP, newIndex]
   }
 
@@ -409,11 +413,13 @@ export const useDirectiveHandlers = () => {
    * @returns The index of the removed node.
    */
   const handlePreset: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
     const { attrs: presetAttrs } = extractAttributes(
       directive,
-      parent,
-      index,
+      p,
+      i,
       {
         type: { type: 'string', required: true },
         name: { type: 'string', required: true }
@@ -438,8 +444,8 @@ export const useDirectiveHandlers = () => {
     }
     if (!presetsRef.current[target]) presetsRef.current[target] = {}
     presetsRef.current[target][name] = parsedAttrs
-    parent.children.splice(index, 1)
-    return index
+    p.children.splice(i, 1)
+    return i
   }
 
   /**
@@ -470,15 +476,17 @@ export const useDirectiveHandlers = () => {
       beforeRemove?: (parent: Parent, markerIndex: number) => void
     ): DirectiveHandler =>
     (directive, parent, index) => {
-      if (!parent || typeof index !== 'number') return
+      const pair = ensureParentIndex(parent, index)
+      if (!pair) return
+      const [p, i] = pair
       if (directive.type !== 'containerDirective') {
         const msg = `${directive.name} can only be used as a container directive`
         console.error(msg)
         addError(msg)
-        return removeNode(parent, index)
+        return removeNode(p, i)
       }
       const container = directive as ContainerDirective
-      const { attrs } = extractAttributes<S>(directive, parent, index, schema)
+      const { attrs } = extractAttributes<S>(directive, p, i, schema)
       const rawAttrs = (directive.attributes || {}) as Record<string, unknown>
       const processed = runDirectiveBlock(
         expandIndentedCode(container.children as RootContent[]),
@@ -495,12 +503,12 @@ export const useDirectiveHandlers = () => {
           hProperties: mapProps(attrs, rawAttrs) as Properties
         }
       }
-      const newIndex = replaceWithIndentation(directive, parent, index, [
+      const newIndex = replaceWithIndentation(directive, p, i, [
         node as RootContent
       ])
       const markerIndex = newIndex + 1
-      if (beforeRemove) beforeRemove(parent, markerIndex)
-      removeDirectiveMarker(parent, markerIndex)
+      if (beforeRemove) beforeRemove(p, markerIndex)
+      removeDirectiveMarker(p, markerIndex)
       return [SKIP, newIndex]
     }
 
@@ -623,20 +631,18 @@ export const useDirectiveHandlers = () => {
     from: { type: 'string', expression: false }
   } as const
 
-  type LayerSchema = typeof layerSchema
-  type LayerAttrs = ExtractedAttrs<LayerSchema>
-
-  const LAYER_EXCLUDES = [
+  /** List of numeric attributes supported by layer directives. */
+  const LAYER_NUMERIC_ATTRS = [
     'x',
     'y',
     'w',
     'h',
     'z',
     'rotate',
-    'scale',
-    'anchor',
-    'id'
+    'scale'
   ] as const
+
+  const LAYER_EXCLUDES = [...LAYER_NUMERIC_ATTRS, 'anchor', 'id'] as const
 
   /** Schema describing supported wrapper directive attributes. */
   const wrapperSchema = {
@@ -822,23 +828,17 @@ export const useDirectiveHandlers = () => {
         ? presetsRef.current['layer']?.[String(attrs.from)]
         : undefined
       if (preset) {
-        if (typeof preset.x === 'number') props.x = preset.x
-        if (typeof preset.y === 'number') props.y = preset.y
-        if (typeof preset.w === 'number') props.w = preset.w
-        if (typeof preset.h === 'number') props.h = preset.h
-        if (typeof preset.z === 'number') props.z = preset.z
-        if (typeof preset.rotate === 'number') props.rotate = preset.rotate
-        if (typeof preset.scale === 'number') props.scale = preset.scale
+        for (const key of LAYER_NUMERIC_ATTRS) {
+          const value = preset[key]
+          if (typeof value === 'number') props[key] = value
+        }
         if (preset.anchor) props.anchor = preset.anchor
         applyAdditionalAttributes(preset, props, LAYER_EXCLUDES, addError)
       }
-      if (typeof attrs.x === 'number') props.x = attrs.x
-      if (typeof attrs.y === 'number') props.y = attrs.y
-      if (typeof attrs.w === 'number') props.w = attrs.w
-      if (typeof attrs.h === 'number') props.h = attrs.h
-      if (typeof attrs.z === 'number') props.z = attrs.z
-      if (typeof attrs.rotate === 'number') props.rotate = attrs.rotate
-      if (typeof attrs.scale === 'number') props.scale = attrs.scale
+      for (const key of LAYER_NUMERIC_ATTRS) {
+        const value = attrs[key]
+        if (typeof value === 'number') props[key] = value
+      }
       if (attrs.anchor) props.anchor = attrs.anchor
       const mergedRaw = mergeAttrs(preset, raw)
       props['data-testid'] = 'layer'
@@ -998,7 +998,6 @@ export const useDirectiveHandlers = () => {
   } = createFormHandlers({
     addError,
     getGameData: () => gameData,
-    isWhitespaceNode,
     interactiveEvents: INTERACTIVE_EVENTS,
     handleWrapper
   })
@@ -1059,20 +1058,17 @@ export const useDirectiveHandlers = () => {
    * @returns The index of the inserted node.
    */
   const handleText: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
     if (directive.type !== 'containerDirective') {
       const msg = 'text can only be used as a container directive'
       console.error(msg)
       addError(msg)
-      return removeNode(parent, index)
+      return removeNode(p, i)
     }
     const container = directive as ContainerDirective
-    const { attrs } = extractAttributes<TextSchema>(
-      directive,
-      parent,
-      index,
-      textSchema
-    )
+    const { attrs } = extractAttributes<TextSchema>(directive, p, i, textSchema)
     const raw = (directive.attributes || {}) as Record<string, unknown>
     const preset = attrs.from
       ? presetsRef.current['text']?.[String(attrs.from)]
@@ -1199,9 +1195,7 @@ export const useDirectiveHandlers = () => {
       children: [{ type: 'text', value: content } as RootContent],
       data: { hName: tagName, hProperties: props as Properties }
     }
-    return replaceWithIndentation(directive, parent, index, [
-      node as RootContent
-    ])
+    return replaceWithIndentation(directive, p, i, [node as RootContent])
   }
 
   /**
@@ -1213,13 +1207,15 @@ export const useDirectiveHandlers = () => {
    * @returns The index of the inserted node.
    */
   const handleImage: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
-    const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
+    const invalid = requireLeafDirective(directive, p, i, addError)
+    if (invalid !== undefined) return invalid
     const { attrs } = extractAttributes<ImageSchema>(
       directive,
-      parent,
-      index,
+      p,
+      i,
       imageSchema
     )
     const raw = (directive.attributes || {}) as Record<string, unknown>
@@ -1230,30 +1226,31 @@ export const useDirectiveHandlers = () => {
       : undefined
     const mergedRaw = mergeAttrs<Record<string, unknown>>(preset, raw)
     const mergedAttrs = mergeAttrs<ImageAttrs>(preset, attrs)
-    const props: Record<string, unknown> = { src: mergedAttrs.src }
-    if (typeof mergedAttrs.x === 'number') props.x = mergedAttrs.x
-    if (typeof mergedAttrs.y === 'number') props.y = mergedAttrs.y
-    if (typeof mergedAttrs.w === 'number') props.w = mergedAttrs.w
-    if (typeof mergedAttrs.h === 'number') props.h = mergedAttrs.h
-    if (typeof mergedAttrs.z === 'number') props.z = mergedAttrs.z
-    if (typeof mergedAttrs.rotate === 'number')
-      props.rotate = mergedAttrs.rotate
-    if (typeof mergedAttrs.scale === 'number') props.scale = mergedAttrs.scale
-    if (mergedAttrs.anchor) props.anchor = mergedAttrs.anchor
-    if (mergedAttrs.alt) props.alt = mergedAttrs.alt
-    const mergedStyle = getStyleAttr({ style: mergedAttrs.style }, gameData)
-    if (mergedStyle) props.style = mergedStyle
-    const mergedClass = getClassAttr(
-      { className: mergedAttrs.className },
+    const normRaw = normalizeStringAttrs(mergedRaw, gameData)
+    const normAttrs = normalizeStringAttrs(mergedAttrs, gameData)
+    const props: Record<string, unknown> = { src: normAttrs.src }
+    if (typeof normAttrs.x === 'number') props.x = normAttrs.x
+    if (typeof normAttrs.y === 'number') props.y = normAttrs.y
+    if (typeof normAttrs.w === 'number') props.w = normAttrs.w
+    if (typeof normAttrs.h === 'number') props.h = normAttrs.h
+    if (typeof normAttrs.z === 'number') props.z = normAttrs.z
+    if (typeof normAttrs.rotate === 'number') props.rotate = normAttrs.rotate
+    if (typeof normAttrs.scale === 'number') props.scale = normAttrs.scale
+    if (normAttrs.anchor) props.anchor = normAttrs.anchor
+    if (normAttrs.alt) props.alt = normAttrs.alt
+    const classAttr = getClassAttr({ className: normAttrs.className }, gameData)
+    if (classAttr) props.className = classAttr
+    const layerClassAttr = getClassAttr(
+      { className: normAttrs.layerClassName },
       gameData
     )
-    if (mergedClass) props.className = mergedClass
-    if (mergedAttrs.layerClassName)
-      props.layerClassName = mergedAttrs.layerClassName
-    if (mergedAttrs.id) props.id = mergedAttrs.id
-    if (mergedAttrs.layerId) props.layerId = mergedAttrs.layerId
+    if (layerClassAttr) props.layerClassName = layerClassAttr
+    const styleAttr = getStyleAttr({ style: normAttrs.style }, gameData)
+    if (styleAttr) props.style = styleAttr
+    if (normAttrs.id) props.id = normAttrs.id
+    if (normAttrs.layerId) props.layerId = normAttrs.layerId
     applyAdditionalAttributes(
-      mergedRaw,
+      normRaw,
       props,
       [
         'x',
@@ -1280,9 +1277,7 @@ export const useDirectiveHandlers = () => {
       hProperties: props as Properties
     }
     const node: Parent = { type: 'paragraph', children: [], data }
-    return replaceWithIndentation(directive, parent, index, [
-      node as RootContent
-    ])
+    return replaceWithIndentation(directive, p, i, [node as RootContent])
   }
 
   /**
@@ -1294,7 +1289,9 @@ export const useDirectiveHandlers = () => {
    * @returns The index of the inserted node.
    */
   const handleShape: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
     if (
       directive.type !== 'textDirective' &&
       directive.type !== 'leafDirective'
@@ -1302,12 +1299,12 @@ export const useDirectiveHandlers = () => {
       const msg = 'shape can only be used as a leaf or text directive'
       console.error(msg)
       addError(msg)
-      return removeNode(parent, index)
+      return removeNode(p, i)
     }
     const { attrs } = extractAttributes<ShapeSchema>(
       directive,
-      parent,
-      index,
+      p,
+      i,
       shapeSchema
     )
     const raw = (directive.attributes || {}) as Record<string, unknown>
@@ -1319,45 +1316,44 @@ export const useDirectiveHandlers = () => {
       preset,
       attrs as unknown as Record<string, unknown>
     ) as ShapeAttrs & Record<string, unknown>
-    const props: Record<string, unknown> = { type: mergedAttrs.type }
-    if (typeof mergedAttrs.x === 'number') props.x = mergedAttrs.x
-    if (typeof mergedAttrs.y === 'number') props.y = mergedAttrs.y
-    if (typeof mergedAttrs.w === 'number') props.w = mergedAttrs.w
-    if (typeof mergedAttrs.h === 'number') props.h = mergedAttrs.h
-    if (typeof mergedAttrs.z === 'number') props.z = mergedAttrs.z
-    if (typeof mergedAttrs.rotate === 'number')
-      props.rotate = mergedAttrs.rotate
-    if (typeof mergedAttrs.scale === 'number') props.scale = mergedAttrs.scale
-    if (mergedAttrs.anchor) props.anchor = mergedAttrs.anchor
-    if (mergedAttrs.points) props.points = mergedAttrs.points
-    if (typeof mergedAttrs.x1 === 'number') props.x1 = mergedAttrs.x1
-    if (typeof mergedAttrs.y1 === 'number') props.y1 = mergedAttrs.y1
-    if (typeof mergedAttrs.x2 === 'number') props.x2 = mergedAttrs.x2
-    if (typeof mergedAttrs.y2 === 'number') props.y2 = mergedAttrs.y2
-    if (mergedAttrs.stroke) props.stroke = mergedAttrs.stroke
-    if (typeof mergedAttrs.strokeWidth === 'number')
-      props.strokeWidth = mergedAttrs.strokeWidth
-    if (mergedAttrs.fill) props.fill = mergedAttrs.fill
-    if (typeof mergedAttrs.radius === 'number')
-      props.radius = mergedAttrs.radius
-    if (typeof mergedAttrs.shadow === 'boolean')
-      props.shadow = mergedAttrs.shadow
-    const mergedStyle = getStyleAttr(
-      mergedAttrs as Record<string, unknown>,
+    const normRaw = normalizeStringAttrs(mergedRaw, gameData)
+    const normAttrs = normalizeStringAttrs(
+      mergedAttrs,
+      gameData
+    ) as ShapeAttrs & Record<string, unknown>
+    const props: Record<string, unknown> = { type: normAttrs.type }
+    if (typeof normAttrs.x === 'number') props.x = normAttrs.x
+    if (typeof normAttrs.y === 'number') props.y = normAttrs.y
+    if (typeof normAttrs.w === 'number') props.w = normAttrs.w
+    if (typeof normAttrs.h === 'number') props.h = normAttrs.h
+    if (typeof normAttrs.z === 'number') props.z = normAttrs.z
+    if (typeof normAttrs.rotate === 'number') props.rotate = normAttrs.rotate
+    if (typeof normAttrs.scale === 'number') props.scale = normAttrs.scale
+    if (normAttrs.anchor) props.anchor = normAttrs.anchor
+    if (normAttrs.points) props.points = normAttrs.points
+    if (typeof normAttrs.x1 === 'number') props.x1 = normAttrs.x1
+    if (typeof normAttrs.y1 === 'number') props.y1 = normAttrs.y1
+    if (typeof normAttrs.x2 === 'number') props.x2 = normAttrs.x2
+    if (typeof normAttrs.y2 === 'number') props.y2 = normAttrs.y2
+    if (normAttrs.stroke) props.stroke = normAttrs.stroke
+    if (typeof normAttrs.strokeWidth === 'number')
+      props.strokeWidth = normAttrs.strokeWidth
+    if (normAttrs.fill) props.fill = normAttrs.fill
+    if (typeof normAttrs.radius === 'number') props.radius = normAttrs.radius
+    if (typeof normAttrs.shadow === 'boolean') props.shadow = normAttrs.shadow
+    const classAttr = getClassAttr({ className: normAttrs.className }, gameData)
+    if (classAttr) props.className = classAttr
+    const layerClassAttr = getClassAttr(
+      { className: normAttrs.layerClassName },
       gameData
     )
-    if (mergedStyle) props.style = mergedStyle
-    const mergedClass = getClassAttr(
-      mergedAttrs as Record<string, unknown>,
-      gameData
-    )
-    if (mergedClass) props.className = mergedClass
-    if (mergedAttrs.layerClassName)
-      props.layerClassName = mergedAttrs.layerClassName
-    if (mergedAttrs.id) props.id = mergedAttrs.id
-    if (mergedAttrs.layerId) props.layerId = mergedAttrs.layerId
+    if (layerClassAttr) props.layerClassName = layerClassAttr
+    const styleAttr = getStyleAttr({ style: normAttrs.style }, gameData)
+    if (styleAttr) props.style = styleAttr
+    if (normAttrs.id) props.id = normAttrs.id
+    if (normAttrs.layerId) props.layerId = normAttrs.layerId
     applyAdditionalAttributes(
-      mergedRaw,
+      normRaw,
       props,
       [
         'x',
@@ -1393,9 +1389,7 @@ export const useDirectiveHandlers = () => {
       children: [],
       data: { hName: 'slideShape', hProperties: props as Properties }
     }
-    return replaceWithIndentation(directive, parent, index, [
-      node as RootContent
-    ])
+    return replaceWithIndentation(directive, p, i, [node as RootContent])
   }
 
   /**
@@ -1501,19 +1495,21 @@ export const useDirectiveHandlers = () => {
    * @returns Visitor instructions after replacement.
    */
   const handleDeck: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
     if (directive.type !== 'containerDirective') {
       const msg = 'deck can only be used as a container directive'
       console.error(msg)
       addError(msg)
-      return removeNode(parent, index)
+      return removeNode(p, i)
     }
     const container = directive as ContainerDirective
 
     const { attrs: deckAttrs } = extractAttributes(
       directive,
-      parent,
-      index,
+      p,
+      i,
       {
         size: { type: 'string' },
         transition: { type: 'string' },
@@ -1538,7 +1534,7 @@ export const useDirectiveHandlers = () => {
         if (typeof preset.size === 'string')
           deckProps.size = parseDeckSize(preset.size as string)
         if (preset.transition) deckProps.transition = preset.transition
-        if (typeof preset.theme !== 'undefined') {
+        if ('theme' in preset) {
           const t = parseThemeValue(preset.theme)
           if (t) deckProps.theme = t
         }
@@ -1549,7 +1545,7 @@ export const useDirectiveHandlers = () => {
       deckProps.size = parseDeckSize(deckAttrs.size)
     }
     if (deckAttrs.transition) deckProps.transition = deckAttrs.transition
-    if (typeof deckAttrs.theme !== 'undefined') {
+    if ('theme' in deckAttrs) {
       const theme = parseThemeValue(deckAttrs.theme)
       if (theme) deckProps.theme = theme
     }
@@ -1584,16 +1580,16 @@ export const useDirectiveHandlers = () => {
 
     const slides: Parent[] = []
 
-    let endPos = parent.children.length
-    for (let i = parent.children.length - 1; i > index; i--) {
-      if (isMarkerParagraph(parent.children[i] as RootContent)) {
-        endPos = i
+    let endPos = p.children.length
+    for (let j = p.children.length - 1; j > i; j--) {
+      if (isMarkerParagraph(p.children[j] as RootContent)) {
+        endPos = j
         break
       }
     }
-    const rawFollowing = parent.children.slice(index + 1, endPos)
-    if (endPos > index + 1) {
-      parent.children.splice(index + 1, endPos - (index + 1))
+    const rawFollowing = p.children.slice(i + 1, endPos)
+    if (endPos > i + 1) {
+      p.children.splice(i + 1, endPos - (i + 1))
     }
     const following = rawFollowing.filter(
       node =>
@@ -1719,10 +1715,10 @@ export const useDirectiveHandlers = () => {
       children: slides as RootContent[],
       data: { hName: 'deck', hProperties: deckProps as Properties }
     }
-    const newIndex = replaceWithIndentation(directive, parent, index, [
+    const newIndex = replaceWithIndentation(directive, p, i, [
       deckNode as RootContent
     ])
-    removeDirectiveMarker(parent, newIndex + 1)
+    removeDirectiveMarker(p, newIndex + 1)
     return [SKIP, newIndex]
   }
 

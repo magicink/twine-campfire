@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/preact'
 import { Campfire } from '@campfire/components'
+import { DebugWindow } from './DebugWindow'
 
 const meta: Meta = {
   title: 'Campfire/Directives/For'
@@ -28,6 +29,7 @@ Value :show[x]{className="text-sky-600"}
         </tw-passagedata>
       </tw-storydata>
       <Campfire />
+      <DebugWindow />
     </>
   )
 }
@@ -59,6 +61,7 @@ export const Fruits: StoryObj = {
         </tw-passagedata>
       </tw-storydata>
       <Campfire />
+      <DebugWindow />
     </>
   )
 }

@@ -16,7 +16,8 @@ import {
 import {
   getClassAttr,
   getStyleAttr,
-  requireLeafDirective
+  requireLeafDirective,
+  ensureParentIndex
 } from '@campfire/utils/directiveHandlerUtils'
 import {
   evalExpression,
@@ -87,7 +88,7 @@ export const createI18nHandlers = (ctx: I18nHandlerContext) => {
    */
   const handleLang: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     const locale = toString(directive).trim()
 
     // Basic locale validation: e.g., "en", "en-US", "fr", "zh-CN"
@@ -115,7 +116,7 @@ export const createI18nHandlers = (ctx: I18nHandlerContext) => {
    */
   const handleTranslations: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     const locale =
       getLabel(directive as ContainerDirective) || toString(directive).trim()
     const attrs = directive.attributes as Record<string, unknown>
@@ -165,7 +166,7 @@ export const createI18nHandlers = (ctx: I18nHandlerContext) => {
     index
   ) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     const kv = extractKeyValue(
       directive as DirectiveNode,
       parent,
@@ -301,9 +302,11 @@ export const createI18nHandlers = (ctx: I18nHandlerContext) => {
         fallback = match ? inner : trimmed
       }
     }
-    if (parent && typeof index === 'number') {
-      const prev = parent.children[index - 1] as MdText | undefined
-      const next = parent.children[index + 1] as MdText | undefined
+    const pair = ensureParentIndex(parent, index)
+    if (pair) {
+      const [p, i] = pair
+      const prev = p.children[i - 1] as MdText | undefined
+      const next = p.children[i + 1] as MdText | undefined
       const inLink =
         prev?.type === 'text' &&
         prev.value.endsWith('[[') &&
@@ -339,10 +342,10 @@ export const createI18nHandlers = (ctx: I18nHandlerContext) => {
         const text = i18next.t(tKey, options)
         if (prev && next) {
           prev.value += text + next.value
-          parent.children.splice(index, 2)
-          return index - 1
+          p.children.splice(i, 2)
+          return i - 1
         }
-        return replaceWithIndentation(directive, parent, index, [
+        return replaceWithIndentation(directive, p, i, [
           { type: 'text', value: text }
         ])
       }
@@ -359,7 +362,7 @@ export const createI18nHandlers = (ctx: I18nHandlerContext) => {
         value: '0',
         data: { hName: 'translate', hProperties: props }
       }
-      return replaceWithIndentation(directive, parent, index, [node])
+      return replaceWithIndentation(directive, p, i, [node])
     }
     return index
   }

@@ -1,26 +1,15 @@
-import type { JSX } from 'preact'
 import { useEffect } from 'preact/hooks'
 import { useDirectiveEvents } from '@campfire/hooks/useDirectiveEvents'
-import { mergeClasses, evalExpression } from '@campfire/utils/core'
+import { mergeClasses, parseDisabledAttr } from '@campfire/utils/core'
 import { useGameStore } from '@campfire/state/useGameStore'
-import type { BoundFieldProps } from './BoundFieldProps'
+import { fieldBaseStyles, type BoundFieldElementProps } from './BoundFieldProps'
 
-const textareaStyles =
-  'border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 flex field-sizing-content min-h-16 w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm'
+const textareaStyles = mergeClasses(
+  fieldBaseStyles,
+  'field-sizing-content min-h-16 px-3 py-2'
+)
 
-interface TextareaProps
-  extends Omit<
-      JSX.TextareaHTMLAttributes<HTMLTextAreaElement>,
-      | 'className'
-      | 'value'
-      | 'defaultValue'
-      | 'onFocus'
-      | 'onBlur'
-      | 'onMouseEnter'
-      | 'onMouseLeave'
-      | 'disabled'
-    >,
-    BoundFieldProps<string> {}
+type TextareaProps = BoundFieldElementProps<HTMLTextAreaElement, string>
 
 /**
  * Textarea bound to a game state key. Updates the key on user input.
@@ -48,18 +37,7 @@ export const Textarea = ({
 }: TextareaProps) => {
   const gameData = useGameStore.use.gameData()
   const value = gameData[stateKey] as string | undefined
-  const isDisabled = (() => {
-    if (typeof disabled === 'string') {
-      if (disabled === '' || disabled === 'true') return true
-      if (disabled === 'false') return false
-      try {
-        return Boolean(evalExpression(disabled, gameData))
-      } catch {
-        return false
-      }
-    }
-    return Boolean(disabled)
-  })()
+  const isDisabled = parseDisabledAttr(disabled, gameData)
   const directiveEvents = useDirectiveEvents(
     onMouseEnter,
     onMouseLeave,

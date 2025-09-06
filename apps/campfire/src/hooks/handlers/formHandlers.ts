@@ -21,15 +21,16 @@ import {
   getClassAttr,
   getStyleAttr,
   removeDirectiveMarker,
-  isMarkerParagraph
+  isMarkerParagraph,
+  ensureParentIndex
 } from '@campfire/utils/directiveHandlerUtils'
+import { isWhitespaceRootContent } from '@campfire/utils/nodePredicates'
 
 const DIRECTIVE_MARKER = ':::'
 
 export interface FormHandlerContext {
   addError: (msg: string) => void
   getGameData: () => Record<string, unknown>
-  isWhitespaceNode: (node: RootContent) => boolean
   interactiveEvents: Set<string>
   handleWrapper: DirectiveHandler
 }
@@ -41,13 +42,7 @@ export interface FormHandlerContext {
  */
 
 export const createFormHandlers = (ctx: FormHandlerContext) => {
-  const {
-    addError,
-    getGameData,
-    isWhitespaceNode,
-    interactiveEvents,
-    handleWrapper
-  } = ctx
+  const { addError, getGameData, interactiveEvents, handleWrapper } = ctx
 
   const isMarkerText = (node: RootContent): boolean => {
     if (node.type !== 'text') return false
@@ -71,7 +66,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         events[name] = JSON.stringify(
           stripLabel((node as ContainerDirective).children as RootContent[])
         )
-      } else if (!isWhitespaceNode(node)) {
+      } else if (!isWhitespaceRootContent(node)) {
         remaining.push(node)
       }
     }
@@ -79,21 +74,23 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
   }
 
   const handleInput: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const typeAttr = typeof attrs.type === 'string' ? attrs.type : undefined
     if (typeAttr === 'checkbox') {
       delete attrs.type
-      return handleCheckbox(directive, parent, index)
+      return handleCheckbox(directive, p, i)
     }
     if (typeAttr === 'radio') {
       delete attrs.type
-      return handleRadio(directive, parent, index)
+      return handleRadio(directive, p, i)
     }
     if (directive.type === 'textDirective') {
       const label = hasLabel(directive) ? directive.label : toString(directive)
-      const key = ensureKey(label.trim(), parent, index)
-      if (!key) return index
+      const key = ensureKey(label.trim(), p, i)
+      if (!key) return i
       if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
         const msg = 'class is a reserved attribute. Use className instead.'
         console.error(msg)
@@ -125,15 +122,13 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         children: [],
         data: { hName: 'input', hProperties: props as Properties }
       }
-      return replaceWithIndentation(directive, parent, index, [
-        node as RootContent
-      ])
+      return replaceWithIndentation(directive, p, i, [node as RootContent])
     }
     if (directive.type === 'containerDirective') {
       const container = directive as ContainerDirective
       const label = getLabel(container)
-      const key = ensureKey(label.trim(), parent, index)
-      if (!key) return index
+      const key = ensureKey(label.trim(), p, i)
+      if (!key) return i
       if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
         const msg = 'class is a reserved attribute. Use className instead.'
         console.error(msg)
@@ -154,21 +149,21 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       )
       const { events } = extractEventProps(rawChildren)
 
-      const start = index + 1
+      const start = i + 1
       const extras: RootContent[] = []
       let cursor = start
-      while (cursor < parent.children.length) {
-        const sib = parent.children[cursor] as RootContent
+      while (cursor < p.children.length) {
+        const sib = p.children[cursor] as RootContent
         if (
           sib.type === 'containerDirective' &&
           interactiveEvents.has((sib as ContainerDirective).name)
         ) {
           extras.push(sib)
-          parent.children.splice(cursor, 1)
+          p.children.splice(cursor, 1)
           continue
         }
         if (isMarkerParagraph(sib) || isMarkerText(sib)) {
-          parent.children.splice(cursor, 1)
+          p.children.splice(cursor, 1)
         }
         break
       }
@@ -196,25 +191,27 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         children: [],
         data: { hName: 'input', hProperties: props as Properties }
       }
-      const newIndex = replaceWithIndentation(directive, parent, index, [
+      const newIndex = replaceWithIndentation(directive, p, i, [
         node as RootContent
       ])
       const markerIndex = newIndex + 1
-      removeDirectiveMarker(parent, markerIndex)
+      removeDirectiveMarker(p, markerIndex)
       return [SKIP, newIndex]
     }
     const msg = 'input can only be used as a leaf or container directive'
     console.error(msg)
     addError(msg)
-    return removeNode(parent, index)
+    return removeNode(p, i)
   }
 
   const handleCheckbox: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
     if (directive.type === 'textDirective') {
       const label = hasLabel(directive) ? directive.label : toString(directive)
-      const key = ensureKey(label.trim(), parent, index)
-      if (!key) return index
+      const key = ensureKey(label.trim(), p, i)
+      if (!key) return i
       const attrs = (directive.attributes || {}) as Record<string, unknown>
       if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
         const msg = 'class is a reserved attribute. Use className instead.'
@@ -246,15 +243,13 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         children: [],
         data: { hName: 'checkbox', hProperties: props as Properties }
       }
-      return replaceWithIndentation(directive, parent, index, [
-        node as RootContent
-      ])
+      return replaceWithIndentation(directive, p, i, [node as RootContent])
     }
     if (directive.type === 'containerDirective') {
       const container = directive as ContainerDirective
       const label = getLabel(container)
-      const key = ensureKey(label.trim(), parent, index)
-      if (!key) return index
+      const key = ensureKey(label.trim(), p, i)
+      if (!key) return i
       const attrs = (container.attributes || {}) as Record<string, unknown>
       if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
         const msg = 'class is a reserved attribute. Use className instead.'
@@ -276,21 +271,21 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       )
       const { events } = extractEventProps(rawChildren)
 
-      const start = index + 1
+      const start = i + 1
       const extras: RootContent[] = []
       let cursor = start
-      while (cursor < parent.children.length) {
-        const sib = parent.children[cursor] as RootContent
+      while (cursor < p.children.length) {
+        const sib = p.children[cursor] as RootContent
         if (
           sib.type === 'containerDirective' &&
           interactiveEvents.has((sib as ContainerDirective).name)
         ) {
           extras.push(sib)
-          parent.children.splice(cursor, 1)
+          p.children.splice(cursor, 1)
           continue
         }
         if (isMarkerParagraph(sib) || isMarkerText(sib)) {
-          parent.children.splice(cursor, 1)
+          p.children.splice(cursor, 1)
         }
         break
       }
@@ -317,25 +312,27 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         children: [],
         data: { hName: 'checkbox', hProperties: props as Properties }
       }
-      const newIndex = replaceWithIndentation(directive, parent, index, [
+      const newIndex = replaceWithIndentation(directive, p, i, [
         node as RootContent
       ])
       const markerIndex = newIndex + 1
-      removeDirectiveMarker(parent, markerIndex)
+      removeDirectiveMarker(p, markerIndex)
       return [SKIP, newIndex]
     }
     const msg = 'checkbox can only be used as a leaf or container directive'
     console.error(msg)
     addError(msg)
-    return removeNode(parent, index)
+    return removeNode(p, i)
   }
 
   const handleRadio: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
     if (directive.type === 'textDirective') {
       const label = hasLabel(directive) ? directive.label : toString(directive)
-      const key = ensureKey(label.trim(), parent, index)
-      if (!key) return index
+      const key = ensureKey(label.trim(), p, i)
+      if (!key) return i
       const attrs = (directive.attributes || {}) as Record<string, unknown>
       if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
         const msg = 'class is a reserved attribute. Use className instead.'
@@ -369,15 +366,15 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         children: [],
         data: { hName: 'radio', hProperties: props as Properties }
       }
-      return replaceWithIndentation(directive, parent, index, [
+      return replaceWithIndentation(directive, p, i, [
         node as unknown as RootContent
       ])
     }
     if (directive.type === 'containerDirective') {
       const container = directive as ContainerDirective
       const label = getLabel(container)
-      const key = ensureKey(label.trim(), parent, index)
-      if (!key) return index
+      const key = ensureKey(label.trim(), p, i)
+      if (!key) return i
       const attrs = (container.attributes || {}) as Record<string, unknown>
       if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
         const msg = 'class is a reserved attribute. Use className instead.'
@@ -398,21 +395,21 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       )
       const { events } = extractEventProps(rawChildren)
 
-      const start = index + 1
+      const start = i + 1
       const extras: RootContent[] = []
       let cursor = start
-      while (cursor < parent.children.length) {
-        const sib = parent.children[cursor] as RootContent
+      while (cursor < p.children.length) {
+        const sib = p.children[cursor] as RootContent
         if (
           sib.type === 'containerDirective' &&
           interactiveEvents.has((sib as ContainerDirective).name)
         ) {
           extras.push(sib)
-          parent.children.splice(cursor, 1)
+          p.children.splice(cursor, 1)
           continue
         }
         if (isMarkerParagraph(sib) || isMarkerText(sib)) {
-          parent.children.splice(cursor, 1)
+          p.children.splice(cursor, 1)
         }
         break
       }
@@ -442,25 +439,27 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         children: [],
         data: { hName: 'radio', hProperties: props as Properties }
       }
-      const newIndex = replaceWithIndentation(directive, parent, index, [
+      const newIndex = replaceWithIndentation(directive, p, i, [
         node as RootContent
       ])
       const markerIndex = newIndex + 1
-      removeDirectiveMarker(parent, markerIndex)
+      removeDirectiveMarker(p, markerIndex)
       return [SKIP, newIndex]
     }
     const msg = 'radio can only be used as a leaf or container directive'
     console.error(msg)
     addError(msg)
-    return removeNode(parent, index)
+    return removeNode(p, i)
   }
 
   const handleTextarea: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
     if (directive.type === 'textDirective') {
       const label = hasLabel(directive) ? directive.label : toString(directive)
-      const key = ensureKey(label.trim(), parent, index)
-      if (!key) return index
+      const key = ensureKey(label.trim(), p, i)
+      if (!key) return i
       const attrs = (directive.attributes || {}) as Record<string, unknown>
       if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
         const msg = 'class is a reserved attribute. Use className instead.'
@@ -493,15 +492,13 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         children: [],
         data: { hName: 'textarea', hProperties: props as Properties }
       }
-      return replaceWithIndentation(directive, parent, index, [
-        node as RootContent
-      ])
+      return replaceWithIndentation(directive, p, i, [node as RootContent])
     }
     if (directive.type === 'containerDirective') {
       const container = directive as ContainerDirective
       const label = getLabel(container)
-      const key = ensureKey(label.trim(), parent, index)
-      if (!key) return index
+      const key = ensureKey(label.trim(), p, i)
+      if (!key) return i
       const attrs = (container.attributes || {}) as Record<string, unknown>
       if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
         const msg = 'class is a reserved attribute. Use className instead.'
@@ -523,21 +520,21 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       )
       const { events } = extractEventProps(rawChildren)
 
-      const start = index + 1
+      const start = i + 1
       const extras: RootContent[] = []
       let cursor = start
-      while (cursor < parent.children.length) {
-        const sib = parent.children[cursor] as RootContent
+      while (cursor < p.children.length) {
+        const sib = p.children[cursor] as RootContent
         if (
           sib.type === 'containerDirective' &&
           interactiveEvents.has((sib as ContainerDirective).name)
         ) {
           extras.push(sib)
-          parent.children.splice(cursor, 1)
+          p.children.splice(cursor, 1)
           continue
         }
         if (isMarkerParagraph(sib) || isMarkerText(sib)) {
-          parent.children.splice(cursor, 1)
+          p.children.splice(cursor, 1)
         }
         break
       }
@@ -566,26 +563,28 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         children: [],
         data: { hName: 'textarea', hProperties: props as Properties }
       }
-      const newIndex = replaceWithIndentation(directive, parent, index, [
+      const newIndex = replaceWithIndentation(directive, p, i, [
         node as RootContent
       ])
       const markerIndex = newIndex + 1
-      removeDirectiveMarker(parent, markerIndex)
+      removeDirectiveMarker(p, markerIndex)
       return [SKIP, newIndex]
     }
     const msg = 'textarea can only be used as a leaf or container directive'
     console.error(msg)
     addError(msg)
-    return removeNode(parent, index)
+    return removeNode(p, i)
   }
 
   const handleOption: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
     if (directive.type === 'textDirective') {
       const msg = 'option cannot be used as an inline directive'
       console.error(msg)
       addError(msg)
-      return removeNode(parent, index)
+      return removeNode(p, i)
     }
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const rawValue = attrs.value
@@ -598,7 +597,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       const msg = 'option requires a value attribute'
       console.error(msg)
       addError(msg)
-      return removeNode(parent, index)
+      return removeNode(p, i)
     }
     if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
       const msg = 'class is a reserved attribute. Use className instead.'
@@ -628,42 +627,42 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         const msg = 'option leaf directives require a label attribute'
         console.error(msg)
         addError(msg)
-        return removeNode(parent, index)
+        return removeNode(p, i)
       }
       const node: Parent = {
         type: 'paragraph',
         children: [{ type: 'text', value: String(labelAttr) }],
         data: { hName: 'option', hProperties: props as Properties }
       }
-      return replaceWithIndentation(directive, parent, index, [
-        node as RootContent
-      ])
+      return replaceWithIndentation(directive, p, i, [node as RootContent])
     }
 
     const container = directive as ContainerDirective
     const rawChildren = runDirectiveBlock(
       expandIndentedCode(container.children as RootContent[])
     )
-    const children = rawChildren.filter(node => !isWhitespaceNode(node))
+    const children = rawChildren.filter(node => !isWhitespaceRootContent(node))
     const node: Parent = {
       type: 'paragraph',
       children: children as RootContent[],
       data: { hName: 'option', hProperties: props as Properties }
     }
-    const newIndex = replaceWithIndentation(directive, parent, index, [
+    const newIndex = replaceWithIndentation(directive, p, i, [
       node as RootContent
     ])
     const markerIndex = newIndex + 1
-    removeDirectiveMarker(parent, markerIndex)
+    removeDirectiveMarker(p, markerIndex)
     return [SKIP, newIndex]
   }
 
   const handleSelect: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
     const container = directive as ContainerDirective
     const label = getLabel(container)
-    const key = ensureKey(label.trim(), parent, index)
-    if (!key) return index
+    const key = ensureKey(label.trim(), p, i)
+    if (!key) return i
     const attrs = (container.attributes || {}) as Record<string, unknown>
     if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
       const msg = 'class is a reserved attribute. Use className instead.'
@@ -683,21 +682,21 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
     )
     const { events, remaining } = extractEventProps(rawChildren)
 
-    const start = index + 1
+    const start = i + 1
     const extras: RootContent[] = []
     let cursor = start
-    while (cursor < parent.children.length) {
-      const sib = parent.children[cursor] as RootContent
+    while (cursor < p.children.length) {
+      const sib = p.children[cursor] as RootContent
       if (
         sib.type === 'containerDirective' &&
         interactiveEvents.has((sib as ContainerDirective).name)
       ) {
         extras.push(sib)
-        parent.children.splice(cursor, 1)
+        p.children.splice(cursor, 1)
         continue
       }
       if (isMarkerParagraph(sib) || isMarkerText(sib)) {
-        parent.children.splice(cursor, 1)
+        p.children.splice(cursor, 1)
       }
       break
     }
@@ -706,7 +705,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       Object.assign(events, extraEvents)
     }
 
-    const options = remaining.filter(node => !isWhitespaceNode(node))
+    const options = remaining.filter(node => !isWhitespaceRootContent(node))
     const props: Record<string, unknown> = { stateKey: key }
     if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
     if (styleAttr) props.style = styleAttr
@@ -726,16 +725,18 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       children: options as RootContent[],
       data: { hName: 'select', hProperties: props as Properties }
     }
-    const newIndex = replaceWithIndentation(directive, parent, index, [
+    const newIndex = replaceWithIndentation(directive, p, i, [
       node as RootContent
     ])
     const markerIndex = newIndex + 1
-    removeDirectiveMarker(parent, markerIndex)
+    removeDirectiveMarker(p, markerIndex)
     return [SKIP, newIndex]
   }
 
   const handleTrigger: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
     const container = directive as ContainerDirective
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
@@ -836,10 +837,10 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
           if (child.type === 'paragraph') {
             flat.push(
               ...((child as Paragraph).children as RootContent[]).filter(
-                c => !isWhitespaceNode(c)
+                c => !isWhitespaceRootContent(c)
               )
             )
-          } else if (!isWhitespaceNode(child)) {
+          } else if (!isWhitespaceRootContent(child)) {
             flat.push(child)
           }
         })
@@ -848,12 +849,12 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       }
     }
 
-    const start = index + 1
+    const start = i + 1
     const siblings: RootContent[] = []
     let cursor = start
     let endMarker = -1
-    while (cursor < parent.children.length) {
-      const sib = parent.children[cursor] as RootContent
+    while (cursor < p.children.length) {
+      const sib = p.children[cursor] as RootContent
       if (isMarkerParagraph(sib) || isMarkerText(sib)) {
         endMarker = cursor
         break
@@ -867,9 +868,9 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
     }
 
     if (endMarker !== -1) {
-      parent.children.splice(start, endMarker - start + 1)
+      p.children.splice(start, endMarker - start + 1)
     } else if (siblings.length) {
-      parent.children.splice(start, siblings.length)
+      p.children.splice(start, siblings.length)
     }
 
     const { events: extraEvents, remaining: pendingRemaining } =
@@ -913,7 +914,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         hProperties: hProps as Properties
       }
     }
-    const newIndex = replaceWithIndentation(directive, parent, index, [
+    const newIndex = replaceWithIndentation(directive, p, i, [
       node as RootContent
     ])
     return [SKIP, newIndex]

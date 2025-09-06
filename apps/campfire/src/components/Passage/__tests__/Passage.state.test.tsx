@@ -967,8 +967,8 @@ describe('Passage game state directives', () => {
     render(<Passage />)
 
     await waitFor(() => {
-      const span = screen.getByText('7')
-      expect(span.closest('p')?.textContent?.replace(/\s+/g, '')).toBe('HP:7')
+      const passageEl = screen.getByTestId('passage')
+      expect(passageEl.textContent?.replace(/\s+/g, '')).toBe('HP:7')
     })
   })
 
@@ -1021,12 +1021,12 @@ describe('Passage game state directives', () => {
     render(<Passage />)
 
     await waitFor(() => {
-      const span = screen.getByText('X')
-      expect(span.closest('p')?.textContent?.replace(/\s+/g, '')).toBe('ValueX')
+      const passageEl = screen.getByTestId('passage')
+      expect(passageEl.textContent?.replace(/\s+/g, '')).toBe('ValueX')
     })
   })
 
-  it('applies className and style attributes to show directive', async () => {
+  it('applies className and style attributes to show directive when wrapped', async () => {
     useGameStore.setState(state => ({
       ...state,
       gameData: { hp: 7 }
@@ -1038,17 +1038,40 @@ describe('Passage game state directives', () => {
       children: [
         {
           type: 'text',
-          value: 'HP: :show[hp]{className="stat" style="color:blue"}'
+          value: 'HP: :show[hp]{as="span" className="stat" style="color:blue"}'
         }
       ]
     }
     useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
     render(<Passage />)
     await waitFor(() => {
-      const span = screen.getByText('7')
+      const span = screen.getByTestId('show') as HTMLElement
+      expect(span.tagName).toBe('SPAN')
       expect(span.className).toContain('stat')
       expect(span).toHaveStyle('color: blue')
       expect(span.closest('p')?.textContent?.replace(/\s+/g, '')).toBe('HP:7')
+    })
+  })
+
+  it('renders show directive with wrapper inside a for loop', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            ':::for[x in [1,2,3]]\n\nValue :show[x]{as="span" className="stat"}\n\n:::'
+        }
+      ]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    await waitFor(() => {
+      const spans = screen.getAllByTestId('show') as HTMLElement[]
+      expect(spans.map(s => s.textContent)).toEqual(['1', '2', '3'])
+      spans.forEach(span => expect(span.className).toContain('stat'))
     })
   })
 

@@ -1,5 +1,6 @@
 import { evalExpression, extractQuoted } from '@campfire/utils/core'
 import { unified } from 'unified'
+import type { Processor } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
 import remarkDirective from 'remark-directive'
@@ -433,7 +434,7 @@ const validateRequiredAttribute = (
   value: unknown,
   errors: string[]
 ): boolean => {
-  if (typeof value === 'undefined') {
+  if (value === undefined) {
     if (spec.required)
       errors.push(
         `Directive "${directive}" missing required attribute "${name}"`
@@ -500,7 +501,7 @@ export const extractAttributes = <S extends AttributeSchema>(
   ][]) {
     const raw = attrs[name as string]
     let value = parseAttributeValue(raw, spec, state)
-    if (typeof value === 'undefined' && typeof spec.default !== 'undefined') {
+    if (value === undefined && spec.default !== undefined) {
       value = spec.default
     }
     if (name === keyAttr) {
@@ -573,7 +574,7 @@ export const parseTypedValue = (
       if (!key) continue
       const value = part.slice(colon + 1)
       const parsed = parseTypedValue(value, data)
-      if (typeof parsed !== 'undefined') obj[key] = parsed
+      if (parsed !== undefined) obj[key] = parsed
     }
     return obj
   }
@@ -718,6 +719,39 @@ const isRootContentNode = (value: unknown): value is RootContent =>
   typeof value === 'object' && value !== null && 'type' in value
 
 /**
+ * Default empty handler map used for processor caching.
+ */
+const defaultHandlers: Record<string, DirectiveHandler> = Object.freeze({})
+
+/**
+ * Cache of compiled processors keyed by handler identity. The WeakMap allows
+ * processors to be garbage‑collected when handler maps are discarded,
+ * preventing stale state from persisting across handler changes.
+ */
+let processorCache = new WeakMap<Record<string, DirectiveHandler>, Processor>()
+
+/**
+ * Retrieves a cached processor for a given handler map, creating one when
+ * needed. Processors are frozen and cloned per invocation to avoid shared
+ * state.
+ *
+ * @param handlers - Directive handlers for the processor.
+ * @returns A unified processor configured with the supplied handlers.
+ */
+const getDirectiveProcessor = (
+  handlers: Record<string, DirectiveHandler>
+): Processor => {
+  const cached = processorCache.get(handlers)
+  if (cached) return cached
+  const built = unified()
+    .use(remarkCampfireIndentation)
+    .use(remarkCampfire, { handlers })
+    .freeze()
+  processorCache.set(handlers, built)
+  return built
+}
+
+/**
  * Processes directive AST nodes through the Campfire remark pipeline.
  *
  * @param nodes - Nodes to process.
@@ -726,16 +760,11 @@ const isRootContentNode = (value: unknown): value is RootContent =>
  */
 export const runDirectiveBlock = (
   nodes: RootContent[],
-  handlers: Record<string, DirectiveHandler> = {}
+  handlers: Record<string, DirectiveHandler> = defaultHandlers
 ): RootContent[] => {
-  // TODO(campfire): Memoize/reuse processors when handler identity is stable
-  // to avoid repeatedly constructing unified pipelines in hot paths. Add
-  // benchmarks for typical passage sizes.
   const root: Root = { type: 'root', children: nodes }
-  unified()
-    .use(remarkCampfireIndentation)
-    .use(remarkCampfire, { handlers })
-    .runSync(root)
+  const processor = getDirectiveProcessor(handlers)
+  processor().runSync(root)
   const { children } = root
   if (!(children as unknown[]).every(isRootContentNode)) {
     throw new TypeError(

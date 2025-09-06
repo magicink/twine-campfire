@@ -1,4 +1,5 @@
 import { visit } from 'unist-util-visit'
+import type { SKIP } from 'unist-util-visit'
 import type { Root, Parent, Paragraph, Text, InlineCode } from 'mdast'
 import type { Node, Data } from 'unist'
 import type {
@@ -6,7 +7,6 @@ import type {
   LeafDirective,
   TextDirective
 } from 'mdast-util-directive'
-import type { SKIP } from 'unist-util-visit'
 import type { VFile } from 'vfile'
 
 export type DirectiveNode = ContainerDirective | LeafDirective | TextDirective
@@ -177,64 +177,107 @@ const getAttributeRegex = (name: string) => {
   return cached
 }
 
+/** Precomputed regex matches for a directive attribute. */
+interface AttributeMatches {
+  quoted: RegExpMatchArray | null
+  unquoted: RegExpMatchArray | null
+}
+
 /**
  * Ensures that a directive attribute is a quoted string unless it references a
  * state key.
  *
  * @param directive - Directive node being processed.
  * @param name - Attribute name to verify.
+ * @param raw - Raw substring for the directive.
  * @param file - VFile used for error reporting.
  * @param message - Error message to emit when validation fails.
+ * @param matches - Precomputed regular expression matches for the attribute.
  * @param allowStateKey - Whether unquoted state keys are permitted.
  */
 const ensureQuotedAttribute = (
   directive: DirectiveNode,
   name: string,
+  raw: string | undefined,
   file: VFile,
   message: string,
+  matches: AttributeMatches,
   allowStateKey = false
 ) => {
-  // TODO(campfire): Performance: avoid repeatedly slicing file.value and
-  // re-compiling regex per directive. Consider passing the raw directive
-  // substring into the handler or caching a precomputed map of offsets.
-  const content = typeof file.value === 'string' ? file.value : undefined
-  if (content) {
-    const raw = content.slice(
-      directive.position?.start.offset ?? 0,
-      directive.position?.end.offset ?? 0
-    )
-    const { quoted: quotedRegex, unquoted: unquotedRegex } =
-      getAttributeRegex(name)
-    const quotedMatch = raw.match(quotedRegex)
-    const attrs = directive.attributes as Record<string, unknown>
-    if (typeof attrs[name] !== 'string') {
-      delete attrs[name]
-      file.message(message, directive)
+  const attrs = directive.attributes as Record<string, unknown>
+  if (typeof attrs[name] !== 'string') {
+    delete attrs[name]
+    file.message(message, directive)
+    return
+  }
+  if (!raw) {
+    return
+  }
+  if (!matches.quoted) {
+    if (
+      allowStateKey &&
+      matches.unquoted &&
+      STATE_KEY_PATTERN.test(matches.unquoted[1])
+    ) {
       return
     }
-    if (!quotedMatch) {
-      if (allowStateKey) {
-        const unquotedMatch = raw.match(unquotedRegex)
-        if (unquotedMatch && STATE_KEY_PATTERN.test(unquotedMatch[1])) return
+    delete attrs[name]
+    file.message(message, directive)
+  }
+}
+
+/**
+ * Creates a getter that returns cached attribute matches for a directive's raw
+ * substring.
+ *
+ * @param raw - Raw directive substring used for matching.
+ * @returns Function returning cached matches for an attribute name.
+ */
+const createMatchGetter = (raw: string | undefined) => {
+  const cache: Record<string, AttributeMatches> = {}
+  return (name: string): AttributeMatches => {
+    let cached = cache[name]
+    if (!cached) {
+      const { quoted, unquoted } = getAttributeRegex(name)
+      cached = {
+        quoted: raw ? raw.match(quoted) : null,
+        unquoted: raw ? raw.match(unquoted) : null
       }
-      delete attrs[name]
-      file.message(message, directive)
+      cache[name] = cached
     }
-  } else {
-    const attrs = directive.attributes as Record<string, unknown>
-    if (typeof attrs[name] !== 'string') {
-      delete attrs[name]
-      file.message(message, directive)
-    }
+    return cached
   }
 }
 
 const remarkCampfire =
   (options: RemarkCampfireOptions = {}) =>
   (tree: Root, file: VFile) => {
+    const content = typeof file.value === 'string' ? file.value : undefined
+    const relations = new WeakMap<Parent, { parent: Parent; index: number }>()
+    const pendingRemoval: Array<{ parent: Parent; index: number }> = []
     visit(
       tree,
       (node: Node, index: number | undefined, parent: Parent | undefined) => {
+        if (parent && typeof index === 'number') {
+          relations.set(node as Parent, { parent, index })
+        }
+        if (node.type === 'paragraph' && parent && typeof index === 'number') {
+          const paragraph = node as ParagraphWithData
+          // Preserve paragraphs transformed into custom elements
+          if (paragraph.data?.hName) return
+          // TODO(campfire): Do not remove marker-only paragraphs/text at the
+          // remark stage. Double-check we only strip paragraphs that are truly
+          // whitespace-only. Add regression tests for this sentinel.
+          const hasContent = paragraph.children.some(child => {
+            return !(
+              child.type === 'text' && (child as Text).value.trim() === ''
+            )
+          })
+          if (!hasContent) {
+            pendingRemoval.push({ parent, index })
+          }
+          return
+        }
         if (
           node &&
           (node.type === 'textDirective' ||
@@ -251,6 +294,13 @@ const remarkCampfire =
             parseFallbackAttributes(directive, parent, index)
           }
           if (directive.attributes) {
+            const raw = content
+              ? content.slice(
+                  directive.position?.start.offset ?? 0,
+                  directive.position?.end.offset ?? 0
+                )
+              : undefined
+            const getMatches = createMatchGetter(raw)
             if (
               directive.name === 'trigger' &&
               Object.prototype.hasOwnProperty.call(
@@ -261,8 +311,10 @@ const remarkCampfire =
               ensureQuotedAttribute(
                 directive,
                 'label',
+                raw,
                 file,
-                MSG_TRIGGER_LABEL_UNQUOTED
+                MSG_TRIGGER_LABEL_UNQUOTED,
+                getMatches('label')
               )
             }
             if (
@@ -275,16 +327,20 @@ const remarkCampfire =
               ensureQuotedAttribute(
                 directive,
                 'transition',
+                raw,
                 file,
-                MSG_SLIDE_TRANSITION_UNQUOTED
+                MSG_SLIDE_TRANSITION_UNQUOTED,
+                getMatches('transition')
               )
             }
             if ('id' in directive.attributes) {
               ensureQuotedAttribute(
                 directive,
                 'id',
+                raw,
                 file,
                 MSG_ID_UNQUOTED,
+                getMatches('id'),
                 true
               )
             }
@@ -301,46 +357,53 @@ const remarkCampfire =
                     'transition'
                   )
                 ) {
+                  const childRaw = content
+                    ? content.slice(
+                        child.position?.start.offset ?? 0,
+                        child.position?.end.offset ?? 0
+                      )
+                    : undefined
+                  const getChildMatches = createMatchGetter(childRaw)
                   ensureQuotedAttribute(
                     child as DirectiveNode,
                     'transition',
+                    childRaw,
                     file,
-                    MSG_SLIDE_TRANSITION_UNQUOTED
+                    MSG_SLIDE_TRANSITION_UNQUOTED,
+                    getChildMatches('transition')
                   )
                 }
               }
             }
           }
           const handler = options.handlers?.[directive.name]
+          let result: DirectiveHandlerResult | void = undefined
           if (handler) {
-            return handler(directive, parent, index)
+            result = handler(directive, parent, index)
           }
+          if (parent && parent.type === 'paragraph') {
+            const paragraph = parent as ParagraphWithData
+            if (!paragraph.data?.hName) {
+              const hasContent = paragraph.children.some(child => {
+                return !(
+                  child.type === 'text' && (child as Text).value.trim() === ''
+                )
+              })
+              if (!hasContent) {
+                const info = relations.get(parent as Parent)
+                if (info) {
+                  pendingRemoval.push(info)
+                }
+              }
+            }
+          }
+          return result
         }
       }
     )
-
-    visit(
-      tree,
-      (node: Node, index: number | undefined, parent: Parent | undefined) => {
-        if (node.type === 'paragraph' && parent && typeof index === 'number') {
-          const paragraph = node as ParagraphWithData
-          // Preserve paragraphs transformed into custom elements
-          if (paragraph.data?.hName) return
-          // TODO(campfire): Do not remove marker-only paragraphs/text at the
-          // remark stage. Double-check we only strip paragraphs that are truly
-          // whitespace-only. Add regression tests for this sentinel.
-          const hasContent = paragraph.children.some(child => {
-            return !(
-              child.type === 'text' && (child as Text).value.trim() === ''
-            )
-          })
-          if (!hasContent) {
-            parent.children.splice(index, 1)
-            return index
-          }
-        }
-      }
-    )
+    for (const { parent: grand, index: pIndex } of pendingRemoval.reverse()) {
+      grand.children.splice(pIndex, 1)
+    }
   }
 
 export default remarkCampfire

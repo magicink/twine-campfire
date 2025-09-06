@@ -1,5 +1,4 @@
 import { useOverlayStore } from '@campfire/state/useOverlayStore'
-import { h } from 'preact'
 
 /**
  * Renders persistent overlay components above the current passage.

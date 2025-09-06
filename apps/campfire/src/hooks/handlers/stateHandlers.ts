@@ -14,7 +14,10 @@ import {
   applyKeyValue,
   isRange
 } from '@campfire/utils/directiveUtils'
-import { requireLeafDirective } from '@campfire/utils/directiveHandlerUtils'
+import {
+  ensureParentIndex,
+  requireLeafDirective
+} from '@campfire/utils/directiveHandlerUtils'
 import {
   getRandomInt,
   getRandomItem,
@@ -119,7 +122,7 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
     lock = false
   ): DirectiveHandlerResult => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     const rawLabel = hasLabel(directive) ? directive.label : undefined
     const textContent = toString(directive)
     let shorthand: string | undefined
@@ -150,7 +153,7 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
       const key = ensureKey(keyRaw, parent, index)
       if (!key) return
       const parsed = parseTypedValue(valueRaw, getGameData())
-      if (typeof parsed !== 'undefined') {
+      if (parsed !== undefined) {
         safe[key] = parsed
       }
     }
@@ -177,9 +180,11 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
       }
     }
 
-    if (parent && typeof index === 'number') {
-      parent.children.splice(index, 1)
-      return index
+    const pair = ensureParentIndex(parent, index)
+    if (pair) {
+      const [p, i] = pair
+      p.children.splice(i, 1)
+      return i
     }
   }
 
@@ -199,7 +204,7 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
     lock = false
   ): DirectiveHandlerResult => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     const splitItems = (input: string): string[] => {
       const result: string[] = []
       let current = ''
@@ -290,7 +295,7 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
     index: number | undefined
   ): DirectiveHandlerResult => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     const parsed = extractKeyValue(directive, parent, index, addError)
     if (!parsed) return index
     const { key, valueRaw } = parsed
@@ -366,7 +371,7 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
     lock = false
   ): DirectiveHandlerResult => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     const label = hasLabel(directive) ? directive.label : toString(directive)
     const key = ensureKey(label.trim(), parent, index)
     if (!key) return index
@@ -393,9 +398,9 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
 
     let value: unknown
     const optionList = attrs.from as unknown[] | undefined
-    const hasFrom = typeof attrs.from !== 'undefined'
-    const hasMin = typeof attrs.min !== 'undefined'
-    const hasMax = typeof attrs.max !== 'undefined'
+    const hasFrom = 'from' in attrs
+    const hasMin = 'min' in attrs
+    const hasMax = 'max' in attrs
 
     if (hasFrom) {
       if (optionList && optionList.length) {
@@ -443,7 +448,7 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
     ): DirectiveHandler =>
     (directive, parent, index) => {
       const invalid = requireLeafDirective(directive, parent, index, addError)
-      if (typeof invalid !== 'undefined') return invalid
+      if (invalid !== undefined) return invalid
       const attrs = directive.attributes || {}
       const key = ensureKey(
         (attrs as Record<string, unknown>).key,
@@ -542,7 +547,7 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
    */
   const handleUnset: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     const attrs = directive.attributes || {}
     const key = ensureKey(
       (attrs as Record<string, unknown>).key ??

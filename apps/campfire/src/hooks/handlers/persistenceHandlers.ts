@@ -92,12 +92,12 @@ export const createPersistenceHandlers = (ctx: PersistenceHandlerContext) => {
    */
   const handleSave: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const id = typeof attrs.id === 'string' ? attrs.id : 'campfire.save'
     setLoading(true)
     try {
-      if (typeof localStorage !== 'undefined') {
+      if ('localStorage' in globalThis) {
         const cps = getCheckpoints()
         const state = getState()
         const data = {
@@ -107,7 +107,7 @@ export const createPersistenceHandlers = (ctx: PersistenceHandlerContext) => {
           checkpoints: { ...cps },
           currentPassageId: getCurrentPassageId()
         }
-        localStorage.setItem(id, JSON.stringify(data))
+        globalThis.localStorage.setItem(id, JSON.stringify(data))
       }
     } catch (error) {
       console.error('Error saving game state:', error)
@@ -127,13 +127,13 @@ export const createPersistenceHandlers = (ctx: PersistenceHandlerContext) => {
    */
   const handleLoad: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const id = typeof attrs.id === 'string' ? attrs.id : 'campfire.save'
     setLoading(true)
     try {
-      if (typeof localStorage !== 'undefined') {
-        const raw = localStorage.getItem(id)
+      if ('localStorage' in globalThis) {
+        const raw = globalThis.localStorage.getItem(id)
         if (raw) {
           const data = JSON.parse(raw) as {
             gameData?: Record<string, unknown>
@@ -175,13 +175,13 @@ export const createPersistenceHandlers = (ctx: PersistenceHandlerContext) => {
    */
   const handleClearSave: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const id = typeof attrs.id === 'string' ? attrs.id : 'campfire.save'
     setLoading(true)
     try {
-      if (typeof localStorage !== 'undefined') {
-        localStorage.removeItem(id)
+      if ('localStorage' in globalThis) {
+        globalThis.localStorage.removeItem(id)
       }
     } catch (error) {
       console.error('Error clearing saved game state:', error)
@@ -201,7 +201,7 @@ export const createPersistenceHandlers = (ctx: PersistenceHandlerContext) => {
    */
   const handleCheckpoint: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     if (getLastPassageId() !== getCurrentPassageId()) {
       resetDirectiveState()
     }
@@ -245,7 +245,7 @@ export const createPersistenceHandlers = (ctx: PersistenceHandlerContext) => {
    */
   const handleLoadCheckpoint: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     if (getIncludeDepth() > 0) return removeNode(parent, index)
     const cp = loadCheckpoint()
     if (cp?.currentPassageId) {
@@ -267,7 +267,7 @@ export const createPersistenceHandlers = (ctx: PersistenceHandlerContext) => {
     index
   ) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     if (getIncludeDepth() > 0) return removeNode(parent, index)
     setGameStoreState({ checkpoints: {} })
     return removeNode(parent, index)

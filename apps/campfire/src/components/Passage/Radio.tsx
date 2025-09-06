@@ -1,24 +1,11 @@
-import type { JSX } from 'preact'
 import { useEffect } from 'preact/hooks'
 import { useDirectiveEvents } from '@campfire/hooks/useDirectiveEvents'
-import { mergeClasses, evalExpression } from '@campfire/utils/core'
+import { mergeClasses, parseDisabledAttr } from '@campfire/utils/core'
 import { useGameStore } from '@campfire/state/useGameStore'
 import { radioStyles, radioIndicatorStyles } from '@campfire/utils/remarkStyles'
-import type { BoundFieldProps } from './BoundFieldProps'
+import type { BoundFieldElementProps } from './BoundFieldProps'
 
-interface RadioProps
-  extends Omit<
-      JSX.ButtonHTMLAttributes<HTMLButtonElement>,
-      | 'className'
-      | 'value'
-      | 'defaultValue'
-      | 'onFocus'
-      | 'onBlur'
-      | 'onMouseEnter'
-      | 'onMouseLeave'
-      | 'disabled'
-    >,
-    BoundFieldProps<string> {
+type RadioProps = BoundFieldElementProps<HTMLButtonElement, string> & {
   /** Value represented by this radio button. */
   value: string
 }
@@ -51,18 +38,7 @@ export const Radio = ({
 }: RadioProps) => {
   const gameData = useGameStore.use.gameData()
   const value = gameData[stateKey] as string | undefined
-  const isDisabled = (() => {
-    if (typeof disabled === 'string') {
-      if (disabled === '' || disabled === 'true') return true
-      if (disabled === 'false') return false
-      try {
-        return Boolean(evalExpression(disabled, gameData))
-      } catch {
-        return false
-      }
-    }
-    return Boolean(disabled)
-  })()
+  const isDisabled = parseDisabledAttr(disabled, gameData)
   const directiveEvents = useDirectiveEvents(
     onMouseEnter,
     onMouseLeave,

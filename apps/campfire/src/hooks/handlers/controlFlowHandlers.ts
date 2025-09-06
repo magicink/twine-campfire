@@ -17,10 +17,12 @@ import {
 } from '@campfire/utils/directiveUtils'
 import {
   removeDirectiveMarker,
-  isMarkerParagraph
+  isMarkerParagraph,
+  ensureParentIndex
 } from '@campfire/utils/directiveHandlerUtils'
 import { evalExpression } from '@campfire/utils/core'
 import type { StateManagerType } from '@campfire/state/stateManager'
+import { isWhitespaceRootContent } from '@campfire/utils/nodePredicates'
 
 /**
  * Context required to create control flow directive handlers.
@@ -56,8 +58,6 @@ export interface ControlFlowHandlerContext {
   setOnceKeys: (keys: Record<string, true>) => void
   /** Determines if a node is a text node. */
   isTextNode: (node: RootContent) => node is MdText
-  /** Determines if a node is whitespace-only. */
-  isWhitespaceNode: (node: RootContent) => boolean
   /** Directives allowed within a batch block. */
   allowedBatchDirectives: Set<string>
   /** Directives disallowed within a batch block. */
@@ -80,19 +80,18 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
     setState,
     getGameData,
     setGameData,
-    getLockedKeys,
     setLockedKeys,
-    getOnceKeys,
     setOnceKeys,
     isTextNode,
-    isWhitespaceNode,
     allowedBatchDirectives,
     bannedBatchDirectives
   } = ctx
 
   /** Serializes `:::if` blocks into `<if>` components with optional fallback. */
   const handleIf: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
     const container = directive as ContainerDirective
     const children = container.children as RootContent[]
     let expr = getLabel(container) || ''
@@ -100,7 +99,7 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
       const attrs = container.attributes || {}
       const [firstKey, firstValue] = Object.entries(attrs)[0] || []
       if (firstKey) {
-        if (firstValue === '' || typeof firstValue === 'undefined') {
+        if (firstValue === '' || firstValue === undefined) {
           expr = firstKey
         } else {
           const valStr = String(firstValue).trim()
@@ -119,9 +118,9 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
         child.type === 'containerDirective' &&
         (child as ContainerDirective).name === 'else'
     )
-    const elseSiblingIndex = parent.children.findIndex(
-      (child, i) =>
-        i > index &&
+    const elseSiblingIndex = p.children.findIndex(
+      (child, j) =>
+        j > i &&
         child.type === 'containerDirective' &&
         (child as ContainerDirective).name === 'else'
     )
@@ -132,11 +131,11 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
       main = children.slice(0, elseIndex)
       fallbackNodes = next.children as RootContent[]
     } else if (elseSiblingIndex !== -1) {
-      const next = parent.children[elseSiblingIndex] as ContainerDirective
+      const next = p.children[elseSiblingIndex] as ContainerDirective
       fallbackNodes = next.children as RootContent[]
-      const markerIndex = removeNode(parent, elseSiblingIndex)
+      const markerIndex = removeNode(p, elseSiblingIndex)
       if (typeof markerIndex === 'number') {
-        removeDirectiveMarker(parent, markerIndex)
+        removeDirectiveMarker(p, markerIndex)
       }
     }
     /**
@@ -178,19 +177,19 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
           : { test: expr, content }
       }
     }
-    const newIndex = replaceWithIndentation(directive, parent, index, [
+    const newIndex = replaceWithIndentation(directive, p, i, [
       node as RootContent
     ])
     // Remove closing directive markers after the if block, skipping whitespace-only nodes
     let markerIndex = newIndex + 1
-    while (markerIndex < parent.children.length) {
-      const sibling = parent.children[markerIndex]
-      if (isWhitespaceNode(sibling)) {
+    while (markerIndex < p.children.length) {
+      const sibling = p.children[markerIndex]
+      if (isWhitespaceRootContent(sibling)) {
         markerIndex++
         continue
       }
       if (isMarkerParagraph(sibling)) {
-        removeDirectiveMarker(parent, markerIndex)
+        removeDirectiveMarker(p, markerIndex)
       }
       break
     }
@@ -206,7 +205,9 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
    * @returns Visitor instruction tuple.
    */
   const handleFor: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
     const container = directive as ContainerDirective
     const label = getLabel(container).trim()
     const match = label.match(/^([A-Za-z_$][\w$]*)\s+in\s+(.+)$/)
@@ -214,18 +215,18 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
       const msg = `Malformed for directive: ${label}`
       console.error(msg)
       addError(msg)
-      const removed = removeNode(parent, index)
-      if (typeof removed === 'number') removeDirectiveMarker(parent, removed)
-      return [SKIP, index]
+      const removed = removeNode(p, i)
+      if (typeof removed === 'number') removeDirectiveMarker(p, removed)
+      return [SKIP, i]
     }
-    const varKey = ensureKey(match[1], parent, index)
-    if (!varKey) return [SKIP, index]
+    const varKey = ensureKey(match[1], p, i)
+    if (!varKey) return [SKIP, i]
     const expr = match[2]
 
     let iterableValue: unknown
     try {
       iterableValue = evalExpression(expr, getGameData())
-      if (typeof iterableValue === 'undefined') {
+      if (iterableValue === undefined) {
         iterableValue = parseTypedValue(expr, getGameData())
       }
     } catch (error) {
@@ -296,14 +297,43 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
         for (let i = 0; i < nodes.length; i++) {
           const node = nodes[i]
           if (
-            (isTextNode(node) &&
-              node.data?.hName === 'show' &&
-              node.data.hProperties?.['data-key'] === varKey) ||
-            (node.type === 'textDirective' &&
-              (node as { name?: string }).name === 'show' &&
-              toString(node) === varKey)
+            isTextNode(node) &&
+            node.data?.hName === 'show' &&
+            node.data.hProperties?.['data-key'] === varKey
           ) {
-            nodes[i] = { type: 'text', value: String(item) }
+            const props = node.data.hProperties as Record<string, unknown>
+            const hasExtra = Object.keys(props).some(key => key !== 'data-key')
+            if (hasExtra) {
+              props['data-expr'] = JSON.stringify(item)
+              delete props['data-key']
+            } else {
+              nodes[i] = { type: 'text', value: String(item) }
+            }
+            continue
+          }
+          if (
+            node.type === 'textDirective' &&
+            (node as { name?: string }).name === 'show' &&
+            toString(node) === varKey
+          ) {
+            const attrs =
+              (node as { attributes?: Record<string, unknown> }).attributes ||
+              {}
+            if (Object.keys(attrs).length === 0) {
+              nodes[i] = { type: 'text', value: String(item) }
+            } else {
+              nodes[i] = {
+                type: 'text',
+                value: '',
+                data: {
+                  hName: 'show',
+                  hProperties: {
+                    ...attrs,
+                    'data-expr': JSON.stringify(item)
+                  }
+                }
+              }
+            }
             continue
           }
           const { hName, hProperties: props } = getNodeData(node)
@@ -342,21 +372,23 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
       mergeScopedChanges(prevState, scoped, varKey)
     }
 
-    const newIndex = replaceWithIndentation(directive, parent, index, output)
+    const newIndex = replaceWithIndentation(directive, p, i, output)
     const markerIndex = newIndex + output.length
-    removeDirectiveMarker(parent, markerIndex)
+    removeDirectiveMarker(p, markerIndex)
     const offset = output.length > 0 ? output.length - 1 : 0
     return [SKIP, newIndex + offset]
   }
 
   /** Inlines the children of `:::else` directives when present. */
   const handleElse: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
     const container = directive as ContainerDirective
     const content = stripLabel(container.children as RootContent[])
-    const newIndex = replaceWithIndentation(directive, parent, index, content)
+    const newIndex = replaceWithIndentation(directive, p, i, content)
     const markerIndex = newIndex + content.length
-    removeDirectiveMarker(parent, markerIndex)
+    removeDirectiveMarker(p, markerIndex)
     const offset = content.length > 0 ? content.length - 1 : 0
     return [SKIP, newIndex + offset]
   }
@@ -367,16 +399,18 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
    * Only data directives are allowed; nested batch directives are not supported.
    */
   const handleBatch: DirectiveHandler = (directive, parent, index) => {
-    if (!parent || typeof index !== 'number') return
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
     if (
-      parent.type === 'containerDirective' &&
-      (parent as ContainerDirective).name === 'batch'
+      p.type === 'containerDirective' &&
+      (p as ContainerDirective).name === 'batch'
     ) {
       const msg = 'Nested batch directives are not allowed'
       console.error(msg)
       addError(msg)
-      removeNode(parent, index)
-      return [SKIP, index]
+      removeNode(p, i)
+      return [SKIP, i]
     }
 
     const container = directive as ContainerDirective
@@ -417,8 +451,8 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
     setLockedKeys(getState().getLockedKeys())
     setOnceKeys(getState().getOnceKeys())
 
-    removeNode(parent, index)
-    return [SKIP, index]
+    removeNode(p, i)
+    return [SKIP, i]
   }
 
   return { if: handleIf, for: handleFor, else: handleElse, batch: handleBatch }

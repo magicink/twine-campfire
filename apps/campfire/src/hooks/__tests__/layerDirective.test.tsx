@@ -44,14 +44,27 @@ describe('layer directive', () => {
     expect(el.textContent).toContain('Content')
   })
 
-  it('applies layer presets with overrides', () => {
+  it('applies layer presets with overrides for numeric fields', () => {
     const md =
-      ':preset{type="layer" name="base" x=5 y=5 z=2}\n:::layer{from="base" y=10}\nHi\n:::'
+      ':preset{type="layer" name="base" x=5 y=5 w=50 h=60 z=2 rotate=15 scale=2 anchor="center"}\n' +
+      ':::layer{from="base" y=10 w=40 rotate=30 anchor="bottom-right"}\nHi\n:::'
     render(<MarkdownRunner markdown={md} />)
     const el = document.querySelector('[data-testid="layer"]') as HTMLElement
     expect(el.style.left).toBe('5px')
     expect(el.style.top).toBe('10px')
+    expect(el.style.width).toBe('40px')
+    expect(el.style.height).toBe('60px')
     expect(el.style.zIndex).toBe('2')
+    expect(el.style.transform).toBe('rotate(30deg) scale(2)')
+    expect(el.style.transformOrigin).toBe('100% 100%')
+  })
+
+  it('uses anchor from presets when not overridden', () => {
+    const md =
+      ':preset{type="layer" name="base" x=1 y=2 anchor="center"}\n:::layer{from="base"}\nHi\n:::'
+    render(<MarkdownRunner markdown={md} />)
+    const el = document.querySelector('[data-testid="layer"]') as HTMLElement
+    expect(el.style.transformOrigin).toBe('50% 50%')
   })
 
   it('handles nested container directives without stray markers', () => {
@@ -64,7 +77,6 @@ describe('layer directive', () => {
       ':radio[choice]{value="c" disabled="true"}\n' +
       ':::\n'
     render(<MarkdownRunner markdown={md} />)
-    const layer = document.querySelector('[data-testid="layer"]') as HTMLElement
     expect(
       document.querySelector(
         '[data-testid="layer"] + [data-testid="wrapper"]'
@@ -91,10 +103,12 @@ describe('layer directive', () => {
       ':::\n' +
       ':::\n'
     render(<MarkdownRunner markdown={md} />)
-    const layer = document.querySelector('[data-testid="layer"]') as HTMLElement
-    const wrappers = layer.querySelectorAll('[data-testid="wrapper"]')
+    const layerEl = document.querySelector(
+      '[data-testid="layer"]'
+    ) as HTMLElement
+    const wrappers = layerEl.querySelectorAll('[data-testid="wrapper"]')
     expect(wrappers.length).toBe(3)
-    const radios = layer.querySelectorAll('[data-testid="radio"]')
+    const radios = layerEl.querySelectorAll('[data-testid="radio"]')
     expect(radios.length).toBe(3)
     expect(radios[2].hasAttribute('disabled')).toBe(true)
     expect(

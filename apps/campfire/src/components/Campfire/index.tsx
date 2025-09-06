@@ -1,13 +1,9 @@
 import { useEffect, useState } from 'preact/hooks'
 import i18next from 'i18next'
 import { initReactI18next } from 'react-i18next'
-import {
-  type StoryDataState,
-  useStoryDataStore
-} from '@campfire/state/useStoryDataStore'
+import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
 import { useGameStore } from '@campfire/state/useGameStore'
 import { Passage } from '@campfire/components/Passage/Passage'
-import { DebugWindow } from '@campfire/components/DebugWindow'
 import { LoadingScreen } from '@campfire/components/LoadingScreen'
 import { Overlay } from '@campfire/components/Overlay'
 import { fromDom } from 'hast-util-from-dom'
@@ -21,7 +17,7 @@ import { useOverlayProcessor } from '@campfire/hooks/useOverlayProcessor'
  * React component that renders the main story interface.
  *
  * This component initializes story data, passages, user styles, and user scripts from a Twine-compatible document structure.
- * It manages the current passage and provides a debug window for development.
+ * It manages the current passage and story presentation.
  *
  * @param assets - Optional list of assets to preload before showing the first passage.
  * @component
@@ -89,12 +85,8 @@ export const Campfire = ({
     return passages
   }
 
-  const initialize = (
-    doc: Document | undefined = typeof document === 'undefined'
-      ? undefined
-      : document
-  ) => {
-    if (!doc || typeof doc.querySelector !== 'function') return
+  const initialize = (doc: Document | undefined = globalThis.document) => {
+    if (!doc?.querySelector) return
     const el = doc.querySelector('tw-storydata')
     if (!el) return
     const tree = fromDom(el)
@@ -148,7 +140,6 @@ export const Campfire = ({
     >
       <Overlay />
       <Passage />
-      <DebugWindow />
     </div>
   )
 }

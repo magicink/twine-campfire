@@ -15,7 +15,10 @@ import {
   removeNode,
   replaceWithIndentation
 } from '@campfire/utils/directiveUtils'
-import { requireLeafDirective } from '@campfire/utils/directiveHandlerUtils'
+import {
+  ensureParentIndex,
+  requireLeafDirective
+} from '@campfire/utils/directiveHandlerUtils'
 import type { DirectiveHandler } from '@campfire/remark-campfire'
 import { markTitleOverridden } from '@campfire/state/titleState'
 
@@ -137,7 +140,7 @@ export const createNavigationHandlers = (ctx: NavigationHandlerContext) => {
    */
   const handleGoto: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const rawText = toString(directive).trim()
     const target = resolvePassageTarget(rawText, attrs)
@@ -172,7 +175,7 @@ export const createNavigationHandlers = (ctx: NavigationHandlerContext) => {
    */
   const handleTitle: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     if (getIncludeDepth() > 0) return removeNode(parent, index)
     const raw = toString(directive).trim()
     const title = getQuotedValue(raw)
@@ -203,14 +206,16 @@ export const createNavigationHandlers = (ctx: NavigationHandlerContext) => {
    */
   const handleInclude: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (typeof invalid !== 'undefined') return invalid
+    if (invalid !== undefined) return invalid
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const rawText = toString(directive).trim()
     const target = resolvePassageTarget(rawText, attrs)
 
-    if (!parent || typeof index !== 'number' || !target) {
+    const pair = ensureParentIndex(parent, index)
+    if (!pair || !target) {
       return removeNode(parent, index)
     }
+    const [p, i] = pair
 
     if (getIncludeDepth() >= MAX_INCLUDE_DEPTH) {
       console.warn('Max include depth reached')
@@ -221,7 +226,7 @@ export const createNavigationHandlers = (ctx: NavigationHandlerContext) => {
       ? getPassageById(target)
       : getPassageByName(target)
 
-    if (!passage) return removeNode(parent, index)
+    if (!passage) return removeNode(p, i)
 
     const text = passage.children
       .map((child: ElementContent) =>
@@ -243,8 +248,8 @@ export const createNavigationHandlers = (ctx: NavigationHandlerContext) => {
 
     const newIndex = replaceWithIndentation(
       directive,
-      parent,
-      index,
+      p,
+      i,
       tree.children as RootContent[]
     )
     return [

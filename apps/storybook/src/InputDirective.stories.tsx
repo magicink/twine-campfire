@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/preact'
 import { Campfire } from '@campfire/components'
+import { DebugWindow } from './DebugWindow'
 
 const meta: Meta = {
   title: 'Campfire/Directives/Input'
@@ -26,6 +27,7 @@ export const Basic: StoryObj = {
         </tw-passagedata>
       </tw-storydata>
       <Campfire />
+      <DebugWindow />
     </>
   )
 }
@@ -61,6 +63,7 @@ export const WithEvents: StoryObj = {
         </tw-passagedata>
       </tw-storydata>
       <Campfire />
+      <DebugWindow />
     </>
   )
 }

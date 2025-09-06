@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { render, act, fireEvent } from '@testing-library/preact'
+import { render, fireEvent } from '@testing-library/preact'
 import { Deck, Slide, TriggerButton } from '@campfire/components'
 import { useDeckStore } from '@campfire/state/useDeckStore'
 import { useGameStore } from '@campfire/state/useGameStore'

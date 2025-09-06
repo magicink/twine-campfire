@@ -5,7 +5,6 @@ import { AssetManager } from '@campfire/utils/AssetManager'
  */
 export class AudioManager extends AssetManager<HTMLAudioElement> {
   private bgm?: HTMLAudioElement
-  private bgmName?: string
   private globalSfxVolume = 1
   private globalBgmVolume = 1
   private bgmBaseVolume = 1
@@ -86,7 +85,6 @@ export class AudioManager extends AssetManager<HTMLAudioElement> {
     }
 
     this.bgm = audio
-    this.bgmName = id
     this.bgmBaseVolume = opts.volume ?? 1
     audio.loop = opts.loop ?? true
     audio.volume = this.bgmBaseVolume * this.globalBgmVolume
@@ -119,7 +117,6 @@ export class AudioManager extends AssetManager<HTMLAudioElement> {
       current.currentTime = 0
     }
     this.bgm = undefined
-    this.bgmName = undefined
     this.bgmBaseVolume = 1
     // TODO(campfire): Fire an event/hook when BGM stops so UI can reflect
     // current audio state; add tests for fade and immediate stop paths.

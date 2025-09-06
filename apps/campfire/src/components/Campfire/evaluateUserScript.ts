@@ -5,11 +5,9 @@
  * constructor in the global scope. Only use this with trusted content.
  */
 export const evaluateUserScript = (
-  doc: Document | undefined = typeof document === 'undefined'
-    ? undefined
-    : document
+  doc: Document | undefined = globalThis.document
 ) => {
-  if (!doc || typeof doc.getElementById !== 'function') return
+  if (!doc?.getElementById) return
   const el = doc.getElementById('twine-user-script') as HTMLScriptElement | null
   const code = el?.textContent
   if (!code) return

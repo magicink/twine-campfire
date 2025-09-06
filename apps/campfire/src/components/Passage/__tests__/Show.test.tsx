@@ -21,25 +21,23 @@ beforeEach(() => {
 describe('Show', () => {
   it('renders the value for a given key', () => {
     useGameStore.getState().setGameData({ hp: 5 })
-    render(<Show data-key='hp' />)
-    const el = screen.getByText('5') as HTMLElement
-    expect(el).toBeInTheDocument()
-    expect(el.className).toContain('campfire-show')
+    const { container } = render(<Show data-key='hp' />)
+    expect(container.textContent).toBe('5')
   })
 
   it('renders the value of range objects', () => {
     useGameStore.getState().setGameData({ hp: { min: 0, max: 10, value: 4 } })
-    render(<Show data-key='hp' />)
-    expect(screen.getByText('4')).toBeInTheDocument()
+    const { container } = render(<Show data-key='hp' />)
+    expect(container.textContent).toBe('4')
   })
 
   it('updates when the value changes', () => {
     useGameStore.getState().setGameData({ hp: 3 })
-    render(<Show data-key='hp' />)
+    const { container } = render(<Show data-key='hp' />)
     act(() => {
       useGameStore.getState().setGameData({ hp: 7 })
     })
-    expect(screen.getByText('7')).toBeInTheDocument()
+    expect(container.textContent).toBe('7')
   })
 
   it('renders nothing when the value is undefined', () => {
@@ -55,7 +53,40 @@ describe('Show', () => {
 
   it('renders the result of an expression', () => {
     useGameStore.getState().setGameData({ some_key: 2 })
-    render(<Show data-expr='some_key > 1 ? "X" : " "' />)
-    expect(screen.getByText('X')).toBeInTheDocument()
+    const { container } = render(<Show data-expr='some_key > 1 ? "X" : " "' />)
+    expect(container.textContent).toBe('X')
+  })
+
+  it('renders without a wrapper by default', () => {
+    useGameStore.getState().setGameData({ hp: 10 })
+    const { container } = render(<Show data-key='hp' />)
+    expect(container.innerHTML).toBe('10')
+  })
+
+  it('ignores className and style without a wrapper', () => {
+    useGameStore.getState().setGameData({ hp: 10 })
+    const { container } = render(
+      <Show data-key='hp' className='stat' style={{ color: 'red' }} />
+    )
+    expect(container.innerHTML).toBe('10')
+  })
+
+  it('applies styling when a wrapper is provided', () => {
+    useGameStore.getState().setGameData({ hp: 10 })
+    render(
+      <Show as='span' data-key='hp' className='stat' style={{ color: 'red' }} />
+    )
+    const el = screen.getByTestId('show') as HTMLElement
+    expect(el.tagName).toBe('SPAN')
+    expect(el.className).toContain('campfire-show')
+    expect(el.className).toContain('stat')
+    expect(el.style.color).toBe('red')
+  })
+
+  it('renders inside a custom element when `as` is provided', () => {
+    useGameStore.getState().setGameData({ hp: 10 })
+    render(<Show as='em' data-key='hp' />)
+    const el = screen.getByTestId('show') as HTMLElement
+    expect(el.tagName).toBe('EM')
   })
 })

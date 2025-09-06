@@ -126,6 +126,34 @@ export const mergeClasses = (
     .join(' ')
 
 /**
+ * Normalizes a disabled attribute to a boolean.
+ *
+ * Accepts string, boolean, or undefined values. When a string is provided,
+ * empty strings and the literal `'true'` are treated as true, `'false'` as
+ * false, and other strings are evaluated as expressions against the provided
+ * scope.
+ *
+ * @param disabled - Attribute value to parse.
+ * @param scope - Optional scope for expression evaluation.
+ * @returns The resolved boolean value.
+ */
+export const parseDisabledAttr = (
+  disabled: string | boolean | undefined,
+  scope: Record<string, unknown> = {}
+): boolean => {
+  if (typeof disabled === 'string') {
+    if (disabled === '' || disabled === 'true') return true
+    if (disabled === 'false') return false
+    try {
+      return Boolean(evalExpression(disabled, scope))
+    } catch {
+      return false
+    }
+  }
+  return Boolean(disabled)
+}
+
+/**
  * Extracts translation options from directive attributes or component props.
  *
  * @param src - Source object that may contain `ns` and `count` values.
@@ -151,19 +179,13 @@ export const getTranslationOptions = (src: {
  * @returns The base URL string.
  */
 export const getBaseUrl = (): string => {
-  if (
-    typeof window !== 'undefined' &&
-    window.location?.origin &&
-    window.location.origin !== 'null'
-  ) {
-    return window.location.origin
+  const origin = globalThis.window?.location?.origin
+  if (origin && origin !== 'null') {
+    return origin
   }
-  if (
-    typeof document !== 'undefined' &&
-    document.baseURI &&
-    document.baseURI !== 'about:blank'
-  ) {
-    return document.baseURI
+  const baseURI = globalThis.document?.baseURI
+  if (baseURI && baseURI !== 'about:blank') {
+    return baseURI
   }
   return 'http://localhost'
 }
