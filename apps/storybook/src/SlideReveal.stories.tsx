@@ -68,3 +68,23 @@ const render: StoryObj<typeof SlideReveal>['render'] = () => (
 )
 
 export const Basic: StoryObj<typeof SlideReveal> = { render }
+
+/**
+ * Demonstrates scrolling to a reveal positioned below the initial viewport.
+ *
+ * @returns The rendered deck.
+ */
+export const ScrollIntoView: StoryObj<typeof SlideReveal> = {
+  render: () => (
+    <Deck className='w-[400px] h-[300px]'>
+      <Slide className='bg-gray-100 dark:bg-gray-900'>
+        <div style={{ height: '600px' }} />
+        <SlideReveal at={1}>
+          <SlideText x={20} y={580} size={24}>
+            Bottom
+          </SlideText>
+        </SlideReveal>
+      </Slide>
+    </Deck>
+  )
+}

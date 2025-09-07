@@ -105,6 +105,58 @@ describe('SlideReveal', () => {
     expect(data.entered).toBe(true)
   })
 
+  it('scrolls into view when becoming visible', async () => {
+    const spy = spyOn(HTMLElement.prototype, 'scrollIntoView')
+    render(
+      <Deck>
+        <Slide>
+          <div style={{ height: '2000px' }}>Filler</div>
+          <SlideReveal at={1}>Reveal</SlideReveal>
+        </Slide>
+      </Deck>
+    )
+    expect(spy).not.toHaveBeenCalled()
+    await act(() => useDeckStore.getState().next())
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    expect(spy).toHaveBeenCalledWith({
+      behavior: 'smooth',
+      block: 'nearest',
+      inline: 'nearest'
+    })
+    spy.mockRestore()
+  })
+
+  it('uses instant scroll when prefers reduced motion', async () => {
+    const spy = spyOn(HTMLElement.prototype, 'scrollIntoView')
+    const transition = await import('@campfire/components/transition')
+    const prefersSpy = spyOn(
+      transition,
+      'prefersReducedMotion'
+    ).mockReturnValue(true)
+    render(
+      <Deck>
+        <Slide>
+          <div style={{ height: '2000px' }}>Filler</div>
+          <SlideReveal at={1}>Reveal</SlideReveal>
+        </Slide>
+      </Deck>
+    )
+    expect(spy).not.toHaveBeenCalled()
+    await act(() => useDeckStore.getState().next())
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    expect(spy).toHaveBeenCalledWith({
+      behavior: 'auto',
+      block: 'nearest',
+      inline: 'nearest'
+    })
+    prefersSpy.mockRestore()
+    spy.mockRestore()
+  })
+
   it.skip('toggles visibility at the configured steps', async () => {
     // @ts-expect-error override animate
     HTMLElement.prototype.animate = () => new StubAnimation()

@@ -44,6 +44,19 @@ describe('Slide', () => {
     expect(useDeckStore.getState().maxSteps).toBe(3)
   })
 
+  it('enables vertical scrolling when content overflows', () => {
+    render(
+      <Deck>
+        <Slide>
+          <div style={{ height: '2000px' }}>Tall</div>
+        </Slide>
+      </Deck>
+    )
+    const el = screen.getByTestId('slide')
+    expect(el.className).toContain('overflow-y-auto')
+    expect(el.className).toContain('overflow-x-hidden')
+  })
+
   it('exposes transition metadata without applying animations', () => {
     const slide = (
       <Slide transition={{ type: 'fade', duration: 300 }}>Slide 1</Slide>

@@ -52,7 +52,7 @@ export const Slide = ({
   return (
     <SlideTransitionContext.Provider value={contextValue}>
       <div
-        className={`campfire-slide relative w-full h-full overflow-hidden ${
+        className={`campfire-slide relative w-full h-full overflow-x-hidden overflow-y-auto ${
           className ?? ''
         }`}
         data-transition={transition ? JSON.stringify(transition) : undefined}

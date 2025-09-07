@@ -81,6 +81,20 @@ export const SlideReveal = ({
     prevVisibleRef.current = visible
   }, [visible, onEnter, runEnter])
 
+  const prevDisplayedRef = useRef(false)
+  useLayoutEffect(() => {
+    const el = ref.current
+    const displayed = visible && present
+    if (el && displayed && !prevDisplayedRef.current) {
+      el.scrollIntoView({
+        behavior: reduceMotion ? 'auto' : 'smooth',
+        block: 'nearest',
+        inline: 'nearest'
+      })
+    }
+    prevDisplayedRef.current = displayed
+  }, [visible, present, reduceMotion])
+
   useLayoutEffect(() => {
     const el = ref.current
     const enterT = enter ?? slideTransition.enter ?? defaultTransition
