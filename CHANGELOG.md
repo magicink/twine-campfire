@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.103.0](https://github.com/magicink/twine-campfire/compare/v1.102.0...v1.103.0) (2025-09-08)
+
+
+### Features
+
+* add embed directive for video content ([#699](https://github.com/magicink/twine-campfire/issues/699)) ([#700](https://github.com/magicink/twine-campfire/issues/700)) ([b5731e3](https://github.com/magicink/twine-campfire/commit/b5731e319030d044b58e1117466186e9aabccd0a))
+
 ## [1.102.0](https://github.com/magicink/twine-campfire/compare/v1.101.0...v1.102.0) (2025-09-06)
 
 
