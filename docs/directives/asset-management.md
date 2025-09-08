@@ -50,6 +50,43 @@ Preload an image for later use.
 | `src`     | URL of the image file           |
 | `id`      | Unique identifier for the image |
 
+## Embeds
+
+### `embed`
+
+Embed external content such as YouTube videos within a slide.
+
+```md
+:::deck
+:::slide
+::embed{src='https://www.youtube.com/embed/dQw4w9WgXcQ' w=560 h=315 allow='autoplay' allowFullScreen=true}
+:::
+:::
+```
+
+Supports a `from` attribute to apply presets and uses `layerClassName` and `layerId` to customize the Layer wrapper.
+
+| Input           | Description                                        |
+| --------------- | -------------------------------------------------- |
+| x               | Horizontal position in pixels                      |
+| y               | Vertical position in pixels                        |
+| w               | Width in pixels                                    |
+| h               | Height in pixels                                   |
+| z               | z-index value                                      |
+| rotate          | Rotation in degrees                                |
+| scale           | Scale multiplier                                   |
+| anchor          | Transform origin (`top-left` by default)           |
+| src             | Embed source URL                                   |
+| allow           | Permissions applied to the `<iframe>` `allow` attr |
+| referrerPolicy  | Referrer policy for the `<iframe>`                 |
+| allowFullScreen | Enables fullscreen mode when `true`                |
+| style           | Inline styles applied to the `<iframe>`            |
+| className       | Classes applied to the `<iframe>`                  |
+| layerClassName  | Classes applied to the Layer wrapper               |
+| id              | Unique identifier for the `<iframe>`               |
+| layerId         | Unique identifier for the Layer wrapper            |
+| from            | Name of an embed preset to apply                   |
+
 ## Audio
 
 ### `preloadAudio`

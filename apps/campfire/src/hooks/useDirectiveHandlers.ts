@@ -701,6 +701,31 @@ export const useDirectiveHandlers = () => {
   type ImageSchema = typeof imageSchema
   type ImageAttrs = ExtractedAttrs<ImageSchema>
 
+  /** Schema describing supported embed directive attributes. */
+  const embedSchema = {
+    x: { type: 'number' },
+    y: { type: 'number' },
+    w: { type: 'number' },
+    h: { type: 'number' },
+    z: { type: 'number' },
+    rotate: { type: 'number' },
+    scale: { type: 'number' },
+    anchor: { type: 'string' },
+    src: { type: 'string', required: true },
+    allow: { type: 'string' },
+    referrerPolicy: { type: 'string' },
+    allowFullScreen: { type: 'boolean' },
+    style: { type: 'string' },
+    className: { type: 'string' },
+    layerClassName: { type: 'string' },
+    id: { type: 'string' },
+    layerId: { type: 'string' },
+    from: { type: 'string', expression: false }
+  } as const
+
+  type EmbedSchema = typeof embedSchema
+  type EmbedAttrs = ExtractedAttrs<EmbedSchema>
+
   /** Schema describing supported shape directive attributes. */
   const shapeSchema = {
     x: { type: 'number' },
@@ -1195,6 +1220,93 @@ export const useDirectiveHandlers = () => {
       children: [{ type: 'text', value: content } as RootContent],
       data: { hName: tagName, hProperties: props as Properties }
     }
+    return replaceWithIndentation(directive, p, i, [node as RootContent])
+  }
+
+  /**
+   * Converts an `embed` directive into a SlideEmbed element.
+   *
+   * @param directive - The embed directive node.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within its parent.
+   * @returns The index of the inserted node.
+   */
+  const handleEmbed: DirectiveHandler = (directive, parent, index) => {
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
+    const invalid = requireLeafDirective(directive, p, i, addError)
+    if (invalid !== undefined) return invalid
+    const { attrs } = extractAttributes<EmbedSchema>(
+      directive,
+      p,
+      i,
+      embedSchema
+    )
+    const raw = (directive.attributes || {}) as Record<string, unknown>
+    const preset = attrs.from
+      ? (presetsRef.current['embed']?.[
+          String(attrs.from)
+        ] as Partial<EmbedAttrs>)
+      : undefined
+    const mergedRaw = mergeAttrs<Record<string, unknown>>(preset, raw)
+    const mergedAttrs = mergeAttrs<EmbedAttrs>(preset, attrs)
+    const normRaw = normalizeStringAttrs(mergedRaw, gameData)
+    const normAttrs = normalizeStringAttrs(mergedAttrs, gameData)
+    const props: Record<string, unknown> = { src: normAttrs.src }
+    if (typeof normAttrs.x === 'number') props.x = normAttrs.x
+    if (typeof normAttrs.y === 'number') props.y = normAttrs.y
+    if (typeof normAttrs.w === 'number') props.w = normAttrs.w
+    if (typeof normAttrs.h === 'number') props.h = normAttrs.h
+    if (typeof normAttrs.z === 'number') props.z = normAttrs.z
+    if (typeof normAttrs.rotate === 'number') props.rotate = normAttrs.rotate
+    if (typeof normAttrs.scale === 'number') props.scale = normAttrs.scale
+    if (normAttrs.anchor) props.anchor = normAttrs.anchor
+    if (normAttrs.allow) props.allow = normAttrs.allow
+    if (normAttrs.referrerPolicy)
+      props.referrerPolicy = normAttrs.referrerPolicy
+    if (normAttrs.allowFullScreen === true) props.allowFullScreen = true
+    const classAttr = getClassAttr({ className: normAttrs.className }, gameData)
+    if (classAttr) props.className = classAttr
+    const layerClassAttr = getClassAttr(
+      { className: normAttrs.layerClassName },
+      gameData
+    )
+    if (layerClassAttr) props.layerClassName = layerClassAttr
+    const styleAttr = getStyleAttr({ style: normAttrs.style }, gameData)
+    if (styleAttr) props.style = styleAttr
+    if (normAttrs.id) props.id = normAttrs.id
+    if (normAttrs.layerId) props.layerId = normAttrs.layerId
+    applyAdditionalAttributes(
+      normRaw,
+      props,
+      [
+        'x',
+        'y',
+        'w',
+        'h',
+        'z',
+        'rotate',
+        'scale',
+        'anchor',
+        'src',
+        'allow',
+        'referrerPolicy',
+        'allowFullScreen',
+        'style',
+        'className',
+        'layerClassName',
+        'id',
+        'layerId',
+        'from'
+      ],
+      addError
+    )
+    const data = {
+      hName: 'slideEmbed',
+      hProperties: props as Properties
+    }
+    const node: Parent = { type: 'paragraph', children: [], data }
     return replaceWithIndentation(directive, p, i, [node as RootContent])
   }
 
@@ -1741,6 +1853,7 @@ export const useDirectiveHandlers = () => {
       layer: handleLayer,
       wrapper: handleWrapper,
       text: handleText,
+      embed: handleEmbed,
       image: handleImage,
       shape: handleShape,
       preset: handlePreset,

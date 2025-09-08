@@ -17,7 +17,7 @@ import { Deck } from '@campfire/components/Deck/Deck'
 import { Slide } from './Slide'
 import { SlideReveal } from './SlideReveal'
 import { Layer } from './Layer'
-import { SlideText, SlideImage, SlideShape } from './SlideElements'
+import { SlideText, SlideImage, SlideShape, SlideEmbed } from './SlideElements'
 import { createMarkdownProcessor } from '@campfire/utils/createMarkdownProcessor'
 
 /**
@@ -52,7 +52,8 @@ export const renderDirectiveMarkdown = (
     layer: Layer,
     slideText: SlideText,
     slideImage: SlideImage,
-    slideShape: SlideShape
+    slideShape: SlideShape,
+    slideEmbed: SlideEmbed
   })
   const file = processor.processSync(markdown)
   return file.result as ComponentChild

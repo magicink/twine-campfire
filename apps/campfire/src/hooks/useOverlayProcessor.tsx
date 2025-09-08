@@ -25,6 +25,7 @@ import {
   SlideText,
   SlideImage,
   SlideShape,
+  SlideEmbed,
   Layer
 } from '@campfire/components/Deck/Slide'
 import {
@@ -94,7 +95,8 @@ export const useOverlayProcessor = (): void => {
         layer: Layer,
         slideText: SlideText,
         slideImage: SlideImage,
-        slideShape: SlideShape
+        slideShape: SlideShape,
+        slideEmbed: SlideEmbed
       }),
     [handlers]
   )
