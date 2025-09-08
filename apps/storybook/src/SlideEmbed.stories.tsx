@@ -9,7 +9,8 @@ const meta: Meta<typeof SlideEmbed> = {
 export default meta
 
 /**
- * Displays external content inside a slide using the SlideEmbed component.
+ * Displays an embedded video centered on the slide at full width using the
+ * SlideEmbed component.
  *
  * @returns A Deck containing a single embedded video.
  */
@@ -20,10 +21,10 @@ export const Basic: StoryObj<typeof SlideEmbed> = {
         <SlideReveal at={0}>
           <SlideEmbed
             src='https://www.youtube.com/embed/dQw4w9WgXcQ'
-            w={560}
-            h={315}
-            x={120}
-            y={100}
+            w={800}
+            h={450}
+            x={0}
+            y={75}
             allow='autoplay; encrypted-media'
             allowFullScreen
           />
