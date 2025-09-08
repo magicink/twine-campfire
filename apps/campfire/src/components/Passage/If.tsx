@@ -19,7 +19,8 @@ import { SlideReveal } from '@campfire/components/Deck/Slide/SlideReveal'
 import {
   SlideText,
   SlideImage,
-  SlideShape
+  SlideShape,
+  SlideEmbed
 } from '@campfire/components/Deck/Slide/SlideElements'
 import { rehypeSlideText } from '@campfire/utils/rehypeSlideText'
 
@@ -57,7 +58,8 @@ export const If = ({ test, content, fallback }: IfProps) => {
           reveal: SlideReveal,
           slideText: SlideText,
           slideImage: SlideImage,
-          slideShape: SlideShape
+          slideShape: SlideShape,
+          slideEmbed: SlideEmbed
         }
       })
     proc.parser = (_doc: unknown, file: Root) => ({

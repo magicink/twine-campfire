@@ -23,6 +23,7 @@ export {
   Layer,
   SlideText,
   SlideImage,
-  SlideShape
+  SlideShape,
+  SlideEmbed
 } from '@campfire/components/Deck/Slide'
 export { Overlay } from '@campfire/components/Overlay'

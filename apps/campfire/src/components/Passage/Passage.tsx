@@ -36,6 +36,7 @@ import {
   SlideText,
   SlideImage,
   SlideShape,
+  SlideEmbed,
   Layer
 } from '@campfire/components/Deck/Slide'
 
@@ -105,7 +106,8 @@ export const Passage = () => {
           layer: Layer,
           slideText: SlideText,
           slideImage: SlideImage,
-          slideShape: SlideShape
+          slideShape: SlideShape,
+          slideEmbed: SlideEmbed
         },
         [remarkParagraphStyles, remarkHeadingStyles]
       ),
