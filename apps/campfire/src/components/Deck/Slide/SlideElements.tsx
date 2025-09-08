@@ -33,6 +33,51 @@ export const SlideImage = createSlideElement<SlideImageProps>({
 })
 
 /**
+ * Props for the SlideEmbed element. Inherits `className` and `style` from
+ * {@link SlideLayerProps}.
+ */
+export interface SlideEmbedProps
+  extends Omit<SlideLayerProps, 'children' | 'as' | 'elementProps'> {
+  /** Embed source URL. */
+  src: string
+  /** Permissions applied to the iframe's `allow` attribute. */
+  allow?: string
+  /** Referrer policy for the iframe. */
+  referrerPolicy?: string
+  /** Enables fullscreen mode when true. */
+  allowFullScreen?: boolean
+}
+
+/**
+ * Renders external content within an iframe positioned on a slide.
+ *
+ * @param props - Configuration options for the embed element, including
+ * inherited `className` and `style` fields.
+ * @returns The rendered embed layer.
+ */
+export const SlideEmbed = createSlideElement<SlideEmbedProps>({
+  as: 'iframe',
+  testId: 'slideEmbed',
+  mapClassName: ({ className }) =>
+    ['campfire-slide-embed', className]
+      .filter(c => c != null && c !== '')
+      .join(' '),
+  mapElementProps: ({ src, allow, referrerPolicy, allowFullScreen }) => ({
+    src,
+    allow,
+    referrerPolicy,
+    allowFullScreen: allowFullScreen ? true : undefined
+  }),
+  mapLayerProps: ({
+    src,
+    allow,
+    referrerPolicy,
+    allowFullScreen,
+    ...layerProps
+  }) => layerProps
+})
+
+/**
  * Props for the SlideText element. Inherits `className` and `style` from
  * {@link SlideLayerProps}.
  */
