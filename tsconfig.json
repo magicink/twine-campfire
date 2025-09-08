@@ -17,7 +17,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noPropertyAccessFromIndexSignature": false,
-    "types": ["bun", "preact", "./matchers.d.ts", "./twine-jsx.d.ts"],
+    "types": ["bun", "preact", "./matchers", "./twine-jsx"],
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
