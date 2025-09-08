@@ -16,15 +16,13 @@ export default meta
  */
 export const Basic: StoryObj<typeof SlideEmbed> = {
   render: () => (
-    <Deck className='w-[800px] h-[600px]'>
+    <Deck className='w-[800px] h-[600px]' hideNavigation>
       <Slide>
-        <SlideReveal at={0}>
+        <SlideReveal at={0} className={'w-full h-full'}>
           <SlideEmbed
+            layerClassName={'w-full h-full flex justify-center items-center'}
+            className={'aspect-video'}
             src='https://www.youtube.com/embed/dQw4w9WgXcQ'
-            w={800}
-            h={450}
-            x={0}
-            y={75}
             allow='autoplay; encrypted-media'
             allowFullScreen
           />
