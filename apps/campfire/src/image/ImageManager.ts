@@ -4,9 +4,6 @@ import { AssetManager } from '@campfire/utils/AssetManager'
  * Manages image asset loading and caching.
  */
 export class ImageManager extends AssetManager<HTMLImageElement> {
-  /** Map of image ids to in-flight load promises. */
-  private inFlight: Map<string, Promise<HTMLImageElement>> = new Map()
-
   /**
    * Preloads an image and caches it by id.
    *
@@ -15,45 +12,12 @@ export class ImageManager extends AssetManager<HTMLImageElement> {
    * @returns A promise resolving with the loaded image element.
    */
   load(id: string, src: string): Promise<HTMLImageElement> {
-    const cached = this.cache.get(id)
-    if (cached) return Promise.resolve(cached)
-    const pending = this.inFlight.get(id)
-    if (pending) return pending
-
-    const promise = new Promise<HTMLImageElement>((resolve, reject) => {
-      const img = new Image()
-      const cleanup = () => {
-        img.onload = null
-        img.onerror = null
-      }
-      img.onload = () => {
-        cleanup()
-        resolve(img)
-      }
-      img.onerror = err => {
-        cleanup()
-        reject(err)
-      }
-      try {
-        img.src = this.resolve(src)
-      } catch (err) {
-        cleanup()
-        console.error(`Invalid image source: ${src}`, err)
-        reject(err as Error)
-        return
-      }
+    return super.load(id, src, () => new Image(), {
+      start: (img, href) => {
+        img.src = href
+      },
+      loadEvent: 'load'
     })
-
-    let wrapped = promise.then(img => {
-      if (this.inFlight.get(id) === wrapped) this.cache.set(id, img)
-      return img
-    })
-    wrapped = wrapped.finally(() => {
-      if (this.inFlight.get(id) === wrapped) this.inFlight.delete(id)
-    })
-
-    this.inFlight.set(id, wrapped)
-    return wrapped
   }
 
   /**
