@@ -1,5 +1,40 @@
 # Changelog
 
+## [1.103.0](https://github.com/magicink/twine-campfire/compare/v1.102.0...v1.103.0) (2025-09-08)
+
+
+### Features
+
+* add embed directive for video content ([#699](https://github.com/magicink/twine-campfire/issues/699)) ([#700](https://github.com/magicink/twine-campfire/issues/700)) ([b5731e3](https://github.com/magicink/twine-campfire/commit/b5731e319030d044b58e1117466186e9aabccd0a))
+
+## [1.102.0](https://github.com/magicink/twine-campfire/compare/v1.101.0...v1.102.0) (2025-09-06)
+
+
+### Features
+
+* add disabled attribute parser ([#685](https://github.com/magicink/twine-campfire/issues/685)) ([9eb9e14](https://github.com/magicink/twine-campfire/commit/9eb9e1476429fa7d520df296f29b77621993415e))
+* add element and styling options to show directive ([#695](https://github.com/magicink/twine-campfire/issues/695)) ([80faca7](https://github.com/magicink/twine-campfire/commit/80faca790c2556fd535c7135fae1978ee2c0eddc))
+* centralize whitespace predicates ([f2f79de](https://github.com/magicink/twine-campfire/commit/f2f79deb87c12dc1a90eef73e44bd55e21511e98))
+* **image:** add inflight cache and clear ([#674](https://github.com/magicink/twine-campfire/issues/674)) ([8c5b59a](https://github.com/magicink/twine-campfire/commit/8c5b59a35d591125eed526606ad0b5b46d66c23a))
+* interpolate string directive attributes ([#689](https://github.com/magicink/twine-campfire/issues/689)) ([22cd6ca](https://github.com/magicink/twine-campfire/commit/22cd6ca861a140d1b8d5d1c211d8b15b98cf2b67))
+
+
+### Bug Fixes
+
+* **campfire:** use selector hooks in Passage ([#682](https://github.com/magicink/twine-campfire/issues/682)) ([b83cb6e](https://github.com/magicink/twine-campfire/commit/b83cb6e2c6cb0aa928c6ca3abed3d3703acb84a9))
+* guard currentPassageId selector ([#693](https://github.com/magicink/twine-campfire/issues/693)) ([e1f7ce1](https://github.com/magicink/twine-campfire/commit/e1f7ce14dbc30289640198d8139e515f46f80434))
+* guard option access in select ([#694](https://github.com/magicink/twine-campfire/issues/694)) ([9dc0cac](https://github.com/magicink/twine-campfire/commit/9dc0cacde100bfde5fc6b50171d19c5ed6810ff8))
+* **slide:** inherit layer style and class props ([#688](https://github.com/magicink/twine-campfire/issues/688)) ([be281b4](https://github.com/magicink/twine-campfire/commit/be281b4284775ab7ff2689b34d1a98985347e1a4))
+* tidy whitespace predicates ([12d6c63](https://github.com/magicink/twine-campfire/commit/12d6c637fca4208216f8bae9788216031405f029))
+* use globalThis for browser APIs ([#679](https://github.com/magicink/twine-campfire/issues/679)) ([7ae069e](https://github.com/magicink/twine-campfire/commit/7ae069e797dc5b0e5d26bce237d2bb175d8966d0))
+
+
+### Performance Improvements
+
+* cache parsed directive event data ([#676](https://github.com/magicink/twine-campfire/issues/676)) ([3642a6b](https://github.com/magicink/twine-campfire/commit/3642a6b87b6732918a386b2546906a8f8cc9a205))
+* **remark-campfire:** cache attribute regex matches ([#671](https://github.com/magicink/twine-campfire/issues/671)) ([0c837ed](https://github.com/magicink/twine-campfire/commit/0c837ed1913416b7d5cfe8a1f47cc8d1c6bc1a47))
+* **utils:** cache directive processors ([#677](https://github.com/magicink/twine-campfire/issues/677)) ([a214e90](https://github.com/magicink/twine-campfire/commit/a214e90db3e09c96a272ea8202dd8c4a96cf9047))
+
 ## [1.101.0](https://github.com/magicink/twine-campfire/compare/v1.100.1...v1.101.0) (2025-09-04)
 
 

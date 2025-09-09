@@ -1,8 +1,9 @@
-import { useEffect } from 'preact/hooks'
-import { useDirectiveEvents } from '@campfire/hooks/useDirectiveEvents'
-import { mergeClasses, parseDisabledAttr } from '@campfire/utils/core'
-import { useGameStore } from '@campfire/state/useGameStore'
-import { fieldBaseStyles, type BoundFieldElementProps } from './BoundFieldProps'
+import { mergeClasses } from '@campfire/utils/core'
+import {
+  fieldBaseStyles,
+  useBoundField,
+  type BoundFieldElementProps
+} from './BoundFieldProps'
 
 const inputStyles = mergeClasses(
   fieldBaseStyles,
@@ -35,21 +36,16 @@ export const Input = ({
   disabled,
   ...rest
 }: InputProps) => {
-  const gameData = useGameStore.use.gameData()
-  const value = gameData[stateKey] as string | undefined
-  const isDisabled = parseDisabledAttr(disabled, gameData)
-  const directiveEvents = useDirectiveEvents(
-    onMouseEnter,
-    onMouseLeave,
-    onFocus,
-    onBlur
-  )
-  const setGameData = useGameStore.use.setGameData()
-  useEffect(() => {
-    if (value === undefined) {
-      setGameData({ [stateKey]: initialValue ?? '' })
-    }
-  }, [value, stateKey, initialValue, setGameData])
+  const { value, setValue, isDisabled, directiveEvents } =
+    useBoundField<string>({
+      stateKey,
+      initialValue: initialValue ?? '',
+      disabled,
+      onMouseEnter,
+      onMouseLeave,
+      onFocus,
+      onBlur
+    })
   return (
     <input
       data-testid='input'
@@ -62,7 +58,7 @@ export const Input = ({
         onInput?.(e)
         if (e.defaultPrevented) return
         const target = e.currentTarget as HTMLInputElement
-        setGameData({ [stateKey]: target.value })
+        setValue(target.value)
       }}
     />
   )
