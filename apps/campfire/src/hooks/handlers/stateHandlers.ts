@@ -478,6 +478,8 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
     }
   }
 
+  type ArrayOp = 'push' | 'pop' | 'shift' | 'unshift' | 'splice' | 'concat'
+
   /**
    * Parses a comma-separated attribute value into an array of typed items.
    *
@@ -486,8 +488,6 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
    */
   const parseValues = (raw: unknown): unknown[] =>
     typeof raw === 'string' ? parseItems(raw) : []
-
-  type ArrayOp = 'push' | 'pop' | 'shift' | 'unshift' | 'splice' | 'concat'
 
   const operations: Record<
     ArrayOp,
