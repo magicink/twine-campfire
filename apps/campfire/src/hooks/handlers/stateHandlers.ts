@@ -437,95 +437,124 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
   }
 
   /**
+   * Parses common attributes for array operations.
+   *
+   * @param attrs - Raw directive attributes.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within its parent.
+   * @returns Parsed key, array copy, and optional store target.
+   */
+  const parseArrayAttrs = (
+    attrs: Record<string, unknown>,
+    parent: Parent | undefined,
+    index: number | undefined
+  ): { key: string; arr: unknown[]; store?: unknown } | undefined => {
+    const key = ensureKey(attrs.key, parent, index)
+    if (!key) return
+    const arr = Array.isArray(getValue(key))
+      ? [...(getValue(key) as unknown[])]
+      : []
+    return { key, arr, store: attrs.into }
+  }
+
+  /**
+   * Finalizes an array operation by assigning results back to state.
+   *
+   * @param key - Target state path for the array.
+   * @param result - Operation result containing array and optional value.
+   * @param store - Optional state path to store operation output.
+   */
+  const finalizeArrayOp = (
+    key: string,
+    result: { arr?: unknown[]; value?: unknown },
+    store: unknown
+  ) => {
+    const { arr, value } = result
+    if (arr) {
+      setValue(key, arr)
+    }
+    if (typeof store === 'string' && value !== undefined) {
+      setValue(store, value)
+    }
+  }
+
+  type ArrayOp = 'push' | 'pop' | 'shift' | 'unshift' | 'splice' | 'concat'
+
+  /**
+   * Parses a comma-separated attribute value into an array of typed items.
+   *
+   * @param raw - Raw attribute value.
+   * @returns Array of parsed values.
+   */
+  const parseValues = (raw: unknown): unknown[] =>
+    typeof raw === 'string' ? parseItems(raw) : []
+
+  const operations: Record<
+    ArrayOp,
+    (
+      a: unknown[],
+      at: Record<string, unknown>
+    ) => {
+      arr?: unknown[]
+      value?: unknown
+    }
+  > = {
+    push: (a, at) => {
+      const values = parseValues(at.value)
+      if (values.length) {
+        a.push(...values)
+        return { arr: a }
+      }
+      return {}
+    },
+    unshift: (a, at) => {
+      const values = parseValues(at.value)
+      if (values.length) {
+        a.unshift(...values)
+        return { arr: a }
+      }
+      return {}
+    },
+    concat: (a, at) => {
+      const values = parseValues(at.value)
+      if (values.length) {
+        return { arr: a.concat(values) }
+      }
+      return {}
+    },
+    pop: a => ({ arr: a, value: a.pop() }),
+    shift: a => ({ arr: a, value: a.shift() }),
+    splice: (a, at) => {
+      const parseNum = (value: unknown): number => {
+        if (typeof value === 'string')
+          return parseNumericValue(parseTypedValue(value, getGameData()))
+        return parseNumericValue(value)
+      }
+      const start = parseNum(at.index)
+      const count = parseNum(at.count)
+      const values = parseValues(at.value)
+      const removed = a.splice(start, count, ...values)
+      return { arr: a, value: removed }
+    }
+  }
+
+  /**
    * Creates a handler for array mutation directives.
    *
    * @param op - The array operation to perform.
    * @returns A directive handler implementing the requested operation.
    */
   const createArrayOperationHandler =
-    (
-      op: 'push' | 'pop' | 'shift' | 'unshift' | 'splice' | 'concat'
-    ): DirectiveHandler =>
+    (op: ArrayOp): DirectiveHandler =>
     (directive, parent, index) => {
       const invalid = requireLeafDirective(directive, parent, index, addError)
       if (invalid !== undefined) return invalid
-      const attrs = directive.attributes || {}
-      const key = ensureKey(
-        (attrs as Record<string, unknown>).key,
-        parent,
-        index
-      )
-      if (!key) return index
-
-      const arr = Array.isArray(getValue(key))
-        ? [...(getValue(key) as unknown[])]
-        : []
-      const store = (attrs as Record<string, unknown>).into
-
-      const parseValues = (): unknown[] => {
-        const raw = (attrs as Record<string, unknown>).value
-        return typeof raw === 'string' ? parseItems(raw) : []
-      }
-
-      switch (op) {
-        case 'push': {
-          const values = parseValues()
-          if (values.length) {
-            arr.push(...values)
-            setValue(key, arr)
-          }
-          break
-        }
-        case 'unshift': {
-          const values = parseValues()
-          if (values.length) {
-            arr.unshift(...values)
-            setValue(key, arr)
-          }
-          break
-        }
-        case 'concat': {
-          const values = parseValues()
-          if (values.length) {
-            const result = arr.concat(values)
-            setValue(key, result)
-          }
-          break
-        }
-        case 'pop': {
-          const value = arr.pop()
-          setValue(key, arr)
-          if (typeof store === 'string' && value !== undefined) {
-            setValue(store, value)
-          }
-          break
-        }
-        case 'shift': {
-          const value = arr.shift()
-          setValue(key, arr)
-          if (typeof store === 'string' && value !== undefined) {
-            setValue(store, value)
-          }
-          break
-        }
-        case 'splice': {
-          const parseNum = (value: unknown): number => {
-            if (typeof value === 'string')
-              return parseNumericValue(parseTypedValue(value, getGameData()))
-            return parseNumericValue(value)
-          }
-
-          const start = parseNum((attrs as Record<string, unknown>).index)
-          const count = parseNum((attrs as Record<string, unknown>).count)
-          const values = parseValues()
-          const removed = arr.splice(start, count, ...values)
-          setValue(key, arr)
-          if (typeof store === 'string') {
-            setValue(store, removed)
-          }
-          break
-        }
-      }
+      const attrs = (directive.attributes || {}) as Record<string, unknown>
+      const parsed = parseArrayAttrs(attrs, parent, index)
+      if (!parsed) return index
+      const { key, arr, store } = parsed
+      const result = operations[op](arr, attrs)
+      finalizeArrayOp(key, result, store)
 
       return removeNode(parent, index)
     }
