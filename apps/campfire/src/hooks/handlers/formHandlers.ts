@@ -18,8 +18,7 @@ import {
 } from '@campfire/utils/directiveUtils'
 import {
   applyAdditionalAttributes,
-  getClassAttr,
-  getStyleAttr,
+  interpolateAttrs,
   removeDirectiveMarker,
   isMarkerParagraph,
   ensureParentIndex
@@ -96,8 +95,10 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr = getClassAttr(attrs, getGameData())
-      const styleAttr = getStyleAttr(attrs, getGameData())
+      const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
+        attrs,
+        getGameData()
+      )
       const placeholder =
         typeof attrs.placeholder === 'string' ? attrs.placeholder : undefined
       const initialValue =
@@ -134,8 +135,10 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr = getClassAttr(attrs, getGameData())
-      const styleAttr = getStyleAttr(attrs, getGameData())
+      const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
+        attrs,
+        getGameData()
+      )
       const placeholder =
         typeof attrs.placeholder === 'string' ? attrs.placeholder : undefined
       const initialValue =
@@ -218,8 +221,10 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr = getClassAttr(attrs, getGameData())
-      const styleAttr = getStyleAttr(attrs, getGameData())
+      const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
+        attrs,
+        getGameData()
+      )
       const initialValue =
         typeof attrs.value === 'string'
           ? attrs.value
@@ -256,8 +261,10 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr = getClassAttr(attrs, getGameData())
-      const styleAttr = getStyleAttr(attrs, getGameData())
+      const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
+        attrs,
+        getGameData()
+      )
       const initialValue =
         typeof attrs.value === 'string'
           ? attrs.value
@@ -339,8 +346,10 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr = getClassAttr(attrs, getGameData())
-      const styleAttr = getStyleAttr(attrs, getGameData())
+      const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
+        attrs,
+        getGameData()
+      )
       const valueAttr = typeof attrs.value === 'string' ? attrs.value : ''
       const initialValue =
         typeof attrs.defaultValue === 'string'
@@ -381,8 +390,10 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr = getClassAttr(attrs, getGameData())
-      const styleAttr = getStyleAttr(attrs, getGameData())
+      const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
+        attrs,
+        getGameData()
+      )
       const valueAttr = typeof attrs.value === 'string' ? attrs.value : ''
       const initialValue =
         typeof attrs.defaultValue === 'string'
@@ -466,8 +477,10 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr = getClassAttr(attrs, getGameData())
-      const styleAttr = getStyleAttr(attrs, getGameData())
+      const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
+        attrs,
+        getGameData()
+      )
       const placeholder =
         typeof attrs.placeholder === 'string' ? attrs.placeholder : undefined
       const initialValue =
@@ -505,8 +518,10 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         console.error(msg)
         addError(msg)
       }
-      const classAttr = getClassAttr(attrs, getGameData())
-      const styleAttr = getStyleAttr(attrs, getGameData())
+      const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
+        attrs,
+        getGameData()
+      )
       const placeholder =
         typeof attrs.placeholder === 'string' ? attrs.placeholder : undefined
       const initialValue =
@@ -604,8 +619,10 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       console.error(msg)
       addError(msg)
     }
-    const classAttr = getClassAttr(attrs, getGameData())
-    const styleAttr = getStyleAttr(attrs, getGameData())
+    const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
+      attrs,
+      getGameData()
+    )
     const props: Record<string, unknown> = { value: String(value) }
     if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
     if (styleAttr) props.style = styleAttr
@@ -669,8 +686,10 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       console.error(msg)
       addError(msg)
     }
-    const classAttr = getClassAttr(attrs, getGameData())
-    const styleAttr = getStyleAttr(attrs, getGameData())
+    const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
+      attrs,
+      getGameData()
+    )
     const initialValue =
       typeof attrs.value === 'string'
         ? attrs.value
@@ -752,9 +771,11 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
             | undefined)
         : rawLabel
     const defaultLabel = evaluatedLabel ?? getLabel(container)
-    const classAttr = getClassAttr(attrs, getGameData())
+    const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
+      attrs,
+      getGameData()
+    )
     const disabledAttr = attrs.disabled
-    const styleAttr = getStyleAttr(attrs, getGameData())
     const processedForLabel = runDirectiveBlock(
       expandIndentedCode(container.children as RootContent[]),
       { wrapper: handleWrapper }
@@ -818,7 +839,10 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       } else {
         const first = wrappersRaw[0]
         const wattrs = (first.attributes || {}) as Record<string, unknown>
-        const classAttr = getClassAttr(wattrs, getGameData())
+        const { className: classAttr = '' } = interpolateAttrs(
+          wattrs,
+          getGameData()
+        )
         const labelEl: Parent = {
           type: 'paragraph',
           children: (first.children as RootContent[]) || [],

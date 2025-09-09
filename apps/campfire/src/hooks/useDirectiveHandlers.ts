@@ -23,8 +23,6 @@ import {
   runDirectiveBlock
 } from '@campfire/utils/directiveUtils'
 import {
-  getClassAttr,
-  getStyleAttr,
   requireLeafDirective,
   removeDirectiveMarker,
   isMarkerParagraph,
@@ -32,7 +30,7 @@ import {
   parseThemeValue,
   applyAdditionalAttributes,
   mergeAttrs,
-  normalizeStringAttrs,
+  interpolateAttrs,
   ensureParentIndex
 } from '@campfire/utils/directiveHandlerUtils'
 import type {
@@ -190,7 +188,7 @@ export const useDirectiveHandlers = () => {
     const props: Record<string, unknown> = keyPattern.test(raw)
       ? { 'data-key': raw }
       : { 'data-expr': raw }
-    const attrs = normalizeStringAttrs(
+    const attrs = interpolateAttrs(
       (directive.attributes || {}) as Record<string, unknown>,
       gameData
     )
@@ -202,8 +200,10 @@ export const useDirectiveHandlers = () => {
     const asAttr = typeof attrs.as === 'string' ? attrs.as : undefined
     if (asAttr) {
       props.as = asAttr
-      const classAttr = getClassAttr(attrs, gameData)
-      const styleAttr = getStyleAttr(attrs, gameData)
+      const classAttr =
+        typeof attrs.className === 'string' ? attrs.className : ''
+      const styleAttr =
+        typeof attrs.style === 'string' ? attrs.style : undefined
       if (classAttr) props.className = classAttr
       if (styleAttr) props.style = styleAttr
     }
@@ -818,12 +818,11 @@ export const useDirectiveHandlers = () => {
         props.interruptBehavior = attrs.interruptBehavior
       if (attrs.onEnter) props.onEnter = attrs.onEnter
       const mergedRaw = mergeAttrs(preset, raw)
-      const classAttr =
-        typeof mergedRaw.className === 'string'
-          ? getClassAttr(mergedRaw, gameData)
-          : ''
+      const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
+        mergedRaw,
+        gameData
+      )
       if (classAttr) props.className = classAttr
-      const styleAttr = getStyleAttr(mergedRaw, gameData)
       if (styleAttr) props.style = styleAttr
       if (attrs.id) props.id = attrs.id
       applyAdditionalAttributes(
@@ -868,10 +867,17 @@ export const useDirectiveHandlers = () => {
       const mergedRaw = mergeAttrs(preset, raw)
       props['data-testid'] = 'layer'
       let classAttr = ''
-      if (typeof attrs.className === 'string')
-        classAttr = getClassAttr({ className: attrs.className }, gameData)
-      else if (typeof mergedRaw.className === 'string')
-        classAttr = getClassAttr({ className: mergedRaw.className }, gameData)
+      if (typeof attrs.className === 'string') {
+        ;({ className: classAttr = '' } = interpolateAttrs(
+          { className: attrs.className },
+          gameData
+        ))
+      } else if (typeof mergedRaw.className === 'string') {
+        ;({ className: classAttr = '' } = interpolateAttrs(
+          { className: mergedRaw.className },
+          gameData
+        ))
+      }
       if (classAttr) props.className = classAttr
       if (attrs.id) props.id = attrs.id
       applyAdditionalAttributes(
@@ -977,10 +983,10 @@ export const useDirectiveHandlers = () => {
         : undefined
       const mergedRaw = mergeAttrs(preset, raw)
       props['data-testid'] = 'wrapper'
-      const classAttr =
-        typeof mergedRaw.className === 'string'
-          ? getClassAttr(mergedRaw, gameData)
-          : ''
+      const { className: classAttr = '' } = interpolateAttrs(
+        mergedRaw,
+        gameData
+      )
       props.className = ['campfire-wrapper', classAttr]
         .filter(Boolean)
         .join(' ')
@@ -1146,8 +1152,11 @@ export const useDirectiveHandlers = () => {
     const rawStyle = mergedRaw.style
     if (rawStyle) {
       if (typeof rawStyle === 'string') {
-        const styleAttr = getStyleAttr({ style: rawStyle }, gameData)
-        if (styleAttr) style.push(styleAttr)
+        const { style: styleAttr } = interpolateAttrs(
+          { style: rawStyle },
+          gameData
+        )
+        if (styleAttr) style.push(styleAttr as string)
       } else if (typeof rawStyle === 'object') {
         const entries = Object.entries(rawStyle as Record<string, unknown>).map(
           ([k, v]) => `${k}:${v}`
@@ -1166,14 +1175,14 @@ export const useDirectiveHandlers = () => {
     if (typeof mergedAttrs.scale === 'number') props.scale = mergedAttrs.scale
     if (mergedAttrs.anchor) props.anchor = mergedAttrs.anchor
     if (style.length) props.style = style.join(';')
-    const classAttr =
-      typeof mergedRaw.className === 'string'
-        ? getClassAttr(mergedRaw, gameData)
-        : undefined
-    const layerClassAttr =
-      typeof mergedRaw.layerClassName === 'string'
-        ? getClassAttr({ className: mergedRaw.layerClassName }, gameData)
-        : undefined
+    const { className: classAttr, layerClassName: layerClassAttr } =
+      interpolateAttrs(
+        {
+          className: mergedRaw.className,
+          layerClassName: mergedRaw.layerClassName
+        },
+        gameData
+      ) as { className?: string; layerClassName?: string }
     const classes = ['text-base', 'font-normal']
     if (classAttr) classes.unshift(classAttr)
     props.className = classes.join(' ')
@@ -1251,8 +1260,8 @@ export const useDirectiveHandlers = () => {
       : undefined
     const mergedRaw = mergeAttrs<Record<string, unknown>>(preset, raw)
     const mergedAttrs = mergeAttrs<EmbedAttrs>(preset, attrs)
-    const normRaw = normalizeStringAttrs(mergedRaw, gameData)
-    const normAttrs = normalizeStringAttrs(mergedAttrs, gameData)
+    const normRaw = interpolateAttrs(mergedRaw, gameData)
+    const normAttrs = interpolateAttrs(mergedAttrs, gameData)
     const props: Record<string, unknown> = { src: normAttrs.src }
     if (typeof normAttrs.x === 'number') props.x = normAttrs.x
     if (typeof normAttrs.y === 'number') props.y = normAttrs.y
@@ -1266,14 +1275,17 @@ export const useDirectiveHandlers = () => {
     if (normAttrs.referrerPolicy)
       props.referrerPolicy = normAttrs.referrerPolicy
     if (normAttrs.allowFullScreen === true) props.allowFullScreen = true
-    const classAttr = getClassAttr({ className: normAttrs.className }, gameData)
+    const {
+      className: classAttr,
+      layerClassName: layerClassAttr,
+      style: styleAttr
+    } = normAttrs as {
+      className?: string
+      layerClassName?: string
+      style?: string
+    }
     if (classAttr) props.className = classAttr
-    const layerClassAttr = getClassAttr(
-      { className: normAttrs.layerClassName },
-      gameData
-    )
     if (layerClassAttr) props.layerClassName = layerClassAttr
-    const styleAttr = getStyleAttr({ style: normAttrs.style }, gameData)
     if (styleAttr) props.style = styleAttr
     if (normAttrs.id) props.id = normAttrs.id
     if (normAttrs.layerId) props.layerId = normAttrs.layerId
@@ -1338,8 +1350,8 @@ export const useDirectiveHandlers = () => {
       : undefined
     const mergedRaw = mergeAttrs<Record<string, unknown>>(preset, raw)
     const mergedAttrs = mergeAttrs<ImageAttrs>(preset, attrs)
-    const normRaw = normalizeStringAttrs(mergedRaw, gameData)
-    const normAttrs = normalizeStringAttrs(mergedAttrs, gameData)
+    const normRaw = interpolateAttrs(mergedRaw, gameData)
+    const normAttrs = interpolateAttrs(mergedAttrs, gameData)
     const props: Record<string, unknown> = { src: normAttrs.src }
     if (typeof normAttrs.x === 'number') props.x = normAttrs.x
     if (typeof normAttrs.y === 'number') props.y = normAttrs.y
@@ -1350,14 +1362,17 @@ export const useDirectiveHandlers = () => {
     if (typeof normAttrs.scale === 'number') props.scale = normAttrs.scale
     if (normAttrs.anchor) props.anchor = normAttrs.anchor
     if (normAttrs.alt) props.alt = normAttrs.alt
-    const classAttr = getClassAttr({ className: normAttrs.className }, gameData)
+    const {
+      className: classAttr,
+      layerClassName: layerClassAttr,
+      style: styleAttr
+    } = normAttrs as {
+      className?: string
+      layerClassName?: string
+      style?: string
+    }
     if (classAttr) props.className = classAttr
-    const layerClassAttr = getClassAttr(
-      { className: normAttrs.layerClassName },
-      gameData
-    )
     if (layerClassAttr) props.layerClassName = layerClassAttr
-    const styleAttr = getStyleAttr({ style: normAttrs.style }, gameData)
     if (styleAttr) props.style = styleAttr
     if (normAttrs.id) props.id = normAttrs.id
     if (normAttrs.layerId) props.layerId = normAttrs.layerId
@@ -1428,11 +1443,9 @@ export const useDirectiveHandlers = () => {
       preset,
       attrs as unknown as Record<string, unknown>
     ) as ShapeAttrs & Record<string, unknown>
-    const normRaw = normalizeStringAttrs(mergedRaw, gameData)
-    const normAttrs = normalizeStringAttrs(
-      mergedAttrs,
-      gameData
-    ) as ShapeAttrs & Record<string, unknown>
+    const normRaw = interpolateAttrs(mergedRaw, gameData)
+    const normAttrs = interpolateAttrs(mergedAttrs, gameData) as ShapeAttrs &
+      Record<string, unknown>
     const props: Record<string, unknown> = { type: normAttrs.type }
     if (typeof normAttrs.x === 'number') props.x = normAttrs.x
     if (typeof normAttrs.y === 'number') props.y = normAttrs.y
@@ -1453,14 +1466,17 @@ export const useDirectiveHandlers = () => {
     if (normAttrs.fill) props.fill = normAttrs.fill
     if (typeof normAttrs.radius === 'number') props.radius = normAttrs.radius
     if (typeof normAttrs.shadow === 'boolean') props.shadow = normAttrs.shadow
-    const classAttr = getClassAttr({ className: normAttrs.className }, gameData)
+    const {
+      className: classAttr,
+      layerClassName: layerClassAttr,
+      style: styleAttr
+    } = normAttrs as {
+      className?: string
+      layerClassName?: string
+      style?: string
+    }
     if (classAttr) props.className = classAttr
-    const layerClassAttr = getClassAttr(
-      { className: normAttrs.layerClassName },
-      gameData
-    )
     if (layerClassAttr) props.layerClassName = layerClassAttr
-    const styleAttr = getStyleAttr({ style: normAttrs.style }, gameData)
     if (styleAttr) props.style = styleAttr
     if (normAttrs.id) props.id = normAttrs.id
     if (normAttrs.layerId) props.layerId = normAttrs.layerId

@@ -9,44 +9,6 @@ import { DEFAULT_DECK_HEIGHT, DEFAULT_DECK_WIDTH } from '@campfire/constants'
 const DIRECTIVE_MARKER = ':::'
 const ASPECT_RATIO_THRESHOLD = 100
 
-const interpolateAttr = (
-  value: string | undefined,
-  data: Record<string, unknown>
-): string | undefined =>
-  value && value.includes('${') ? interpolateString(value, data) : value
-
-/**
- * Retrieves and interpolates the `className` attribute from a directive.
- *
- * @param attrs - Attribute map from the directive.
- * @param data - Current game data for interpolation.
- * @returns The processed class string, or an empty string when absent.
- */
-export const getClassAttr = (
-  attrs: Record<string, unknown>,
-  data: Record<string, unknown>
-): string =>
-  interpolateAttr(
-    typeof attrs.className === 'string' ? attrs.className : undefined,
-    data
-  ) || ''
-
-/**
- * Retrieves and interpolates the `style` attribute from a directive.
- *
- * @param attrs - Attribute map from the directive.
- * @param data - Current game data for interpolation.
- * @returns The processed style string, or undefined when absent.
- */
-export const getStyleAttr = (
-  attrs: Record<string, unknown>,
-  data: Record<string, unknown>
-): string | undefined =>
-  interpolateAttr(
-    typeof attrs.style === 'string' ? attrs.style : undefined,
-    data
-  )
-
 /**
  * Interpolates all string values within an attribute map.
  *
@@ -54,14 +16,16 @@ export const getStyleAttr = (
  * @param data - Current game data for interpolation.
  * @returns New attribute map with interpolated strings.
  */
-export const normalizeStringAttrs = <T extends Record<string, unknown>>(
+export const interpolateAttrs = <T extends Record<string, unknown>>(
   attrs: T,
   data: Record<string, unknown>
 ): T => {
   const result: Record<string, unknown> = {}
   for (const [key, value] of Object.entries(attrs)) {
     result[key] =
-      typeof value === 'string' ? interpolateAttr(value, data) : value
+      typeof value === 'string' && value.includes('${')
+        ? interpolateString(value, data)
+        : value
   }
   return result as T
 }

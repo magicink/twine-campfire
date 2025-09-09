@@ -14,8 +14,7 @@ import {
   replaceWithIndentation
 } from '@campfire/utils/directiveUtils'
 import {
-  getClassAttr,
-  getStyleAttr,
+  interpolateAttrs,
   requireLeafDirective,
   ensureParentIndex
 } from '@campfire/utils/directiveHandlerUtils'
@@ -234,8 +233,10 @@ export const createI18nHandlers = (ctx: I18nHandlerContext) => {
       { state: gameData }
     )
     if (attrs.ns) ns = attrs.ns
-    const classAttr = getClassAttr(attrs, gameData)
-    const styleAttr = getStyleAttr(attrs, gameData)
+    const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
+      attrs,
+      gameData
+    )
     const keyPattern = /^[A-Za-z_$][A-Za-z0-9_$]*(?::[A-Za-z0-9_.$-]+)?$/
     let props: Properties
     if (key || keyPattern.test(raw)) {
