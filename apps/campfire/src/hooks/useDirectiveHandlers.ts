@@ -33,6 +33,7 @@ import {
   interpolateAttrs,
   ensureParentIndex
 } from '@campfire/utils/directiveHandlerUtils'
+import { interpolateString } from '@campfire/utils/core'
 import type {
   Transition,
   Direction
@@ -868,15 +869,13 @@ export const useDirectiveHandlers = () => {
       props['data-testid'] = 'layer'
       let classAttr = ''
       if (typeof attrs.className === 'string') {
-        ;({ className: classAttr = '' } = interpolateAttrs(
-          { className: attrs.className },
-          gameData
-        ))
+        classAttr = attrs.className.includes('${')
+          ? interpolateString(attrs.className, gameData)
+          : attrs.className
       } else if (typeof mergedRaw.className === 'string') {
-        ;({ className: classAttr = '' } = interpolateAttrs(
-          { className: mergedRaw.className },
-          gameData
-        ))
+        classAttr = mergedRaw.className.includes('${')
+          ? interpolateString(mergedRaw.className, gameData)
+          : mergedRaw.className
       }
       if (classAttr) props.className = classAttr
       if (attrs.id) props.id = attrs.id
@@ -1152,11 +1151,10 @@ export const useDirectiveHandlers = () => {
     const rawStyle = mergedRaw.style
     if (rawStyle) {
       if (typeof rawStyle === 'string') {
-        const { style: styleAttr } = interpolateAttrs(
-          { style: rawStyle },
-          gameData
-        )
-        if (styleAttr) style.push(styleAttr as string)
+        const styleAttr = rawStyle.includes('${')
+          ? interpolateString(rawStyle, gameData)
+          : rawStyle
+        if (styleAttr) style.push(styleAttr)
       } else if (typeof rawStyle === 'object') {
         const entries = Object.entries(rawStyle as Record<string, unknown>).map(
           ([k, v]) => `${k}:${v}`
