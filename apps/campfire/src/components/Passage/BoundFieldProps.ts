@@ -1,4 +1,8 @@
 import type { JSX } from 'preact'
+import { useEffect } from 'preact/hooks'
+import { useDirectiveEvents } from '@campfire/hooks/useDirectiveEvents'
+import { useGameStore } from '@campfire/state/useGameStore'
+import { parseDisabledAttr } from '@campfire/utils/core'
 
 /** Base Tailwind CSS classes shared by form field components. */
 export const fieldBaseStyles =
@@ -56,3 +60,65 @@ export type BoundFieldElementProps<T extends HTMLElement, V> = Omit<
   | 'disabled'
 > &
   BoundFieldProps<V>
+
+/**
+ * Parameters for the {@link useBoundField} hook.
+ *
+ * @template V Type of the bound value.
+ */
+interface UseBoundFieldParams<V> {
+  /** Key in game state to bind the field value to. */
+  stateKey: string
+  /** Initial value if the state key is unset. */
+  initialValue?: V
+  /** Boolean or state key controlling the disabled state. */
+  disabled?: boolean | string
+  /** Serialized directives to run on mouse enter. */
+  onMouseEnter?: string
+  /** Serialized directives to run on mouse leave. */
+  onMouseLeave?: string
+  /** Serialized directives to run on focus. */
+  onFocus?: string
+  /** Serialized directives to run on blur. */
+  onBlur?: string
+}
+
+/**
+ * Hook providing common binding logic for form fields.
+ *
+ * Retrieves the current value from the game state, applies an initial value if
+ * unset, determines the disabled state, and wires directive event handlers.
+ *
+ * @template V Type of the bound value.
+ * @param params - Hook parameters.
+ * @returns Bound field state and helpers.
+ */
+export const useBoundField = <V>({
+  stateKey,
+  initialValue,
+  disabled,
+  onMouseEnter,
+  onMouseLeave,
+  onFocus,
+  onBlur
+}: UseBoundFieldParams<V>) => {
+  const gameData = useGameStore.use.gameData()
+  const value = gameData[stateKey] as V | undefined
+  const setGameData = useGameStore.use.setGameData()
+  useEffect(() => {
+    if (value === undefined && initialValue !== undefined) {
+      setGameData({ [stateKey]: initialValue as any })
+    }
+  }, [value, stateKey, initialValue, setGameData])
+  const setValue = (val: V) => {
+    setGameData({ [stateKey]: val as any })
+  }
+  const isDisabled = parseDisabledAttr(disabled, gameData)
+  const directiveEvents = useDirectiveEvents(
+    onMouseEnter,
+    onMouseLeave,
+    onFocus,
+    onBlur
+  )
+  return { value, setValue, isDisabled, directiveEvents }
+}
