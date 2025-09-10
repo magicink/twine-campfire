@@ -58,7 +58,7 @@ For all container directives (`trigger`, `if`, `select`, `layer`, `wrapper`, `de
 
 If content after a container stops rendering or is captured unexpectedly, check these sentinel rules first.
 
-If a container directive nests another container and is followed by an inline directive, confirm the inline directive renders and does not leave stray `:::` markers. This regression has appeared repeatedly; add tests for these cases. See `docs/recurring-issues.md` for more information.
+If a container directive nests another container and is followed by an inline directive, confirm the inline directive renders and does not leave stray `:::` markers. This regression has appeared repeatedly; add tests for these cases.
 
 ### Attributes
 
