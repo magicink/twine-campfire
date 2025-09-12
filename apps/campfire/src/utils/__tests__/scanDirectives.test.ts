@@ -23,6 +23,16 @@ describe('scanDirectives', () => {
     expect(collect(':name{')).toEqual([{ type: 'leaf', value: ':name{' }])
   })
 
+  it('handles trailing escape in label', () => {
+    const src = ':name[' + '\\'
+    expect(collect(src)).toEqual([{ type: 'leaf', value: src }])
+  })
+
+  it('handles trailing escape in attributes', () => {
+    const src = ':name{' + '\\'
+    expect(collect(src)).toEqual([{ type: 'leaf', value: src }])
+  })
+
   it('emits text tokens around directives', () => {
     expect(collect('a\n::b[]\n')).toEqual([
       { type: 'text', value: 'a\n' },

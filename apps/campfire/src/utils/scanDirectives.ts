@@ -58,7 +58,8 @@ export const scanDirectives = function* (
       while (i < length && depth > 0) {
         const c = source[i]
         if (c === '\\') {
-          i += 2
+          i++
+          if (i < length) i++
           continue
         }
         if (c === '[') depth++
@@ -74,7 +75,8 @@ export const scanDirectives = function* (
       while (i < length && depth > 0) {
         const c = source[i]
         if (c === '\\') {
-          i += 2
+          i++
+          if (i < length) i++
           continue
         }
         if (c === '{') depth++
