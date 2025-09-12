@@ -40,7 +40,7 @@ const normalizeDirectiveIndentation = (input: string): string => {
     if (token.type === 'text') {
       output += token.value
     } else {
-      const indent = output.slice(lineStart)
+      const indent = output.slice(lineStart).match(/^[\t ]*/)?.[0] ?? ''
       if (shouldStrip(indent)) output = output.slice(0, lineStart)
       output += token.value
     }

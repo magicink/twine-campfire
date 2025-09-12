@@ -32,9 +32,8 @@ export const scanDirectives = function* (
     let count = 0
     while (pos + count < length && source[pos + count] === ':') {
       count++
-      if (count > 3) return false
     }
-    return count > 0
+    return count > 0 && count <= 3
   }
 
   const readDirective = (
@@ -42,7 +41,7 @@ export const scanDirectives = function* (
   ): { end: number; type: 'leaf' | 'container' } => {
     let i = pos
     let count = 0
-    while (i < length && source[i] === ':' && count < 3) {
+    while (i < length && source[i] === ':') {
       i++
       count++
     }
