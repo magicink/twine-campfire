@@ -7,6 +7,7 @@ import {
   remarkParagraphStyles
 } from '@campfire/utils/remarkStyles'
 import { createMarkdownProcessor } from '@campfire/utils/createMarkdownProcessor'
+import { scanDirectives } from '@campfire/utils/scanDirectives'
 import {
   isTitleOverridden,
   clearTitleOverride
@@ -18,20 +19,43 @@ import {
 import { useDeckStore } from '@campfire/state/useDeckStore'
 import { componentMap } from '@campfire/components/Passage/componentMap'
 
-const DIRECTIVE_MARKER_PATTERN = '(:::[^\\n]*|:[^\\n]*|<<)'
-
 /**
  * Normalizes directive indentation so Markdown treats directive lines the same
- * regardless of leading spaces or tabs. Strips tabs or four-or-more spaces
- * before directive markers.
+ * regardless of leading spaces or tabs. Uses {@link scanDirectives} to walk the
+ * source once and remove tabs or four-or-more spaces before directive markers.
  *
  * @param input - Raw passage text.
  * @returns Passage text with directive indentation normalized.
  */
-const normalizeDirectiveIndentation = (input: string): string =>
-  input
-    .replace(new RegExp(`^\\t+(?=(${DIRECTIVE_MARKER_PATTERN}))`, 'gm'), '')
-    .replace(new RegExp(`^[ ]{4,}(?=(${DIRECTIVE_MARKER_PATTERN}))`, 'gm'), '')
+const normalizeDirectiveIndentation = (input: string): string => {
+  const shouldStrip = (indent: string): boolean => {
+    if (!indent) return false
+    let tabs = true
+    let spaces = true
+    for (const ch of indent) {
+      if (ch !== '\t') tabs = false
+      if (ch !== ' ') spaces = false
+    }
+    return tabs || (spaces && indent.length >= 4)
+  }
+
+  let output = ''
+  let lineStart = 0
+  for (const token of scanDirectives(input)) {
+    if (token.type === 'text') {
+      output += token.value
+    } else {
+      const indent = output.slice(lineStart)
+      if (shouldStrip(indent)) output = output.slice(0, lineStart)
+      output += token.value
+    }
+    const lastNewline = token.value.lastIndexOf('\n')
+    if (lastNewline !== -1) {
+      lineStart = output.length - (token.value.length - lastNewline - 1)
+    }
+  }
+  return output
+}
 
 /**
  * Builds a document title from story and passage names.
