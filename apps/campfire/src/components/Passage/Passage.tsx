@@ -8,6 +8,7 @@ import {
 } from '@campfire/utils/remarkStyles'
 import { createMarkdownProcessor } from '@campfire/utils/createMarkdownProcessor'
 import { scanDirectives } from '@campfire/utils/scanDirectives'
+import { shouldStripDirectiveIndent } from '@campfire/utils/shouldStripDirectiveIndent'
 import {
   isTitleOverridden,
   clearTitleOverride
@@ -28,17 +29,6 @@ import { componentMap } from '@campfire/components/Passage/componentMap'
  * @returns Passage text with directive indentation normalized.
  */
 const normalizeDirectiveIndentation = (input: string): string => {
-  const shouldStrip = (indent: string): boolean => {
-    if (!indent) return false
-    let tabs = true
-    let spaces = true
-    for (const ch of indent) {
-      if (ch !== '\t') tabs = false
-      if (ch !== ' ') spaces = false
-    }
-    return tabs || (spaces && indent.length >= 4)
-  }
-
   let output = ''
   let lineStart = 0
   for (const token of scanDirectives(input)) {
@@ -46,7 +36,8 @@ const normalizeDirectiveIndentation = (input: string): string => {
       output += token.value
     } else {
       const indent = output.slice(lineStart).match(/^[\t ]*/)?.[0] ?? ''
-      if (shouldStrip(indent)) output = output.slice(0, lineStart)
+      if (shouldStripDirectiveIndent(indent))
+        output = output.slice(0, lineStart)
       output += token.value
     }
     const lastNewline = token.value.lastIndexOf('\n')

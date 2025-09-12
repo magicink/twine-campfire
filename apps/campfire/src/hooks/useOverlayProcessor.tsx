@@ -13,6 +13,7 @@ import {
 import { componentMap } from '@campfire/components/Passage/componentMap'
 import { useOverlayDeckStore } from '@campfire/state/useOverlayDeckStore'
 import { scanDirectives } from '@campfire/utils/scanDirectives'
+import { shouldStripDirectiveIndent } from '@campfire/utils/shouldStripDirectiveIndent'
 
 /**
  * Normalizes directive indentation to ensure consistent parsing. Walks the
@@ -23,17 +24,6 @@ import { scanDirectives } from '@campfire/utils/scanDirectives'
  * @returns The normalized text.
  */
 const normalizeDirectiveIndentation = (input: string): string => {
-  const shouldStrip = (indent: string): boolean => {
-    if (!indent) return false
-    let tabs = true
-    let spaces = true
-    for (const ch of indent) {
-      if (ch !== '\t') tabs = false
-      if (ch !== ' ') spaces = false
-    }
-    return tabs || (spaces && indent.length >= 4)
-  }
-
   let output = ''
   let lineStart = 0
   for (const token of scanDirectives(input)) {
@@ -41,7 +31,8 @@ const normalizeDirectiveIndentation = (input: string): string => {
       output += token.value
     } else {
       const indent = output.slice(lineStart).match(/^[\t ]*/)?.[0] ?? ''
-      if (shouldStrip(indent)) output = output.slice(0, lineStart)
+      if (shouldStripDirectiveIndent(indent))
+        output = output.slice(0, lineStart)
       output += token.value
     }
     const lastNewline = token.value.lastIndexOf('\n')

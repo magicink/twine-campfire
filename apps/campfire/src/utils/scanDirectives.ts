@@ -24,27 +24,32 @@ export const scanDirectives = function* (
   let last = 0
   let lineStart = 0
 
+  /**
+   * Counts consecutive colons beginning at {@link pos}.
+   *
+   * @param pos - Index within the source string.
+   * @returns Number of sequential `:` characters.
+   */
+  const countColons = (pos: number): number => {
+    let count = 0
+    while (pos + count < length && source[pos + count] === ':') count++
+    return count
+  }
+
   const isDirectiveStart = (pos: number): boolean => {
     for (let i = lineStart; i < pos; i++) {
       const c = source[i]
       if (c !== ' ' && c !== '\t') return false
     }
-    let count = 0
-    while (pos + count < length && source[pos + count] === ':') {
-      count++
-    }
+    const count = countColons(pos)
     return count > 0 && count <= 3
   }
 
   const readDirective = (
     pos: number
   ): { end: number; type: 'leaf' | 'container' } => {
-    let i = pos
-    let count = 0
-    while (i < length && source[i] === ':') {
-      i++
-      count++
-    }
+    const count = countColons(pos)
+    let i = pos + count
     const type = count === 3 ? 'container' : 'leaf'
     while (i < length) {
       const c = source[i]
