@@ -12,19 +12,36 @@ import {
 } from '@campfire/components/Deck/Slide/SlideReveal'
 import { componentMap } from '@campfire/components/Passage/componentMap'
 import { useOverlayDeckStore } from '@campfire/state/useOverlayDeckStore'
-
-const DIRECTIVE_MARKER_PATTERN = '(:::[^\\n]*|:[^\\n]*|<<)'
+import { scanDirectives } from '@campfire/utils/scanDirectives'
+import { shouldStripDirectiveIndent } from '@campfire/utils/shouldStripDirectiveIndent'
 
 /**
- * Normalizes directive indentation to ensure consistent parsing.
+ * Normalizes directive indentation to ensure consistent parsing. Walks the
+ * source with {@link scanDirectives} and strips tabs or four-or-more spaces
+ * before directive markers.
  *
  * @param input - Raw overlay passage text.
  * @returns The normalized text.
  */
-const normalizeDirectiveIndentation = (input: string): string =>
-  input
-    .replace(new RegExp(`^\\t+(?=(${DIRECTIVE_MARKER_PATTERN}))`, 'gm'), '')
-    .replace(new RegExp(`^[ ]{4,}(?=(${DIRECTIVE_MARKER_PATTERN}))`, 'gm'), '')
+const normalizeDirectiveIndentation = (input: string): string => {
+  let output = ''
+  let lineStart = 0
+  for (const token of scanDirectives(input)) {
+    if (token.type === 'text') {
+      output += token.value
+    } else {
+      const indent = output.slice(lineStart).match(/^[\t ]*/)?.[0] ?? ''
+      if (shouldStripDirectiveIndent(indent))
+        output = output.slice(0, lineStart)
+      output += token.value
+    }
+    const lastNewline = token.value.lastIndexOf('\n')
+    if (lastNewline !== -1) {
+      lineStart = output.length - (token.value.length - lastNewline - 1)
+    }
+  }
+  return output
+}
 
 /**
  * Processes overlay passages into persistent components rendered above passages.
