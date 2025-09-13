@@ -115,11 +115,11 @@ interface WorkerState {
  * @returns Worker state singleton.
  */
 const getWorkerState = (): WorkerState =>
-  ((globalThis as any).__campfirePassageWorker ??= {
+  (globalThis.__campfirePassageWorker ??= {
     worker: null,
     pending: new Map<number, (r: string) => void>(),
     nextId: 0
-  }) as WorkerState
+  })
 
 /**
  * Retrieves the shared passage cache for compiled content.
@@ -127,11 +127,14 @@ const getWorkerState = (): WorkerState =>
  *
  * @returns Cache map keyed by passage id.
  */
-const getPassageCache = () =>
-  ((globalThis as any).__campfirePassageCache ??= new Map<
+const getPassageCache = (): Map<
+  string,
+  { text: string; content: ComponentChild }
+> =>
+  (globalThis.__campfirePassageCache ??= new Map<
     string,
     { text: string; content: ComponentChild }
-  >()) as Map<string, { text: string; content: ComponentChild }>
+  >())
 
 /** Maximum number of passages to retain in cache. */
 const MAX_PASSAGE_CACHE = 100
@@ -292,7 +295,7 @@ export const Passage = () => {
       const result = file.result as ComponentChild
       if (shouldCache) {
         cache.set(id as string, { text, content: result })
-        if (cache.size > MAX_PASSAGE_CACHE) {
+        while (cache.size > MAX_PASSAGE_CACHE) {
           const oldest = cache.keys().next().value as string | undefined
           if (oldest) cache.delete(oldest)
         }
