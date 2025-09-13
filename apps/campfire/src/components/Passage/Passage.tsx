@@ -1,5 +1,5 @@
+import { cloneElement, type ComponentChild, type VNode } from 'preact'
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks'
-import type { ComponentChild } from 'preact'
 import type { Text as HastText, Content } from 'hast'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import {
@@ -7,8 +7,7 @@ import {
   remarkParagraphStyles
 } from '@campfire/utils/remarkStyles'
 import { createMarkdownProcessor } from '@campfire/utils/createMarkdownProcessor'
-import { scanDirectives } from '@campfire/utils/scanDirectives'
-import { shouldStripDirectiveIndent } from '@campfire/utils/shouldStripDirectiveIndent'
+import { normalizeDirectiveIndentation } from '@campfire/utils/normalizeDirectiveIndentation'
 import {
   isTitleOverridden,
   clearTitleOverride
@@ -19,34 +18,7 @@ import {
 } from '@campfire/state/useStoryDataStore'
 import { useDeckStore } from '@campfire/state/useDeckStore'
 import { componentMap } from '@campfire/components/Passage/componentMap'
-
-/**
- * Normalizes directive indentation so Markdown treats directive lines the same
- * regardless of leading spaces or tabs. Uses {@link scanDirectives} to walk the
- * source once and remove tabs or four-or-more spaces before directive markers.
- *
- * @param input - Raw passage text.
- * @returns Passage text with directive indentation normalized.
- */
-const normalizeDirectiveIndentation = (input: string): string => {
-  let output = ''
-  let lineStart = 0
-  for (const token of scanDirectives(input)) {
-    if (token.type === 'text') {
-      output += token.value
-    } else {
-      const indent = output.slice(lineStart).match(/^[\t ]*/)?.[0] ?? ''
-      if (shouldStripDirectiveIndent(indent))
-        output = output.slice(0, lineStart)
-      output += token.value
-    }
-    const lastNewline = token.value.lastIndexOf('\n')
-    if (lastNewline !== -1) {
-      lineStart = output.length - (token.value.length - lastNewline - 1)
-    }
-  }
-  return output
-}
+import type { WorkerRequest, WorkerResponse } from './directiveWorker'
 
 /**
  * Builds a document title from story and passage names.
@@ -66,6 +38,143 @@ const buildTitle = (
   if (!storyName) return passageName ?? ''
   if (!showPassage || !passageName) return storyName
   return `${storyName}${separator}${passageName}`
+}
+
+/**
+ * Recursively clones a component tree so cached VNodes can be reused safely.
+ *
+ * @param node - Component tree to clone.
+ * @returns A fresh copy of the component tree.
+ */
+const cloneTree = (node: ComponentChild): ComponentChild => {
+  if (Array.isArray(node)) return node.map(cloneTree)
+  if (node && typeof node === 'object' && 'type' in node) {
+    const vnode = node as VNode
+    const children = vnode.props?.children
+    const clonedChildren = Array.isArray(children)
+      ? children.map(cloneTree)
+      : children !== undefined
+        ? cloneTree(children)
+        : undefined
+    return cloneElement(vnode, vnode.props, clonedChildren)
+  }
+  return node
+}
+
+/**
+ * Checks whether a passage with the given source text can be cached safely.
+ * Passages containing load directives must always be reprocessed to execute
+ * game-state side effects.
+ *
+ * @param text - Raw passage text.
+ * @returns `true` when the passage may be cached.
+ */
+const canCachePassage = (text: string): boolean => !/::load\b/.test(text)
+
+/** Shape of the shared directive worker state. */
+interface WorkerState {
+  worker: Worker | null
+  pending: Map<number, (r: string) => void>
+  nextId: number
+  unloadHandler?: () => void
+}
+
+/**
+ * Retrieves the singleton Web Worker state used for directive normalization.
+ * Stored on the global object to avoid duplication across hot reloads.
+ *
+ * @returns Worker state singleton.
+ */
+const getWorkerState = (): WorkerState =>
+  (globalThis.__campfirePassageWorker ??= {
+    worker: null,
+    pending: new Map<number, (r: string) => void>(),
+    nextId: 0
+  })
+
+/**
+ * Retrieves the shared passage cache for compiled content.
+ * Stored globally to survive hot reloads and allow size management.
+ *
+ * @returns Cache map keyed by passage id.
+ */
+const getPassageCache = (): Map<
+  string,
+  { text: string; content: ComponentChild }
+> =>
+  (globalThis.__campfirePassageCache ??= new Map<
+    string,
+    { text: string; content: ComponentChild }
+  >())
+
+/** Maximum number of passages to retain in cache. */
+const MAX_PASSAGE_CACHE = 100
+
+/**
+ * Lazily creates the directive normalization worker in supported browsers.
+ * Subsequent calls reuse the existing worker and add a single unload cleanup.
+ */
+const initWorker = () => {
+  const state = getWorkerState()
+  if (
+    state.worker ||
+    typeof window === 'undefined' ||
+    typeof Worker === 'undefined'
+  )
+    return
+
+  state.worker = new Worker(new URL('./directiveWorker.ts', import.meta.url), {
+    type: 'module'
+  })
+
+  if (!state.unloadHandler) {
+    state.unloadHandler = () => {
+      state.worker?.terminate()
+      state.worker = null
+      window.removeEventListener('beforeunload', state.unloadHandler!)
+      state.unloadHandler = undefined
+    }
+    window.addEventListener('beforeunload', state.unloadHandler)
+  }
+
+  state.worker.onmessage = event => {
+    const { id, result } = event.data as WorkerResponse
+    const resolver = state.pending.get(id)
+    if (resolver) {
+      resolver(result)
+      state.pending.delete(id)
+    }
+  }
+}
+
+/**
+ * Normalizes passage text in a Web Worker when available.
+ * Falls back to main-thread processing using `requestIdleCallback` or
+ * `setTimeout` when workers are unsupported.
+ *
+ * @param text - Raw passage text.
+ * @returns Promise resolving to normalized text.
+ */
+const parseInWorker = (text: string): Promise<string> => {
+  const state = getWorkerState()
+  initWorker()
+
+  return state.worker
+    ? new Promise(resolve => {
+        const id = state.nextId++
+        state.pending.set(id, resolve)
+        state.worker!.postMessage({ id, text } as WorkerRequest)
+      })
+    : new Promise(resolve => {
+        if (
+          typeof window !== 'undefined' &&
+          typeof window.requestIdleCallback === 'function'
+        )
+          window.requestIdleCallback(() =>
+            resolve(normalizeDirectiveIndentation(text))
+          )
+        else setTimeout(() => resolve(normalizeDirectiveIndentation(text)), 0)
+      })
 }
 
 /**
@@ -127,14 +236,15 @@ export const Passage = () => {
   useEffect(() => {
     const controller = new AbortController()
     ;(async () => {
-      // TODO(campfire): Consider yielding across frames or using a worker to
-      // process very large passages; add error boundary/logging for parse
-      // failures and ensure end-of-block directive sentinels are respected.
       if (controller.signal.aborted) return
       if (!passage) {
         setContent(null)
         return
       }
+      const id =
+        typeof passage.properties?.pid === 'string'
+          ? passage.properties.pid
+          : undefined
       const text = passage.children
         .map((child: Content) =>
           child.type === 'text' && typeof child.value === 'string'
@@ -142,11 +252,26 @@ export const Passage = () => {
             : ''
         )
         .join('')
-      const normalized = normalizeDirectiveIndentation(text)
+      const cache = getPassageCache()
+      const shouldCache = id && canCachePassage(text)
+      const cached = shouldCache ? cache.get(id) : undefined
+      if (shouldCache && cached && cached.text === text) {
+        setContent(cloneTree(cached.content))
+        return
+      }
+      const normalized = await parseInWorker(text)
       if (controller.signal.aborted) return
       const file = await processor.process(normalized)
       if (controller.signal.aborted) return
-      setContent(file.result as ComponentChild)
+      const result = file.result as ComponentChild
+      if (shouldCache) {
+        cache.set(id as string, { text, content: result })
+        while (cache.size > MAX_PASSAGE_CACHE) {
+          const oldest = cache.keys().next().value as string | undefined
+          if (oldest) cache.delete(oldest)
+        }
+      }
+      setContent(cloneTree(result))
     })()
     return () => controller.abort()
   }, [passage, processor])
