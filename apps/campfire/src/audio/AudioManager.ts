@@ -48,16 +48,14 @@ export class AudioManager extends AssetManager<HTMLAudioElement> {
    * @param src - Source URL of the audio file.
    * @returns A promise that resolves when the audio is loaded.
    */
-  load(id: string, src: string): Promise<void> {
-    return super
-      .load(id, src, this.createAudio, {
-        start: (audio, href) => {
-          audio.src = href
-          audio.load()
-        },
-        loadEvent: 'canplaythrough'
-      })
-      .then(() => undefined)
+  load(id: string, src: string): Promise<HTMLAudioElement> {
+    return super.load(id, src, this.createAudio, {
+      start: (audio, href) => {
+        audio.src = href
+        audio.load()
+      },
+      loadEvent: 'canplaythrough'
+    })
   }
 
   /**

@@ -108,7 +108,8 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
             ? attrs.defaultValue
             : undefined
       const props: Record<string, unknown> = { stateKey: key }
-      if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
+      if (classAttr)
+        props.className = (classAttr as string).split(/\s+/).filter(Boolean)
       if (styleAttr) props.style = styleAttr
       if (placeholder) props.placeholder = placeholder
       if (initialValue) props.initialValue = initialValue
@@ -175,7 +176,8 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         Object.assign(events, extraEvents)
       }
       const props: Record<string, unknown> = { stateKey: key }
-      if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
+      if (classAttr)
+        props.className = (classAttr as string).split(/\s+/).filter(Boolean)
       if (styleAttr) props.style = styleAttr
       if (placeholder) props.placeholder = placeholder
       if (initialValue) props.initialValue = initialValue
@@ -234,7 +236,8 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
               ? attrs.checked
               : undefined
       const props: Record<string, unknown> = { stateKey: key }
-      if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
+      if (classAttr)
+        props.className = (classAttr as string).split(/\s+/).filter(Boolean)
       if (styleAttr) props.style = styleAttr
       if (initialValue) props.initialValue = initialValue
       applyAdditionalAttributes(
@@ -301,7 +304,8 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         Object.assign(events, extraEvents)
       }
       const props: Record<string, unknown> = { stateKey: key }
-      if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
+      if (classAttr)
+        props.className = (classAttr as string).split(/\s+/).filter(Boolean)
       if (styleAttr) props.style = styleAttr
       if (initialValue) props.initialValue = initialValue
       if (events.onMouseEnter) props.onMouseEnter = events.onMouseEnter
@@ -361,7 +365,8 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         stateKey: key,
         value: valueAttr
       }
-      if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
+      if (classAttr)
+        props.className = (classAttr as string).split(/\s+/).filter(Boolean)
       if (styleAttr) props.style = styleAttr
       if (initialValue) props.initialValue = initialValue
       applyAdditionalAttributes(
@@ -432,7 +437,8 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         stateKey: key,
         value: valueAttr
       }
-      if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
+      if (classAttr)
+        props.className = (classAttr as string).split(/\s+/).filter(Boolean)
       if (styleAttr) props.style = styleAttr
       if (initialValue) props.initialValue = initialValue
       if (events.onMouseEnter) props.onMouseEnter = events.onMouseEnter
@@ -490,7 +496,8 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
             ? attrs.defaultValue
             : undefined
       const props: Record<string, unknown> = { stateKey: key }
-      if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
+      if (classAttr)
+        props.className = (classAttr as string).split(/\s+/).filter(Boolean)
       if (styleAttr) props.style = styleAttr
       if (placeholder) props.placeholder = placeholder
       if (initialValue) props.initialValue = initialValue
@@ -559,7 +566,8 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       }
 
       const props: Record<string, unknown> = { stateKey: key }
-      if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
+      if (classAttr)
+        props.className = (classAttr as string).split(/\s+/).filter(Boolean)
       if (styleAttr) props.style = styleAttr
       if (placeholder) props.placeholder = placeholder
       if (initialValue) props.initialValue = initialValue
@@ -624,7 +632,8 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       getGameData()
     )
     const props: Record<string, unknown> = { value: String(value) }
-    if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
+    if (classAttr)
+      props.className = (classAttr as string).split(/\s+/).filter(Boolean)
     if (styleAttr) props.style = styleAttr
     applyAdditionalAttributes(
       attrs,
@@ -726,7 +735,8 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
 
     const options = remaining.filter(node => !isWhitespaceRootContent(node))
     const props: Record<string, unknown> = { stateKey: key }
-    if (classAttr) props.className = classAttr.split(/\s+/).filter(Boolean)
+    if (classAttr)
+      props.className = (classAttr as string).split(/\s+/).filter(Boolean)
     if (styleAttr) props.style = styleAttr
     if (initialValue) props.initialValue = initialValue
     if (events.onMouseEnter) props.onMouseEnter = events.onMouseEnter
@@ -908,7 +918,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       ...pendingFiltered
     ])
 
-    const classes = classAttr.split(/\s+/).filter(Boolean)
+    const classes = (classAttr as string).split(/\s+/).filter(Boolean)
     const hProps: Record<string, unknown> = {
       className: classes,
       content: JSON.stringify(finalContentNodes),
