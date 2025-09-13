@@ -13,6 +13,7 @@ import {
   remarkHeadingStyles,
   remarkParagraphStyles
 } from '@campfire/utils/remarkStyles'
+import { normalizeDirectiveIndentation } from '@campfire/utils/normalizeDirectiveIndentation'
 import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
 import { useGameStore } from '@campfire/state/useGameStore'
 import i18next from 'i18next'
@@ -45,21 +46,6 @@ const getRawPassage = (passage: Element | undefined): string => {
     )
     .join('')
 }
-
-const DIRECTIVE_MARKER_PATTERN = '(:::[^\\n]*|:[^\\n]*|<<)'
-
-/**
- * Normalizes directive indentation so Markdown treats directive lines the same
- * regardless of leading spaces or tabs. Strips tabs or four-or-more spaces
- * before directive markers.
- *
- * @param input - Raw passage text.
- * @returns Passage text with directive indentation normalized.
- */
-const normalizeDirectiveIndentation = (input: string): string =>
-  input
-    .replace(new RegExp(`^\\t+(?=(${DIRECTIVE_MARKER_PATTERN}))`, 'gm'), '')
-    .replace(new RegExp(`^[ ]{4,}(?=(${DIRECTIVE_MARKER_PATTERN}))`, 'gm'), '')
 
 /**
  * Renders a debug window showing game, story, translation and passage data.
