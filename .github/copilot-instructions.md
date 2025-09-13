@@ -72,5 +72,6 @@ If a container directive nests another container and is followed by an inline di
 - Visual components must include `data-testid` attributes and a default `campfire-{name}` class with no associated styles.
 - Trust these instructions and search the repository only if information is missing or incorrect.
 - Define colors using `oklch()` notation instead of hex or other color formats.
+- Never directly edit `CHANGELOG.md`; it is managed automatically.
 - Ensure tests cover both truthy and falsey paths for conditional logic.
 - Tag `@codex` in any comment.
