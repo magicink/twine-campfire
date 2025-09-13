@@ -100,44 +100,75 @@ const cloneTree = (node: ComponentChild): ComponentChild => {
  */
 const canCachePassage = (text: string): boolean => !/::load\b/.test(text)
 
+/** Shape of the shared directive worker state. */
+interface WorkerState {
+  worker: Worker | null
+  pending: Map<number, (r: string) => void>
+  nextId: number
+  unloadHandler?: () => void
+}
+
 /**
- * Lazily initializes a Web Worker for heavy passage preprocessing.
- * Ensures setup only occurs in browser environments to avoid SSR crashes.
+ * Retrieves the singleton Web Worker state used for directive normalization.
+ * Stored on the global object to avoid duplication across hot reloads.
  *
- * @returns Nothing.
+ * @returns Worker state singleton.
  */
-let worker: Worker | null = null
-const pending = new Map<number, (r: string) => void>()
-let nextId = 0
+const getWorkerState = (): WorkerState =>
+  ((globalThis as any).__campfirePassageWorker ??= {
+    worker: null,
+    pending: new Map<number, (r: string) => void>(),
+    nextId: 0
+  }) as WorkerState
 
 /**
- * Caches compiled passages to avoid repeated Markdown processing.
- * Stores raw passage text so updates with the same id but different content
- * invalidate the cache.
+ * Retrieves the shared passage cache for compiled content.
+ * Stored globally to survive hot reloads and allow size management.
+ *
+ * @returns Cache map keyed by passage id.
  */
-const passageCache = new Map<
-  string,
-  { text: string; content: ComponentChild }
->()
+const getPassageCache = () =>
+  ((globalThis as any).__campfirePassageCache ??= new Map<
+    string,
+    { text: string; content: ComponentChild }
+  >()) as Map<string, { text: string; content: ComponentChild }>
 
+/** Maximum number of passages to retain in cache. */
+const MAX_PASSAGE_CACHE = 100
+
+/**
+ * Lazily creates the directive normalization worker in supported browsers.
+ * Subsequent calls reuse the existing worker and add a single unload cleanup.
+ */
 const initWorker = () => {
-  if (worker || typeof window === 'undefined' || typeof Worker === 'undefined')
+  const state = getWorkerState()
+  if (
+    state.worker ||
+    typeof window === 'undefined' ||
+    typeof Worker === 'undefined'
+  )
     return
 
-  worker = new Worker(new URL('./directiveWorker.ts', import.meta.url), {
+  state.worker = new Worker(new URL('./directiveWorker.ts', import.meta.url), {
     type: 'module'
   })
 
-  window.addEventListener('beforeunload', () => {
-    worker?.terminate()
-  })
+  if (!state.unloadHandler) {
+    state.unloadHandler = () => {
+      state.worker?.terminate()
+      state.worker = null
+      window.removeEventListener('beforeunload', state.unloadHandler!)
+      state.unloadHandler = undefined
+    }
+    window.addEventListener('beforeunload', state.unloadHandler)
+  }
 
-  worker.onmessage = event => {
+  state.worker.onmessage = event => {
     const { id, result } = event.data as WorkerResponse
-    const resolver = pending.get(id)
+    const resolver = state.pending.get(id)
     if (resolver) {
       resolver(result)
-      pending.delete(id)
+      state.pending.delete(id)
     }
   }
 }
@@ -151,13 +182,14 @@ const initWorker = () => {
  * @returns Promise resolving to normalized text.
  */
 const parseInWorker = (text: string): Promise<string> => {
+  const state = getWorkerState()
   initWorker()
 
-  return worker
+  return state.worker
     ? new Promise(resolve => {
-        const id = nextId++
-        pending.set(id, resolve)
-        worker!.postMessage({ id, text } as WorkerRequest)
+        const id = state.nextId++
+        state.pending.set(id, resolve)
+        state.worker!.postMessage({ id, text } as WorkerRequest)
       })
     : new Promise(resolve => {
         if (
@@ -246,8 +278,9 @@ export const Passage = () => {
             : ''
         )
         .join('')
+      const cache = getPassageCache()
       const shouldCache = id && canCachePassage(text)
-      const cached = shouldCache ? passageCache.get(id) : undefined
+      const cached = shouldCache ? cache.get(id) : undefined
       if (shouldCache && cached && cached.text === text) {
         setContent(cloneTree(cached.content))
         return
@@ -257,7 +290,13 @@ export const Passage = () => {
       const file = await processor.process(normalized)
       if (controller.signal.aborted) return
       const result = file.result as ComponentChild
-      if (shouldCache) passageCache.set(id as string, { text, content: result })
+      if (shouldCache) {
+        cache.set(id as string, { text, content: result })
+        if (cache.size > MAX_PASSAGE_CACHE) {
+          const oldest = cache.keys().next().value as string | undefined
+          if (oldest) cache.delete(oldest)
+        }
+      }
       setContent(cloneTree(result))
     })()
     return () => controller.abort()
