@@ -1,5 +1,5 @@
+import { cloneElement, type ComponentChild, type VNode } from 'preact'
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks'
-import type { ComponentChild } from 'preact'
 import type { Text as HastText, Content } from 'hast'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import {
@@ -70,6 +70,37 @@ const buildTitle = (
 }
 
 /**
+ * Recursively clones a component tree so cached VNodes can be reused safely.
+ *
+ * @param node - Component tree to clone.
+ * @returns A fresh copy of the component tree.
+ */
+const cloneTree = (node: ComponentChild): ComponentChild => {
+  if (Array.isArray(node)) return node.map(cloneTree)
+  if (node && typeof node === 'object' && 'type' in node) {
+    const vnode = node as VNode
+    const children = vnode.props?.children
+    const clonedChildren = Array.isArray(children)
+      ? children.map(cloneTree)
+      : children !== undefined
+        ? cloneTree(children)
+        : undefined
+    return cloneElement(vnode, vnode.props, clonedChildren)
+  }
+  return node
+}
+
+/**
+ * Checks whether a passage with the given source text can be cached safely.
+ * Passages containing load directives must always be reprocessed to execute
+ * game-state side effects.
+ *
+ * @param text - Raw passage text.
+ * @returns `true` when the passage may be cached.
+ */
+const canCachePassage = (text: string): boolean => !/::load\b/.test(text)
+
+/**
  * Lazily initializes a Web Worker for heavy passage preprocessing.
  * Ensures setup only occurs in browser environments to avoid SSR crashes.
  *
@@ -78,6 +109,16 @@ const buildTitle = (
 let worker: Worker | null = null
 const pending = new Map<number, (r: string) => void>()
 let nextId = 0
+
+/**
+ * Caches compiled passages to avoid repeated Markdown processing.
+ * Stores raw passage text so updates with the same id but different content
+ * invalidate the cache.
+ */
+const passageCache = new Map<
+  string,
+  { text: string; content: ComponentChild }
+>()
 
 const initWorker = () => {
   if (worker || typeof window === 'undefined' || typeof Worker === 'undefined')
@@ -194,6 +235,10 @@ export const Passage = () => {
         setContent(null)
         return
       }
+      const id =
+        typeof passage.properties?.pid === 'string'
+          ? passage.properties.pid
+          : undefined
       const text = passage.children
         .map((child: Content) =>
           child.type === 'text' && typeof child.value === 'string'
@@ -201,11 +246,19 @@ export const Passage = () => {
             : ''
         )
         .join('')
+      const shouldCache = id && canCachePassage(text)
+      const cached = shouldCache ? passageCache.get(id) : undefined
+      if (shouldCache && cached && cached.text === text) {
+        setContent(cloneTree(cached.content))
+        return
+      }
       const normalized = await parseInWorker(text)
       if (controller.signal.aborted) return
       const file = await processor.process(normalized)
       if (controller.signal.aborted) return
-      setContent(file.result as ComponentChild)
+      const result = file.result as ComponentChild
+      if (shouldCache) passageCache.set(id as string, { text, content: result })
+      setContent(cloneTree(result))
     })()
     return () => controller.abort()
   }, [passage, processor])
