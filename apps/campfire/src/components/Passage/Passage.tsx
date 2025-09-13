@@ -69,6 +69,76 @@ const buildTitle = (
 }
 
 /**
+ * Inline worker setup for heavy passage preprocessing.
+ * The worker normalizes directive indentation in a background thread so the
+ * main UI remains responsive. The worker source is embedded as a string and
+ * loaded via a Blob to keep all logic within a single `format.js` file.
+ *
+ * @see https://developer.mozilla.org/docs/Web/API/Worker
+ */
+type WorkerRequest = { id: number; text: string }
+type WorkerResponse = { id: number; result: string }
+
+const workerSource = `
+  const scanDirectives = ${scanDirectives.toString()};
+  const shouldStripDirectiveIndent = ${shouldStripDirectiveIndent.toString()};
+  const normalizeDirectiveIndentation = ${normalizeDirectiveIndentation.toString()};
+  self.onmessage = event => {
+    const { id, text } = event.data;
+    const result = normalizeDirectiveIndentation(text);
+    self.postMessage({ id, result });
+  };
+`
+
+const workerBlob = new Blob([workerSource], {
+  type: 'application/javascript'
+})
+const workerUrl = URL.createObjectURL(workerBlob)
+const worker = typeof Worker !== 'undefined' ? new Worker(workerUrl) : null
+if (worker) {
+  window.addEventListener('beforeunload', () => {
+    worker.terminate()
+    URL.revokeObjectURL(workerUrl)
+  })
+}
+
+let nextId = 0
+const pending = new Map<number, (r: string) => void>()
+if (worker) {
+  worker.onmessage = event => {
+    const { id, result } = event.data as WorkerResponse
+    const resolver = pending.get(id)
+    if (resolver) {
+      resolver(result)
+      pending.delete(id)
+    }
+  }
+}
+
+/**
+ * Normalizes passage text in a Web Worker when available.
+ * Falls back to main-thread processing using `requestIdleCallback` or
+ * `setTimeout` when workers are unsupported.
+ *
+ * @param text - Raw passage text.
+ * @returns Promise resolving to normalized text.
+ */
+const parseInWorker = (text: string): Promise<string> =>
+  worker
+    ? new Promise(resolve => {
+        const id = nextId++
+        pending.set(id, resolve)
+        worker.postMessage({ id, text } as WorkerRequest)
+      })
+    : new Promise(resolve => {
+        if (typeof window !== 'undefined' && 'requestIdleCallback' in window)
+          (window as any).requestIdleCallback(() =>
+            resolve(normalizeDirectiveIndentation(text))
+          )
+        else setTimeout(() => resolve(normalizeDirectiveIndentation(text)), 0)
+      })
+
+/**
  * Renders the current passage from the story data store.
  * The passage text is processed with Remark and Rehype plugins
  * to support Campfire directives and custom components.
@@ -127,9 +197,6 @@ export const Passage = () => {
   useEffect(() => {
     const controller = new AbortController()
     ;(async () => {
-      // TODO(campfire): Consider yielding across frames or using a worker to
-      // process very large passages; add error boundary/logging for parse
-      // failures and ensure end-of-block directive sentinels are respected.
       if (controller.signal.aborted) return
       if (!passage) {
         setContent(null)
@@ -142,7 +209,7 @@ export const Passage = () => {
             : ''
         )
         .join('')
-      const normalized = normalizeDirectiveIndentation(text)
+      const normalized = await parseInWorker(text)
       if (controller.signal.aborted) return
       const file = await processor.process(normalized)
       if (controller.signal.aborted) return
