@@ -19,6 +19,7 @@ import {
 } from '@campfire/state/useStoryDataStore'
 import { useDeckStore } from '@campfire/state/useDeckStore'
 import { componentMap } from '@campfire/components/Passage/componentMap'
+import type { WorkerRequest, WorkerResponse } from './directiveWorker'
 
 /**
  * Normalizes directive indentation so Markdown treats directive lines the same
@@ -69,42 +70,27 @@ const buildTitle = (
 }
 
 /**
- * Inline worker setup for heavy passage preprocessing.
- * The worker normalizes directive indentation in a background thread so the
- * main UI remains responsive. The worker source is embedded as a string and
- * loaded via a Blob to keep all logic within a single `format.js` file.
+ * Lazily initializes a Web Worker for heavy passage preprocessing.
+ * Ensures setup only occurs in browser environments to avoid SSR crashes.
  *
- * @see https://developer.mozilla.org/docs/Web/API/Worker
+ * @returns Nothing.
  */
-type WorkerRequest = { id: number; text: string }
-type WorkerResponse = { id: number; result: string }
-
-const workerSource = `
-  const scanDirectives = ${scanDirectives.toString()};
-  const shouldStripDirectiveIndent = ${shouldStripDirectiveIndent.toString()};
-  const normalizeDirectiveIndentation = ${normalizeDirectiveIndentation.toString()};
-  self.onmessage = event => {
-    const { id, text } = event.data;
-    const result = normalizeDirectiveIndentation(text);
-    self.postMessage({ id, result });
-  };
-`
-
-const workerBlob = new Blob([workerSource], {
-  type: 'application/javascript'
-})
-const workerUrl = URL.createObjectURL(workerBlob)
-const worker = typeof Worker !== 'undefined' ? new Worker(workerUrl) : null
-if (worker) {
-  window.addEventListener('beforeunload', () => {
-    worker.terminate()
-    URL.revokeObjectURL(workerUrl)
-  })
-}
-
-let nextId = 0
+let worker: Worker | null = null
 const pending = new Map<number, (r: string) => void>()
-if (worker) {
+let nextId = 0
+
+const initWorker = () => {
+  if (worker || typeof window === 'undefined' || typeof Worker === 'undefined')
+    return
+
+  worker = new Worker(new URL('./directiveWorker.ts', import.meta.url), {
+    type: 'module'
+  })
+
+  window.addEventListener('beforeunload', () => {
+    worker?.terminate()
+  })
+
   worker.onmessage = event => {
     const { id, result } = event.data as WorkerResponse
     const resolver = pending.get(id)
@@ -123,20 +109,26 @@ if (worker) {
  * @param text - Raw passage text.
  * @returns Promise resolving to normalized text.
  */
-const parseInWorker = (text: string): Promise<string> =>
-  worker
+const parseInWorker = (text: string): Promise<string> => {
+  initWorker()
+
+  return worker
     ? new Promise(resolve => {
         const id = nextId++
         pending.set(id, resolve)
-        worker.postMessage({ id, text } as WorkerRequest)
+        worker!.postMessage({ id, text } as WorkerRequest)
       })
     : new Promise(resolve => {
-        if (typeof window !== 'undefined' && 'requestIdleCallback' in window)
-          (window as any).requestIdleCallback(() =>
+        if (
+          typeof window !== 'undefined' &&
+          typeof window.requestIdleCallback === 'function'
+        )
+          window.requestIdleCallback(() =>
             resolve(normalizeDirectiveIndentation(text))
           )
         else setTimeout(() => resolve(normalizeDirectiveIndentation(text)), 0)
       })
+}
 
 /**
  * Renders the current passage from the story data store.
