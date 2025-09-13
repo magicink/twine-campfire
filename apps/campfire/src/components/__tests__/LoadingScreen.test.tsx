@@ -22,7 +22,7 @@ describe('LoadingScreen', () => {
     const audio = AudioManager.getInstance()
     const images = ImageManager.getInstance()
     const audioSpy = spyOn(audio, 'load').mockImplementation(() =>
-      Promise.resolve()
+      Promise.resolve(new Audio())
     )
     let resolveImage: (value: HTMLImageElement) => void = () => {}
     const imageSpy = spyOn(images, 'load').mockImplementation(

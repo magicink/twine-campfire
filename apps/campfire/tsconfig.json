@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "types": ["bun", "preact", "matchers", "twine-jsx"],
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
@@ -9,5 +8,11 @@
     "allowImportingTsExtensions": false
   },
   "extends": "../../tsconfig.json",
-  "include": ["src/**/*", "lib/**/*"]
+  "include": [
+    "src/**/*",
+    "lib/**/*",
+    "globals.d.ts",
+    "../../twine-jsx.d.ts",
+    "../../matchers.d.ts"
+  ]
 }

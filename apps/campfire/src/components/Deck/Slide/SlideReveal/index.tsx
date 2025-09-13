@@ -9,6 +9,7 @@ import {
 import { useDeckStore } from '@campfire/state/useDeckStore'
 import type { Transition } from '../types'
 import { SlideTransitionContext } from '../context'
+import type { SlideTransitionContextValue } from '../context'
 import {
   defaultTransition,
   prefersReducedMotion,
@@ -53,7 +54,9 @@ export const SlideReveal = ({
 }: SlideRevealProps): JSX.Element | null => {
   const currentStep = store(state => state.currentStep)
   const currentSlide = store(state => state.currentSlide)
-  const slideTransition = useContext(SlideTransitionContext)
+  const slideTransition = useContext<SlideTransitionContextValue>(
+    SlideTransitionContext
+  )
   const [present, setPresent] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const animationRef = useRef<Animation | null>(null)
