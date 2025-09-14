@@ -10,6 +10,7 @@
 - Ensure every visual component includes a default `campfire-{name}` class with no associated styles.
 - Use Conventional Commits for all commit messages.
 - Define colors using `oklch()` notation instead of hex or other color formats.
+- Never directly edit `CHANGELOG.md`; it is managed automatically.
 - If this `AGENTS.md` file is updated, also update `.github/copilot-instructions.md` to reflect the changes.
 - If you update the `template.ejs` file, also update the Storybook preview template to keep them in sync.
 - If you update React components, add or update corresponding Storybook stories to reflect the changes.
@@ -47,7 +48,7 @@ For any container directive (e.g., `trigger`, `if`, `select`, `layer`, `wrapper`
 
 If content “after a container” fails to render or containers accidentally swallow following directives, verify these sentinels and ensure marker‑only nodes are not removed before the handler runs.
 
-If a container directive includes a nested container followed immediately by an inline directive, verify the inline directive renders and no stray `:::` markers remain. This regression has resurfaced multiple times; add tests for these scenarios. See `docs/recurring-issues.md` for details.
+If a container directive includes a nested container followed immediately by an inline directive, verify the inline directive renders and no stray `:::` markers remain. This regression has resurfaced multiple times; add tests for these scenarios.
 
 ### Attributes
 

@@ -14,22 +14,32 @@ export class AudioManager extends AssetManager<HTMLAudioElement> {
   // reduce GC pressure. Handle user gesture requirements for autoplay.
 
   /**
+   * Creates a new audio element with automatic preloading.
+   *
+   * @returns A new HTMLAudioElement.
+   */
+  private createAudio = (): HTMLAudioElement => {
+    const audio = new Audio()
+    audio.preload = 'auto'
+    return audio
+  }
+
+  /**
    * Retrieves a cached audio element or creates one from the given source.
    *
    * @param id - Identifier for the audio track.
    * @param source - Optional source URL for the track.
    * @returns The audio element or undefined if no source was available.
    */
-  private getOrCreateAudio(
+  private getOrCreateAudio = (
     id: string,
     source?: string
-  ): HTMLAudioElement | undefined {
-    return this.getOrCreate(id, source, href => {
-      const audio = new Audio(href)
-      audio.preload = 'auto'
+  ): HTMLAudioElement | undefined =>
+    this.getOrCreate(id, source, href => {
+      const audio = this.createAudio()
+      audio.src = href
       return audio
     })
-  }
 
   /**
    * Preloads an audio file. If the id already exists, it will be ignored.
@@ -38,30 +48,13 @@ export class AudioManager extends AssetManager<HTMLAudioElement> {
    * @param src - Source URL of the audio file.
    * @returns A promise that resolves when the audio is loaded.
    */
-  load(id: string, src: string): Promise<void> {
-    const audio = this.getOrCreateAudio(id, src)
-    if (!audio) {
-      console.error(`Failed to load audio: ${id}`)
-      return Promise.reject(new Error(`Failed to load audio: ${id}`))
-    }
-    if (audio.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA)
-      return Promise.resolve()
-    return new Promise((resolve, reject) => {
-      const cleanup = () => {
-        audio.removeEventListener('canplaythrough', handleLoad)
-        audio.removeEventListener('error', handleError)
-      }
-      const handleLoad = () => {
-        cleanup()
-        resolve()
-      }
-      const handleError = (err: unknown) => {
-        cleanup()
-        reject(err)
-      }
-      audio.addEventListener('canplaythrough', handleLoad)
-      audio.addEventListener('error', handleError)
-      audio.load()
+  load(id: string, src: string): Promise<HTMLAudioElement> {
+    return super.load(id, src, this.createAudio, {
+      start: (audio, href) => {
+        audio.src = href
+        audio.load()
+      },
+      loadEvent: 'canplaythrough'
     })
   }
 

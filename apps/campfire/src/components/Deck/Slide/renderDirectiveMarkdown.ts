@@ -13,6 +13,7 @@ import { Show } from '@campfire/components/Passage/Show'
 import { Translate } from '@campfire/components/Passage/Translate'
 import { OnExit } from '@campfire/components/Passage/OnExit'
 import { Effect } from '@campfire/components/Passage/Effect'
+import { Switch } from '@campfire/components/Passage/Switch'
 import { Deck } from '@campfire/components/Deck/Deck'
 import { Slide } from './Slide'
 import { SlideReveal } from './SlideReveal'
@@ -46,6 +47,7 @@ export const renderDirectiveMarkdown = (
     translate: Translate,
     effect: Effect,
     onExit: OnExit,
+    switch: Switch,
     deck: Deck,
     slide: Slide,
     reveal: SlideReveal,

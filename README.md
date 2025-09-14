@@ -2,6 +2,8 @@
 
 A cozy story format for Twine.
 
+Explore the [Storybook documentation](https://magicink.github.io/twine-campfire) for interactive examples of each component.
+
 ## Installation
 
 1. Copy this link URL: [https://github.com/magicink/twine-campfire/releases/latest/download/format.js](https://github.com/magicink/twine-campfire/releases/latest/download/format.js).

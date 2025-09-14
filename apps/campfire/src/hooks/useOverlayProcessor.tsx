@@ -3,49 +3,16 @@ import type { ComponentChild } from 'preact'
 import type { Content, Text as HastText } from 'hast'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { createMarkdownProcessor } from '@campfire/utils/createMarkdownProcessor'
-import {
-  useStoryDataStore,
-  type StoryDataState
-} from '@campfire/state/useStoryDataStore'
+import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
 import { useOverlayStore } from '@campfire/state/useOverlayStore'
-import { LinkButton } from '@campfire/components/Passage/LinkButton'
-import { TriggerButton } from '@campfire/components/Passage/TriggerButton'
-import { Input } from '@campfire/components/Passage/Input'
-import { Textarea } from '@campfire/components/Passage/Textarea'
-import { Select } from '@campfire/components/Passage/Select'
-import { Option } from '@campfire/components/Passage/Option'
-import { If } from '@campfire/components/Passage/If'
-import { Show } from '@campfire/components/Passage/Show'
-import { Translate } from '@campfire/components/Passage/Translate'
-import { OnExit } from '@campfire/components/Passage/OnExit'
-import { Effect } from '@campfire/components/Passage/Effect'
 import { Deck, type DeckProps } from '@campfire/components/Deck/Deck'
-import {
-  Slide,
-  SlideText,
-  SlideImage,
-  SlideShape,
-  SlideEmbed,
-  Layer
-} from '@campfire/components/Deck/Slide'
 import {
   SlideReveal,
   type SlideRevealProps
 } from '@campfire/components/Deck/Slide/SlideReveal'
+import { componentMap } from '@campfire/components/Passage/componentMap'
 import { useOverlayDeckStore } from '@campfire/state/useOverlayDeckStore'
-
-const DIRECTIVE_MARKER_PATTERN = '(:::[^\\n]*|:[^\\n]*|<<)'
-
-/**
- * Normalizes directive indentation to ensure consistent parsing.
- *
- * @param input - Raw overlay passage text.
- * @returns The normalized text.
- */
-const normalizeDirectiveIndentation = (input: string): string =>
-  input
-    .replace(new RegExp(`^\\t+(?=(${DIRECTIVE_MARKER_PATTERN}))`, 'gm'), '')
-    .replace(new RegExp(`^[ ]{4,}(?=(${DIRECTIVE_MARKER_PATTERN}))`, 'gm'), '')
+import { normalizeDirectiveIndentation } from '@campfire/utils/normalizeDirectiveIndentation'
 
 /**
  * Processes overlay passages into persistent components rendered above passages.
@@ -76,25 +43,9 @@ export const useOverlayProcessor = (): void => {
   const processor = useMemo(
     () =>
       createMarkdownProcessor(handlers, {
-        button: LinkButton,
-        trigger: TriggerButton,
-        input: Input,
-        textarea: Textarea,
-        select: Select,
-        option: Option,
-        if: If,
-        show: Show,
-        translate: Translate,
-        effect: Effect,
-        onExit: OnExit,
+        ...componentMap,
         deck: OverlayDeck,
-        slide: Slide,
-        reveal: OverlayReveal,
-        layer: Layer,
-        slideText: SlideText,
-        slideImage: SlideImage,
-        slideShape: SlideShape,
-        slideEmbed: SlideEmbed
+        reveal: OverlayReveal
       }),
     [handlers]
   )

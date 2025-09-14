@@ -1,4 +1,8 @@
 {
+  "files": ["../campfire/globals.d.ts", "../../twine-jsx.d.ts"],
+  "compilerOptions": {
+    "types": ["bun", "preact"]
+  },
   "extends": "../../tsconfig.json",
   "include": ["**/*.ts", "**/*.tsx"]
 }

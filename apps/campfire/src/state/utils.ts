@@ -3,6 +3,7 @@ import type { Draft } from 'immer'
 import type { StoreApi, UseBoundStore } from 'zustand'
 import rfdc from 'rfdc'
 import { clamp } from '@campfire/utils/directiveUtils'
+import type { RangeValue } from '@campfire/utils/math'
 
 /**
  * Zustand's `set` function signature.
@@ -48,14 +49,6 @@ export const createSelectors = <T extends object>(
   }
   return typed as WithSelectors<T>
 }
-
-/** Range value representation */
-export interface RangeValue {
-  min: number
-  max: number
-  value: number
-}
-
 /** Options for setting values */
 export interface SetOptions {
   /** Lock the key after setting */

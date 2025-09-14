@@ -1,9 +1,6 @@
-import { useEffect } from 'preact/hooks'
-import { useDirectiveEvents } from '@campfire/hooks/useDirectiveEvents'
-import { mergeClasses, parseDisabledAttr } from '@campfire/utils/core'
-import { useGameStore } from '@campfire/state/useGameStore'
+import { mergeClasses } from '@campfire/utils/core'
 import { radioStyles, radioIndicatorStyles } from '@campfire/utils/remarkStyles'
-import type { BoundFieldElementProps } from './BoundFieldProps'
+import { useBoundField, type BoundFieldElementProps } from './BoundFieldProps'
 
 type RadioProps = BoundFieldElementProps<HTMLButtonElement, string> & {
   /** Value represented by this radio button. */
@@ -36,21 +33,16 @@ export const Radio = ({
   disabled,
   ...rest
 }: RadioProps) => {
-  const gameData = useGameStore.use.gameData()
-  const value = gameData[stateKey] as string | undefined
-  const isDisabled = parseDisabledAttr(disabled, gameData)
-  const directiveEvents = useDirectiveEvents(
-    onMouseEnter,
-    onMouseLeave,
-    onFocus,
-    onBlur
-  )
-  const setGameData = useGameStore.use.setGameData()
-  useEffect(() => {
-    if (value === undefined && initialValue !== undefined) {
-      setGameData({ [stateKey]: initialValue })
-    }
-  }, [value, stateKey, initialValue, setGameData])
+  const { value, setValue, isDisabled, directiveEvents } =
+    useBoundField<string>({
+      stateKey,
+      initialValue,
+      disabled,
+      onMouseEnter,
+      onMouseLeave,
+      onFocus,
+      onBlur
+    })
   const checked = value === optionValue
   return (
     <button
@@ -66,7 +58,7 @@ export const Radio = ({
       onClick={e => {
         onClick?.(e)
         if (e.defaultPrevented || isDisabled) return
-        setGameData({ [stateKey]: optionValue })
+        setValue(optionValue)
       }}
     >
       <span

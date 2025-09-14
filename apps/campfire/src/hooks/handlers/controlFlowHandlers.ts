@@ -87,6 +87,121 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
     bannedBatchDirectives
   } = ctx
 
+  /**
+   * Extracts an expression from a container directive, using either its label or
+   * the first attribute.
+   *
+   * @param dir - The directive node to evaluate.
+   * @returns The extracted expression or an empty string.
+   */
+  const extractExpressionFromDirective = (dir: ContainerDirective): string => {
+    let expr = getLabel(dir) || ''
+    if (!expr) {
+      const attrs = dir.attributes || {}
+      const [firstKey, firstValue] = Object.entries(attrs)[0] || []
+      if (firstKey) expr = String(firstValue ?? firstKey)
+    }
+    return expr
+  }
+
+  /**
+   * Handles the `switch` container directive, transforming it into a `<switch>` component
+   * with corresponding cases and an optional fallback.
+   *
+   * @param directive - The container directive node representing the switch block.
+   * @param parent - The parent node of the directive.
+   * @param index - The index of the directive within its parent.
+   * @returns Returns void or SKIP to control traversal.
+   */
+  const handleSwitch: DirectiveHandler = (directive, parent, index) => {
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
+    const container = directive as ContainerDirective
+    const expr = extractExpressionFromDirective(container)
+    const children = stripLabel(container.children as RootContent[])
+
+    // Collect sibling case/default directives until the closing marker.
+    let cursor = i + 1
+    while (cursor < p.children.length) {
+      const sibling = p.children[cursor]
+      if (isWhitespaceRootContent(sibling)) {
+        removeNode(p, cursor)
+        continue
+      }
+      if (isMarkerParagraph(sibling)) {
+        removeDirectiveMarker(p, cursor)
+        break
+      }
+      if (
+        sibling.type === 'containerDirective' &&
+        ((sibling as ContainerDirective).name === 'case' ||
+          (sibling as ContainerDirective).name === 'default')
+      ) {
+        children.push(sibling as RootContent)
+        removeNode(p, cursor)
+        continue
+      }
+      break
+    }
+
+    const cases: { test: string; content: string }[] = []
+    let fallbackNodes: RootContent[] | undefined
+    for (const child of children) {
+      if (child.type !== 'containerDirective') continue
+      const dir = child as ContainerDirective
+      if (dir.name === 'case') {
+        const testExpr = extractExpressionFromDirective(dir)
+        const caseChildren = stripLabel(dir.children as RootContent[])
+        const processed = runDirectiveBlock(
+          expandIndentedCode(caseChildren),
+          handlersRef.current
+        )
+        const content = processed.filter(
+          node => !(isTextNode(node) && node.value.trim() === '')
+        )
+        cases.push({ test: testExpr, content: JSON.stringify(content) })
+      } else if (dir.name === 'default') {
+        const defChildren = stripLabel(dir.children as RootContent[])
+        const processed = runDirectiveBlock(
+          expandIndentedCode(defChildren),
+          handlersRef.current
+        )
+        fallbackNodes = processed.filter(
+          node => !(isTextNode(node) && node.value.trim() === '')
+        )
+      }
+    }
+    const serializedCases = JSON.stringify(cases)
+    const fallback = fallbackNodes ? JSON.stringify(fallbackNodes) : undefined
+    const node: Parent = {
+      type: 'paragraph',
+      children: [],
+      data: {
+        hName: 'switch',
+        hProperties: fallback
+          ? { test: expr, cases: serializedCases, fallback }
+          : { test: expr, cases: serializedCases }
+      }
+    }
+    const newIndex = replaceWithIndentation(directive, p, i, [
+      node as RootContent
+    ])
+    let markerIndex = newIndex + 1
+    while (markerIndex < p.children.length) {
+      const sibling = p.children[markerIndex]
+      if (isWhitespaceRootContent(sibling)) {
+        markerIndex++
+        continue
+      }
+      if (isMarkerParagraph(sibling)) {
+        removeDirectiveMarker(p, markerIndex)
+      }
+      break
+    }
+    return [SKIP, newIndex]
+  }
+
   /** Serializes `:::if` blocks into `<if>` components with optional fallback. */
   const handleIf: DirectiveHandler = (directive, parent, index) => {
     const pair = ensureParentIndex(parent, index)
@@ -455,5 +570,11 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
     return [SKIP, i]
   }
 
-  return { if: handleIf, for: handleFor, else: handleElse, batch: handleBatch }
+  return {
+    switch: handleSwitch,
+    if: handleIf,
+    for: handleFor,
+    else: handleElse,
+    batch: handleBatch
+  }
 }

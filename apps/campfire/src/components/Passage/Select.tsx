@@ -1,12 +1,14 @@
 import type { JSX, VNode } from 'preact'
 import { cloneElement, toChildArray } from 'preact'
 import { useEffect, useRef, useState } from 'preact/hooks'
-import { useDirectiveEvents } from '@campfire/hooks/useDirectiveEvents'
-import { mergeClasses, parseDisabledAttr } from '@campfire/utils/core'
-import { useGameStore } from '@campfire/state/useGameStore'
+import { mergeClasses } from '@campfire/utils/core'
 import type { OptionProps } from './Option'
 import { getOptionId } from './Option'
-import { fieldBaseStyles, type BoundFieldElementProps } from './BoundFieldProps'
+import {
+  fieldBaseStyles,
+  useBoundField,
+  type BoundFieldElementProps
+} from './BoundFieldProps'
 
 /** Counter used to generate deterministic IDs. */
 let idCounter = 0
@@ -62,30 +64,25 @@ export const Select = ({
   disabled,
   ...rest
 }: SelectProps) => {
-  const gameData = useGameStore.use.gameData()
-  const value = gameData[stateKey] as string | undefined
-  const setGameData = useGameStore.use.setGameData()
-  const isDisabled = parseDisabledAttr(disabled, gameData)
-  const directiveEvents = useDirectiveEvents(
-    onMouseEnter,
-    onMouseLeave,
-    onFocus,
-    onBlur
-  )
+  const { value, setValue, isDisabled, directiveEvents } =
+    useBoundField<string>({
+      stateKey,
+      initialValue: initialValue ?? '',
+      disabled,
+      onMouseEnter,
+      onMouseLeave,
+      onFocus,
+      onBlur
+    })
   const [open, setOpen] = useState(false)
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
   const listboxIdRef = useRef<string>(generateId('listbox'))
   const containerRef = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    if (value === undefined) {
-      setGameData({ [stateKey]: initialValue ?? '' })
-    }
-  }, [value, stateKey, initialValue, setGameData])
   const optionNodes = toChildArray(children) as VNode<OptionProps>[]
   const selectedIndex = optionNodes.findIndex(opt => opt.props.value === value)
   const selected = optionNodes[selectedIndex]
   const handleSelect = (val: string) => {
-    setGameData({ [stateKey]: val })
+    setValue(val)
     onInput?.({} as any)
     setOpen(false)
   }

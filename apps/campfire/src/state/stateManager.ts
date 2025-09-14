@@ -18,6 +18,5 @@ export const createStateManager = <T extends Record<string, unknown>>() => {
 export type {
   StateManager as StateManagerType,
   SetOptions,
-  RangeValue,
   StateChanges
 } from './utils'

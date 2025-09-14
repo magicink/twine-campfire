@@ -1,12 +1,9 @@
-import { useEffect } from 'preact/hooks'
-import { useDirectiveEvents } from '@campfire/hooks/useDirectiveEvents'
-import { mergeClasses, parseDisabledAttr } from '@campfire/utils/core'
-import { useGameStore } from '@campfire/state/useGameStore'
+import { mergeClasses } from '@campfire/utils/core'
 import {
   checkboxStyles,
   checkboxIndicatorStyles
 } from '@campfire/utils/remarkStyles'
-import type { BoundFieldElementProps } from './BoundFieldProps'
+import { useBoundField, type BoundFieldElementProps } from './BoundFieldProps'
 
 type CheckboxProps = BoundFieldElementProps<HTMLButtonElement, boolean>
 
@@ -34,25 +31,21 @@ export const Checkbox = ({
   disabled,
   ...rest
 }: CheckboxProps) => {
-  const gameData = useGameStore.use.gameData()
-  const value = gameData[stateKey] as boolean | string | undefined
-  const isDisabled = parseDisabledAttr(disabled, gameData)
-  const directiveEvents = useDirectiveEvents(
+  const init =
+    typeof initialValue === 'string'
+      ? initialValue === 'true'
+      : (initialValue ?? false)
+  const { value, setValue, isDisabled, directiveEvents } = useBoundField<
+    boolean | string
+  >({
+    stateKey,
+    initialValue: init,
+    disabled,
     onMouseEnter,
     onMouseLeave,
     onFocus,
     onBlur
-  )
-  const setGameData = useGameStore.use.setGameData()
-  useEffect(() => {
-    if (value === undefined) {
-      const init =
-        typeof initialValue === 'string'
-          ? initialValue === 'true'
-          : (initialValue ?? false)
-      setGameData({ [stateKey]: init })
-    }
-  }, [value, stateKey, initialValue, setGameData])
+  })
   const checked = typeof value === 'string' ? value === 'true' : Boolean(value)
   return (
     <button
@@ -68,7 +61,7 @@ export const Checkbox = ({
       onClick={e => {
         onClick?.(e)
         if (e.defaultPrevented || isDisabled) return
-        setGameData({ [stateKey]: !checked })
+        setValue(!checked)
       }}
     >
       <span
