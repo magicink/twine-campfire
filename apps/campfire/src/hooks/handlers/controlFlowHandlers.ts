@@ -88,6 +88,23 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
   } = ctx
 
   /**
+   * Extracts an expression from a container directive, using either its label or
+   * the first attribute.
+   *
+   * @param dir - The directive node to evaluate.
+   * @returns The extracted expression or an empty string.
+   */
+  const extractExpressionFromDirective = (dir: ContainerDirective): string => {
+    let expr = getLabel(dir) || ''
+    if (!expr) {
+      const attrs = dir.attributes || {}
+      const [firstKey, firstValue] = Object.entries(attrs)[0] || []
+      if (firstKey) expr = String(firstValue ?? firstKey)
+    }
+    return expr
+  }
+
+  /**
    * Handles the `switch` container directive, transforming it into a `<switch>` component
    * with corresponding cases and an optional fallback.
    *
@@ -101,12 +118,7 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
     if (!pair) return
     const [p, i] = pair
     const container = directive as ContainerDirective
-    let expr = getLabel(container) || ''
-    if (!expr) {
-      const attrs = container.attributes || {}
-      const [firstKey, firstValue] = Object.entries(attrs)[0] || []
-      if (firstKey) expr = String(firstValue ?? firstKey)
-    }
+    const expr = extractExpressionFromDirective(container)
     const children = stripLabel(container.children as RootContent[])
     const cases: { test: string; content: string }[] = []
     let fallbackNodes: RootContent[] | undefined
@@ -114,12 +126,7 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
       if (child.type !== 'containerDirective') continue
       const dir = child as ContainerDirective
       if (dir.name === 'case') {
-        let testExpr = getLabel(dir) || ''
-        if (!testExpr) {
-          const attrs = dir.attributes || {}
-          const [key, val] = Object.entries(attrs)[0] || []
-          if (key) testExpr = String(val ?? key)
-        }
+        const testExpr = extractExpressionFromDirective(dir)
         const caseChildren = stripLabel(dir.children as RootContent[])
         const processed = runDirectiveBlock(
           expandIndentedCode(caseChildren),
