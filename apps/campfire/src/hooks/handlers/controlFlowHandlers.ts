@@ -120,6 +120,31 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
     const container = directive as ContainerDirective
     const expr = extractExpressionFromDirective(container)
     const children = stripLabel(container.children as RootContent[])
+
+    // Collect sibling case/default directives until the closing marker.
+    let cursor = i + 1
+    while (cursor < p.children.length) {
+      const sibling = p.children[cursor]
+      if (isWhitespaceRootContent(sibling)) {
+        removeNode(p, cursor)
+        continue
+      }
+      if (isMarkerParagraph(sibling)) {
+        removeDirectiveMarker(p, cursor)
+        break
+      }
+      if (
+        sibling.type === 'containerDirective' &&
+        ((sibling as ContainerDirective).name === 'case' ||
+          (sibling as ContainerDirective).name === 'default')
+      ) {
+        children.push(sibling as RootContent)
+        removeNode(p, cursor)
+        continue
+      }
+      break
+    }
+
     const cases: { test: string; content: string }[] = []
     let fallbackNodes: RootContent[] | undefined
     for (const child of children) {
