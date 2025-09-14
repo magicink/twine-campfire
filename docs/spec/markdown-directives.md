@@ -145,6 +145,21 @@ Recursion
 - `if` handler MUST run directive processing on its children so nested `batch` and `set` execute.
 - Nested `batch` inside `batch` MUST be rejected with an error.
 
+Switch cases
+
+```md
+:::switch[color]
+:::case["red"]
+Red
+:::
+:::default
+Fallback
+:::
+:::
+```
+
+- `switch` selects the first `case` matching the evaluated expression or falls back to `default`.
+
 Tables
 
 ```md

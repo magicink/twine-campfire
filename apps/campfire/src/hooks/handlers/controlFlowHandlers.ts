@@ -87,6 +87,83 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
     bannedBatchDirectives
   } = ctx
 
+  /**
+   * Serializes `:::switch` blocks into `<switch>` components with cases and an optional fallback.
+   */
+  const handleSwitch: DirectiveHandler = (directive, parent, index) => {
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
+    const container = directive as ContainerDirective
+    let expr = getLabel(container) || ''
+    if (!expr) {
+      const attrs = container.attributes || {}
+      const [firstKey, firstValue] = Object.entries(attrs)[0] || []
+      if (firstKey) expr = String(firstValue ?? firstKey)
+    }
+    const children = stripLabel(container.children as RootContent[])
+    const cases: { test: string; content: string }[] = []
+    let fallbackNodes: RootContent[] | undefined
+    for (const child of children) {
+      if (child.type !== 'containerDirective') continue
+      const dir = child as ContainerDirective
+      if (dir.name === 'case') {
+        let testExpr = getLabel(dir) || ''
+        if (!testExpr) {
+          const attrs = dir.attributes || {}
+          const [key, val] = Object.entries(attrs)[0] || []
+          if (key) testExpr = String(val ?? key)
+        }
+        const caseChildren = stripLabel(dir.children as RootContent[])
+        const processed = runDirectiveBlock(
+          expandIndentedCode(caseChildren),
+          handlersRef.current
+        )
+        const content = processed.filter(
+          node => !(isTextNode(node) && node.value.trim() === '')
+        )
+        cases.push({ test: testExpr, content: JSON.stringify(content) })
+      } else if (dir.name === 'default') {
+        const defChildren = stripLabel(dir.children as RootContent[])
+        const processed = runDirectiveBlock(
+          expandIndentedCode(defChildren),
+          handlersRef.current
+        )
+        fallbackNodes = processed.filter(
+          node => !(isTextNode(node) && node.value.trim() === '')
+        )
+      }
+    }
+    const serializedCases = JSON.stringify(cases)
+    const fallback = fallbackNodes ? JSON.stringify(fallbackNodes) : undefined
+    const node: Parent = {
+      type: 'paragraph',
+      children: [],
+      data: {
+        hName: 'switch',
+        hProperties: fallback
+          ? { test: expr, cases: serializedCases, fallback }
+          : { test: expr, cases: serializedCases }
+      }
+    }
+    const newIndex = replaceWithIndentation(directive, p, i, [
+      node as RootContent
+    ])
+    let markerIndex = newIndex + 1
+    while (markerIndex < p.children.length) {
+      const sibling = p.children[markerIndex]
+      if (isWhitespaceRootContent(sibling)) {
+        markerIndex++
+        continue
+      }
+      if (isMarkerParagraph(sibling)) {
+        removeDirectiveMarker(p, markerIndex)
+      }
+      break
+    }
+    return [SKIP, newIndex]
+  }
+
   /** Serializes `:::if` blocks into `<if>` components with optional fallback. */
   const handleIf: DirectiveHandler = (directive, parent, index) => {
     const pair = ensureParentIndex(parent, index)
@@ -455,5 +532,11 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
     return [SKIP, i]
   }
 
-  return { if: handleIf, for: handleFor, else: handleElse, batch: handleBatch }
+  return {
+    switch: handleSwitch,
+    if: handleIf,
+    for: handleFor,
+    else: handleElse,
+    batch: handleBatch
+  }
 }
