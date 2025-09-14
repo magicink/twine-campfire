@@ -387,7 +387,7 @@ describe('Passage game state directives', () => {
 
     await waitFor(() => {
       expect(useGameStore.getState().errors).toEqual([
-        'batch only supports directives: set, setOnce, array, arrayOnce, createRange, setRange, unset, random, randomOnce, push, pop, shift, unshift, splice, concat, checkpoint, loadCheckpoint, clearCheckpoint, save, load, clearSave, lang, translations, if, for'
+        'batch only supports directives: set, setOnce, array, arrayOnce, createRange, setRange, unset, random, randomOnce, push, pop, shift, unshift, splice, concat, checkpoint, loadCheckpoint, clearCheckpoint, save, load, clearSave, lang, translations, if, for, switch'
       ])
       expect(logged).toHaveLength(1)
     })

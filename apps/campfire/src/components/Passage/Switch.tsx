@@ -37,6 +37,32 @@ interface SwitchProps {
 }
 
 /**
+ * Evaluates a JavaScript expression against provided game data.
+ *
+ * @param expression - The expression to evaluate.
+ * @param data - The game data used as scope for evaluation.
+ * @returns The evaluated result or `undefined` on error.
+ */
+const evaluateExpression = (
+  expression: string,
+  data: Record<string, unknown>
+) => {
+  try {
+    const fn = new Function(
+      'data',
+      `with (data) { return (${expression}) }`
+    ) as (data: Record<string, unknown>) => unknown
+    const proxy = new Proxy(data, {
+      has: () => true,
+      get: (obj, key) => (obj as Record<string, unknown>)[key as string]
+    })
+    return fn(proxy)
+  } catch {
+    return undefined
+  }
+}
+
+/**
  * Evaluates a JavaScript expression against game data and renders the
  * content of the first matching case or an optional fallback when no cases match.
  */
@@ -57,7 +83,7 @@ export const Switch = ({ test, cases, fallback }: SwitchProps) => {
           button: LinkButton,
           trigger: TriggerButton,
           if: If,
-          switch: Switch,
+          // switch: Switch, // Removed to prevent circular reference
           show: Show,
           translate: Translate,
           onExit: OnExit,
@@ -75,35 +101,11 @@ export const Switch = ({ test, cases, fallback }: SwitchProps) => {
     return proc
   }, [handlers])
   const gameData = useGameStore.use.gameData()
-  let value: unknown
-  try {
-    const fn = new Function('data', `with (data) { return (${test}) }`) as (
-      data: Record<string, unknown>
-    ) => unknown
-    const proxy = new Proxy(gameData as Record<string, unknown>, {
-      has: () => true,
-      get: (obj, key) => (obj as Record<string, unknown>)[key as string]
-    })
-    value = fn(proxy)
-  } catch {
-    value = undefined
-  }
+  const value = evaluateExpression(test, gameData)
   const caseList: SwitchCase[] = JSON.parse(cases)
   let source: string | undefined
   for (const c of caseList) {
-    let caseValue: unknown
-    try {
-      const fn = new Function('data', `with (data) { return (${c.test}) }`) as (
-        data: Record<string, unknown>
-      ) => unknown
-      const proxy = new Proxy(gameData as Record<string, unknown>, {
-        has: () => true,
-        get: (obj, key) => (obj as Record<string, unknown>)[key as string]
-      })
-      caseValue = fn(proxy)
-    } catch {
-      caseValue = undefined
-    }
+    const caseValue = evaluateExpression(c.test, gameData)
     if (caseValue === value) {
       source = c.content
       break

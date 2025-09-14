@@ -88,7 +88,13 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
   } = ctx
 
   /**
-   * Serializes `:::switch` blocks into `<switch>` components with cases and an optional fallback.
+   * Handles the `switch` container directive, transforming it into a `<switch>` component
+   * with corresponding cases and an optional fallback.
+   *
+   * @param directive - The container directive node representing the switch block.
+   * @param parent - The parent node of the directive.
+   * @param index - The index of the directive within its parent.
+   * @returns Returns void or SKIP to control traversal.
    */
   const handleSwitch: DirectiveHandler = (directive, parent, index) => {
     const pair = ensureParentIndex(parent, index)
