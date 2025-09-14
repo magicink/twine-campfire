@@ -78,6 +78,7 @@ const ALLOWED_ONEXIT_DIRECTIVES = new Set([
   'translations',
   'if',
   'for',
+  'switch',
   'batch'
 ])
 const ALLOWED_EFFECT_DIRECTIVES = ALLOWED_ONEXIT_DIRECTIVES

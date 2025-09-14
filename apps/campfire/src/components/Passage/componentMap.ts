@@ -8,6 +8,7 @@ import { Textarea } from '@campfire/components/Passage/Textarea'
 import { Select } from '@campfire/components/Passage/Select'
 import { Option } from '@campfire/components/Passage/Option'
 import { If } from '@campfire/components/Passage/If'
+import { Switch } from '@campfire/components/Passage/Switch'
 import { Show } from '@campfire/components/Passage/Show'
 import { Translate } from '@campfire/components/Passage/Translate'
 import { OnExit } from '@campfire/components/Passage/OnExit'
@@ -36,6 +37,7 @@ export const componentMap: Record<string, ComponentType<any>> = {
   select: Select,
   option: Option,
   if: If,
+  switch: Switch,
   show: Show,
   translate: Translate,
   effect: Effect,

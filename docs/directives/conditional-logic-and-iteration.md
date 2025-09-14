@@ -94,6 +94,28 @@ Replace the keys with those from your game data.
 | ---------- | -------------------------------------------- |
 | expression | JavaScript condition evaluated against state |
 
+### `switch`
+
+Evaluate an expression and render the first matching case. Use nested `case` directives with label values and an optional `default` block for fallbacks.
+
+```md
+:::switch[color]
+:::case["red"]
+The apple is red.
+:::
+:::case["green"]
+The apple is green.
+:::
+:::default
+Unknown color.
+:::
+:::
+```
+
+| Input      | Description                                 |
+| ---------- | ------------------------------------------- |
+| expression | Value compared against each case expression |
+
 ## Iteration
 
 Repeat blocks for each item in a collection.
