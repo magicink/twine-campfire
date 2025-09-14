@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.104.0](https://github.com/magicink/twine-campfire/compare/v1.103.0...v1.104.0) (2025-09-14)
+
+
+### Features
+
+* add shared bound field hook ([c10d7a7](https://github.com/magicink/twine-campfire/commit/c10d7a7b05070c449f811d6e378bf061ac1ebc5c))
+* add shared bound field hook ([9cfbbb3](https://github.com/magicink/twine-campfire/commit/9cfbbb36c9169fa767dde5238f901e556a63ac0c))
+* add switch case directives ([#715](https://github.com/magicink/twine-campfire/issues/715)) ([7583628](https://github.com/magicink/twine-campfire/commit/758362857da9dab37af69ffc7dead61f820c8d4e))
+* centralize asset loading in helper ([#706](https://github.com/magicink/twine-campfire/issues/706)) ([7c9ac1e](https://github.com/magicink/twine-campfire/commit/7c9ac1efdf59d6d3f8ee2b6811f007420f30e674))
+* **passage:** add inline worker for directive preprocessing ([#712](https://github.com/magicink/twine-campfire/issues/712)) ([ce2b1ee](https://github.com/magicink/twine-campfire/commit/ce2b1eeb6dc1b69cdb55aa39d5b59484efeb73e2))
+* scan and normalize directives ([#710](https://github.com/magicink/twine-campfire/issues/710)) ([ce3611f](https://github.com/magicink/twine-campfire/commit/ce3611fddf1673a950feb88fd433eb0343da76b4))
+
+
+### Bug Fixes
+
+* resolve storybook and passage type errors ([#714](https://github.com/magicink/twine-campfire/issues/714)) ([f94a184](https://github.com/magicink/twine-campfire/commit/f94a18439687aa44d018b6fa2880ce11d3540d00))
+
 ## [1.103.0](https://github.com/magicink/twine-campfire/compare/v1.102.0...v1.103.0) (2025-09-08)
 
 
