@@ -1,5 +1,11 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { render, screen, fireEvent, act } from '@testing-library/preact'
+import {
+  render,
+  screen,
+  fireEvent,
+  act,
+  waitFor
+} from '@testing-library/preact'
 import type { Element } from 'hast'
 import { Passage } from '@campfire/components/Passage/Passage'
 import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
@@ -164,13 +170,17 @@ describe('Textarea directive', () => {
     render(<Passage />)
     const textarea = await screen.findByTestId('textarea')
     expect(document.body.textContent).not.toContain(':::')
+    expect(document.body.textContent).not.toContain('bio')
     expect(screen.queryByText('Focused!')).toBeNull()
     act(() => {
       ;(textarea as HTMLTextAreaElement).focus()
     })
     await screen.findByText('Focused!')
-    textarea.dispatchEvent(new FocusEvent('focusout', { bubbles: true }))
-    expect(screen.queryByText('Focused!')).toBeNull()
+    act(() => {
+      textarea.dispatchEvent(new FocusEvent('focusout', { bubbles: true }))
+    })
+    await waitFor(() => expect(screen.queryByText('Focused!')).toBeNull())
     expect(document.body.textContent).not.toContain(':::')
+    expect(document.body.textContent).not.toContain('bio')
   })
 })

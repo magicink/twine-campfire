@@ -65,6 +65,11 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         events[name] = JSON.stringify(
           stripLabel((node as ContainerDirective).children as RootContent[])
         )
+      } else if (
+        node.type === 'paragraph' &&
+        (node as Paragraph).data?.directiveLabel
+      ) {
+        continue
       } else if (!isWhitespaceRootContent(node)) {
         remaining.push(node)
       }
@@ -148,8 +153,10 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
           : typeof attrs.defaultValue === 'string'
             ? attrs.defaultValue
             : undefined
-      const rawChildren = runDirectiveBlock(
-        expandIndentedCode(container.children as RootContent[])
+      const rawChildren = stripLabel(
+        runDirectiveBlock(
+          expandIndentedCode(stripLabel(container.children as RootContent[]))
+        )
       )
       const { events, remaining } = extractEventProps(rawChildren)
 
@@ -276,8 +283,10 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
             : typeof attrs.checked === 'string'
               ? attrs.checked
               : undefined
-      const rawChildren = runDirectiveBlock(
-        expandIndentedCode(container.children as RootContent[])
+      const rawChildren = stripLabel(
+        runDirectiveBlock(
+          expandIndentedCode(stripLabel(container.children as RootContent[]))
+        )
       )
       const { events, remaining } = extractEventProps(rawChildren)
 
@@ -537,8 +546,10 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
           : typeof attrs.defaultValue === 'string'
             ? attrs.defaultValue
             : undefined
-      const rawChildren = runDirectiveBlock(
-        expandIndentedCode(container.children as RootContent[])
+      const rawChildren = stripLabel(
+        runDirectiveBlock(
+          expandIndentedCode(stripLabel(container.children as RootContent[]))
+        )
       )
       const { events, remaining } = extractEventProps(rawChildren)
 
