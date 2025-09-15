@@ -151,7 +151,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       const rawChildren = runDirectiveBlock(
         expandIndentedCode(container.children as RootContent[])
       )
-      const { events } = extractEventProps(rawChildren)
+      const { events, remaining } = extractEventProps(rawChildren)
 
       const start = i + 1
       const extras: RootContent[] = []
@@ -279,7 +279,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       const rawChildren = runDirectiveBlock(
         expandIndentedCode(container.children as RootContent[])
       )
-      const { events } = extractEventProps(rawChildren)
+      const { events, remaining } = extractEventProps(rawChildren)
 
       const start = i + 1
       const extras: RootContent[] = []
@@ -540,7 +540,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       const rawChildren = runDirectiveBlock(
         expandIndentedCode(container.children as RootContent[])
       )
-      const { events } = extractEventProps(rawChildren)
+      const { events, remaining } = extractEventProps(rawChildren)
 
       const start = i + 1
       const extras: RootContent[] = []
@@ -586,11 +586,17 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         children: [],
         data: { hName: 'textarea', hProperties: props as Properties }
       }
-      const newIndex = replaceWithIndentation(directive, p, i, [
-        node as RootContent
-      ])
-      const markerIndex = newIndex + 1
-      removeDirectiveMarker(p, markerIndex)
+      const nodes = [node as RootContent, ...remaining]
+      const newIndex = replaceWithIndentation(directive, p, i, nodes)
+      let markerIndex = newIndex + nodes.length
+      while (markerIndex < p.children.length) {
+        const sib = p.children[markerIndex] as RootContent
+        if (isMarkerParagraph(sib) || isMarkerText(sib)) {
+          removeDirectiveMarker(p, markerIndex)
+          break
+        }
+        markerIndex++
+      }
       return [SKIP, newIndex]
     }
     const msg = 'textarea can only be used as a leaf or container directive'
