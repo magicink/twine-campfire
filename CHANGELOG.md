@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.104.1](https://github.com/magicink/twine-campfire/compare/v1.104.0...v1.104.1) (2025-09-15)
+
+
+### Bug Fixes
+
+* **textarea:** handle nested directives ([04af5a0](https://github.com/magicink/twine-campfire/commit/04af5a0811f297c20d29c9f1265f132a3e0c5fcf))
+
 ## [1.104.0](https://github.com/magicink/twine-campfire/compare/v1.103.0...v1.104.0) (2025-09-14)
 
 
