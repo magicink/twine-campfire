@@ -77,6 +77,24 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
     return { events, remaining }
   }
 
+  /**
+   * Removes the first directive marker found at or after the provided index.
+   *
+   * @param parent - The parent node whose children may contain a marker.
+   * @param startIndex - The index to begin searching from.
+   */
+  const removeTrailingMarker = (parent: Parent, startIndex: number): void => {
+    let idx = startIndex
+    while (idx < parent.children.length) {
+      const sib = parent.children[idx] as RootContent
+      if (isMarkerParagraph(sib) || isMarkerText(sib)) {
+        removeDirectiveMarker(parent, idx)
+        break
+      }
+      idx++
+    }
+  }
+
   const handleInput: DirectiveHandler = (directive, parent, index) => {
     const pair = ensureParentIndex(parent, index)
     if (!pair) return
@@ -206,8 +224,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       const newIndex = replaceWithIndentation(directive, p, i, [
         node as RootContent
       ])
-      const markerIndex = newIndex + 1
-      removeDirectiveMarker(p, markerIndex)
+      removeTrailingMarker(p, newIndex + 1)
       return [SKIP, newIndex]
     }
     const msg = 'input can only be used as a leaf or container directive'
@@ -335,8 +352,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       const newIndex = replaceWithIndentation(directive, p, i, [
         node as RootContent
       ])
-      const markerIndex = newIndex + 1
-      removeDirectiveMarker(p, markerIndex)
+      removeTrailingMarker(p, newIndex + 1)
       return [SKIP, newIndex]
     }
     const msg = 'checkbox can only be used as a leaf or container directive'
@@ -468,8 +484,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       const newIndex = replaceWithIndentation(directive, p, i, [
         node as RootContent
       ])
-      const markerIndex = newIndex + 1
-      removeDirectiveMarker(p, markerIndex)
+      removeTrailingMarker(p, newIndex + 1)
       return [SKIP, newIndex]
     }
     const msg = 'radio can only be used as a leaf or container directive'
@@ -599,15 +614,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       }
       const nodes = [node as RootContent, ...remaining]
       const newIndex = replaceWithIndentation(directive, p, i, nodes)
-      let markerIndex = newIndex + nodes.length
-      while (markerIndex < p.children.length) {
-        const sib = p.children[markerIndex] as RootContent
-        if (isMarkerParagraph(sib) || isMarkerText(sib)) {
-          removeDirectiveMarker(p, markerIndex)
-          break
-        }
-        markerIndex++
-      }
+      removeTrailingMarker(p, newIndex + nodes.length)
       return [SKIP, newIndex]
     }
     const msg = 'textarea can only be used as a leaf or container directive'
@@ -693,8 +700,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
     const newIndex = replaceWithIndentation(directive, p, i, [
       node as RootContent
     ])
-    const markerIndex = newIndex + 1
-    removeDirectiveMarker(p, markerIndex)
+    removeTrailingMarker(p, newIndex + 1)
     return [SKIP, newIndex]
   }
 
@@ -774,8 +780,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
     const newIndex = replaceWithIndentation(directive, p, i, [
       node as RootContent
     ])
-    const markerIndex = newIndex + 1
-    removeDirectiveMarker(p, markerIndex)
+    removeTrailingMarker(p, newIndex + 1)
     return [SKIP, newIndex]
   }
 
