@@ -1,5 +1,11 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { render, screen, fireEvent, act } from '@testing-library/preact'
+import {
+  render,
+  screen,
+  fireEvent,
+  act,
+  waitFor
+} from '@testing-library/preact'
 import type { Element } from 'hast'
 import { Passage } from '@campfire/components/Passage/Passage'
 import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
@@ -145,5 +151,36 @@ describe('Textarea directive', () => {
     expect(useGameStore.getState().gameData.focused).toBe(true)
     textarea.dispatchEvent(new FocusEvent('focusout', { bubbles: true }))
     expect(useGameStore.getState().gameData.focused).toBeUndefined()
+  })
+
+  it('renders nested directives without stray markers', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value:
+            ':::textarea[bio]\n:::onFocus\n::set[focused=true]\n:::\n:::onBlur\n::unset[focused]\n:::\n:::if[focused]\n\nFocused!\n\n:::\n\n:::\n'
+        }
+      ]
+    }
+    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+    render(<Passage />)
+    const textarea = await screen.findByTestId('textarea')
+    expect(document.body.textContent).not.toContain(':::')
+    expect(document.body.textContent).not.toContain('bio')
+    expect(screen.queryByText('Focused!')).toBeNull()
+    act(() => {
+      ;(textarea as HTMLTextAreaElement).focus()
+    })
+    await screen.findByText('Focused!')
+    act(() => {
+      textarea.dispatchEvent(new FocusEvent('focusout', { bubbles: true }))
+    })
+    await waitFor(() => expect(screen.queryByText('Focused!')).toBeNull())
+    expect(document.body.textContent).not.toContain(':::')
+    expect(document.body.textContent).not.toContain('bio')
   })
 })
