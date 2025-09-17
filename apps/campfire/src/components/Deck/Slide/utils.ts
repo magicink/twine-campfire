@@ -10,11 +10,13 @@ import { SlideReveal } from './SlideReveal'
  */
 export const getRevealMax = (children: ComponentChildren): number => {
   let max = 0
+  let hasReveal = false
   const walk = (nodes: ComponentChildren): void => {
     toChildArray(nodes).forEach(node => {
       if (typeof node === 'object' && node !== null && 'type' in node) {
         const child = node as VNode<any>
         if (child.type === SlideReveal) {
+          hasReveal = true
           const at = child.props.at ?? 0
           const exitAt = child.props.exitAt ?? at
           max = Math.max(max, at, exitAt)
@@ -26,7 +28,7 @@ export const getRevealMax = (children: ComponentChildren): number => {
     })
   }
   walk(children)
-  return max
+  return hasReveal && max <= 0 ? 1 : max
 }
 
 export default getRevealMax
