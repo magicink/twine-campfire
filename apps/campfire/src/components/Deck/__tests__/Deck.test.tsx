@@ -513,7 +513,7 @@ describe('Deck', () => {
     expect(screen.getByText('Page 1 of 2')).toBeInTheDocument()
   })
 
-  it.skip('sets max steps once for multiple SlideReveal elements', async () => {
+  it('sets max steps once for multiple SlideReveal elements', async () => {
     const original = useDeckStore.getState().setMaxSteps
     const calls: number[] = []
     useDeckStore.setState({
@@ -541,7 +541,7 @@ describe('Deck', () => {
     useDeckStore.setState({ setMaxSteps: original })
   })
 
-  it.skip('preloads steps to prevent HUD flicker between slides', () => {
+  it('preloads steps to prevent HUD flicker between slides', () => {
     render(
       <Deck>
         <Slide>
@@ -565,7 +565,7 @@ describe('Deck', () => {
     expect(useDeckStore.getState().maxSteps).toBe(1)
   })
 
-  it.skip('keeps autoplay paused after rewinding from the end', async () => {
+  it('keeps autoplay paused after rewinding from the end', async () => {
     render(
       <Deck autoAdvanceMs={20}>
         <div>Slide 1</div>
@@ -587,7 +587,7 @@ describe('Deck', () => {
     expect(useDeckStore.getState().currentSlide).toBe(0)
   })
 
-  it.skip('stops autoplay after the final reveal of the last slide', async () => {
+  it('stops autoplay after the final reveal of the last slide', async () => {
     render(
       <Deck autoAdvanceMs={20}>
         <Slide>Slide 1</Slide>
