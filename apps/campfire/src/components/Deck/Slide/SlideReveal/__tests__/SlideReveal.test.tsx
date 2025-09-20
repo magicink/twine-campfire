@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, spyOn } from 'bun:test'
+import { describe, it, expect, beforeEach, afterEach, spyOn } from 'bun:test'
 import { render, screen, act } from '@testing-library/preact'
 import { Deck } from '@campfire/components/Deck'
 import { Slide } from '@campfire/components/Deck/Slide'
@@ -26,11 +26,28 @@ const makeDirective = (md: string) =>
     unified().use(remarkParse).use(remarkDirective).parse(md).children
   )
 
+const originalAnimate = HTMLElement.prototype.animate
+
+/**
+ * Flushes pending animation microtasks to simulate completion.
+ */
+const flushAnimations = async (): Promise<void> => {
+  await act(async () => {
+    await new Promise(resolve => setTimeout(resolve, 0))
+  })
+}
+
 beforeEach(() => {
   setupResizeObserver()
   resetStore()
   resetStores()
   document.body.innerHTML = ''
+  HTMLElement.prototype.animate = () =>
+    new StubAnimation() as unknown as Animation
+})
+
+afterEach(() => {
+  HTMLElement.prototype.animate = originalAnimate
 })
 
 describe('SlideReveal', () => {
@@ -60,9 +77,7 @@ describe('SlideReveal', () => {
     act(() => {
       useDeckStore.getState().next()
     })
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0))
-    })
+    await flushAnimations()
     const visibleReveal = screen.getByTestId('slide-reveal')
     expect(visibleReveal.className).toContain('campfire-slide-reveal')
     expect(visibleReveal.className).not.toContain('hidden')
@@ -98,17 +113,12 @@ describe('SlideReveal', () => {
     act(() => {
       useDeckStore.getState().next()
     })
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0))
-    })
+    await flushAnimations()
     const data = useGameStore.getState().gameData as Record<string, unknown>
     expect(data.entered).toBe(true)
   })
 
-  it.skip('toggles visibility at the configured steps', async () => {
-    // @ts-expect-error override animate
-    HTMLElement.prototype.animate = () => new StubAnimation()
-
+  it('toggles visibility at the configured steps', async () => {
     render(
       <Deck>
         <Slide>
@@ -120,16 +130,11 @@ describe('SlideReveal', () => {
     act(() => {
       useDeckStore.getState().next()
     })
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0))
-    })
+    await flushAnimations()
     expect(screen.getByText('Hello')).toBeTruthy()
   })
 
-  it.skip('runs exit animation and unmounts after completion', async () => {
-    // @ts-expect-error override animate
-    HTMLElement.prototype.animate = () => new StubAnimation()
-
+  it('runs exit animation and unmounts after completion', async () => {
     render(
       <Deck>
         <Slide>
@@ -143,13 +148,11 @@ describe('SlideReveal', () => {
     })
     // Still mounted during animation
     expect(screen.getByText('Bye')).toBeTruthy()
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0))
-    })
+    await flushAnimations()
     expect(screen.queryByText('Bye')).toBeNull()
   })
 
-  it.skip('shows final state immediately when jumping past reveal step', async () => {
+  it('shows final state immediately when jumping past reveal step', async () => {
     render(
       <Deck>
         <Slide>
@@ -160,16 +163,11 @@ describe('SlideReveal', () => {
     act(() => {
       useDeckStore.getState().goTo(0, 5)
     })
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0))
-    })
+    await flushAnimations()
     expect(screen.getByText('Skip')).toBeTruthy()
   })
 
-  it.skip('unmounts visible elements and does not mount unseen ones on slide change', async () => {
-    // @ts-expect-error override animate
-    HTMLElement.prototype.animate = () => new StubAnimation()
-
+  it('unmounts visible elements and does not mount unseen ones on slide change', async () => {
     render(
       <Deck>
         <Slide>
@@ -192,9 +190,7 @@ describe('SlideReveal', () => {
     expect(screen.queryByText('Second')).toBeNull()
     expect(screen.getByText('First')).toBeTruthy()
 
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0))
-    })
+    await flushAnimations()
 
     expect(screen.queryByText('First')).toBeNull()
     expect(screen.queryByText('Second')).toBeNull()
@@ -216,16 +212,12 @@ describe('SlideReveal', () => {
     )
 
     await act(() => useDeckStore.getState().next())
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0))
-    })
+    await flushAnimations()
     expect(spy.mock.calls.at(-1)?.[1]).toMatchObject({ type: 'slide' })
 
     spy.mockClear()
     await act(() => useDeckStore.getState().next())
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0))
-    })
+    await flushAnimations()
     expect(spy.mock.calls.at(-1)?.[1]).toMatchObject({ type: 'slide' })
 
     spy.mockRestore()
