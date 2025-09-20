@@ -143,6 +143,21 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
     }
   }
 
+  /**
+   * Emits an error when the reserved `class` attribute is provided on a directive.
+   *
+   * @param attrs - Attribute map to inspect.
+   */
+  const warnReservedClassAttribute = (
+    attrs: Record<string, unknown> | undefined
+  ): void => {
+    if (attrs && Object.prototype.hasOwnProperty.call(attrs, 'class')) {
+      const msg = 'class is a reserved attribute. Use className instead.'
+      console.error(msg)
+      addError(msg)
+    }
+  }
+
   const handleInput: DirectiveHandler = (directive, parent, index) => {
     const pair = ensureParentIndex(parent, index)
     if (!pair) return
@@ -161,11 +176,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       const label = hasLabel(directive) ? directive.label : toString(directive)
       const key = ensureKey(label.trim(), p, i)
       if (!key) return i
-      if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
-        const msg = 'class is a reserved attribute. Use className instead.'
-        console.error(msg)
-        addError(msg)
-      }
+      warnReservedClassAttribute(attrs)
       const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
         attrs,
         getGameData()
@@ -202,11 +213,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       const label = getLabel(container)
       const key = ensureKey(label.trim(), p, i)
       if (!key) return i
-      if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
-        const msg = 'class is a reserved attribute. Use className instead.'
-        console.error(msg)
-        addError(msg)
-      }
+      warnReservedClassAttribute(attrs)
       const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
         attrs,
         getGameData()
@@ -273,11 +280,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       const key = ensureKey(label.trim(), p, i)
       if (!key) return i
       const attrs = (directive.attributes || {}) as Record<string, unknown>
-      if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
-        const msg = 'class is a reserved attribute. Use className instead.'
-        console.error(msg)
-        addError(msg)
-      }
+      warnReservedClassAttribute(attrs)
       const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
         attrs,
         getGameData()
@@ -314,11 +317,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       const key = ensureKey(label.trim(), p, i)
       if (!key) return i
       const attrs = (container.attributes || {}) as Record<string, unknown>
-      if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
-        const msg = 'class is a reserved attribute. Use className instead.'
-        console.error(msg)
-        addError(msg)
-      }
+      warnReservedClassAttribute(attrs)
       const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
         attrs,
         getGameData()
@@ -384,11 +383,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       const key = ensureKey(label.trim(), p, i)
       if (!key) return i
       const attrs = (directive.attributes || {}) as Record<string, unknown>
-      if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
-        const msg = 'class is a reserved attribute. Use className instead.'
-        console.error(msg)
-        addError(msg)
-      }
+      warnReservedClassAttribute(attrs)
       const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
         attrs,
         getGameData()
@@ -429,11 +424,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       const key = ensureKey(label.trim(), p, i)
       if (!key) return i
       const attrs = (container.attributes || {}) as Record<string, unknown>
-      if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
-        const msg = 'class is a reserved attribute. Use className instead.'
-        console.error(msg)
-        addError(msg)
-      }
+      warnReservedClassAttribute(attrs)
       const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
         attrs,
         getGameData()
@@ -499,11 +490,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       const key = ensureKey(label.trim(), p, i)
       if (!key) return i
       const attrs = (directive.attributes || {}) as Record<string, unknown>
-      if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
-        const msg = 'class is a reserved attribute. Use className instead.'
-        console.error(msg)
-        addError(msg)
-      }
+      warnReservedClassAttribute(attrs)
       const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
         attrs,
         getGameData()
@@ -541,11 +528,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       const key = ensureKey(label.trim(), p, i)
       if (!key) return i
       const attrs = (container.attributes || {}) as Record<string, unknown>
-      if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
-        const msg = 'class is a reserved attribute. Use className instead.'
-        console.error(msg)
-        addError(msg)
-      }
+      warnReservedClassAttribute(attrs)
       const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
         attrs,
         getGameData()
@@ -626,11 +609,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       addError(msg)
       return removeNode(p, i)
     }
-    if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
-      const msg = 'class is a reserved attribute. Use className instead.'
-      console.error(msg)
-      addError(msg)
-    }
+    warnReservedClassAttribute(attrs)
     const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
       attrs,
       getGameData()
@@ -693,11 +672,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
     const key = ensureKey(label.trim(), p, i)
     if (!key) return i
     const attrs = (container.attributes || {}) as Record<string, unknown>
-    if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
-      const msg = 'class is a reserved attribute. Use className instead.'
-      console.error(msg)
-      addError(msg)
-    }
+    warnReservedClassAttribute(attrs)
     const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
       attrs,
       getGameData()
@@ -753,11 +728,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
     const [p, i] = pair
     const container = directive as ContainerDirective
     const attrs = (directive.attributes || {}) as Record<string, unknown>
-    if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
-      const msg = 'class is a reserved attribute. Use className instead.'
-      console.error(msg)
-      addError(msg)
-    }
+    warnReservedClassAttribute(attrs)
     const rawLabel = typeof attrs.label === 'string' ? attrs.label : undefined
     const evaluatedLabel =
       rawLabel && /[.()?:|&]/.test(rawLabel)
