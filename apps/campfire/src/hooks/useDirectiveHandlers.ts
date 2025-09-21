@@ -1239,6 +1239,72 @@ export const useDirectiveHandlers = () => {
     return replaceWithIndentation(directive, p, i, [node as RootContent])
   }
 
+  const SLIDE_ASSET_SHARED_EXCLUDES = [
+    'x',
+    'y',
+    'w',
+    'h',
+    'z',
+    'rotate',
+    'scale',
+    'anchor',
+    'className',
+    'layerClassName',
+    'style',
+    'id',
+    'layerId',
+    'from'
+  ] as const
+
+  type SlideAssetCommonAttrs = {
+    x?: number
+    y?: number
+    w?: number
+    h?: number
+    z?: number
+    rotate?: number
+    scale?: number
+    anchor?: string
+    className?: string
+    layerClassName?: string
+    style?: string
+    id?: string
+    layerId?: string
+  }
+
+  /**
+   * Builds props shared across slide asset directives like embed, image, and shape.
+   *
+   * @param attrs - Interpolated directive attributes.
+   * @param directiveKeys - Keys unique to the directive that should be excluded when spreading additional attributes.
+   * @returns Shared layout props and the exclusion list for `applyAdditionalAttributes`.
+   */
+  const buildSlideAssetProps = <
+    Attrs extends SlideAssetCommonAttrs & Record<string, unknown>
+  >(
+    attrs: Attrs,
+    directiveKeys: readonly string[]
+  ): { props: Record<string, unknown>; exclude: readonly string[] } => {
+    const props: Record<string, unknown> = {}
+    if (typeof attrs.x === 'number') props.x = attrs.x
+    if (typeof attrs.y === 'number') props.y = attrs.y
+    if (typeof attrs.w === 'number') props.w = attrs.w
+    if (typeof attrs.h === 'number') props.h = attrs.h
+    if (typeof attrs.z === 'number') props.z = attrs.z
+    if (typeof attrs.rotate === 'number') props.rotate = attrs.rotate
+    if (typeof attrs.scale === 'number') props.scale = attrs.scale
+    if (attrs.anchor) props.anchor = attrs.anchor
+    if (attrs.className) props.className = attrs.className
+    if (attrs.layerClassName) props.layerClassName = attrs.layerClassName
+    if (attrs.style) props.style = attrs.style
+    if (attrs.id) props.id = attrs.id
+    if (attrs.layerId) props.layerId = attrs.layerId
+    return {
+      props,
+      exclude: [...SLIDE_ASSET_SHARED_EXCLUDES, ...directiveKeys]
+    }
+  }
+
   /**
    * Converts an `embed` directive into a SlideEmbed element.
    *
@@ -1269,58 +1335,23 @@ export const useDirectiveHandlers = () => {
     const mergedAttrs = mergeAttrs<EmbedAttrs>(preset, attrs)
     const normRaw = interpolateAttrs(mergedRaw, gameData)
     const normAttrs = interpolateAttrs(mergedAttrs, gameData)
-    const props: Record<string, unknown> = { src: normAttrs.src }
-    if (typeof normAttrs.x === 'number') props.x = normAttrs.x
-    if (typeof normAttrs.y === 'number') props.y = normAttrs.y
-    if (typeof normAttrs.w === 'number') props.w = normAttrs.w
-    if (typeof normAttrs.h === 'number') props.h = normAttrs.h
-    if (typeof normAttrs.z === 'number') props.z = normAttrs.z
-    if (typeof normAttrs.rotate === 'number') props.rotate = normAttrs.rotate
-    if (typeof normAttrs.scale === 'number') props.scale = normAttrs.scale
-    if (normAttrs.anchor) props.anchor = normAttrs.anchor
+    const { props, exclude } = buildSlideAssetProps(normAttrs, [
+      'src',
+      'allow',
+      'referrerPolicy',
+      'allowFullScreen'
+    ])
+    props.src = normAttrs.src
     if (normAttrs.allow) props.allow = normAttrs.allow
     if (normAttrs.referrerPolicy)
       props.referrerPolicy = normAttrs.referrerPolicy
-    if (normAttrs.allowFullScreen === true) props.allowFullScreen = true
-    const {
-      className: classAttr,
-      layerClassName: layerClassAttr,
-      style: styleAttr
-    } = normAttrs as {
-      className?: string
-      layerClassName?: string
-      style?: string
+    const allowFullScreenValue =
+      normAttrs.allowFullScreen ?? (normRaw['allowFullScreen'] as unknown)
+    if (allowFullScreenValue === true || allowFullScreenValue === 'true') {
+      props.allowFullScreen = true
     }
-    if (classAttr) props.className = classAttr
-    if (layerClassAttr) props.layerClassName = layerClassAttr
-    if (styleAttr) props.style = styleAttr
-    if (normAttrs.id) props.id = normAttrs.id
-    if (normAttrs.layerId) props.layerId = normAttrs.layerId
-    applyAdditionalAttributes(
-      normRaw,
-      props,
-      [
-        'x',
-        'y',
-        'w',
-        'h',
-        'z',
-        'rotate',
-        'scale',
-        'anchor',
-        'src',
-        'allow',
-        'referrerPolicy',
-        'allowFullScreen',
-        'style',
-        'className',
-        'layerClassName',
-        'id',
-        'layerId',
-        'from'
-      ],
-      addError
-    )
+    applyAdditionalAttributes(mergedRaw, props, exclude, addError)
+    applyAdditionalAttributes(normRaw, props, exclude, addError)
     const data = {
       hName: 'slideEmbed',
       hProperties: props as Properties
@@ -1359,53 +1390,11 @@ export const useDirectiveHandlers = () => {
     const mergedAttrs = mergeAttrs<ImageAttrs>(preset, attrs)
     const normRaw = interpolateAttrs(mergedRaw, gameData)
     const normAttrs = interpolateAttrs(mergedAttrs, gameData)
-    const props: Record<string, unknown> = { src: normAttrs.src }
-    if (typeof normAttrs.x === 'number') props.x = normAttrs.x
-    if (typeof normAttrs.y === 'number') props.y = normAttrs.y
-    if (typeof normAttrs.w === 'number') props.w = normAttrs.w
-    if (typeof normAttrs.h === 'number') props.h = normAttrs.h
-    if (typeof normAttrs.z === 'number') props.z = normAttrs.z
-    if (typeof normAttrs.rotate === 'number') props.rotate = normAttrs.rotate
-    if (typeof normAttrs.scale === 'number') props.scale = normAttrs.scale
-    if (normAttrs.anchor) props.anchor = normAttrs.anchor
+    const { props, exclude } = buildSlideAssetProps(normAttrs, ['src', 'alt'])
+    props.src = normAttrs.src
     if (normAttrs.alt) props.alt = normAttrs.alt
-    const {
-      className: classAttr,
-      layerClassName: layerClassAttr,
-      style: styleAttr
-    } = normAttrs as {
-      className?: string
-      layerClassName?: string
-      style?: string
-    }
-    if (classAttr) props.className = classAttr
-    if (layerClassAttr) props.layerClassName = layerClassAttr
-    if (styleAttr) props.style = styleAttr
-    if (normAttrs.id) props.id = normAttrs.id
-    if (normAttrs.layerId) props.layerId = normAttrs.layerId
-    applyAdditionalAttributes(
-      normRaw,
-      props,
-      [
-        'x',
-        'y',
-        'w',
-        'h',
-        'z',
-        'rotate',
-        'scale',
-        'anchor',
-        'src',
-        'alt',
-        'style',
-        'className',
-        'layerClassName',
-        'id',
-        'layerId',
-        'from'
-      ],
-      addError
-    )
+    applyAdditionalAttributes(mergedRaw, props, exclude, addError)
+    applyAdditionalAttributes(normRaw, props, exclude, addError)
     const data = {
       hName: 'slideImage',
       hProperties: props as Properties
@@ -1453,15 +1442,20 @@ export const useDirectiveHandlers = () => {
     const normRaw = interpolateAttrs(mergedRaw, gameData)
     const normAttrs = interpolateAttrs(mergedAttrs, gameData) as ShapeAttrs &
       Record<string, unknown>
-    const props: Record<string, unknown> = { type: normAttrs.type }
-    if (typeof normAttrs.x === 'number') props.x = normAttrs.x
-    if (typeof normAttrs.y === 'number') props.y = normAttrs.y
-    if (typeof normAttrs.w === 'number') props.w = normAttrs.w
-    if (typeof normAttrs.h === 'number') props.h = normAttrs.h
-    if (typeof normAttrs.z === 'number') props.z = normAttrs.z
-    if (typeof normAttrs.rotate === 'number') props.rotate = normAttrs.rotate
-    if (typeof normAttrs.scale === 'number') props.scale = normAttrs.scale
-    if (normAttrs.anchor) props.anchor = normAttrs.anchor
+    const { props, exclude } = buildSlideAssetProps(normAttrs, [
+      'type',
+      'points',
+      'x1',
+      'y1',
+      'x2',
+      'y2',
+      'stroke',
+      'strokeWidth',
+      'fill',
+      'radius',
+      'shadow'
+    ])
+    props.type = normAttrs.type
     if (normAttrs.points) props.points = normAttrs.points
     if (typeof normAttrs.x1 === 'number') props.x1 = normAttrs.x1
     if (typeof normAttrs.y1 === 'number') props.y1 = normAttrs.y1
@@ -1473,52 +1467,8 @@ export const useDirectiveHandlers = () => {
     if (normAttrs.fill) props.fill = normAttrs.fill
     if (typeof normAttrs.radius === 'number') props.radius = normAttrs.radius
     if (typeof normAttrs.shadow === 'boolean') props.shadow = normAttrs.shadow
-    const {
-      className: classAttr,
-      layerClassName: layerClassAttr,
-      style: styleAttr
-    } = normAttrs as {
-      className?: string
-      layerClassName?: string
-      style?: string
-    }
-    if (classAttr) props.className = classAttr
-    if (layerClassAttr) props.layerClassName = layerClassAttr
-    if (styleAttr) props.style = styleAttr
-    if (normAttrs.id) props.id = normAttrs.id
-    if (normAttrs.layerId) props.layerId = normAttrs.layerId
-    applyAdditionalAttributes(
-      normRaw,
-      props,
-      [
-        'x',
-        'y',
-        'w',
-        'h',
-        'z',
-        'rotate',
-        'scale',
-        'anchor',
-        'type',
-        'points',
-        'x1',
-        'y1',
-        'x2',
-        'y2',
-        'stroke',
-        'strokeWidth',
-        'fill',
-        'radius',
-        'shadow',
-        'style',
-        'className',
-        'layerClassName',
-        'id',
-        'layerId',
-        'from'
-      ],
-      addError
-    )
+    applyAdditionalAttributes(mergedRaw, props, exclude, addError)
+    applyAdditionalAttributes(normRaw, props, exclude, addError)
     const node: Parent = {
       type: 'paragraph',
       children: [],
