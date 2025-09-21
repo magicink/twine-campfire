@@ -161,6 +161,16 @@ export const useDirectiveHandlers = () => {
     onceKeys = state.getOnceKeys()
   }
 
+  /**
+   * Reports a directive-related error by logging and queuing it for display.
+   *
+   * @param message - Error message describing the failure.
+   */
+  const reportDirectiveError = (message: string) => {
+    console.error(message)
+    addError(message)
+  }
+
   const { handlers: stateDirectiveHandlers, setValue } = createStateHandlers({
     getState: () => state,
     getGameData: () => gameData,
@@ -196,8 +206,7 @@ export const useDirectiveHandlers = () => {
     )
     if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
       const msg = 'class is a reserved attribute. Use className instead.'
-      console.error(msg)
-      addError(msg)
+      reportDirectiveError(msg)
     }
     const asAttr = typeof attrs.as === 'string' ? attrs.as : undefined
     if (asAttr) {
@@ -327,8 +336,7 @@ export const useDirectiveHandlers = () => {
       if (invalid) {
         const allowedList = [...allowedDirectives].join(', ')
         const msg = `${directiveName} only supports directives: ${allowedList}`
-        console.error(msg)
-        addError(msg)
+        reportDirectiveError(msg)
       }
       const content = JSON.stringify(filtered)
       const node: Parent = {
@@ -401,8 +409,7 @@ export const useDirectiveHandlers = () => {
       onExitErrorRef.current = true
       const msg =
         'Multiple onExit directives in a single passage are not allowed'
-      console.error(msg)
-      addError(msg)
+      reportDirectiveError(msg)
       return removeNode(p, i)
     }
     onExitSeenRef.current = true
@@ -491,8 +498,7 @@ export const useDirectiveHandlers = () => {
       const [p, i] = pair
       if (directive.type !== 'containerDirective') {
         const msg = `${directive.name} can only be used as a container directive`
-        console.error(msg)
-        addError(msg)
+        reportDirectiveError(msg)
         return removeNode(p, i)
       }
       const container = directive as ContainerDirective
@@ -1102,8 +1108,7 @@ export const useDirectiveHandlers = () => {
     const [p, i] = pair
     if (directive.type !== 'containerDirective') {
       const msg = 'text can only be used as a container directive'
-      console.error(msg)
-      addError(msg)
+      reportDirectiveError(msg)
       return removeNode(p, i)
     }
     const container = directive as ContainerDirective
@@ -1433,8 +1438,7 @@ export const useDirectiveHandlers = () => {
       directive.type !== 'leafDirective'
     ) {
       const msg = 'shape can only be used as a leaf or text directive'
-      console.error(msg)
-      addError(msg)
+      reportDirectiveError(msg)
       return removeNode(p, i)
     }
     const { attrs } = extractAttributes<ShapeSchema>(
@@ -1598,8 +1602,7 @@ export const useDirectiveHandlers = () => {
     const [p, i] = pair
     if (directive.type !== 'containerDirective') {
       const msg = 'deck can only be used as a container directive'
-      console.error(msg)
-      addError(msg)
+      reportDirectiveError(msg)
       return removeNode(p, i)
     }
     const container = directive as ContainerDirective
