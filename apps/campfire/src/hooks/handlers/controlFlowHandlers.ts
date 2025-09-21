@@ -62,6 +62,10 @@ export interface ControlFlowHandlerContext {
   allowedBatchDirectives: Set<string>
   /** Directives disallowed within a batch block. */
   bannedBatchDirectives: Set<string>
+  /** Retrieves the most recently processed layer node. */
+  getLastLayerNode?: () => { layer: Parent; parent: Parent } | undefined
+  /** Clears the tracked layer node. */
+  clearLastLayerNode?: () => void
 }
 
 /**
@@ -84,7 +88,9 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
     setOnceKeys,
     isTextNode,
     allowedBatchDirectives,
-    bannedBatchDirectives
+    bannedBatchDirectives,
+    getLastLayerNode,
+    clearLastLayerNode
   } = ctx
 
   /**
@@ -292,6 +298,26 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
           : { test: expr, content }
       }
     }
+    let layerSibling: Parent | undefined
+    for (let j = i - 1; j >= 0; j--) {
+      const sibling = p.children[j] as RootContent
+      if (isWhitespaceRootContent(sibling)) continue
+      if (
+        sibling.type === 'paragraph' &&
+        typeof sibling.data === 'object' &&
+        sibling.data !== null &&
+        (sibling.data as { hName?: unknown }).hName === 'layer'
+      ) {
+        layerSibling = sibling as Parent
+      }
+      break
+    }
+    if (!layerSibling && getLastLayerNode) {
+      const recent = getLastLayerNode()
+      if (recent && (recent.parent === p || p.type === 'root')) {
+        layerSibling = recent.layer
+      }
+    }
     const newIndex = replaceWithIndentation(directive, p, i, [
       node as RootContent
     ])
@@ -307,6 +333,13 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
         removeDirectiveMarker(p, markerIndex)
       }
       break
+    }
+    if (layerSibling) {
+      const layerNode = layerSibling
+      const [inserted] = p.children.splice(newIndex, 1)
+      if (!layerNode.children) layerNode.children = []
+      ;(layerNode.children as RootContent[]).push(inserted as RootContent)
+      return [SKIP, newIndex - 1]
     }
     return [SKIP, newIndex]
   }

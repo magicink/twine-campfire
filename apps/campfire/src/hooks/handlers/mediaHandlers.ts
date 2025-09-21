@@ -1,41 +1,166 @@
 import { AudioManager } from '@campfire/audio/AudioManager'
 import { ImageManager } from '@campfire/image/ImageManager'
+import type { Parent, RootContent } from 'mdast'
+import type { Properties } from 'hast'
 import type { DirectiveHandler } from '@campfire/remark-campfire'
 import {
+  type ExtractedAttrs,
   extractAttributes,
   hasLabel,
   removeNode,
+  replaceWithIndentation,
   runWithIdOrSrc
 } from '@campfire/utils/directiveUtils'
-import { requireLeafDirective } from '@campfire/utils/directiveHandlerUtils'
+import {
+  applyAdditionalAttributes,
+  ensureParentIndex,
+  interpolateAttrs,
+  mergeAttrs,
+  requireLeafDirective
+} from '@campfire/utils/directiveHandlerUtils'
 
-/**
- * Context required to create media directive handlers.
- */
-export interface MediaHandlerContext {
-  /** Records an error message. */
-  addError: (msg: string) => void
+const SLIDE_ASSET_SHARED_EXCLUDES = [
+  'x',
+  'y',
+  'w',
+  'h',
+  'z',
+  'rotate',
+  'scale',
+  'anchor',
+  'className',
+  'layerClassName',
+  'style',
+  'id',
+  'layerId',
+  'from'
+] as const
+
+const embedSchema = {
+  x: { type: 'number' },
+  y: { type: 'number' },
+  w: { type: 'number' },
+  h: { type: 'number' },
+  z: { type: 'number' },
+  rotate: { type: 'number' },
+  scale: { type: 'number' },
+  anchor: { type: 'string' },
+  src: { type: 'string', required: true },
+  allow: { type: 'string' },
+  referrerPolicy: { type: 'string' },
+  allowFullScreen: { type: 'boolean' },
+  style: { type: 'string' },
+  className: { type: 'string' },
+  layerClassName: { type: 'string' },
+  id: { type: 'string' },
+  layerId: { type: 'string' },
+  from: { type: 'string', expression: false }
+} as const
+
+const imageSchema = {
+  x: { type: 'number' },
+  y: { type: 'number' },
+  w: { type: 'number' },
+  h: { type: 'number' },
+  z: { type: 'number' },
+  rotate: { type: 'number' },
+  scale: { type: 'number' },
+  anchor: { type: 'string' },
+  src: { type: 'string', required: true },
+  alt: { type: 'string' },
+  style: { type: 'string' },
+  className: { type: 'string' },
+  layerClassName: { type: 'string' },
+  id: { type: 'string' },
+  layerId: { type: 'string' },
+  from: { type: 'string', expression: false }
+} as const
+
+const shapeSchema = {
+  x: { type: 'number' },
+  y: { type: 'number' },
+  w: { type: 'number' },
+  h: { type: 'number' },
+  z: { type: 'number' },
+  rotate: { type: 'number' },
+  scale: { type: 'number' },
+  anchor: { type: 'string' },
+  type: { type: 'string', required: true },
+  points: { type: 'string' },
+  x1: { type: 'number' },
+  y1: { type: 'number' },
+  x2: { type: 'number' },
+  y2: { type: 'number' },
+  stroke: { type: 'string' },
+  strokeWidth: { type: 'number' },
+  fill: { type: 'string' },
+  radius: { type: 'number' },
+  shadow: { type: 'boolean' },
+  className: { type: 'string' },
+  layerClassName: { type: 'string' },
+  style: { type: 'string' },
+  id: { type: 'string' },
+  layerId: { type: 'string' },
+  from: { type: 'string', expression: false }
+} as const
+
+type EmbedAttrs = ExtractedAttrs<typeof embedSchema>
+type ImageAttrs = ExtractedAttrs<typeof imageSchema>
+type ShapeAttrs = ExtractedAttrs<typeof shapeSchema> & Record<string, unknown>
+
+type SlideAssetCommonAttrs = {
+  x?: number
+  y?: number
+  w?: number
+  h?: number
+  z?: number
+  rotate?: number
+  scale?: number
+  anchor?: string
+  className?: string
+  layerClassName?: string
+  style?: string
+  id?: string
+  layerId?: string
 }
 
-/**
- * Creates handlers for media directives (`:preloadImage`, `:preloadAudio`, `:sound`, `:bgm`, `:volume`).
- *
- * @param ctx - Context providing utilities such as error recording.
- * @returns An object containing media directive handlers.
- */
+const buildSlideAssetProps = <
+  Attrs extends SlideAssetCommonAttrs & Record<string, unknown>
+>(
+  attrs: Attrs,
+  directiveKeys: readonly string[]
+): { props: Record<string, unknown>; exclude: readonly string[] } => {
+  const props: Record<string, unknown> = {}
+  if (typeof attrs.x === 'number') props.x = attrs.x
+  if (typeof attrs.y === 'number') props.y = attrs.y
+  if (typeof attrs.w === 'number') props.w = attrs.w
+  if (typeof attrs.h === 'number') props.h = attrs.h
+  if (typeof attrs.z === 'number') props.z = attrs.z
+  if (typeof attrs.rotate === 'number') props.rotate = attrs.rotate
+  if (typeof attrs.scale === 'number') props.scale = attrs.scale
+  if (attrs.anchor) props.anchor = attrs.anchor
+  if (attrs.className) props.className = attrs.className
+  if (attrs.layerClassName) props.layerClassName = attrs.layerClassName
+  if (attrs.style) props.style = attrs.style
+  if (attrs.id) props.id = attrs.id
+  if (attrs.layerId) props.layerId = attrs.layerId
+  return {
+    props,
+    exclude: [...SLIDE_ASSET_SHARED_EXCLUDES, ...directiveKeys]
+  }
+}
+
+export interface MediaHandlerContext {
+  addError: (msg: string) => void
+  getGameData: () => Record<string, unknown>
+  getPreset: <T>(type: string, name: string) => T | undefined
+}
+
 export const createMediaHandlers = (ctx: MediaHandlerContext) => {
-  const { addError } = ctx
+  const { addError, getGameData, getPreset } = ctx
   const audio = AudioManager.getInstance()
   const images = ImageManager.getInstance()
 
-  /**
-   * Preloads an audio track into the AudioManager cache.
-   *
-   * @param directive - The directive node being processed.
-   * @param parent - Parent node containing the directive.
-   * @param index - Index of the directive within the parent.
-   * @returns The index of the removed node.
-   */
   const handlePreloadAudio: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
     if (invalid !== undefined) return invalid
@@ -53,14 +178,6 @@ export const createMediaHandlers = (ctx: MediaHandlerContext) => {
     return removeNode(parent, index)
   }
 
-  /**
-   * Preloads an image asset into cache.
-   *
-   * @param directive - The directive node being processed.
-   * @param parent - Parent node containing the directive.
-   * @param index - Index of the directive within the parent.
-   * @returns The index of the removed node.
-   */
   const handlePreloadImage: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
     if (invalid !== undefined) return invalid
@@ -78,14 +195,6 @@ export const createMediaHandlers = (ctx: MediaHandlerContext) => {
     return removeNode(parent, index)
   }
 
-  /**
-   * Plays a sound effect or preloaded audio track.
-   *
-   * @param directive - The directive node being processed.
-   * @param parent - Parent node containing the directive.
-   * @param index - Index of the directive within the parent.
-   * @returns The index of the removed node.
-   */
   const handleSound: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
     if (invalid !== undefined) return invalid
@@ -108,14 +217,6 @@ export const createMediaHandlers = (ctx: MediaHandlerContext) => {
     return removeNode(parent, index)
   }
 
-  /**
-   * Controls background music playback, allowing start, stop and fade.
-   *
-   * @param directive - The directive node being processed.
-   * @param parent - Parent node containing the directive.
-   * @param index - Index of the directive within the parent.
-   * @returns The index of the removed node.
-   */
   const handleBgm: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
     if (invalid !== undefined) return invalid
@@ -146,14 +247,6 @@ export const createMediaHandlers = (ctx: MediaHandlerContext) => {
     return removeNode(parent, index)
   }
 
-  /**
-   * Adjusts global audio volume levels for BGM and sound effects.
-   *
-   * @param directive - The directive node being processed.
-   * @param parent - Parent node containing the directive.
-   * @param index - Index of the directive within the parent.
-   * @returns The index of the removed node.
-   */
   const handleVolume: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
     if (invalid !== undefined) return invalid
@@ -170,11 +263,141 @@ export const createMediaHandlers = (ctx: MediaHandlerContext) => {
     return removeNode(parent, index)
   }
 
+  const handleEmbed: DirectiveHandler = (directive, parent, index) => {
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
+    const invalid = requireLeafDirective(directive, p, i, addError)
+    if (invalid !== undefined) return invalid
+    const { attrs } = extractAttributes(directive, p, i, embedSchema)
+    const raw = (directive.attributes || {}) as Record<string, unknown>
+    const preset = attrs.from
+      ? getPreset<Partial<EmbedAttrs> & Record<string, unknown>>(
+          'embed',
+          String(attrs.from)
+        )
+      : undefined
+    const mergedRaw = mergeAttrs<Record<string, unknown>>(preset, raw)
+    const mergedAttrs = mergeAttrs<EmbedAttrs>(preset, attrs)
+    const normRaw = interpolateAttrs(mergedRaw, getGameData())
+    const normAttrs = interpolateAttrs(mergedAttrs, getGameData())
+    const { props, exclude } = buildSlideAssetProps(normAttrs, [
+      'src',
+      'allow',
+      'referrerPolicy',
+      'allowFullScreen'
+    ])
+    props.src = normAttrs.src
+    if (normAttrs.allow) props.allow = normAttrs.allow
+    if (normAttrs.referrerPolicy)
+      props.referrerPolicy = normAttrs.referrerPolicy
+    if (normAttrs.allowFullScreen) props.allowFullScreen = true
+    applyAdditionalAttributes(mergedRaw, props, exclude, addError)
+    applyAdditionalAttributes(normRaw, props, exclude, addError)
+    const data = {
+      hName: 'slideEmbed',
+      hProperties: props as Properties
+    }
+    const node: Parent = { type: 'paragraph', children: [], data }
+    return replaceWithIndentation(directive, p, i, [node as RootContent])
+  }
+
+  const handleImage: DirectiveHandler = (directive, parent, index) => {
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
+    const invalid = requireLeafDirective(directive, p, i, addError)
+    if (invalid !== undefined) return invalid
+    const { attrs } = extractAttributes(directive, p, i, imageSchema)
+    const raw = (directive.attributes || {}) as Record<string, unknown>
+    const preset = attrs.from
+      ? getPreset<Partial<ImageAttrs>>('image', String(attrs.from))
+      : undefined
+    const mergedRaw = mergeAttrs<Record<string, unknown>>(preset, raw)
+    const mergedAttrs = mergeAttrs<ImageAttrs>(preset, attrs)
+    const normRaw = interpolateAttrs(mergedRaw, getGameData())
+    const normAttrs = interpolateAttrs(mergedAttrs, getGameData())
+    const { props, exclude } = buildSlideAssetProps(normAttrs, ['src', 'alt'])
+    props.src = normAttrs.src
+    if (normAttrs.alt) props.alt = normAttrs.alt
+    applyAdditionalAttributes(mergedRaw, props, exclude, addError)
+    applyAdditionalAttributes(normRaw, props, exclude, addError)
+    const data = {
+      hName: 'slideImage',
+      hProperties: props as Properties
+    }
+    const node: Parent = { type: 'paragraph', children: [], data }
+    return replaceWithIndentation(directive, p, i, [node as RootContent])
+  }
+
+  const handleShape: DirectiveHandler = (directive, parent, index) => {
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
+    if (
+      directive.type !== 'textDirective' &&
+      directive.type !== 'leafDirective'
+    ) {
+      const msg = 'shape can only be used as a leaf or text directive'
+      console.error(msg)
+      addError(msg)
+      return removeNode(p, i)
+    }
+    const { attrs } = extractAttributes(directive, p, i, shapeSchema)
+    const raw = (directive.attributes || {}) as Record<string, unknown>
+    const preset = attrs.from
+      ? getPreset<Partial<ShapeAttrs>>('shape', String(attrs.from))
+      : undefined
+    const mergedRaw = mergeAttrs(preset, raw)
+    const mergedAttrs = mergeAttrs(
+      preset,
+      attrs as unknown as Record<string, unknown>
+    ) as ShapeAttrs
+    const normRaw = interpolateAttrs(mergedRaw, getGameData())
+    const normAttrs = interpolateAttrs(mergedAttrs, getGameData()) as ShapeAttrs
+    const { props, exclude } = buildSlideAssetProps(normAttrs, [
+      'type',
+      'points',
+      'x1',
+      'y1',
+      'x2',
+      'y2',
+      'stroke',
+      'strokeWidth',
+      'fill',
+      'radius',
+      'shadow'
+    ])
+    props.type = normAttrs.type
+    if (normAttrs.points) props.points = normAttrs.points
+    if (typeof normAttrs.x1 === 'number') props.x1 = normAttrs.x1
+    if (typeof normAttrs.y1 === 'number') props.y1 = normAttrs.y1
+    if (typeof normAttrs.x2 === 'number') props.x2 = normAttrs.x2
+    if (typeof normAttrs.y2 === 'number') props.y2 = normAttrs.y2
+    if (normAttrs.stroke) props.stroke = normAttrs.stroke
+    if (typeof normAttrs.strokeWidth === 'number')
+      props.strokeWidth = normAttrs.strokeWidth
+    if (normAttrs.fill) props.fill = normAttrs.fill
+    if (typeof normAttrs.radius === 'number') props.radius = normAttrs.radius
+    if (typeof normAttrs.shadow === 'boolean') props.shadow = normAttrs.shadow
+    applyAdditionalAttributes(mergedRaw, props, exclude, addError)
+    applyAdditionalAttributes(normRaw, props, exclude, addError)
+    const node: Parent = {
+      type: 'paragraph',
+      children: [],
+      data: { hName: 'slideShape', hProperties: props as Properties }
+    }
+    return replaceWithIndentation(directive, p, i, [node as RootContent])
+  }
+
   return {
     preloadAudio: handlePreloadAudio,
     preloadImage: handlePreloadImage,
     sound: handleSound,
     bgm: handleBgm,
-    volume: handleVolume
+    volume: handleVolume,
+    embed: handleEmbed,
+    image: handleImage,
+    shape: handleShape
   }
 }
