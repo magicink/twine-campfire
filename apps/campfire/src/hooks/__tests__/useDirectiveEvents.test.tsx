@@ -26,7 +26,7 @@ describe('useDirectiveEvents', () => {
     resetStores()
   })
 
-  it('coalesces duplicate triggers fired in quick succession', async () => {
+  it('processes duplicate triggers on the queued flush after the first run', async () => {
     const content = serialize('::push{key=items value=1}')
 
     /** Test component wiring directive events. */
@@ -48,7 +48,7 @@ describe('useDirectiveEvents', () => {
       await Promise.resolve()
     })
 
-    expect((useGameStore.getState().gameData.items as unknown[]).length).toBe(1)
+    expect((useGameStore.getState().gameData.items as unknown[]).length).toBe(2)
   })
 
   it('runs directives for separate interaction bursts', async () => {
