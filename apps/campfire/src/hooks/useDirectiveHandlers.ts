@@ -1360,10 +1360,10 @@ export const useDirectiveHandlers = () => {
       props.allowFullScreen = true
     }
     applyAdditionalAttributes(mergedRaw, props, exclude, addError)
-    // Apply raw attributes first, then normalized attributes to ensure
-    // normalized values take precedence. This order is intentional:
-    // attributes in normRaw will overwrite those in mergedRaw if keys
-    // overlap.
+    // Apply merged raw attributes first, then normalized/interpolated attributes
+    // to ensure normalized values take precedence. This order is intentional:
+    // attributes in normRaw (the normalized/interpolated version of mergedRaw)
+    // will overwrite those in mergedRaw if keys overlap.
     applyAdditionalAttributes(normRaw, props, exclude, addError)
     const data = {
       hName: 'slideEmbed',
