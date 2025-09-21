@@ -123,14 +123,14 @@ export const useDirectiveEvents = (
     return () => {
       const state = stateRef.current
 
+      state.pending = true
+
       if (state.running) {
-        state.pending = true
         return
       }
 
       if (state.scheduled) return
 
-      state.pending = true
       state.scheduled = true
       queueTask(processQueue)
       processQueue(true)
