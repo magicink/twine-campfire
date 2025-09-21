@@ -10,7 +10,7 @@ const clone = rfdc()
 const queueTask =
   typeof queueMicrotask === 'function'
     ? queueMicrotask
-    : (callback: () => void) => Promise.resolve().then(callback)
+    : (callback: () => void) => setTimeout(callback, 0)
 
 type HandlerState = {
   pending: boolean
@@ -107,26 +107,28 @@ export const useDirectiveEvents = (
 
     const processQueue = () => {
       const state = stateRef.current
+      const shouldRun = state.pending
 
-      if (!state.pending) {
-        state.scheduled = false
-        return
+      if (shouldRun) {
+        state.pending = false
+        state.running = true
       }
-
-      state.pending = false
-      state.running = true
 
       try {
-        runDirectiveBlock(clone(nodes), handlers)
+        if (shouldRun) {
+          runDirectiveBlock(clone(nodes), handlers)
+        }
       } finally {
-        state.running = false
-      }
+        if (shouldRun) {
+          state.running = false
+        }
 
-      state.scheduled = false
-
-      if (state.pending) {
-        state.scheduled = true
-        queueTask(processQueue)
+        if (state.pending) {
+          state.scheduled = true
+          queueTask(processQueue)
+        } else {
+          state.scheduled = false
+        }
       }
     }
 
