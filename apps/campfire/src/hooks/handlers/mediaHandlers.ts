@@ -29,6 +29,35 @@ export const createMediaHandlers = (ctx: MediaHandlerContext) => {
   const images = ImageManager.getInstance()
 
   /**
+   * Creates a preload handler for media directives.
+   *
+   * @param loader - Asset-specific loader invoked with the resolved id and src.
+   * @param errorMessage - Error message recorded when validation fails.
+   * @returns Directive handler that removes the processed node.
+   */
+  const createPreloadHandler = (
+    loader: (id: string, src: string) => void | Promise<unknown>,
+    errorMessage: string
+  ): DirectiveHandler => {
+    return (directive, parent, index) => {
+      const invalid = requireLeafDirective(directive, parent, index, addError)
+      if (invalid !== undefined) return invalid
+      const { attrs } = extractAttributes(directive, parent, index, {
+        id: { type: 'string' },
+        src: { type: 'string' }
+      })
+      const id = hasLabel(directive) ? directive.label : attrs.id
+      const src = attrs.src
+      if (id && src) {
+        void loader(id, src)
+      } else {
+        addError(errorMessage)
+      }
+      return removeNode(parent, index)
+    }
+  }
+
+  /**
    * Preloads an audio track into the AudioManager cache.
    *
    * @param directive - The directive node being processed.
@@ -36,22 +65,10 @@ export const createMediaHandlers = (ctx: MediaHandlerContext) => {
    * @param index - Index of the directive within the parent.
    * @returns The index of the removed node.
    */
-  const handlePreloadAudio: DirectiveHandler = (directive, parent, index) => {
-    const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (invalid !== undefined) return invalid
-    const { attrs } = extractAttributes(directive, parent, index, {
-      id: { type: 'string' },
-      src: { type: 'string' }
-    })
-    const id = hasLabel(directive) ? directive.label : attrs.id
-    const src = attrs.src
-    if (id && src) {
-      audio.load(id, src)
-    } else {
-      addError('preloadAudio directive requires an id/label and src')
-    }
-    return removeNode(parent, index)
-  }
+  const handlePreloadAudio = createPreloadHandler(
+    (id, src) => audio.load(id, src),
+    'preloadAudio directive requires an id/label and src'
+  )
 
   /**
    * Preloads an image asset into cache.
@@ -61,22 +78,10 @@ export const createMediaHandlers = (ctx: MediaHandlerContext) => {
    * @param index - Index of the directive within the parent.
    * @returns The index of the removed node.
    */
-  const handlePreloadImage: DirectiveHandler = (directive, parent, index) => {
-    const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (invalid !== undefined) return invalid
-    const { attrs } = extractAttributes(directive, parent, index, {
-      id: { type: 'string' },
-      src: { type: 'string' }
-    })
-    const id = hasLabel(directive) ? directive.label : attrs.id
-    const src = attrs.src
-    if (id && src) {
-      void images.load(id, src)
-    } else {
-      addError('preloadImage directive requires an id/label and src')
-    }
-    return removeNode(parent, index)
-  }
+  const handlePreloadImage = createPreloadHandler(
+    (id, src) => images.load(id, src),
+    'preloadImage directive requires an id/label and src'
+  )
 
   /**
    * Plays a sound effect or preloaded audio track.
