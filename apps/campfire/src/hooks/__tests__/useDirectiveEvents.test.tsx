@@ -26,7 +26,7 @@ describe('useDirectiveEvents', () => {
     resetStores()
   })
 
-  it('executes directives when event handlers fire', () => {
+  it('coalesces duplicate triggers fired in quick succession', async () => {
     const content = serialize('::push{key=items value=1}')
 
     /** Test component wiring directive events. */
@@ -41,6 +41,42 @@ describe('useDirectiveEvents', () => {
     act(() => {
       el.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }))
       el.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }))
+      el.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }))
+    })
+
+    await act(async () => {
+      await Promise.resolve()
+    })
+
+    expect((useGameStore.getState().gameData.items as unknown[]).length).toBe(1)
+  })
+
+  it('runs directives for separate interaction bursts', async () => {
+    const content = serialize('::push{key=items value=1}')
+
+    /** Test component wiring directive events. */
+    const TestComponent = () => {
+      const { onMouseEnter } = useDirectiveEvents(content)
+      return <div data-testid='target' onMouseEnter={onMouseEnter} />
+    }
+
+    render(<TestComponent />)
+    const el = document.querySelector('[data-testid="target"]') as HTMLElement
+
+    act(() => {
+      el.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }))
+    })
+
+    await act(async () => {
+      await Promise.resolve()
+    })
+
+    act(() => {
+      el.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }))
+    })
+
+    await act(async () => {
+      await Promise.resolve()
     })
 
     expect((useGameStore.getState().gameData.items as unknown[]).length).toBe(2)

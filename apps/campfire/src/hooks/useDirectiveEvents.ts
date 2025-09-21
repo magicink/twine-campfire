@@ -7,6 +7,17 @@ import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 
 const clone = rfdc()
 
+const queueTask =
+  typeof queueMicrotask === 'function'
+    ? queueMicrotask
+    : (callback: () => void) => Promise.resolve().then(callback)
+
+type HandlerState = {
+  pending: boolean
+  running: boolean
+  scheduled: boolean
+}
+
 /**
  * Parses a serialized directive string into directive nodes.
  *
@@ -59,22 +70,82 @@ export const useDirectiveEvents = (
   if (blurRef.current === null && onBlur)
     blurRef.current = parseDirective(onBlur)
 
+  const enterStateRef = useRef<HandlerState>({
+    pending: false,
+    running: false,
+    scheduled: false
+  })
+  const leaveStateRef = useRef<HandlerState>({
+    pending: false,
+    running: false,
+    scheduled: false
+  })
+  const focusStateRef = useRef<HandlerState>({
+    pending: false,
+    running: false,
+    scheduled: false
+  })
+  const blurStateRef = useRef<HandlerState>({
+    pending: false,
+    running: false,
+    scheduled: false
+  })
+
   /**
-   * Creates an event handler that executes pre-parsed directive nodes.
+   * Creates an event handler that executes pre-parsed directive nodes while
+   * coalescing duplicate triggers that arrive during the same render burst.
    *
    * @param nodes - Directive nodes to execute.
-   * @returns Event handler or undefined.
+   * @param stateRef - Mutable state tracking pending and running status.
+   * @returns Event handler or undefined when no directives are supplied.
    */
-  const createHandler = (nodes: RootContent[] | null) =>
-    nodes ? () => runDirectiveBlock(clone(nodes), handlers) : undefined
+  const createHandler = (
+    nodes: RootContent[] | null,
+    stateRef: { current: HandlerState }
+  ) => {
+    if (!nodes) return undefined
 
-  // TODO(campfire): Consider debouncing mouse events and preventing re-entry
-  // while a directive block is running; add tests for both handler present
-  // and undefined paths per repository guidelines.
+    const processQueue = () => {
+      const state = stateRef.current
+
+      if (!state.pending) {
+        state.scheduled = false
+        return
+      }
+
+      state.pending = false
+      state.running = true
+
+      try {
+        runDirectiveBlock(clone(nodes), handlers)
+      } finally {
+        state.running = false
+      }
+
+      state.scheduled = false
+
+      if (state.pending) {
+        state.scheduled = true
+        queueTask(processQueue)
+      }
+    }
+
+    return () => {
+      const state = stateRef.current
+
+      state.pending = true
+
+      if (state.running || state.scheduled) return
+
+      state.scheduled = true
+      queueTask(processQueue)
+    }
+  }
+
   return {
-    onMouseEnter: createHandler(enterRef.current),
-    onMouseLeave: createHandler(leaveRef.current),
-    onFocus: createHandler(focusRef.current),
-    onBlur: createHandler(blurRef.current)
+    onMouseEnter: createHandler(enterRef.current, enterStateRef),
+    onMouseLeave: createHandler(leaveRef.current, leaveStateRef),
+    onFocus: createHandler(focusRef.current, focusStateRef),
+    onBlur: createHandler(blurRef.current, blurStateRef)
   }
 }
