@@ -1345,12 +1345,25 @@ export const useDirectiveHandlers = () => {
     if (normAttrs.allow) props.allow = normAttrs.allow
     if (normAttrs.referrerPolicy)
       props.referrerPolicy = normAttrs.referrerPolicy
-    const allowFullScreenValue =
-      normAttrs.allowFullScreen ?? (normRaw['allowFullScreen'] as unknown)
-    if (allowFullScreenValue === true || allowFullScreenValue === 'true') {
+    // The value for allowFullScreen may come from either normAttrs or
+    // normRaw, and may be a boolean or a string. This fallback handles cases
+    // where the attribute is set as a string (e.g., from markdown or user
+    // input). If the value is the boolean true or the string 'true'
+    // (case-insensitive), enable allowFullScreen.
+    const allowFullScreenRaw =
+      normAttrs.allowFullScreen ?? normRaw['allowFullScreen']
+    if (
+      allowFullScreenRaw === true ||
+      (typeof allowFullScreenRaw === 'string' &&
+        allowFullScreenRaw.trim().toLowerCase() === 'true')
+    ) {
       props.allowFullScreen = true
     }
     applyAdditionalAttributes(mergedRaw, props, exclude, addError)
+    // Apply raw attributes first, then normalized attributes to ensure
+    // normalized values take precedence. This order is intentional:
+    // attributes in normRaw will overwrite those in mergedRaw if keys
+    // overlap.
     applyAdditionalAttributes(normRaw, props, exclude, addError)
     const data = {
       hName: 'slideEmbed',
