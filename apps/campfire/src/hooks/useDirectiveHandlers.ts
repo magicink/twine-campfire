@@ -1114,14 +1114,12 @@ export const useDirectiveHandlers = () => {
     const container = directive as ContainerDirective
     const { attrs } = extractAttributes<TextSchema>(directive, p, i, textSchema)
     const raw = (directive.attributes || {}) as Record<string, unknown>
-    const preset = attrs.from
-      ? presetsRef.current['text']?.[String(attrs.from)]
-      : undefined
-    const mergedRaw = mergeAttrs(preset, raw)
-    const mergedAttrs = mergeAttrs(
-      preset,
-      attrs as unknown as Record<string, unknown>
-    ) as TextAttrs & Record<string, unknown>
+    const { mergedRaw, mergedAttrs } = resolvePresetAttributes(
+      'text',
+      raw,
+      attrs,
+      attrs.from
+    )
     const tagName = mergedAttrs.as ? String(mergedAttrs.as) : 'p'
     const style: string[] = []
     style.push('position:absolute')
@@ -1261,6 +1259,34 @@ export const useDirectiveHandlers = () => {
     'from'
   ] as const
 
+  type PresetAttributes<
+    Raw extends Record<string, unknown>,
+    Attrs extends Record<string, unknown>
+  > = Partial<Raw> & Partial<Attrs>
+
+  const resolvePresetAttributes = <
+    Raw extends Record<string, unknown>,
+    Attrs extends Record<string, unknown>
+  >(
+    namespace: string,
+    raw: Raw,
+    attrs: Attrs,
+    from?: string | number
+  ) => {
+    const presetKey = from != null ? String(from) : undefined
+    const namespacePresets = presetKey
+      ? presetsRef.current[namespace]
+      : undefined
+    const presetRecord =
+      presetKey && namespacePresets ? namespacePresets[presetKey] : undefined
+    const preset = presetRecord as PresetAttributes<Raw, Attrs> | undefined
+    const mergedRaw = mergeAttrs(preset, raw)
+    const mergedAttrs = mergeAttrs(preset, attrs)
+    const normRaw = interpolateAttrs(mergedRaw, gameData)
+    const normAttrs = interpolateAttrs(mergedAttrs, gameData)
+    return { preset, mergedRaw, mergedAttrs, normRaw, normAttrs }
+  }
+
   type SlideAssetCommonAttrs = {
     x?: number
     y?: number
@@ -1331,15 +1357,12 @@ export const useDirectiveHandlers = () => {
       embedSchema
     )
     const raw = (directive.attributes || {}) as Record<string, unknown>
-    const preset = attrs.from
-      ? (presetsRef.current['embed']?.[
-          String(attrs.from)
-        ] as Partial<EmbedAttrs>)
-      : undefined
-    const mergedRaw = mergeAttrs<Record<string, unknown>>(preset, raw)
-    const mergedAttrs = mergeAttrs<EmbedAttrs>(preset, attrs)
-    const normRaw = interpolateAttrs(mergedRaw, gameData)
-    const normAttrs = interpolateAttrs(mergedAttrs, gameData)
+    const { mergedRaw, normRaw, normAttrs } = resolvePresetAttributes(
+      'embed',
+      raw,
+      attrs,
+      attrs.from
+    )
     const { props, exclude } = buildSlideAssetProps(normAttrs, [
       'src',
       'allow',
@@ -1399,15 +1422,12 @@ export const useDirectiveHandlers = () => {
       imageSchema
     )
     const raw = (directive.attributes || {}) as Record<string, unknown>
-    const preset = attrs.from
-      ? (presetsRef.current['image']?.[
-          String(attrs.from)
-        ] as Partial<ImageAttrs>)
-      : undefined
-    const mergedRaw = mergeAttrs<Record<string, unknown>>(preset, raw)
-    const mergedAttrs = mergeAttrs<ImageAttrs>(preset, attrs)
-    const normRaw = interpolateAttrs(mergedRaw, gameData)
-    const normAttrs = interpolateAttrs(mergedAttrs, gameData)
+    const { mergedRaw, normRaw, normAttrs } = resolvePresetAttributes(
+      'image',
+      raw,
+      attrs,
+      attrs.from
+    )
     const { props, exclude } = buildSlideAssetProps(normAttrs, ['src', 'alt'])
     props.src = normAttrs.src
     if (normAttrs.alt) props.alt = normAttrs.alt
@@ -1448,30 +1468,28 @@ export const useDirectiveHandlers = () => {
       shapeSchema
     )
     const raw = (directive.attributes || {}) as Record<string, unknown>
-    const preset = attrs.from
-      ? presetsRef.current['shape']?.[String(attrs.from)]
-      : undefined
-    const mergedRaw = mergeAttrs(preset, raw)
-    const mergedAttrs = mergeAttrs(
-      preset,
-      attrs as unknown as Record<string, unknown>
-    ) as ShapeAttrs & Record<string, unknown>
-    const normRaw = interpolateAttrs(mergedRaw, gameData)
-    const normAttrs = interpolateAttrs(mergedAttrs, gameData) as ShapeAttrs &
-      Record<string, unknown>
-    const { props, exclude } = buildSlideAssetProps(normAttrs, [
-      'type',
-      'points',
-      'x1',
-      'y1',
-      'x2',
-      'y2',
-      'stroke',
-      'strokeWidth',
-      'fill',
-      'radius',
-      'shadow'
-    ])
+    const { mergedRaw, normRaw, normAttrs } = resolvePresetAttributes(
+      'shape',
+      raw,
+      attrs,
+      attrs.from
+    )
+    const { props, exclude } = buildSlideAssetProps(
+      normAttrs as ShapeAttrs & Record<string, unknown>,
+      [
+        'type',
+        'points',
+        'x1',
+        'y1',
+        'x2',
+        'y2',
+        'stroke',
+        'strokeWidth',
+        'fill',
+        'radius',
+        'shadow'
+      ]
+    )
     props.type = normAttrs.type
     if (normAttrs.points) props.points = normAttrs.points
     if (typeof normAttrs.x1 === 'number') props.x1 = normAttrs.x1
