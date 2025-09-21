@@ -2,20 +2,22 @@ import type { JSX } from 'preact'
 import { useRef } from 'preact/hooks'
 import type { RootContent } from 'mdast'
 import rfdc from 'rfdc'
+import { queueTask } from '@campfire/utils/core'
 import { runDirectiveBlock } from '@campfire/utils/directiveUtils'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 
 const clone = rfdc()
 
-const queueTask =
-  typeof queueMicrotask === 'function'
-    ? queueMicrotask
-    : (callback: () => void) => setTimeout(callback, 0)
-
 type HandlerState = {
   pending: boolean
   running: boolean
   scheduled: boolean
+}
+
+const DEFAULT_HANDLER_STATE: HandlerState = {
+  pending: false,
+  running: false,
+  scheduled: false
 }
 
 /**
@@ -70,26 +72,10 @@ export const useDirectiveEvents = (
   if (blurRef.current === null && onBlur)
     blurRef.current = parseDirective(onBlur)
 
-  const enterStateRef = useRef<HandlerState>({
-    pending: false,
-    running: false,
-    scheduled: false
-  })
-  const leaveStateRef = useRef<HandlerState>({
-    pending: false,
-    running: false,
-    scheduled: false
-  })
-  const focusStateRef = useRef<HandlerState>({
-    pending: false,
-    running: false,
-    scheduled: false
-  })
-  const blurStateRef = useRef<HandlerState>({
-    pending: false,
-    running: false,
-    scheduled: false
-  })
+  const enterStateRef = useRef<HandlerState>({ ...DEFAULT_HANDLER_STATE })
+  const leaveStateRef = useRef<HandlerState>({ ...DEFAULT_HANDLER_STATE })
+  const focusStateRef = useRef<HandlerState>({ ...DEFAULT_HANDLER_STATE })
+  const blurStateRef = useRef<HandlerState>({ ...DEFAULT_HANDLER_STATE })
 
   /**
    * Creates an event handler that executes pre-parsed directive nodes while

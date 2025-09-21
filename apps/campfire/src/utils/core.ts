@@ -1,6 +1,22 @@
 import { compile } from 'expression-eval'
 import type { JSX } from 'preact'
 
+/**
+ * Queues a callback to run after the current call stack, preferring microtasks.
+ *
+ * Falls back to `setTimeout` when `queueMicrotask` is unavailable so tasks still
+ * execute asynchronously in older environments.
+ *
+ * @param callback - Function to execute asynchronously.
+ */
+export const queueTask = (callback: () => void): void => {
+  if (typeof queueMicrotask === 'function') {
+    queueMicrotask(callback)
+  } else {
+    setTimeout(callback, 0)
+  }
+}
+
 /** Pattern matching a string enclosed in matching quotes or backticks. */
 export const QUOTE_PATTERN = /^(['"`])(.*?)\1$/
 
