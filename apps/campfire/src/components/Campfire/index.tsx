@@ -12,6 +12,7 @@ import { EXIT, visit } from 'unist-util-visit'
 import { applyUserStyles } from '@campfire/components/Campfire/applyUserStyles'
 import { evaluateUserScript } from '@campfire/components/Campfire/evaluateUserScript'
 import { useOverlayProcessor } from '@campfire/hooks/useOverlayProcessor'
+import { useOrientationController } from '@campfire/hooks/useOrientationController'
 
 /**
  * React component that renders the main story interface.
@@ -36,6 +37,7 @@ export const Campfire = ({
   const setStoryData = useStoryDataStore.use.setStoryData()
 
   useOverlayProcessor()
+  useOrientationController()
 
   /**
    * Extracts the <tw-storydata> element from the given HAST tree and updates the story data store with its properties.
