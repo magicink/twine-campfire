@@ -2,10 +2,23 @@ import type { JSX } from 'preact'
 import { useRef } from 'preact/hooks'
 import type { RootContent } from 'mdast'
 import rfdc from 'rfdc'
+import { queueTask } from '@campfire/utils/core'
 import { runDirectiveBlock } from '@campfire/utils/directiveUtils'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 
 const clone = rfdc()
+
+type HandlerState = {
+  pending: boolean
+  running: boolean
+  scheduled: boolean
+}
+
+const DEFAULT_HANDLER_STATE: HandlerState = {
+  pending: false,
+  running: false,
+  scheduled: false
+}
 
 /**
  * Parses a serialized directive string into directive nodes.
@@ -59,22 +72,68 @@ export const useDirectiveEvents = (
   if (blurRef.current === null && onBlur)
     blurRef.current = parseDirective(onBlur)
 
+  const enterStateRef = useRef<HandlerState>({ ...DEFAULT_HANDLER_STATE })
+  const leaveStateRef = useRef<HandlerState>({ ...DEFAULT_HANDLER_STATE })
+  const focusStateRef = useRef<HandlerState>({ ...DEFAULT_HANDLER_STATE })
+  const blurStateRef = useRef<HandlerState>({ ...DEFAULT_HANDLER_STATE })
+
   /**
-   * Creates an event handler that executes pre-parsed directive nodes.
+   * Creates an event handler that executes pre-parsed directive nodes while
+   * coalescing duplicate triggers that arrive during the same render burst.
    *
    * @param nodes - Directive nodes to execute.
-   * @returns Event handler or undefined.
+   * @param stateRef - Mutable state tracking pending and running status.
+   * @returns Event handler or undefined when no directives are supplied.
    */
-  const createHandler = (nodes: RootContent[] | null) =>
-    nodes ? () => runDirectiveBlock(clone(nodes), handlers) : undefined
+  const createHandler = (
+    nodes: RootContent[] | null,
+    stateRef: { current: HandlerState }
+  ) => {
+    if (!nodes) return undefined
 
-  // TODO(campfire): Consider debouncing mouse events and preventing re-entry
-  // while a directive block is running; add tests for both handler present
-  // and undefined paths per repository guidelines.
+    const processQueue = () => {
+      const state = stateRef.current
+      const shouldRun = state.pending
+
+      if (shouldRun) {
+        state.pending = false
+        state.running = true
+      }
+
+      try {
+        if (shouldRun) {
+          runDirectiveBlock(clone(nodes), handlers)
+        }
+      } finally {
+        if (shouldRun) {
+          state.running = false
+        }
+
+        if (state.pending) {
+          state.scheduled = true
+          queueTask(processQueue)
+        } else {
+          state.scheduled = false
+        }
+      }
+    }
+
+    return () => {
+      const state = stateRef.current
+
+      state.pending = true
+
+      if (state.running || state.scheduled) return
+
+      state.scheduled = true
+      queueTask(processQueue)
+    }
+  }
+
   return {
-    onMouseEnter: createHandler(enterRef.current),
-    onMouseLeave: createHandler(leaveRef.current),
-    onFocus: createHandler(focusRef.current),
-    onBlur: createHandler(blurRef.current)
+    onMouseEnter: createHandler(enterRef.current, enterStateRef),
+    onMouseLeave: createHandler(leaveRef.current, leaveStateRef),
+    onFocus: createHandler(focusRef.current, focusStateRef),
+    onBlur: createHandler(blurRef.current, blurStateRef)
   }
 }
