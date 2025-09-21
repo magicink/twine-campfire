@@ -100,6 +100,7 @@ const INTERACTIVE_EVENTS = new Set([
   'onFocus',
   'onBlur'
 ])
+const IDENTIFIER_PATTERN = /^[A-Za-z_$][A-Za-z0-9_$]*$/
 
 export const useDirectiveHandlers = () => {
   // TODO(campfire): This module is very large; consider splitting handlers
@@ -196,8 +197,7 @@ export const useDirectiveHandlers = () => {
       raw = `\`${(directive.children[0] as InlineCode).value}\``
     }
     if (!raw) return removeNode(parent, index)
-    const keyPattern = /^[A-Za-z_$][A-Za-z0-9_$]*$/
-    const props: Record<string, unknown> = keyPattern.test(raw)
+    const props: Record<string, unknown> = IDENTIFIER_PATTERN.test(raw)
       ? { 'data-key': raw }
       : { 'data-expr': raw }
     const attrs = interpolateAttrs(
