@@ -50,6 +50,8 @@ export interface NavigationHandlerContext {
   incrementIncludeDepth: () => void
   /** Decrements the include depth. */
   decrementIncludeDepth: () => void
+  /** Toggles whether landscape orientation is allowed. */
+  toggleAllowLandscape: () => void
 }
 
 /**
@@ -68,7 +70,8 @@ export const createNavigationHandlers = (ctx: NavigationHandlerContext) => {
     handlersRef,
     getIncludeDepth,
     incrementIncludeDepth,
-    decrementIncludeDepth
+    decrementIncludeDepth,
+    toggleAllowLandscape
   } = ctx
 
   /**
@@ -258,5 +261,25 @@ export const createNavigationHandlers = (ctx: NavigationHandlerContext) => {
     ]
   }
 
-  return { goto: handleGoto, title: handleTitle, include: handleInclude }
+  /**
+   * Handles the `::allowLandscape` directive, toggling whether landscape orientation is permitted.
+   *
+   * @param directive - The directive node representing the allowLandscape directive.
+   * @param parent - The parent AST node containing this directive.
+   * @param index - The index of the directive node within its parent.
+   * @returns The new index after replacement.
+   */
+  const handleAllowLandscape: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index, addError)
+    if (invalid !== undefined) return invalid
+    toggleAllowLandscape()
+    return removeNode(parent, index)
+  }
+
+  return {
+    goto: handleGoto,
+    title: handleTitle,
+    include: handleInclude,
+    allowLandscape: handleAllowLandscape
+  }
 }

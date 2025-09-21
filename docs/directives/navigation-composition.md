@@ -56,6 +56,24 @@ separated by a colon. Customize this behavior by adding attributes to the
 | ----- | ----------------------------------- |
 | text  | Title text displayed in the browser |
 
+### `allowLandscape`
+
+Toggle the mobile orientation lock. Use as a leaf directive with no value.
+
+```md
+::allowLandscape
+```
+
+Campfire locks the viewport to portrait mode when the story loads. Running
+`::allowLandscape` flips an internal flag, causing the orientation controller to
+unlock the screen (or lock to landscape when unlock support is unavailable).
+Run the directive again later to restore the portrait lock.
+
+Orientation locking requires browsers that implement the Screen Orientation
+API. On unsupported platforms or when the API rejects the request (for example
+outside a user gesture on some mobile browsers), the directive safely degrades
+with no visible effect.
+
 ### `deck`
 
 Present content as a series of slides.

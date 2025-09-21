@@ -50,6 +50,7 @@ import { createMediaHandlers } from './handlers/mediaHandlers'
 import { createPersistenceHandlers } from './handlers/persistenceHandlers'
 import { createI18nHandlers } from './handlers/i18nHandlers'
 import { isWhitespaceRootContent } from '@campfire/utils/nodePredicates'
+import { toggleAllowLandscape } from '@campfire/state/orientationState'
 
 const NUMERIC_PATTERN = /^\d+$/
 const ALLOWED_ONEXIT_DIRECTIVES = new Set([
@@ -1060,7 +1061,8 @@ export const useDirectiveHandlers = () => {
     },
     decrementIncludeDepth: () => {
       includeDepth--
-    }
+    },
+    toggleAllowLandscape
   })
 
   const mediaHandlers = createMediaHandlers({ addError })
