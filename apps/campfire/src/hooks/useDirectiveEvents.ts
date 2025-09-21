@@ -91,7 +91,7 @@ export const useDirectiveEvents = (
   ) => {
     if (!nodes) return undefined
 
-    const processQueue = () => {
+    const processQueue = (immediate = false) => {
       const state = stateRef.current
       const shouldRun = state.pending
 
@@ -110,9 +110,11 @@ export const useDirectiveEvents = (
         }
 
         if (state.pending) {
-          state.scheduled = true
-          queueTask(processQueue)
-        } else {
+          if (!state.scheduled) {
+            state.scheduled = true
+            queueTask(processQueue)
+          }
+        } else if (!immediate) {
           state.scheduled = false
         }
       }
@@ -121,12 +123,17 @@ export const useDirectiveEvents = (
     return () => {
       const state = stateRef.current
 
+      if (state.running) {
+        state.pending = true
+        return
+      }
+
+      if (state.scheduled) return
+
       state.pending = true
-
-      if (state.running || state.scheduled) return
-
       state.scheduled = true
       queueTask(processQueue)
+      processQueue(true)
     }
   }
 
