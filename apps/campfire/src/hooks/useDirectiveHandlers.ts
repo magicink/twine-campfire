@@ -1259,30 +1259,31 @@ export const useDirectiveHandlers = () => {
     'from'
   ] as const
 
-  const resolvePresetAttributes = <
-    Namespace extends string,
+  type PresetAttributes<
     Raw extends Record<string, unknown>,
-    Attrs extends Record<string, unknown>,
-    AttrResult extends Record<string, unknown> = Attrs,
-    Preset extends Partial<Raw> & Partial<AttrResult> = Partial<Raw> &
-      Partial<AttrResult>
+    Attrs extends Record<string, unknown>
+  > = Partial<Raw> & Partial<Attrs>
+
+  const resolvePresetAttributes = <
+    Raw extends Record<string, unknown>,
+    Attrs extends Record<string, unknown>
   >(
-    namespace: Namespace,
+    namespace: string,
     raw: Raw,
     attrs: Attrs,
     from?: string | number
   ) => {
-    const presetKey = from ? String(from) : undefined
-    const preset = presetKey
-      ? (presetsRef.current[namespace]?.[presetKey] as Preset | undefined)
+    const presetKey = from != null ? String(from) : undefined
+    const namespacePresets = presetKey
+      ? presetsRef.current[namespace]
       : undefined
-    const mergedRaw = mergeAttrs<Raw>(preset as Partial<Raw> | undefined, raw)
-    const mergedAttrs = mergeAttrs<AttrResult>(
-      preset as Partial<AttrResult> | undefined,
-      attrs as AttrResult
-    )
-    const normRaw = interpolateAttrs<Raw>(mergedRaw, gameData)
-    const normAttrs = interpolateAttrs<AttrResult>(mergedAttrs, gameData)
+    const presetRecord =
+      presetKey && namespacePresets ? namespacePresets[presetKey] : undefined
+    const preset = presetRecord as PresetAttributes<Raw, Attrs> | undefined
+    const mergedRaw = mergeAttrs(preset, raw)
+    const mergedAttrs = mergeAttrs(preset, attrs)
+    const normRaw = interpolateAttrs(mergedRaw, gameData)
+    const normAttrs = interpolateAttrs(mergedAttrs, gameData)
     return { preset, mergedRaw, mergedAttrs, normRaw, normAttrs }
   }
 
