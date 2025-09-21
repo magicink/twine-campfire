@@ -53,4 +53,19 @@ describe('embed directive', () => {
     ) as HTMLIFrameElement
     expect(iframe.hasAttribute('allowfullscreen')).toBe(false)
   })
+
+  it('applies preset attributes when using from', () => {
+    const md =
+      ':preset{type="embed" name="video" src="https://vid.example/embed" allowFullScreen=true data-track="preset"}\n' +
+      ':::reveal\n::embed{from="video" allow="autoplay"}\n:::\n'
+    render(<MarkdownRunner markdown={md} />)
+    const el = document.querySelector(
+      '[data-testid="slideEmbed"]'
+    ) as HTMLElement
+    expect(el.getAttribute('data-track')).toBe('preset')
+    const iframe = el.querySelector('iframe') as HTMLIFrameElement
+    expect(iframe.getAttribute('src')).toBe('https://vid.example/embed')
+    expect(iframe.getAttribute('allow')).toBe('autoplay')
+    expect(iframe.hasAttribute('allowfullscreen')).toBe(true)
+  })
 })
