@@ -294,6 +294,60 @@ export const useDirectiveHandlers = () => {
   })
 
   /**
+   * Creates a directive handler that serializes directive children into
+   * `hProperties` and removes the trailing directive marker.
+   *
+   * @param directiveName - Name of the directive being processed.
+   * @param allowedDirectives - Set of directives permitted inside the block.
+   * @param buildProperties - Builds the element properties for the output node.
+   * @returns Directive handler responsible for serializing the directive.
+   */
+  const createSerializedDirectiveHandler =
+    (
+      directiveName: string,
+      allowedDirectives: Set<string>,
+      buildProperties: (params: {
+        filtered: RootContent[]
+        content: string
+      }) => Properties
+    ): DirectiveHandler =>
+    (directive, parent, index) => {
+      const pair = ensureParentIndex(parent, index)
+      if (!pair) return
+      const [p, i] = pair
+      const container = directive as ContainerDirective
+      const rawChildren = runDirectiveBlock(
+        expandIndentedCode(container.children as RootContent[])
+      )
+      const processedChildren = stripLabel(rawChildren)
+      const [filtered, invalid] = filterDirectiveChildren(
+        processedChildren,
+        allowedDirectives
+      )
+      if (invalid) {
+        const allowedList = [...allowedDirectives].join(', ')
+        const msg = `${directiveName} only supports directives: ${allowedList}`
+        console.error(msg)
+        addError(msg)
+      }
+      const content = JSON.stringify(filtered)
+      const node: Parent = {
+        type: 'paragraph',
+        children: [{ type: 'text', value: '' }],
+        data: {
+          hName: directiveName,
+          hProperties: buildProperties({ filtered, content })
+        }
+      }
+      const newIndex = replaceWithIndentation(directive, p, i, [
+        node as RootContent
+      ])
+      const markerIndex = newIndex + 1
+      removeDirectiveMarker(p, markerIndex)
+      return [SKIP, newIndex]
+    }
+
+  /**
    * Processes an `effect` directive and serializes its contents.
    *
    * @param directive - The effect directive node.
@@ -317,42 +371,18 @@ export const useDirectiveHandlers = () => {
       .split(/[\s,]+/)
       .map(k => k.trim())
       .filter(Boolean)
-    const container = directive as ContainerDirective
-    const allowed = ALLOWED_EFFECT_DIRECTIVES
-    const rawChildren = runDirectiveBlock(
-      expandIndentedCode(container.children as RootContent[])
+    const visitor = createSerializedDirectiveHandler(
+      'effect',
+      ALLOWED_EFFECT_DIRECTIVES,
+      ({ content }) => ({ watch, content })
     )
-    const processedChildren = stripLabel(rawChildren)
-    const [filtered, invalid] = filterDirectiveChildren(
-      processedChildren,
-      allowed
-    )
-    if (invalid) {
-      const allowedList = [...allowed].join(', ')
-      const msg = `effect only supports directives: ${allowedList}`
-      console.error(msg)
-      addError(msg)
-    }
-    const content = JSON.stringify(filtered)
-    const node: Parent = {
-      type: 'paragraph',
-      children: [{ type: 'text', value: '' }],
-      data: { hName: 'effect', hProperties: { watch, content } }
-    }
-    const newIndex = replaceWithIndentation(directive, p, i, [
-      node as RootContent
-    ])
-    const markerIndex = newIndex + 1
-    removeDirectiveMarker(p, markerIndex)
-    return [SKIP, newIndex]
+    return visitor(directive, p, i)
   }
 
   /**
-   * Converts an `:input` directive into an Input component bound to game state.
-   * When a `type` attribute of `checkbox` or `radio` is provided, delegates to
-   * the corresponding directive handler.
+   * Converts an `onExit` directive into a serialized block for the renderer.
    *
-   * @param directive - The input directive node.
+   * @param directive - The onExit directive node.
    * @param parent - Parent node containing the directive.
    * @param index - Index of the directive within its parent.
    * @returns The index of the inserted node.
@@ -376,34 +406,12 @@ export const useDirectiveHandlers = () => {
       return removeNode(p, i)
     }
     onExitSeenRef.current = true
-    const container = directive as ContainerDirective
-    const allowed = ALLOWED_ONEXIT_DIRECTIVES
-    const rawChildren = runDirectiveBlock(
-      expandIndentedCode(container.children as RootContent[])
+    const visitor = createSerializedDirectiveHandler(
+      'onExit',
+      ALLOWED_ONEXIT_DIRECTIVES,
+      ({ content }) => ({ content })
     )
-    const processedChildren = stripLabel(rawChildren)
-    const [filtered, invalid] = filterDirectiveChildren(
-      processedChildren,
-      allowed
-    )
-    if (invalid) {
-      const allowedList = [...allowed].join(', ')
-      const msg = `onExit only supports directives: ${allowedList}`
-      console.error(msg)
-      addError(msg)
-    }
-    const content = JSON.stringify(filtered)
-    const node: Parent = {
-      type: 'paragraph',
-      children: [{ type: 'text', value: '' }],
-      data: { hName: 'onExit', hProperties: { content } }
-    }
-    const newIndex = replaceWithIndentation(directive, p, i, [
-      node as RootContent
-    ])
-    const markerIndex = newIndex + 1
-    removeDirectiveMarker(p, markerIndex)
-    return [SKIP, newIndex]
+    return visitor(directive, p, i)
   }
 
   /**
