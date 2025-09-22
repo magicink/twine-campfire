@@ -20,7 +20,8 @@ export const AdventureGame: StoryObj = {
       <tw-storydata startnode='1' options='debug'>
         <tw-passagedata pid='1' name='Start'>
           {`
-Hello adventurer! Enter your name: :input[playerName]{placeholder="Your name"}
+Hello adventurer! Enter your name:
+::input[playerName]{placeholder="Your name"}
 
 :::if[(playerName && playerName.trim())]
   :::trigger{label="Continue"}
@@ -31,17 +32,17 @@ Hello adventurer! Enter your name: :input[playerName]{placeholder="Your name"}
         </tw-passagedata>
         <tw-passagedata pid='2' name='ChooseClass'>
           {`
-:preset{type="wrapper" name="classChoice" as="label" className="flex items-center gap-2"}
+::preset{type="wrapper" name="classChoice" as="label" className="flex items-center gap-2"}
 
 Greetings, :show[playerName]{className="font-semibold"}! Choose your class:
 
 :::layer{className="flex flex-col gap-3 mt-4"}
   :::wrapper{from="classChoice"}
-    :radio[playerClass]{value="Warrior"}
+    ::radio[playerClass]{value="Warrior"}
     Warrior
   :::
   :::wrapper{from="classChoice"}
-    :radio[playerClass]{value="Mage"}
+    ::radio[playerClass]{value="Mage"}
     Mage
   :::
 :::
