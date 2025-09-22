@@ -300,13 +300,14 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
     // Remove closing directive markers after the if block, skipping whitespace-only nodes
     let markerIndex = newIndex + 1
     while (markerIndex < p.children.length) {
-      const sibling = p.children[markerIndex]
+      const sibling = p.children[markerIndex] as RootContent
+      if (isMarkerParagraph(sibling) || isMarkerText(sibling)) {
+        removeDirectiveMarker(p, markerIndex)
+        break
+      }
       if (isWhitespaceRootContent(sibling)) {
         markerIndex++
         continue
-      }
-      if (isMarkerParagraph(sibling)) {
-        removeDirectiveMarker(p, markerIndex)
       }
       break
     }

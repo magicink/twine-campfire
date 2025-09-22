@@ -36,4 +36,21 @@ describe('if directive', () => {
     expect(document.querySelector('input')).toBeTruthy()
     expect(document.body.innerHTML).not.toContain(':::')
   })
+
+  it('strips marker paragraphs when conditionals follow leaf directives', () => {
+    const md = [
+      'Hello adventurer! Enter your name:',
+      '::input[playerName]{placeholder="Your name"}',
+      '',
+      ':::if[(playerName && playerName.trim())]',
+      '  :::trigger{label="Continue"}',
+      '    ::goto["ChooseClass"]',
+      '  :::',
+      ':::'
+    ].join('\n')
+
+    render(<MarkdownRunner markdown={md} />)
+
+    expect(document.body.innerHTML).not.toContain(':::')
+  })
 })
