@@ -18,6 +18,7 @@ import {
 import {
   removeDirectiveMarker,
   isMarkerParagraph,
+  isMarkerText,
   ensureParentIndex
 } from '@campfire/utils/directiveHandlerUtils'
 import { evalExpression } from '@campfire/utils/core'
@@ -124,14 +125,14 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
     // Collect sibling case/default directives until the closing marker.
     let cursor = i + 1
     while (cursor < p.children.length) {
-      const sibling = p.children[cursor]
+      const sibling = p.children[cursor] as RootContent
+      if (isMarkerParagraph(sibling) || isMarkerText(sibling)) {
+        removeDirectiveMarker(p, cursor)
+        break
+      }
       if (isWhitespaceRootContent(sibling)) {
         removeNode(p, cursor)
         continue
-      }
-      if (isMarkerParagraph(sibling)) {
-        removeDirectiveMarker(p, cursor)
-        break
       }
       if (
         sibling.type === 'containerDirective' &&
@@ -189,13 +190,14 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
     ])
     let markerIndex = newIndex + 1
     while (markerIndex < p.children.length) {
-      const sibling = p.children[markerIndex]
+      const sibling = p.children[markerIndex] as RootContent
+      if (isMarkerParagraph(sibling) || isMarkerText(sibling)) {
+        removeDirectiveMarker(p, markerIndex)
+        break
+      }
       if (isWhitespaceRootContent(sibling)) {
         markerIndex++
         continue
-      }
-      if (isMarkerParagraph(sibling)) {
-        removeDirectiveMarker(p, markerIndex)
       }
       break
     }
@@ -298,13 +300,14 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
     // Remove closing directive markers after the if block, skipping whitespace-only nodes
     let markerIndex = newIndex + 1
     while (markerIndex < p.children.length) {
-      const sibling = p.children[markerIndex]
+      const sibling = p.children[markerIndex] as RootContent
+      if (isMarkerParagraph(sibling) || isMarkerText(sibling)) {
+        removeDirectiveMarker(p, markerIndex)
+        break
+      }
       if (isWhitespaceRootContent(sibling)) {
         markerIndex++
         continue
-      }
-      if (isMarkerParagraph(sibling)) {
-        removeDirectiveMarker(p, markerIndex)
       }
       break
     }

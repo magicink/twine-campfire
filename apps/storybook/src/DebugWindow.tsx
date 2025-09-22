@@ -107,6 +107,10 @@ export const DebugWindow = () => {
   const [minimized, setMinimized] = useState(false)
   const [tab, setTab] = useState<Tab>(TAB_GAME)
   const containerRef = useRef<HTMLDivElement>(null)
+  const serializedGameData = useMemo(
+    () => JSON.stringify(gameData ?? {}, null, 2),
+    [gameData]
+  )
 
   const debugEnabled = storyData?.options === DEBUG_OPTION
 
@@ -126,6 +130,15 @@ export const DebugWindow = () => {
    */
   const handleCopyJsx = (): void => {
     void navigator.clipboard?.writeText(jsxPassage)
+  }
+
+  /**
+   * Copies the serialized game state to the clipboard.
+   *
+   * @returns {void}
+   */
+  const handleCopyGameData = (): void => {
+    void navigator.clipboard?.writeText(serializedGameData)
   }
 
   useEffect(() => {
@@ -238,9 +251,19 @@ export const DebugWindow = () => {
           </div>
           <div className='p-2'>
             {tab === TAB_GAME ? (
-              <pre className='whitespace-pre-wrap'>
-                {JSON.stringify(gameData, null, 2)}
-              </pre>
+              <div>
+                <button
+                  type='button'
+                  data-testid='copy-game'
+                  onClick={e => {
+                    e.stopPropagation()
+                    handleCopyGameData()
+                  }}
+                >
+                  Copy Game Data
+                </button>
+                <pre className='whitespace-pre-wrap'>{serializedGameData}</pre>
+              </div>
             ) : tab === TAB_STORY ? (
               <div>
                 <pre className='whitespace-pre-wrap'>

@@ -126,4 +126,20 @@ Hi
     expect(style).toContain('font-size: 32px')
     expect(style).toContain('color: red')
   })
+
+  it('applies text presets defined with leaf directives', () => {
+    const md =
+      '::preset{type="text" name="headline" x=12 y=24 size=28 color="blue"}\n' +
+      ':::text{from="headline" size=36}\nHello\n:::'
+    render(<MarkdownRunner markdown={md} />)
+    const el = document.querySelector(
+      '[data-testid="slideText"]'
+    ) as HTMLElement
+    const inner = el.firstElementChild as HTMLElement
+    const style = inner.getAttribute('style') || ''
+    expect(style).toContain('left: 12px')
+    expect(style).toContain('top: 24px')
+    expect(style).toContain('font-size: 36px')
+    expect(style).toContain('color: blue')
+  })
 })

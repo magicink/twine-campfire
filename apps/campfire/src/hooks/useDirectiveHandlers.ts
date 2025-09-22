@@ -943,9 +943,12 @@ export const useDirectiveHandlers = () => {
                 (child as MdText).value.includes(DIRECTIVE_MARKER)
             )
             if (idxText !== -1) last.children.splice(idxText, 1)
+            const hasDirectiveOutput =
+              typeof (last as Parent).data?.hName === 'string'
             if (
-              last.children.length === 0 ||
-              last.children.every(isWhitespaceNode)
+              !hasDirectiveOutput &&
+              (last.children.length === 0 ||
+                last.children.every(isWhitespaceNode))
             )
               processed.pop()
           }
