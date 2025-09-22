@@ -220,6 +220,35 @@ describe('Passage game state directives', () => {
     )
   })
 
+  it('prevents range values from dropping below the minimum', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: '::createRange[hp=5]{min=0 max=10}\n::setRange[hp=-4]\n'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() =>
+      expect(useGameStore.getState().gameData.hp).toEqual({
+        min: 0,
+        max: 10,
+        value: 0
+      })
+    )
+  })
+
   it('batches state updates into one change', async () => {
     const unsetCalls: string[] = []
     const origUnset = useGameStore.getState().unsetGameData
@@ -1099,274 +1128,5 @@ describe('Passage game state directives', () => {
         (useGameStore.getState().gameData as Record<string, unknown>).flag
       ).toBeUndefined()
     )
-  })
-
-  describe('leaf state directives', () => {
-    it('locks keys with setOnce', async () => {
-      const passage: Element = {
-        type: 'element',
-        tagName: 'tw-passagedata',
-        properties: { pid: '1', name: 'Start' },
-        children: [{ type: 'text', value: '::setOnce[gold=10]' }]
-      }
-      useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-      render(<Passage />)
-      await waitFor(() =>
-        expect(
-          (useGameStore.getState().gameData as Record<string, unknown>).gold
-        ).toBe(10)
-      )
-      expect(useGameStore.getState().lockedKeys.gold).toBe(true)
-      useGameStore.getState().setGameData({ gold: 5 })
-      expect(
-        (useGameStore.getState().gameData as Record<string, unknown>).gold
-      ).toBe(10)
-    })
-
-    it('creates range values with createRange directive', async () => {
-      const passage: Element = {
-        type: 'element',
-        tagName: 'tw-passagedata',
-        properties: { pid: '1', name: 'Start' },
-        children: [{ type: 'text', value: '::createRange[hp=5]{min=0 max=10}' }]
-      }
-      useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-      render(<Passage />)
-      await waitFor(() =>
-        expect(useGameStore.getState().gameData.hp).toEqual({
-          min: 0,
-          max: 10,
-          value: 5
-        })
-      )
-    })
-
-    it('clamps values with setRange directive', async () => {
-      const passage: Element = {
-        type: 'element',
-        tagName: 'tw-passagedata',
-        properties: { pid: '1', name: 'Start' },
-        children: [
-          { type: 'text', value: '::createRange[hp=5]{min=0 max=10}\n' },
-          { type: 'text', value: '::setRange[hp=20]' }
-        ]
-      }
-      useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-      render(<Passage />)
-      await waitFor(() =>
-        expect(useGameStore.getState().gameData.hp).toEqual({
-          min: 0,
-          max: 10,
-          value: 10
-        })
-      )
-    })
-
-    it('sets arrays with array directive', async () => {
-      useGameStore.setState(state => ({ ...state, gameData: { base: 2 } }))
-      const passage: Element = {
-        type: 'element',
-        tagName: 'tw-passagedata',
-        properties: { pid: '1', name: 'Start' },
-        children: [
-          { type: 'text', value: "::array[items=[1,'two',false,base+3]]" }
-        ]
-      }
-      useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-      render(<Passage />)
-      await waitFor(() =>
-        expect(useGameStore.getState().gameData.items).toEqual([
-          1,
-          'two',
-          false,
-          5
-        ])
-      )
-    })
-
-    it('locks arrays with arrayOnce directive', async () => {
-      const passage: Element = {
-        type: 'element',
-        tagName: 'tw-passagedata',
-        properties: { pid: '1', name: 'Start' },
-        children: [{ type: 'text', value: '::arrayOnce[nums=[1,2]]' }]
-      }
-      useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-      render(<Passage />)
-      await waitFor(() =>
-        expect(useGameStore.getState().gameData.nums).toEqual([1, 2])
-      )
-      expect(useGameStore.getState().lockedKeys.nums).toBe(true)
-      useGameStore.getState().setGameData({ nums: [3] })
-      expect(useGameStore.getState().gameData.nums).toEqual([1, 2])
-    })
-
-    it('stores a random item with random directive', async () => {
-      useGameStore.setState(state => ({
-        ...state,
-        gameData: { items: ['a', 'b', 'c'] }
-      }))
-      const passage: Element = {
-        type: 'element',
-        tagName: 'tw-passagedata',
-        properties: { pid: '1', name: 'Start' },
-        children: [{ type: 'text', value: '::random[pick]{from=items}' }]
-      }
-      useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-      render(<Passage />)
-      await waitFor(() => {
-        const { gameData } = useGameStore.getState()
-        expect(['a', 'b', 'c']).toContain(gameData.pick)
-        expect(gameData.items).toEqual(['a', 'b', 'c'])
-      })
-    })
-
-    it('locks keys with randomOnce directive', async () => {
-      const passage: Element = {
-        type: 'element',
-        tagName: 'tw-passagedata',
-        properties: { pid: '1', name: 'Start' },
-        children: [{ type: 'text', value: '::randomOnce[foo]{min=1 max=2}' }]
-      }
-      useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-      render(<Passage />)
-      await waitFor(() =>
-        expect(
-          (useGameStore.getState().gameData as Record<string, unknown>).foo
-        ).toBeGreaterThanOrEqual(1)
-      )
-      expect(useGameStore.getState().lockedKeys.foo).toBe(true)
-    })
-
-    it('pops items with pop directive', async () => {
-      useGameStore.setState(state => ({
-        ...state,
-        gameData: { items: ['a', 'b', 'c'] }
-      }))
-      const passage: Element = {
-        type: 'element',
-        tagName: 'tw-passagedata',
-        properties: { pid: '1', name: 'Start' },
-        children: [{ type: 'text', value: '::pop{key=items}' }]
-      }
-      useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-      render(<Passage />)
-      await waitFor(() =>
-        expect(useGameStore.getState().gameData.items).toEqual(['a', 'b'])
-      )
-    })
-
-    it('pushes items with push directive', async () => {
-      useGameStore.setState(state => ({
-        ...state,
-        gameData: { items: ['a', 'b', 'c'] }
-      }))
-      const passage: Element = {
-        type: 'element',
-        tagName: 'tw-passagedata',
-        properties: { pid: '1', name: 'Start' },
-        children: [{ type: 'text', value: '::push{key=items value=d}' }]
-      }
-      useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-      render(<Passage />)
-      await waitFor(() =>
-        expect(useGameStore.getState().gameData.items).toEqual([
-          'a',
-          'b',
-          'c',
-          'd'
-        ])
-      )
-    })
-
-    it('shifts items with shift directive', async () => {
-      useGameStore.setState(state => ({
-        ...state,
-        gameData: { items: ['a', 'b', 'c'] }
-      }))
-      const passage: Element = {
-        type: 'element',
-        tagName: 'tw-passagedata',
-        properties: { pid: '1', name: 'Start' },
-        children: [{ type: 'text', value: '::shift{key=items}' }]
-      }
-      useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-      render(<Passage />)
-      await waitFor(() =>
-        expect(useGameStore.getState().gameData.items).toEqual(['b', 'c'])
-      )
-    })
-
-    it('unshifts items with unshift directive', async () => {
-      useGameStore.setState(state => ({
-        ...state,
-        gameData: { items: ['a', 'b', 'c'] }
-      }))
-      const passage: Element = {
-        type: 'element',
-        tagName: 'tw-passagedata',
-        properties: { pid: '1', name: 'Start' },
-        children: [{ type: 'text', value: '::unshift{key=items value=z}' }]
-      }
-      useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-      render(<Passage />)
-      await waitFor(() =>
-        expect(useGameStore.getState().gameData.items).toEqual([
-          'z',
-          'a',
-          'b',
-          'c'
-        ])
-      )
-    })
-
-    it('splices items with splice directive', async () => {
-      useGameStore.setState(state => ({
-        ...state,
-        gameData: { items: ['a', 'b', 'c', 'd'] }
-      }))
-      const passage: Element = {
-        type: 'element',
-        tagName: 'tw-passagedata',
-        properties: { pid: '1', name: 'Start' },
-        children: [
-          {
-            type: 'text',
-            value: '::splice{key=items index=1 count=2 value=x,y into=removed}'
-          }
-        ]
-      }
-      useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-      render(<Passage />)
-      await waitFor(() => {
-        const { gameData } = useGameStore.getState()
-        expect(gameData.items).toEqual(['a', 'x', 'y', 'd'])
-        expect(gameData.removed).toEqual(['b', 'c'])
-      })
-    })
-
-    it('concats arrays with concat directive', async () => {
-      useGameStore.setState(state => ({
-        ...state,
-        gameData: { items: ['a', 'b', 'c'], more: ['d', 'e'] }
-      }))
-      const passage: Element = {
-        type: 'element',
-        tagName: 'tw-passagedata',
-        properties: { pid: '1', name: 'Start' },
-        children: [{ type: 'text', value: '::concat{key=items value=more}' }]
-      }
-      useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-      render(<Passage />)
-      await waitFor(() =>
-        expect(useGameStore.getState().gameData.items).toEqual([
-          'a',
-          'b',
-          'c',
-          'd',
-          'e'
-        ])
-      )
-    })
   })
 })

@@ -78,6 +78,54 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
   }
 
   /**
+   * Collects interactive sibling directives following a container directive.
+   *
+   * @param parent - Parent node containing the directive and its siblings.
+   * @param startIndex - Index of the container directive within the parent.
+   * @param eventNames - Names that identify interactive directives.
+   * @param extract - Helper that extracts interactive event props from nodes.
+   * @param nodes - Child nodes that belong to the current container directive.
+   * @returns Combined interactive events and any non-interactive nodes.
+   */
+  const collectInteractiveExtras = (
+    parent: Parent,
+    startIndex: number,
+    eventNames: Set<string>,
+    extract: (nodes: RootContent[]) => {
+      events: Record<string, string>
+      remaining: RootContent[]
+    },
+    nodes: RootContent[]
+  ): { events: Record<string, string>; remaining: RootContent[] } => {
+    const { events: baseEvents, remaining: baseRemaining } = extract(nodes)
+    const events = { ...baseEvents }
+    const remaining = [...baseRemaining]
+    const extras: RootContent[] = []
+    let cursor = startIndex + 1
+    while (cursor < parent.children.length) {
+      const sibling = parent.children[cursor] as RootContent
+      if (
+        sibling.type === 'containerDirective' &&
+        eventNames.has((sibling as ContainerDirective).name)
+      ) {
+        extras.push(sibling)
+        parent.children.splice(cursor, 1)
+        continue
+      }
+      if (isMarkerParagraph(sibling) || isMarkerText(sibling)) {
+        removeDirectiveMarker(parent, cursor)
+      }
+      break
+    }
+    if (extras.length) {
+      const { events: extraEvents, remaining: extraRemaining } = extract(extras)
+      Object.assign(events, extraEvents)
+      if (extraRemaining.length) remaining.push(...extraRemaining)
+    }
+    return { events, remaining }
+  }
+
+  /**
    * Removes the first directive marker found at or after the provided index.
    *
    * @param parent - The parent node whose children may contain a marker.
@@ -92,6 +140,21 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         break
       }
       idx++
+    }
+  }
+
+  /**
+   * Emits an error when the reserved `class` attribute is provided on a directive.
+   *
+   * @param attrs - Attribute map to inspect.
+   */
+  const warnReservedClassAttribute = (
+    attrs: Record<string, unknown> | undefined
+  ): void => {
+    if (attrs && Object.prototype.hasOwnProperty.call(attrs, 'class')) {
+      const msg = 'class is a reserved attribute. Use className instead.'
+      console.error(msg)
+      addError(msg)
     }
   }
 
@@ -113,11 +176,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       const label = hasLabel(directive) ? directive.label : toString(directive)
       const key = ensureKey(label.trim(), p, i)
       if (!key) return i
-      if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
-        const msg = 'class is a reserved attribute. Use className instead.'
-        console.error(msg)
-        addError(msg)
-      }
+      warnReservedClassAttribute(attrs)
       const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
         attrs,
         getGameData()
@@ -154,11 +213,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       const label = getLabel(container)
       const key = ensureKey(label.trim(), p, i)
       if (!key) return i
-      if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
-        const msg = 'class is a reserved attribute. Use className instead.'
-        console.error(msg)
-        addError(msg)
-      }
+      warnReservedClassAttribute(attrs)
       const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
         attrs,
         getGameData()
@@ -176,30 +231,13 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
           expandIndentedCode(stripLabel(container.children as RootContent[]))
         )
       )
-      const { events, remaining } = extractEventProps(rawChildren)
-
-      const start = i + 1
-      const extras: RootContent[] = []
-      let cursor = start
-      while (cursor < p.children.length) {
-        const sib = p.children[cursor] as RootContent
-        if (
-          sib.type === 'containerDirective' &&
-          interactiveEvents.has((sib as ContainerDirective).name)
-        ) {
-          extras.push(sib)
-          p.children.splice(cursor, 1)
-          continue
-        }
-        if (isMarkerParagraph(sib) || isMarkerText(sib)) {
-          p.children.splice(cursor, 1)
-        }
-        break
-      }
-      if (extras.length) {
-        const { events: extraEvents } = extractEventProps(extras)
-        Object.assign(events, extraEvents)
-      }
+      const { events } = collectInteractiveExtras(
+        p,
+        i,
+        interactiveEvents,
+        extractEventProps,
+        rawChildren
+      )
       const props: Record<string, unknown> = { stateKey: key }
       if (classAttr)
         props.className = (classAttr as string).split(/\s+/).filter(Boolean)
@@ -242,11 +280,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       const key = ensureKey(label.trim(), p, i)
       if (!key) return i
       const attrs = (directive.attributes || {}) as Record<string, unknown>
-      if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
-        const msg = 'class is a reserved attribute. Use className instead.'
-        console.error(msg)
-        addError(msg)
-      }
+      warnReservedClassAttribute(attrs)
       const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
         attrs,
         getGameData()
@@ -283,11 +317,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       const key = ensureKey(label.trim(), p, i)
       if (!key) return i
       const attrs = (container.attributes || {}) as Record<string, unknown>
-      if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
-        const msg = 'class is a reserved attribute. Use className instead.'
-        console.error(msg)
-        addError(msg)
-      }
+      warnReservedClassAttribute(attrs)
       const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
         attrs,
         getGameData()
@@ -305,30 +335,13 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
           expandIndentedCode(stripLabel(container.children as RootContent[]))
         )
       )
-      const { events, remaining } = extractEventProps(rawChildren)
-
-      const start = i + 1
-      const extras: RootContent[] = []
-      let cursor = start
-      while (cursor < p.children.length) {
-        const sib = p.children[cursor] as RootContent
-        if (
-          sib.type === 'containerDirective' &&
-          interactiveEvents.has((sib as ContainerDirective).name)
-        ) {
-          extras.push(sib)
-          p.children.splice(cursor, 1)
-          continue
-        }
-        if (isMarkerParagraph(sib) || isMarkerText(sib)) {
-          p.children.splice(cursor, 1)
-        }
-        break
-      }
-      if (extras.length) {
-        const { events: extraEvents } = extractEventProps(extras)
-        Object.assign(events, extraEvents)
-      }
+      const { events } = collectInteractiveExtras(
+        p,
+        i,
+        interactiveEvents,
+        extractEventProps,
+        rawChildren
+      )
       const props: Record<string, unknown> = { stateKey: key }
       if (classAttr)
         props.className = (classAttr as string).split(/\s+/).filter(Boolean)
@@ -370,11 +383,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       const key = ensureKey(label.trim(), p, i)
       if (!key) return i
       const attrs = (directive.attributes || {}) as Record<string, unknown>
-      if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
-        const msg = 'class is a reserved attribute. Use className instead.'
-        console.error(msg)
-        addError(msg)
-      }
+      warnReservedClassAttribute(attrs)
       const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
         attrs,
         getGameData()
@@ -415,11 +424,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       const key = ensureKey(label.trim(), p, i)
       if (!key) return i
       const attrs = (container.attributes || {}) as Record<string, unknown>
-      if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
-        const msg = 'class is a reserved attribute. Use className instead.'
-        console.error(msg)
-        addError(msg)
-      }
+      warnReservedClassAttribute(attrs)
       const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
         attrs,
         getGameData()
@@ -434,30 +439,13 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       const rawChildren = runDirectiveBlock(
         expandIndentedCode(container.children as RootContent[])
       )
-      const { events } = extractEventProps(rawChildren)
-
-      const start = i + 1
-      const extras: RootContent[] = []
-      let cursor = start
-      while (cursor < p.children.length) {
-        const sib = p.children[cursor] as RootContent
-        if (
-          sib.type === 'containerDirective' &&
-          interactiveEvents.has((sib as ContainerDirective).name)
-        ) {
-          extras.push(sib)
-          p.children.splice(cursor, 1)
-          continue
-        }
-        if (isMarkerParagraph(sib) || isMarkerText(sib)) {
-          p.children.splice(cursor, 1)
-        }
-        break
-      }
-      if (extras.length) {
-        const { events: extraEvents } = extractEventProps(extras)
-        Object.assign(events, extraEvents)
-      }
+      const { events } = collectInteractiveExtras(
+        p,
+        i,
+        interactiveEvents,
+        extractEventProps,
+        rawChildren
+      )
       const props: Record<string, unknown> = {
         stateKey: key,
         value: valueAttr
@@ -502,11 +490,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       const key = ensureKey(label.trim(), p, i)
       if (!key) return i
       const attrs = (directive.attributes || {}) as Record<string, unknown>
-      if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
-        const msg = 'class is a reserved attribute. Use className instead.'
-        console.error(msg)
-        addError(msg)
-      }
+      warnReservedClassAttribute(attrs)
       const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
         attrs,
         getGameData()
@@ -544,11 +528,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       const key = ensureKey(label.trim(), p, i)
       if (!key) return i
       const attrs = (container.attributes || {}) as Record<string, unknown>
-      if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
-        const msg = 'class is a reserved attribute. Use className instead.'
-        console.error(msg)
-        addError(msg)
-      }
+      warnReservedClassAttribute(attrs)
       const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
         attrs,
         getGameData()
@@ -566,30 +546,13 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
           expandIndentedCode(stripLabel(container.children as RootContent[]))
         )
       )
-      const { events, remaining } = extractEventProps(rawChildren)
-
-      const start = i + 1
-      const extras: RootContent[] = []
-      let cursor = start
-      while (cursor < p.children.length) {
-        const sib = p.children[cursor] as RootContent
-        if (
-          sib.type === 'containerDirective' &&
-          interactiveEvents.has((sib as ContainerDirective).name)
-        ) {
-          extras.push(sib)
-          p.children.splice(cursor, 1)
-          continue
-        }
-        if (isMarkerParagraph(sib) || isMarkerText(sib)) {
-          p.children.splice(cursor, 1)
-        }
-        break
-      }
-      if (extras.length) {
-        const { events: extraEvents } = extractEventProps(extras)
-        Object.assign(events, extraEvents)
-      }
+      const { events, remaining } = collectInteractiveExtras(
+        p,
+        i,
+        interactiveEvents,
+        extractEventProps,
+        rawChildren
+      )
 
       const props: Record<string, unknown> = { stateKey: key }
       if (classAttr)
@@ -646,11 +609,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       addError(msg)
       return removeNode(p, i)
     }
-    if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
-      const msg = 'class is a reserved attribute. Use className instead.'
-      console.error(msg)
-      addError(msg)
-    }
+    warnReservedClassAttribute(attrs)
     const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
       attrs,
       getGameData()
@@ -713,11 +672,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
     const key = ensureKey(label.trim(), p, i)
     if (!key) return i
     const attrs = (container.attributes || {}) as Record<string, unknown>
-    if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
-      const msg = 'class is a reserved attribute. Use className instead.'
-      console.error(msg)
-      addError(msg)
-    }
+    warnReservedClassAttribute(attrs)
     const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
       attrs,
       getGameData()
@@ -731,30 +686,13 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
     const rawChildren = runDirectiveBlock(
       expandIndentedCode(container.children as RootContent[])
     )
-    const { events, remaining } = extractEventProps(rawChildren)
-
-    const start = i + 1
-    const extras: RootContent[] = []
-    let cursor = start
-    while (cursor < p.children.length) {
-      const sib = p.children[cursor] as RootContent
-      if (
-        sib.type === 'containerDirective' &&
-        interactiveEvents.has((sib as ContainerDirective).name)
-      ) {
-        extras.push(sib)
-        p.children.splice(cursor, 1)
-        continue
-      }
-      if (isMarkerParagraph(sib) || isMarkerText(sib)) {
-        p.children.splice(cursor, 1)
-      }
-      break
-    }
-    if (extras.length) {
-      const { events: extraEvents } = extractEventProps(extras)
-      Object.assign(events, extraEvents)
-    }
+    const { events, remaining } = collectInteractiveExtras(
+      p,
+      i,
+      interactiveEvents,
+      extractEventProps,
+      rawChildren
+    )
 
     const options = remaining.filter(node => !isWhitespaceRootContent(node))
     const props: Record<string, unknown> = { stateKey: key }
@@ -790,11 +728,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
     const [p, i] = pair
     const container = directive as ContainerDirective
     const attrs = (directive.attributes || {}) as Record<string, unknown>
-    if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
-      const msg = 'class is a reserved attribute. Use className instead.'
-      console.error(msg)
-      addError(msg)
-    }
+    warnReservedClassAttribute(attrs)
     const rawLabel = typeof attrs.label === 'string' ? attrs.label : undefined
     const evaluatedLabel =
       rawLabel && /[.()?:|&]/.test(rawLabel)

@@ -50,6 +50,7 @@ import { createMediaHandlers } from './handlers/mediaHandlers'
 import { createPersistenceHandlers } from './handlers/persistenceHandlers'
 import { createI18nHandlers } from './handlers/i18nHandlers'
 import { isWhitespaceRootContent } from '@campfire/utils/nodePredicates'
+import { toggleAllowLandscape } from '@campfire/state/orientationState'
 
 const NUMERIC_PATTERN = /^\d+$/
 const ALLOWED_ONEXIT_DIRECTIVES = new Set([
@@ -100,6 +101,7 @@ const INTERACTIVE_EVENTS = new Set([
   'onFocus',
   'onBlur'
 ])
+const IDENTIFIER_PATTERN = /^[A-Za-z_$][A-Za-z0-9_$]*$/
 
 export const useDirectiveHandlers = () => {
   // TODO(campfire): This module is very large; consider splitting handlers
@@ -161,6 +163,16 @@ export const useDirectiveHandlers = () => {
     onceKeys = state.getOnceKeys()
   }
 
+  /**
+   * Reports a directive-related error by logging and queuing it for display.
+   *
+   * @param message - Error message describing the failure.
+   */
+  const reportDirectiveError = (message: string) => {
+    console.error(message)
+    addError(message)
+  }
+
   const { handlers: stateDirectiveHandlers, setValue } = createStateHandlers({
     getState: () => state,
     getGameData: () => gameData,
@@ -186,8 +198,7 @@ export const useDirectiveHandlers = () => {
       raw = `\`${(directive.children[0] as InlineCode).value}\``
     }
     if (!raw) return removeNode(parent, index)
-    const keyPattern = /^[A-Za-z_$][A-Za-z0-9_$]*$/
-    const props: Record<string, unknown> = keyPattern.test(raw)
+    const props: Record<string, unknown> = IDENTIFIER_PATTERN.test(raw)
       ? { 'data-key': raw }
       : { 'data-expr': raw }
     const attrs = interpolateAttrs(
@@ -196,8 +207,7 @@ export const useDirectiveHandlers = () => {
     )
     if (Object.prototype.hasOwnProperty.call(attrs, 'class')) {
       const msg = 'class is a reserved attribute. Use className instead.'
-      console.error(msg)
-      addError(msg)
+      reportDirectiveError(msg)
     }
     const asAttr = typeof attrs.as === 'string' ? attrs.as : undefined
     if (asAttr) {
@@ -294,6 +304,59 @@ export const useDirectiveHandlers = () => {
   })
 
   /**
+   * Creates a directive handler that serializes directive children into
+   * `hProperties` and removes the trailing directive marker.
+   *
+   * @param directiveName - Name of the directive being processed.
+   * @param allowedDirectives - Set of directives permitted inside the block.
+   * @param buildProperties - Builds the element properties for the output node.
+   * @returns Directive handler responsible for serializing the directive.
+   */
+  const createSerializedDirectiveHandler =
+    (
+      directiveName: string,
+      allowedDirectives: Set<string>,
+      buildProperties: (params: {
+        filtered: RootContent[]
+        content: string
+      }) => Properties
+    ): DirectiveHandler =>
+    (directive, parent, index) => {
+      const pair = ensureParentIndex(parent, index)
+      if (!pair) return
+      const [p, i] = pair
+      const container = directive as ContainerDirective
+      const rawChildren = runDirectiveBlock(
+        expandIndentedCode(container.children as RootContent[])
+      )
+      const processedChildren = stripLabel(rawChildren)
+      const [filtered, invalid] = filterDirectiveChildren(
+        processedChildren,
+        allowedDirectives
+      )
+      if (invalid) {
+        const allowedList = [...allowedDirectives].join(', ')
+        const msg = `${directiveName} only supports directives: ${allowedList}`
+        reportDirectiveError(msg)
+      }
+      const content = JSON.stringify(filtered)
+      const node: Parent = {
+        type: 'paragraph',
+        children: [{ type: 'text', value: '' }],
+        data: {
+          hName: directiveName,
+          hProperties: buildProperties({ filtered, content })
+        }
+      }
+      const newIndex = replaceWithIndentation(directive, p, i, [
+        node as RootContent
+      ])
+      const markerIndex = newIndex + 1
+      removeDirectiveMarker(p, markerIndex)
+      return [SKIP, newIndex]
+    }
+
+  /**
    * Processes an `effect` directive and serializes its contents.
    *
    * @param directive - The effect directive node.
@@ -317,42 +380,18 @@ export const useDirectiveHandlers = () => {
       .split(/[\s,]+/)
       .map(k => k.trim())
       .filter(Boolean)
-    const container = directive as ContainerDirective
-    const allowed = ALLOWED_EFFECT_DIRECTIVES
-    const rawChildren = runDirectiveBlock(
-      expandIndentedCode(container.children as RootContent[])
+    const visitor = createSerializedDirectiveHandler(
+      'effect',
+      ALLOWED_EFFECT_DIRECTIVES,
+      ({ content }) => ({ watch, content })
     )
-    const processedChildren = stripLabel(rawChildren)
-    const [filtered, invalid] = filterDirectiveChildren(
-      processedChildren,
-      allowed
-    )
-    if (invalid) {
-      const allowedList = [...allowed].join(', ')
-      const msg = `effect only supports directives: ${allowedList}`
-      console.error(msg)
-      addError(msg)
-    }
-    const content = JSON.stringify(filtered)
-    const node: Parent = {
-      type: 'paragraph',
-      children: [{ type: 'text', value: '' }],
-      data: { hName: 'effect', hProperties: { watch, content } }
-    }
-    const newIndex = replaceWithIndentation(directive, p, i, [
-      node as RootContent
-    ])
-    const markerIndex = newIndex + 1
-    removeDirectiveMarker(p, markerIndex)
-    return [SKIP, newIndex]
+    return visitor(directive, p, i)
   }
 
   /**
-   * Converts an `:input` directive into an Input component bound to game state.
-   * When a `type` attribute of `checkbox` or `radio` is provided, delegates to
-   * the corresponding directive handler.
+   * Converts an `onExit` directive into a serialized block for the renderer.
    *
-   * @param directive - The input directive node.
+   * @param directive - The onExit directive node.
    * @param parent - Parent node containing the directive.
    * @param index - Index of the directive within its parent.
    * @returns The index of the inserted node.
@@ -371,39 +410,16 @@ export const useDirectiveHandlers = () => {
       onExitErrorRef.current = true
       const msg =
         'Multiple onExit directives in a single passage are not allowed'
-      console.error(msg)
-      addError(msg)
+      reportDirectiveError(msg)
       return removeNode(p, i)
     }
     onExitSeenRef.current = true
-    const container = directive as ContainerDirective
-    const allowed = ALLOWED_ONEXIT_DIRECTIVES
-    const rawChildren = runDirectiveBlock(
-      expandIndentedCode(container.children as RootContent[])
+    const visitor = createSerializedDirectiveHandler(
+      'onExit',
+      ALLOWED_ONEXIT_DIRECTIVES,
+      ({ content }) => ({ content })
     )
-    const processedChildren = stripLabel(rawChildren)
-    const [filtered, invalid] = filterDirectiveChildren(
-      processedChildren,
-      allowed
-    )
-    if (invalid) {
-      const allowedList = [...allowed].join(', ')
-      const msg = `onExit only supports directives: ${allowedList}`
-      console.error(msg)
-      addError(msg)
-    }
-    const content = JSON.stringify(filtered)
-    const node: Parent = {
-      type: 'paragraph',
-      children: [{ type: 'text', value: '' }],
-      data: { hName: 'onExit', hProperties: { content } }
-    }
-    const newIndex = replaceWithIndentation(directive, p, i, [
-      node as RootContent
-    ])
-    const markerIndex = newIndex + 1
-    removeDirectiveMarker(p, markerIndex)
-    return [SKIP, newIndex]
+    return visitor(directive, p, i)
   }
 
   /**
@@ -483,8 +499,7 @@ export const useDirectiveHandlers = () => {
       const [p, i] = pair
       if (directive.type !== 'containerDirective') {
         const msg = `${directive.name} can only be used as a container directive`
-        console.error(msg)
-        addError(msg)
+        reportDirectiveError(msg)
         return removeNode(p, i)
       }
       const container = directive as ContainerDirective
@@ -1046,7 +1061,8 @@ export const useDirectiveHandlers = () => {
     },
     decrementIncludeDepth: () => {
       includeDepth--
-    }
+    },
+    toggleAllowLandscape
   })
 
   const mediaHandlers = createMediaHandlers({ addError })
@@ -1094,21 +1110,18 @@ export const useDirectiveHandlers = () => {
     const [p, i] = pair
     if (directive.type !== 'containerDirective') {
       const msg = 'text can only be used as a container directive'
-      console.error(msg)
-      addError(msg)
+      reportDirectiveError(msg)
       return removeNode(p, i)
     }
     const container = directive as ContainerDirective
     const { attrs } = extractAttributes<TextSchema>(directive, p, i, textSchema)
     const raw = (directive.attributes || {}) as Record<string, unknown>
-    const preset = attrs.from
-      ? presetsRef.current['text']?.[String(attrs.from)]
-      : undefined
-    const mergedRaw = mergeAttrs(preset, raw)
-    const mergedAttrs = mergeAttrs(
-      preset,
-      attrs as unknown as Record<string, unknown>
-    ) as TextAttrs & Record<string, unknown>
+    const { mergedRaw, mergedAttrs } = resolvePresetAttributes(
+      'text',
+      raw,
+      attrs,
+      attrs.from
+    )
     const tagName = mergedAttrs.as ? String(mergedAttrs.as) : 'p'
     const style: string[] = []
     style.push('position:absolute')
@@ -1231,6 +1244,100 @@ export const useDirectiveHandlers = () => {
     return replaceWithIndentation(directive, p, i, [node as RootContent])
   }
 
+  const SLIDE_ASSET_SHARED_EXCLUDES = [
+    'x',
+    'y',
+    'w',
+    'h',
+    'z',
+    'rotate',
+    'scale',
+    'anchor',
+    'className',
+    'layerClassName',
+    'style',
+    'id',
+    'layerId',
+    'from'
+  ] as const
+
+  type PresetAttributes<
+    Raw extends Record<string, unknown>,
+    Attrs extends Record<string, unknown>
+  > = Partial<Raw> & Partial<Attrs>
+
+  const resolvePresetAttributes = <
+    Raw extends Record<string, unknown>,
+    Attrs extends Record<string, unknown>
+  >(
+    namespace: string,
+    raw: Raw,
+    attrs: Attrs,
+    from?: string | number
+  ) => {
+    const presetKey = from != null ? String(from) : undefined
+    const namespacePresets = presetKey
+      ? presetsRef.current[namespace]
+      : undefined
+    const presetRecord =
+      presetKey && namespacePresets ? namespacePresets[presetKey] : undefined
+    const preset = presetRecord as PresetAttributes<Raw, Attrs> | undefined
+    const mergedRaw = mergeAttrs(preset, raw)
+    const mergedAttrs = mergeAttrs(preset, attrs)
+    const normRaw = interpolateAttrs(mergedRaw, gameData)
+    const normAttrs = interpolateAttrs(mergedAttrs, gameData)
+    return { preset, mergedRaw, mergedAttrs, normRaw, normAttrs }
+  }
+
+  type SlideAssetCommonAttrs = {
+    x?: number
+    y?: number
+    w?: number
+    h?: number
+    z?: number
+    rotate?: number
+    scale?: number
+    anchor?: string
+    className?: string
+    layerClassName?: string
+    style?: string
+    id?: string
+    layerId?: string
+  }
+
+  /**
+   * Builds props shared across slide asset directives like embed, image, and shape.
+   *
+   * @param attrs - Interpolated directive attributes.
+   * @param directiveKeys - Keys unique to the directive that should be excluded when spreading additional attributes.
+   * @returns Shared layout props and the exclusion list for `applyAdditionalAttributes`.
+   */
+  const buildSlideAssetProps = <
+    Attrs extends SlideAssetCommonAttrs & Record<string, unknown>
+  >(
+    attrs: Attrs,
+    directiveKeys: readonly string[]
+  ): { props: Record<string, unknown>; exclude: readonly string[] } => {
+    const props: Record<string, unknown> = {}
+    if (typeof attrs.x === 'number') props.x = attrs.x
+    if (typeof attrs.y === 'number') props.y = attrs.y
+    if (typeof attrs.w === 'number') props.w = attrs.w
+    if (typeof attrs.h === 'number') props.h = attrs.h
+    if (typeof attrs.z === 'number') props.z = attrs.z
+    if (typeof attrs.rotate === 'number') props.rotate = attrs.rotate
+    if (typeof attrs.scale === 'number') props.scale = attrs.scale
+    if (attrs.anchor) props.anchor = attrs.anchor
+    if (attrs.className) props.className = attrs.className
+    if (attrs.layerClassName) props.layerClassName = attrs.layerClassName
+    if (attrs.style) props.style = attrs.style
+    if (attrs.id) props.id = attrs.id
+    if (attrs.layerId) props.layerId = attrs.layerId
+    return {
+      props,
+      exclude: [...SLIDE_ASSET_SHARED_EXCLUDES, ...directiveKeys]
+    }
+  }
+
   /**
    * Converts an `embed` directive into a SlideEmbed element.
    *
@@ -1252,67 +1359,42 @@ export const useDirectiveHandlers = () => {
       embedSchema
     )
     const raw = (directive.attributes || {}) as Record<string, unknown>
-    const preset = attrs.from
-      ? (presetsRef.current['embed']?.[
-          String(attrs.from)
-        ] as Partial<EmbedAttrs>)
-      : undefined
-    const mergedRaw = mergeAttrs<Record<string, unknown>>(preset, raw)
-    const mergedAttrs = mergeAttrs<EmbedAttrs>(preset, attrs)
-    const normRaw = interpolateAttrs(mergedRaw, gameData)
-    const normAttrs = interpolateAttrs(mergedAttrs, gameData)
-    const props: Record<string, unknown> = { src: normAttrs.src }
-    if (typeof normAttrs.x === 'number') props.x = normAttrs.x
-    if (typeof normAttrs.y === 'number') props.y = normAttrs.y
-    if (typeof normAttrs.w === 'number') props.w = normAttrs.w
-    if (typeof normAttrs.h === 'number') props.h = normAttrs.h
-    if (typeof normAttrs.z === 'number') props.z = normAttrs.z
-    if (typeof normAttrs.rotate === 'number') props.rotate = normAttrs.rotate
-    if (typeof normAttrs.scale === 'number') props.scale = normAttrs.scale
-    if (normAttrs.anchor) props.anchor = normAttrs.anchor
+    const { mergedRaw, normRaw, normAttrs } = resolvePresetAttributes(
+      'embed',
+      raw,
+      attrs,
+      attrs.from
+    )
+    const { props, exclude } = buildSlideAssetProps(normAttrs, [
+      'src',
+      'allow',
+      'referrerPolicy',
+      'allowFullScreen'
+    ])
+    props.src = normAttrs.src
     if (normAttrs.allow) props.allow = normAttrs.allow
     if (normAttrs.referrerPolicy)
       props.referrerPolicy = normAttrs.referrerPolicy
-    if (normAttrs.allowFullScreen === true) props.allowFullScreen = true
-    const {
-      className: classAttr,
-      layerClassName: layerClassAttr,
-      style: styleAttr
-    } = normAttrs as {
-      className?: string
-      layerClassName?: string
-      style?: string
+    // The value for allowFullScreen may come from either normAttrs or
+    // normRaw, and may be a boolean or a string. This fallback handles cases
+    // where the attribute is set as a string (e.g., from markdown or user
+    // input). If the value is the boolean true or the string 'true'
+    // (case-insensitive), enable allowFullScreen.
+    const allowFullScreenRaw =
+      normAttrs.allowFullScreen ?? normRaw['allowFullScreen']
+    if (
+      allowFullScreenRaw === true ||
+      (typeof allowFullScreenRaw === 'string' &&
+        allowFullScreenRaw.trim().toLowerCase() === 'true')
+    ) {
+      props.allowFullScreen = true
     }
-    if (classAttr) props.className = classAttr
-    if (layerClassAttr) props.layerClassName = layerClassAttr
-    if (styleAttr) props.style = styleAttr
-    if (normAttrs.id) props.id = normAttrs.id
-    if (normAttrs.layerId) props.layerId = normAttrs.layerId
-    applyAdditionalAttributes(
-      normRaw,
-      props,
-      [
-        'x',
-        'y',
-        'w',
-        'h',
-        'z',
-        'rotate',
-        'scale',
-        'anchor',
-        'src',
-        'allow',
-        'referrerPolicy',
-        'allowFullScreen',
-        'style',
-        'className',
-        'layerClassName',
-        'id',
-        'layerId',
-        'from'
-      ],
-      addError
-    )
+    applyAdditionalAttributes(mergedRaw, props, exclude, addError)
+    // Apply merged raw attributes first, then normalized/interpolated attributes
+    // to ensure normalized values take precedence. This order is intentional:
+    // attributes in normRaw (the normalized/interpolated version of mergedRaw)
+    // will overwrite those in mergedRaw if keys overlap.
+    applyAdditionalAttributes(normRaw, props, exclude, addError)
     const data = {
       hName: 'slideEmbed',
       hProperties: props as Properties
@@ -1342,62 +1424,17 @@ export const useDirectiveHandlers = () => {
       imageSchema
     )
     const raw = (directive.attributes || {}) as Record<string, unknown>
-    const preset = attrs.from
-      ? (presetsRef.current['image']?.[
-          String(attrs.from)
-        ] as Partial<ImageAttrs>)
-      : undefined
-    const mergedRaw = mergeAttrs<Record<string, unknown>>(preset, raw)
-    const mergedAttrs = mergeAttrs<ImageAttrs>(preset, attrs)
-    const normRaw = interpolateAttrs(mergedRaw, gameData)
-    const normAttrs = interpolateAttrs(mergedAttrs, gameData)
-    const props: Record<string, unknown> = { src: normAttrs.src }
-    if (typeof normAttrs.x === 'number') props.x = normAttrs.x
-    if (typeof normAttrs.y === 'number') props.y = normAttrs.y
-    if (typeof normAttrs.w === 'number') props.w = normAttrs.w
-    if (typeof normAttrs.h === 'number') props.h = normAttrs.h
-    if (typeof normAttrs.z === 'number') props.z = normAttrs.z
-    if (typeof normAttrs.rotate === 'number') props.rotate = normAttrs.rotate
-    if (typeof normAttrs.scale === 'number') props.scale = normAttrs.scale
-    if (normAttrs.anchor) props.anchor = normAttrs.anchor
-    if (normAttrs.alt) props.alt = normAttrs.alt
-    const {
-      className: classAttr,
-      layerClassName: layerClassAttr,
-      style: styleAttr
-    } = normAttrs as {
-      className?: string
-      layerClassName?: string
-      style?: string
-    }
-    if (classAttr) props.className = classAttr
-    if (layerClassAttr) props.layerClassName = layerClassAttr
-    if (styleAttr) props.style = styleAttr
-    if (normAttrs.id) props.id = normAttrs.id
-    if (normAttrs.layerId) props.layerId = normAttrs.layerId
-    applyAdditionalAttributes(
-      normRaw,
-      props,
-      [
-        'x',
-        'y',
-        'w',
-        'h',
-        'z',
-        'rotate',
-        'scale',
-        'anchor',
-        'src',
-        'alt',
-        'style',
-        'className',
-        'layerClassName',
-        'id',
-        'layerId',
-        'from'
-      ],
-      addError
+    const { mergedRaw, normRaw, normAttrs } = resolvePresetAttributes(
+      'image',
+      raw,
+      attrs,
+      attrs.from
     )
+    const { props, exclude } = buildSlideAssetProps(normAttrs, ['src', 'alt'])
+    props.src = normAttrs.src
+    if (normAttrs.alt) props.alt = normAttrs.alt
+    applyAdditionalAttributes(mergedRaw, props, exclude, addError)
+    applyAdditionalAttributes(normRaw, props, exclude, addError)
     const data = {
       hName: 'slideImage',
       hProperties: props as Properties
@@ -1423,8 +1460,7 @@ export const useDirectiveHandlers = () => {
       directive.type !== 'leafDirective'
     ) {
       const msg = 'shape can only be used as a leaf or text directive'
-      console.error(msg)
-      addError(msg)
+      reportDirectiveError(msg)
       return removeNode(p, i)
     }
     const { attrs } = extractAttributes<ShapeSchema>(
@@ -1434,26 +1470,29 @@ export const useDirectiveHandlers = () => {
       shapeSchema
     )
     const raw = (directive.attributes || {}) as Record<string, unknown>
-    const preset = attrs.from
-      ? presetsRef.current['shape']?.[String(attrs.from)]
-      : undefined
-    const mergedRaw = mergeAttrs(preset, raw)
-    const mergedAttrs = mergeAttrs(
-      preset,
-      attrs as unknown as Record<string, unknown>
-    ) as ShapeAttrs & Record<string, unknown>
-    const normRaw = interpolateAttrs(mergedRaw, gameData)
-    const normAttrs = interpolateAttrs(mergedAttrs, gameData) as ShapeAttrs &
-      Record<string, unknown>
-    const props: Record<string, unknown> = { type: normAttrs.type }
-    if (typeof normAttrs.x === 'number') props.x = normAttrs.x
-    if (typeof normAttrs.y === 'number') props.y = normAttrs.y
-    if (typeof normAttrs.w === 'number') props.w = normAttrs.w
-    if (typeof normAttrs.h === 'number') props.h = normAttrs.h
-    if (typeof normAttrs.z === 'number') props.z = normAttrs.z
-    if (typeof normAttrs.rotate === 'number') props.rotate = normAttrs.rotate
-    if (typeof normAttrs.scale === 'number') props.scale = normAttrs.scale
-    if (normAttrs.anchor) props.anchor = normAttrs.anchor
+    const { mergedRaw, normRaw, normAttrs } = resolvePresetAttributes(
+      'shape',
+      raw,
+      attrs,
+      attrs.from
+    )
+    const { props, exclude } = buildSlideAssetProps(
+      normAttrs as ShapeAttrs & Record<string, unknown>,
+      [
+        'type',
+        'points',
+        'x1',
+        'y1',
+        'x2',
+        'y2',
+        'stroke',
+        'strokeWidth',
+        'fill',
+        'radius',
+        'shadow'
+      ]
+    )
+    props.type = normAttrs.type
     if (normAttrs.points) props.points = normAttrs.points
     if (typeof normAttrs.x1 === 'number') props.x1 = normAttrs.x1
     if (typeof normAttrs.y1 === 'number') props.y1 = normAttrs.y1
@@ -1465,52 +1504,8 @@ export const useDirectiveHandlers = () => {
     if (normAttrs.fill) props.fill = normAttrs.fill
     if (typeof normAttrs.radius === 'number') props.radius = normAttrs.radius
     if (typeof normAttrs.shadow === 'boolean') props.shadow = normAttrs.shadow
-    const {
-      className: classAttr,
-      layerClassName: layerClassAttr,
-      style: styleAttr
-    } = normAttrs as {
-      className?: string
-      layerClassName?: string
-      style?: string
-    }
-    if (classAttr) props.className = classAttr
-    if (layerClassAttr) props.layerClassName = layerClassAttr
-    if (styleAttr) props.style = styleAttr
-    if (normAttrs.id) props.id = normAttrs.id
-    if (normAttrs.layerId) props.layerId = normAttrs.layerId
-    applyAdditionalAttributes(
-      normRaw,
-      props,
-      [
-        'x',
-        'y',
-        'w',
-        'h',
-        'z',
-        'rotate',
-        'scale',
-        'anchor',
-        'type',
-        'points',
-        'x1',
-        'y1',
-        'x2',
-        'y2',
-        'stroke',
-        'strokeWidth',
-        'fill',
-        'radius',
-        'shadow',
-        'style',
-        'className',
-        'layerClassName',
-        'id',
-        'layerId',
-        'from'
-      ],
-      addError
-    )
+    applyAdditionalAttributes(mergedRaw, props, exclude, addError)
+    applyAdditionalAttributes(normRaw, props, exclude, addError)
     const node: Parent = {
       type: 'paragraph',
       children: [],
@@ -1627,8 +1622,7 @@ export const useDirectiveHandlers = () => {
     const [p, i] = pair
     if (directive.type !== 'containerDirective') {
       const msg = 'deck can only be used as a container directive'
-      console.error(msg)
-      addError(msg)
+      reportDirectiveError(msg)
       return removeNode(p, i)
     }
     const container = directive as ContainerDirective

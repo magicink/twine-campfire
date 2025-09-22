@@ -156,6 +156,7 @@ export const Deck = ({
   const prev = store(state => state.prev)
   const goTo = store(state => state.goTo)
   const setSlidesCount = store(state => state.setSlidesCount)
+  const setMaxSteps = store(state => state.setMaxSteps)
   const setStepsForSlide = store(state => state.setStepsForSlide)
   const reset = store(state => state.reset)
 
@@ -190,6 +191,12 @@ export const Deck = ({
   useLayoutEffect(() => {
     slideSteps.forEach((count, index) => setStepsForSlide(index, count))
   }, [slideSteps, setStepsForSlide])
+
+  useLayoutEffect(() => {
+    const stepsForCurrent = slideSteps[currentSlide]
+    if (stepsForCurrent === undefined) return
+    setMaxSteps(stepsForCurrent)
+  }, [currentSlide, setMaxSteps, slideSteps])
 
   /**
    * Type guard to determine whether props include a transition configuration.

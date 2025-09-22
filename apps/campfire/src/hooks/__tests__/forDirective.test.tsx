@@ -75,4 +75,25 @@ describe('for directive', () => {
     render(<MarkdownRunner markdown={md} />)
     expect(document.body.textContent?.replace(/\n/g, '')).toBe('applecherry')
   })
+
+  it('skips list items when loop conditions fail', () => {
+    const md = [
+      '::array[fruits=["apple","banana","cherry"]]',
+      ':::for[fruit in fruits]',
+      '',
+      ':::if[fruit !== "banana"]',
+      '',
+      '- :show[fruit]{className="text-red-600"}',
+      '',
+      ':::',
+      '',
+      ':::'
+    ].join('\n')
+    render(<MarkdownRunner markdown={md} />)
+    const items = Array.from(document.querySelectorAll('li'))
+    expect(document.querySelectorAll('ul')).toHaveLength(1)
+    expect(items).toHaveLength(2)
+    expect(items[0].textContent).toBe('apple')
+    expect(items[1].textContent).toBe('cherry')
+  })
 })
