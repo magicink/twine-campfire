@@ -1,0 +1,139 @@
+import type { Meta, StoryObj } from '@storybook/preact'
+import { Campfire } from '@campfire/components'
+import { DebugWindow } from '../DebugWindow'
+
+const meta: Meta = {
+  title: 'Campfire/Examples/AdventureGame'
+}
+
+export default meta
+
+/**
+ * Interactive adventure game showcasing multiple Campfire directives working
+ * together within a branching narrative.
+ *
+ * @returns Story configuration for the adventure game example.
+ */
+export const AdventureGame: StoryObj = {
+  render: () => (
+    <>
+      <tw-storydata startnode='1' options='debug'>
+        <tw-passagedata pid='1' name='Start'>
+          {`
+Hello adventurer! Enter your name: :input[playerName]{placeholder="Your name"}
+
+:::if[playerName]
+  [[Continue->ChooseClass]]
+:::
+`}
+        </tw-passagedata>
+        <tw-passagedata pid='2' name='ChooseClass'>
+          {`
+:preset{type="wrapper" name="classChoice" as="label" className="flex items-center gap-2"}
+
+Greetings, :show[playerName]{className="font-semibold"}! Choose your class:
+
+:::layer{className="flex flex-col gap-3 mt-4"}
+  :::wrapper{from="classChoice"}
+    :radio[playerClass]{value="Warrior"}
+    Warrior
+  :::
+  :::wrapper{from="classChoice"}
+    :radio[playerClass]{value="Mage"}
+    Mage
+  :::
+:::
+
+:::if[playerClass]
+  You have chosen the path of the :show[playerClass]{className="font-semibold"}.
+
+  [[Begin your adventure->Adventure]]
+:::
+`}
+        </tw-passagedata>
+        <tw-passagedata pid='3' name='Adventure'>
+          {`
+::createRange[hp=10]{min=0 max=10}
+::arrayOnce[inventory=[]]
+
+:show[playerName]{className="font-semibold"}, the :show[playerClass]{className="font-semibold"}, stands at an ancient crossroads.
+
+Current HP: :show[hp.value]{className="font-bold"} / :show[hp.max]
+
+Two paths beckon:
+
+[[Enter the forest->Forest]]
+[[Explore the cave->Cave]]
+`}
+        </tw-passagedata>
+        <tw-passagedata pid='4' name='Forest'>
+          {`
+::setRange[hp=(hp.value-2)]
+
+A snarling wolf lunges from the underbrush!
+
+Current HP: :show[hp.value]{className="font-bold"}
+
+:::if[(hp.value>0)]
+  Bloodied but unbroken, you scan the forest floor.
+
+  [[Collect healing herbs->Herbs]]
+  [[Retreat to the crossroads->Adventure]]
+:::
+
+:::if[(hp.value<=0)]
+  The beast's fangs prove fatal.
+
+  [[Succumb to the darkness->Dead]]
+:::
+`}
+        </tw-passagedata>
+        <tw-passagedata pid='5' name='Herbs'>
+          {`
+::push{key=inventory value="Herbs"}
+
+You gather fragrant herbs and bandage your wounds before returning.
+
+[[Back to the crossroads->Adventure]]
+`}
+        </tw-passagedata>
+        <tw-passagedata pid='6' name='Cave'>
+          {`
+::setRange[hp=(hp.value-3)]
+
+A hidden trap releases a volley of darts as you step inside the cave!
+
+Current HP: :show[hp.value]{className="font-bold"}
+
+:::if[(hp.value>0)]
+  ::push{key=inventory value="Gold"}
+  The trap spent, a cache of glittering coins remains.
+
+  Your pack now holds:
+  :::for[item in inventory]
+    - :show[item]
+  :::
+
+  [[Return to the crossroads->Adventure]]
+:::
+
+:::if[(hp.value<=0)]
+  The darts strike true. Darkness closes in.
+
+  [[Fall to your fate->Dead]]
+:::
+`}
+        </tw-passagedata>
+        <tw-passagedata pid='7' name='Dead'>
+          {`
+Your vision fades as the world slips away.
+
+[[Begin anew->Start]]
+`}
+        </tw-passagedata>
+      </tw-storydata>
+      <Campfire />
+      <DebugWindow />
+    </>
+  )
+}
