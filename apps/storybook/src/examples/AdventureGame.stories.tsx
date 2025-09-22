@@ -47,10 +47,12 @@ Greetings, :show[playerName]{className="font-semibold"}! Choose your class:
   :::
 :::
 
-:show[(playerClass && playerClass.trim()) && ('You have chosen the path of the ' + playerClass + '.')]{as="p" className="font-semibold"}
+:::if[(playerClass && playerClass.trim())]
+  You have chosen the path of the :show[playerClass]{className="font-semibold"}.
 
-:::trigger{label="Begin your adventure" disabled="!(playerClass && playerClass.trim())"}
-  ::goto["Adventure"]
+  :::trigger{label="Begin your adventure"}
+    ::goto["Adventure"]
+  :::
 :::
 `}
         </tw-passagedata>

@@ -135,4 +135,22 @@ describe('disabled state directives', () => {
     expect(radio).toBeTruthy()
     expect(radio.getAttribute('data-state')).toBe('unchecked')
   })
+
+  it('enables triggers once dependent radio selections are made', async () => {
+    const md =
+      '::radio[playerClass]{value="Warrior"}\n' +
+      '::radio[playerClass]{value="Mage"}\n' +
+      ':::trigger{label="Begin" disabled="!(playerClass && playerClass.trim())"}\n' +
+      '  ::goto["Next"]\n' +
+      ':::\n'
+    render(<MarkdownRunner markdown={md} />)
+    const trigger = document.querySelector(
+      '[data-testid="trigger-button"]'
+    ) as HTMLButtonElement
+    expect(trigger.disabled).toBe(true)
+    await act(() =>
+      useGameStore.getState().setGameData({ playerClass: 'Warrior' })
+    )
+    expect(trigger.disabled).toBe(false)
+  })
 })
