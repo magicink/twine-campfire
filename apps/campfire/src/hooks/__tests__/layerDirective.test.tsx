@@ -3,6 +3,8 @@ import { render } from '@testing-library/preact'
 import type { ComponentChild } from 'preact'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { renderDirectiveMarkdown } from '@campfire/components/Deck/Slide'
+import { useGameStore } from '@campfire/state/useGameStore'
+import { resetStores } from '@campfire/test-utils/helpers'
 
 let output: ComponentChild | null = null
 
@@ -21,6 +23,7 @@ const MarkdownRunner = ({ markdown }: { markdown: string }) => {
 beforeEach(() => {
   output = null
   document.body.innerHTML = ''
+  resetStores()
 })
 
 describe('layer directive', () => {
@@ -138,5 +141,29 @@ describe('layer directive', () => {
     const radios = layerEl.querySelectorAll('[data-testid="radio"]')
     expect(radios.length).toBe(2)
     expect(layerEl.innerHTML).not.toContain(':::')
+  })
+
+  it('preserves conditional siblings after layer directives', () => {
+    useGameStore.setState({ gameData: { playerClass: 'Mage' } })
+    const md = [
+      ':::layer{className="space-y-2"}',
+      '  :::wrapper{as="div"}',
+      '    ::radio[playerClass]{value="Mage"}',
+      '    Mage',
+      '  :::',
+      ':::',
+      '',
+      ':::if[(playerClass && playerClass.trim())]',
+      '  :::trigger{label="Begin"}',
+      '    ::goto["Next"]',
+      '  :::',
+      ':::'
+    ].join('\n')
+    render(<MarkdownRunner markdown={md} />)
+    const trigger = document.querySelector(
+      '[data-testid="trigger-button"]'
+    ) as HTMLButtonElement
+    expect(trigger).toBeTruthy()
+    expect(trigger.disabled).toBe(false)
   })
 })
