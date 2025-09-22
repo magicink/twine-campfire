@@ -121,6 +121,20 @@ export const isMarkerParagraph = (node: RootContent): boolean => {
 }
 
 /**
+ * Determines if a node is a text node containing only directive markers.
+ *
+ * @param node - Node to inspect.
+ * @returns True if the text consists solely of directive markers.
+ */
+export const isMarkerText = (node: RootContent): boolean => {
+  if (node.type !== 'text') return false
+  const stripped = (node as MdText).value.replace(/\s+/g, '')
+  if (!stripped) return false
+  const parts = stripped.split(DIRECTIVE_MARKER)
+  return parts.every(part => part === '')
+}
+
+/**
  * Parses a deck size string such as "1920x1080" or an aspect ratio like "16x9".
  * Aspect ratios assume a default width of {@link DEFAULT_DECK_WIDTH} pixels.
  *

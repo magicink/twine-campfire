@@ -1,6 +1,6 @@
 import { SKIP } from 'unist-util-visit'
 import { toString } from 'mdast-util-to-string'
-import type { Parent, Paragraph, RootContent, Text as MdText } from 'mdast'
+import type { Parent, Paragraph, RootContent } from 'mdast'
 import type { ContainerDirective } from 'mdast-util-directive'
 import type { DirectiveHandler } from '@campfire/remark-campfire'
 import type { Properties } from 'hast'
@@ -21,11 +21,10 @@ import {
   interpolateAttrs,
   removeDirectiveMarker,
   isMarkerParagraph,
+  isMarkerText,
   ensureParentIndex
 } from '@campfire/utils/directiveHandlerUtils'
 import { isWhitespaceRootContent } from '@campfire/utils/nodePredicates'
-
-const DIRECTIVE_MARKER = ':::'
 
 export interface FormHandlerContext {
   addError: (msg: string) => void
@@ -42,14 +41,6 @@ export interface FormHandlerContext {
 
 export const createFormHandlers = (ctx: FormHandlerContext) => {
   const { addError, getGameData, interactiveEvents, handleWrapper } = ctx
-
-  const isMarkerText = (node: RootContent): boolean => {
-    if (node.type !== 'text') return false
-    const stripped = (node as MdText).value.replace(/\s+/g, '')
-    if (!stripped) return false
-    const parts = stripped.split(DIRECTIVE_MARKER)
-    return parts.every(part => part === '')
-  }
 
   const extractEventProps = (
     nodes: RootContent[]
