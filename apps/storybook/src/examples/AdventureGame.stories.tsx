@@ -22,8 +22,10 @@ export const AdventureGame: StoryObj = {
           {`
 Hello adventurer! Enter your name: :input[playerName]{placeholder="Your name"}
 
-:::trigger{label="Continue" disabled="!(playerName && playerName.trim())"}
-  ::goto["ChooseClass"]
+:::if[(playerName && playerName.trim())]
+  :::trigger{label="Continue"}
+    ::goto["ChooseClass"]
+  :::
 :::
 `}
         </tw-passagedata>
