@@ -118,4 +118,21 @@ describe('disabled state directives', () => {
     expect(checkbox.disabled).toBe(true)
     expect(textarea.disabled).toBe(true)
   })
+
+  it('renders form controls defined with leaf directives', () => {
+    const md =
+      '::input[playerName]{placeholder="Hero"}\n' +
+      '::radio[playerClass]{value="Mage"}\n'
+    render(<MarkdownRunner markdown={md} />)
+    const input = document.querySelector(
+      '[data-testid="input"]'
+    ) as HTMLInputElement
+    const radio = document.querySelector(
+      '[data-testid="radio"]'
+    ) as HTMLButtonElement
+    expect(input).toBeTruthy()
+    expect(input.placeholder).toBe('Hero')
+    expect(radio).toBeTruthy()
+    expect(radio.getAttribute('data-state')).toBe('unchecked')
+  })
 })

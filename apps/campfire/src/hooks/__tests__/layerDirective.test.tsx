@@ -117,4 +117,26 @@ describe('layer directive', () => {
       ) === null
     ).toBe(true)
   })
+
+  it('supports leaf radio directives inside wrappers', () => {
+    const md =
+      '::preset{type="wrapper" name="choice" as="label" className="flex items-center gap-2"}\n' +
+      ':::layer{className="space-y-3"}\n' +
+      '  :::wrapper{from="choice"}\n' +
+      '    ::radio[playerClass]{value="Warrior"}\n' +
+      '    Warrior\n' +
+      '  :::\n' +
+      '  :::wrapper{from="choice"}\n' +
+      '    ::radio[playerClass]{value="Mage"}\n' +
+      '    Mage\n' +
+      '  :::\n' +
+      ':::\n'
+    render(<MarkdownRunner markdown={md} />)
+    const layerEl = document.querySelector(
+      '[data-testid="layer"]'
+    ) as HTMLElement
+    const radios = layerEl.querySelectorAll('[data-testid="radio"]')
+    expect(radios.length).toBe(2)
+    expect(layerEl.innerHTML).not.toContain(':::')
+  })
 })

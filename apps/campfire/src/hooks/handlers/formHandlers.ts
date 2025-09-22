@@ -172,7 +172,10 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       delete attrs.type
       return handleRadio(directive, p, i)
     }
-    if (directive.type === 'textDirective') {
+    if (
+      directive.type === 'textDirective' ||
+      directive.type === 'leafDirective'
+    ) {
       const label = hasLabel(directive) ? directive.label : toString(directive)
       const key = ensureKey(label.trim(), p, i)
       if (!key) return i
@@ -275,7 +278,10 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
     const pair = ensureParentIndex(parent, index)
     if (!pair) return
     const [p, i] = pair
-    if (directive.type === 'textDirective') {
+    if (
+      directive.type === 'textDirective' ||
+      directive.type === 'leafDirective'
+    ) {
       const label = hasLabel(directive) ? directive.label : toString(directive)
       const key = ensureKey(label.trim(), p, i)
       if (!key) return i
@@ -378,7 +384,10 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
     const pair = ensureParentIndex(parent, index)
     if (!pair) return
     const [p, i] = pair
-    if (directive.type === 'textDirective') {
+    if (
+      directive.type === 'textDirective' ||
+      directive.type === 'leafDirective'
+    ) {
       const label = hasLabel(directive) ? directive.label : toString(directive)
       const key = ensureKey(label.trim(), p, i)
       if (!key) return i
@@ -410,7 +419,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         addError
       )
       const node: Parent = {
-        type: 'emphasis',
+        type: directive.type === 'leafDirective' ? 'paragraph' : 'emphasis',
         children: [],
         data: { hName: 'radio', hProperties: props as Properties }
       }
