@@ -1,17 +1,17 @@
 import type { Meta, StoryObj } from '@storybook/preact'
 import { Campfire } from '@campfire/components'
-import { DebugWindow } from './DebugWindow'
+import { DebugWindow } from '../DebugWindow'
 
 const meta: Meta = {
-  title: 'Campfire/Directives/Input'
+  title: 'Campfire/Directives/Textarea'
 }
 
 export default meta
 
 /**
- * Demonstrates the `input` directive bound to game state.
+ * Demonstrates the `textarea` directive bound to game state.
  *
- * @returns Campfire story showcasing the `input` directive.
+ * @returns Campfire story showcasing the `textarea` directive.
  */
 export const Basic: StoryObj = {
   render: () => (
@@ -19,9 +19,11 @@ export const Basic: StoryObj = {
       <tw-storydata startnode='1' options='debug'>
         <tw-passagedata pid='1' name='Start'>
           {`
-:input[name]{placeholder="Type your name"}
-:::if[name]
-  Hello, :show[name]{className="text-green-600"}!
+:textarea[bio]{placeholder="Enter bio"}
+:::if[bio]
+
+You wrote: :show[bio]{className="text-purple-600"}
+
 :::
 `}
         </tw-passagedata>
@@ -33,9 +35,9 @@ export const Basic: StoryObj = {
 }
 
 /**
- * Demonstrates the `input` directive with event directives.
+ * Demonstrates the `textarea` directive with event directives.
  *
- * @returns Campfire story showcasing input events.
+ * @returns Campfire story showcasing textarea events.
  */
 export const WithEvents: StoryObj = {
   render: () => (
@@ -43,21 +45,19 @@ export const WithEvents: StoryObj = {
       <tw-storydata startnode='1' options='debug'>
         <tw-passagedata pid='1' name='Start'>
           {`
-:::input[name]{placeholder="Hover or focus"}
-  :::onFocus
-    ::set[focused=true]
-  :::
-  :::onBlur
-    ::unset[focused]
-  :::
+:::textarea[bio]{placeholder="Hover or focus"}
+:::onFocus
+  ::set[focused=true]
 :::
-
+:::onBlur
+  ::unset[focused]
+:::
 :::if[focused]
-  Focused!
+
+Focused!
+
 :::
 
-:::if[name]
-  Hello, :show[name]{className="text-green-600"}!
 :::
           `}
         </tw-passagedata>
