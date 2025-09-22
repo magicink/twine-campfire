@@ -23,7 +23,9 @@ export const AdventureGame: StoryObj = {
 Hello adventurer! Enter your name: :input[playerName]{placeholder="Your name"}
 
 :::if[playerName]
-  [[Continue->ChooseClass]]
+  :::trigger{label="Continue"}
+    ::goto["ChooseClass"]
+  :::
 :::
 `}
         </tw-passagedata>
@@ -47,7 +49,9 @@ Greetings, :show[playerName]{className="font-semibold"}! Choose your class:
 :::if[playerClass]
   You have chosen the path of the :show[playerClass]{className="font-semibold"}.
 
-  [[Begin your adventure->Adventure]]
+  :::trigger{label="Begin your adventure"}
+    ::goto["Adventure"]
+  :::
 :::
 `}
         </tw-passagedata>
@@ -62,8 +66,13 @@ Current HP: :show[hp.value]{className="font-bold"} / :show[hp.max]
 
 Two paths beckon:
 
-[[Enter the forest->Forest]]
-[[Explore the cave->Cave]]
+:::trigger{label="Enter the forest"}
+  ::goto["Forest"]
+:::
+
+:::trigger{label="Explore the cave"}
+  ::goto["Cave"]
+:::
 `}
         </tw-passagedata>
         <tw-passagedata pid='4' name='Forest'>
@@ -77,14 +86,21 @@ Current HP: :show[hp.value]{className="font-bold"}
 :::if[(hp.value>0)]
   Bloodied but unbroken, you scan the forest floor.
 
-  [[Collect healing herbs->Herbs]]
-  [[Retreat to the crossroads->Adventure]]
+  :::trigger{label="Collect healing herbs"}
+    ::goto["Herbs"]
+  :::
+
+  :::trigger{label="Retreat to the crossroads"}
+    ::goto["Adventure"]
+  :::
 :::
 
 :::if[(hp.value<=0)]
   The beast's fangs prove fatal.
 
-  [[Succumb to the darkness->Dead]]
+  :::trigger{label="Succumb to the darkness"}
+    ::goto["Dead"]
+  :::
 :::
 `}
         </tw-passagedata>
@@ -94,7 +110,9 @@ Current HP: :show[hp.value]{className="font-bold"}
 
 You gather fragrant herbs and bandage your wounds before returning.
 
-[[Back to the crossroads->Adventure]]
+:::trigger{label="Back to the crossroads"}
+  ::goto["Adventure"]
+:::
 `}
         </tw-passagedata>
         <tw-passagedata pid='6' name='Cave'>
@@ -114,13 +132,17 @@ Current HP: :show[hp.value]{className="font-bold"}
     - :show[item]
   :::
 
-  [[Return to the crossroads->Adventure]]
+  :::trigger{label="Return to the crossroads"}
+    ::goto["Adventure"]
+  :::
 :::
 
 :::if[(hp.value<=0)]
   The darts strike true. Darkness closes in.
 
-  [[Fall to your fate->Dead]]
+  :::trigger{label="Fall to your fate"}
+    ::goto["Dead"]
+  :::
 :::
 `}
         </tw-passagedata>
@@ -128,7 +150,9 @@ Current HP: :show[hp.value]{className="font-bold"}
           {`
 Your vision fades as the world slips away.
 
-[[Begin anew->Start]]
+:::trigger{label="Begin anew"}
+  ::goto["Start"]
+:::
 `}
         </tw-passagedata>
       </tw-storydata>
