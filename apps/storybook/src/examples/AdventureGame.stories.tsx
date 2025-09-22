@@ -47,8 +47,9 @@ Greetings, :show[playerName]{className="font-semibold"}! Choose your class:
   :::
 :::
 
-:::if[playerClass]
-  You have chosen the path of the :show[playerClass]{className="font-semibold"}.
+:::if[(playerClass && playerClass.trim())]
+  You have chosen the path of the
+  :show[playerClass]{className="font-semibold"}.
 
   :::trigger{label="Begin your adventure"}
     ::goto["Adventure"]
