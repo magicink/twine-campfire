@@ -83,7 +83,7 @@ describe('for directive', () => {
       '',
       ':::if[fruit !== "banana"]',
       '',
-      '- :show[fruit]{className="text-rose-600"}',
+      '- :show[fruit]{className="text-red-600"}',
       '',
       ':::',
       '',
