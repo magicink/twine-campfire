@@ -58,7 +58,11 @@ Greetings, :show[playerName]{className="font-semibold"}! Choose your class:
         </tw-passagedata>
         <tw-passagedata pid='3' name='Adventure'>
           {`
-::createRange[hp=10]{min=0 max=10}
+:::if[(!hpInitialized)]
+  ::setOnce[hpInitialized=true]
+  ::createRange[hp=10]{min=0 max=10}
+:::
+
 ::arrayOnce[inventory=[]]
 
 :show[playerName]{className="font-semibold"}, the :show[playerClass]{className="font-semibold"}, stands at an ancient crossroads.
