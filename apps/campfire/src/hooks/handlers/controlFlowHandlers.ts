@@ -1,6 +1,6 @@
 import { SKIP } from 'unist-util-visit'
 import { toString } from 'mdast-util-to-string'
-import type { Parent, RootContent, Text as MdText } from 'mdast'
+import type { List, Parent, RootContent, Text as MdText } from 'mdast'
 import type { ContainerDirective } from 'mdast-util-directive'
 import type { DirectiveHandler } from '@campfire/remark-campfire'
 import {
@@ -380,6 +380,38 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
       ).data || {}
 
     const output: RootContent[] = []
+
+    /**
+     * Determines whether a loop iteration produces any renderable output.
+     *
+     * @param nodes - Nodes generated for the iteration.
+     * @returns `true` when at least one node renders content.
+     */
+    const hasRenderableOutput = (nodes: RootContent[]): boolean => {
+      const containsContent = (node: RootContent): boolean => {
+        if (isTextNode(node)) {
+          if (node.data?.hName) {
+            return true
+          }
+          return node.value.trim().length > 0
+        }
+
+        const metadata = (node as { data?: { hName?: string } }).data
+        if (metadata?.hName) {
+          return true
+        }
+
+        if ('children' in node) {
+          const parentNode = node as Parent
+          const childNodes = (parentNode.children ?? []) as RootContent[]
+          return childNodes.some(child => containsContent(child))
+        }
+
+        return true
+      }
+
+      return nodes.some(node => containsContent(node))
+    }
     for (const item of items) {
       const scoped = getState().createScope()
       const prevState = getState()
@@ -421,6 +453,7 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
             if (hasExtra) {
               props['data-expr'] = JSON.stringify(item)
               delete props['data-key']
+              node.value = String(item)
             } else {
               nodes[i] = { type: 'text', value: String(item) }
             }
@@ -439,7 +472,7 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
             } else {
               nodes[i] = {
                 type: 'text',
-                value: '',
+                value: String(item),
                 data: {
                   hName: 'show',
                   hProperties: {
@@ -482,11 +515,38 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
       }
 
       expandLoopVars(processed)
-      output.push(...processed)
+      const renderable = hasRenderableOutput(processed)
+      if (renderable) {
+        output.push(...processed)
+      }
 
       mergeScopedChanges(prevState, scoped, varKey)
     }
 
+    if (output.length > 1) {
+      const merged: RootContent[] = []
+      output.forEach(node => {
+        const last = merged[merged.length - 1]
+        if (
+          last &&
+          last.type === 'list' &&
+          node.type === 'list' &&
+          (last as List).ordered === (node as List).ordered &&
+          (last as List).start === (node as List).start &&
+          (last as List).spread === (node as List).spread
+        ) {
+          const lastList = last as List
+          const currentList = node as List
+          const lastChildren = (lastList.children ?? []) as List['children']
+          const currentChildren = (currentList.children ??
+            []) as List['children']
+          lastList.children = [...lastChildren, ...currentChildren]
+        } else {
+          merged.push(node)
+        }
+      })
+      output.splice(0, output.length, ...merged)
+    }
     const newIndex = replaceWithIndentation(directive, p, i, output)
     const markerIndex = newIndex + output.length
     removeDirectiveMarker(p, markerIndex)
