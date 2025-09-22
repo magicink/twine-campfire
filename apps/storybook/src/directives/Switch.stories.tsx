@@ -1,34 +1,36 @@
 import type { Meta, StoryObj } from '@storybook/preact'
 import { Campfire } from '@campfire/components'
-import { DebugWindow } from './DebugWindow'
+import { DebugWindow } from '../DebugWindow'
 
 const meta: Meta = {
-  title: 'Campfire/Directives/If'
+  title: 'Campfire/Directives/Switch'
 }
 
 export default meta
 
 /**
- * Shows content when the condition is true.
+ * Renders the matching case.
  *
- * @returns Campfire story demonstrating `if` with a truthy value.
+ * @returns Campfire story demonstrating `switch` with a matching case.
  */
-export const Truthy: StoryObj = {
+export const MatchingCase: StoryObj = {
   render: () => (
     <>
       <tw-storydata startnode='1' options='debug'>
         <tw-passagedata pid='1' name='Start'>
           {`
-::set[flag=true]
+::set[color="red"]
 
-:::if[flag]
-
-Flag is true
-
-:::else
-
-Flag is false
-
+:::switch[color]
+:::case["red"]
+Red
+:::
+:::case["blue"]
+Blue
+:::
+:::default
+No match
+:::
 :::
           `}
         </tw-passagedata>
@@ -40,26 +42,28 @@ Flag is false
 }
 
 /**
- * Shows fallback content when the condition is false.
+ * Falls back to default when no case matches.
  *
- * @returns Campfire story demonstrating `if` with a falsy value.
+ * @returns Campfire story demonstrating `switch` default fallback.
  */
-export const Falsy: StoryObj = {
+export const DefaultCase: StoryObj = {
   render: () => (
     <>
       <tw-storydata startnode='1' options='debug'>
         <tw-passagedata pid='1' name='Start'>
           {`
-::set[flag=false]
+::set[color="green"]
 
-:::if[flag]
-
-Flag is true
-
-:::else
-
-Flag is false
-
+:::switch[color]
+:::case["red"]
+Red
+:::
+:::case["blue"]
+Blue
+:::
+:::default
+No match
+:::
 :::
           `}
         </tw-passagedata>

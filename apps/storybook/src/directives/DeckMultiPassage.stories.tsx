@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/preact'
 import { Campfire } from '@campfire/components'
-import { DebugWindow } from './DebugWindow'
+import { DebugWindow } from '../DebugWindow'
 
 const meta: Meta = {
   title: 'Campfire/Directives/Deck'
