@@ -1,8 +1,9 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { render } from '@testing-library/preact'
+import { render, fireEvent, waitFor } from '@testing-library/preact'
 import { Fragment } from 'preact/jsx-runtime'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { renderDirectiveMarkdown } from '@campfire/components/Deck/Slide'
+import { useGameStore } from '@campfire/state/useGameStore'
 
 /**
  * Component used in tests to render markdown with directive handlers.
@@ -18,6 +19,8 @@ const MarkdownRunner = ({ markdown }: { markdown: string }) => {
 
 beforeEach(() => {
   document.body.innerHTML = ''
+  const store = useGameStore.getState()
+  store.reset()
 })
 
 describe('if directive', () => {
@@ -52,5 +55,48 @@ describe('if directive', () => {
     render(<MarkdownRunner markdown={md} />)
 
     expect(document.body.innerHTML).not.toContain(':::')
+  })
+
+  it('does not execute state directives when the condition is false', () => {
+    useGameStore.setState(state => ({
+      ...state,
+      gameData: { ready: true }
+    }))
+
+    const md = [
+      ':::if[(!ready)]',
+      '  ::setOnce[hpInitialized=true]',
+      '  ::createRange[hp=10]{min=0 max=10}',
+      ':::'
+    ].join('\n')
+
+    render(<MarkdownRunner markdown={md} />)
+
+    const data = useGameStore.getState().gameData as Record<string, unknown>
+    expect(data.hpInitialized).toBeUndefined()
+    expect(data.hp).toBeUndefined()
+  })
+
+  it('preserves trigger state directives inside conditional content', async () => {
+    useGameStore.setState(state => ({
+      ...state,
+      gameData: { ready: false }
+    }))
+
+    const md = [
+      ':::if[(!ready)]',
+      '  :::trigger{label="Initialize"}',
+      '    ::set[ready=true]',
+      '  :::',
+      ':::'
+    ].join('\n')
+
+    const { getByRole } = render(<MarkdownRunner markdown={md} />)
+
+    fireEvent.click(getByRole('button', { name: 'Initialize' }))
+
+    await waitFor(() => {
+      expect(useGameStore.getState().gameData.ready).toBe(true)
+    })
   })
 })

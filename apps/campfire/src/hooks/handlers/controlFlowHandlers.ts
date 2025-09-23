@@ -13,7 +13,9 @@ import {
   runDirectiveBlock,
   filterDirectiveChildren,
   parseTypedValue,
-  isRange
+  isRange,
+  isDirectiveNode,
+  type DirectiveNode
 } from '@campfire/utils/directiveUtils'
 import {
   removeDirectiveMarker,
@@ -63,6 +65,8 @@ export interface ControlFlowHandlerContext {
   allowedBatchDirectives: Set<string>
   /** Directives disallowed within a batch block. */
   bannedBatchDirectives: Set<string>
+  /** Names of directives that mutate state. */
+  stateDirectiveNames: Set<string>
 }
 
 /**
@@ -85,8 +89,190 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
     setOnceKeys,
     isTextNode,
     allowedBatchDirectives,
-    bannedBatchDirectives
+    bannedBatchDirectives,
+    stateDirectiveNames
   } = ctx
+
+  /** Prefix used to mark placeholder text for state directives. */
+  const STATE_PLACEHOLDER_PREFIX = '__campfire_state_directive__'
+
+  /**
+   * Generates a placeholder text node for a state directive and records the
+   * original directive for restoration after serialization.
+   *
+   * @param node - Directive node being replaced.
+   * @param placeholders - Mapping of placeholder keys to directives.
+   * @returns A text node containing the placeholder key.
+   */
+  const createStatePlaceholder = (
+    node: DirectiveNode,
+    placeholders: Map<string, DirectiveNode>
+  ): MdText => {
+    const key = `${STATE_PLACEHOLDER_PREFIX}${placeholders.size}__`
+    placeholders.set(key, structuredClone(node))
+    return { type: 'text', value: key }
+  }
+
+  /**
+   * Recursively replaces state directives with placeholder text nodes to avoid
+   * mutating game state during serialization.
+   *
+   * @param nodes - Nodes to process.
+   * @param placeholders - Mapping of placeholder keys to directives.
+   * @returns Processed nodes with placeholders substituted in place of state directives.
+   */
+  const replaceStateDirectivesWithPlaceholders = (
+    nodes: RootContent[],
+    placeholders: Map<string, DirectiveNode>
+  ): RootContent[] =>
+    nodes.map(node => {
+      if (isDirectiveNode(node) && stateDirectiveNames.has(node.name)) {
+        return createStatePlaceholder(node, placeholders)
+      }
+      if ('children' in node && Array.isArray((node as Parent).children)) {
+        ;(node as Parent).children = replaceStateDirectivesWithPlaceholders(
+          ((node as Parent).children as RootContent[]) || [],
+          placeholders
+        )
+      }
+      return node
+    })
+
+  /**
+   * Restores placeholders embedded within serialized JSON values.
+   *
+   * @param value - Serialized value possibly containing placeholders.
+   * @param placeholders - Mapping of placeholder keys to directives.
+   * @returns Restored JSON string with directives in place of placeholders.
+   */
+  const restoreSerializedStringValue = (
+    value: string,
+    placeholders: Map<string, DirectiveNode>
+  ): string | DirectiveNode => {
+    const direct = placeholders.get(value)
+    if (direct) return structuredClone(direct)
+    if (!value.includes(STATE_PLACEHOLDER_PREFIX)) return value
+    try {
+      const parsed = JSON.parse(value) as unknown
+      const restored = restoreSerializedStructure(parsed, placeholders)
+      return JSON.stringify(restored)
+    } catch {
+      return value
+    }
+  }
+
+  /**
+   * Recursively restores placeholder strings within a parsed JSON structure.
+   *
+   * @param input - Parsed JSON structure.
+   * @param placeholders - Mapping of placeholder keys to directives.
+   * @returns Structure with directives restored.
+   */
+  const restoreSerializedStructure = (
+    input: unknown,
+    placeholders: Map<string, DirectiveNode>
+  ): unknown => {
+    if (Array.isArray(input)) {
+      return input.map(item => restoreSerializedStructure(item, placeholders))
+    }
+    if (typeof input === 'object' && input !== null) {
+      const candidate = input as Record<string, unknown>
+      if (candidate.type === 'text' && typeof candidate.value === 'string') {
+        const direct = placeholders.get(candidate.value)
+        if (direct) return structuredClone(direct)
+      }
+      for (const [key, val] of Object.entries(candidate)) {
+        if (typeof val === 'string') {
+          candidate[key] = restoreSerializedStringValue(val, placeholders)
+        } else {
+          candidate[key] = restoreSerializedStructure(val, placeholders)
+        }
+      }
+      return candidate
+    }
+    if (typeof input === 'string') {
+      return restoreSerializedStringValue(input, placeholders)
+    }
+    return input
+  }
+
+  const restoreSerializedValue = (
+    value: string,
+    placeholders: Map<string, DirectiveNode>
+  ): string => {
+    const restored = restoreSerializedStringValue(value, placeholders)
+    if (typeof restored === 'string') return restored
+    return JSON.stringify(restored)
+  }
+
+  /**
+   * Restores placeholder nodes within regular AST children and serialized
+   * directive properties.
+   *
+   * @param nodes - Nodes to traverse for placeholder restoration.
+   * @param placeholders - Mapping of placeholder keys to directives.
+   * @returns Nodes with placeholders replaced by their original directives.
+   */
+  const restoreStatePlaceholders = (
+    nodes: RootContent[],
+    placeholders: Map<string, DirectiveNode>
+  ): RootContent[] => {
+    for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i]
+      if (isTextNode(node)) {
+        const replacement = placeholders.get(node.value)
+        if (replacement) {
+          nodes[i] = structuredClone(replacement)
+          continue
+        }
+      }
+      if ('children' in node && Array.isArray((node as Parent).children)) {
+        ;(node as Parent).children = restoreStatePlaceholders(
+          ((node as Parent).children as RootContent[]) || [],
+          placeholders
+        )
+      }
+      const data = (
+        node as {
+          data?: { hProperties?: Record<string, unknown> }
+        }
+      ).data
+      if (data?.hProperties) {
+        for (const [prop, raw] of Object.entries(data.hProperties)) {
+          if (typeof raw === 'string') {
+            data.hProperties[prop] = restoreSerializedValue(raw, placeholders)
+          } else if (Array.isArray(raw)) {
+            data.hProperties[prop] = raw.map(item => {
+              if (typeof item === 'string') {
+                return restoreSerializedValue(item, placeholders)
+              }
+              if (
+                typeof item === 'object' &&
+                item !== null &&
+                !Array.isArray(item)
+              ) {
+                const nested = item as Record<string, unknown>
+                for (const [k, v] of Object.entries(nested)) {
+                  if (typeof v === 'string') {
+                    nested[k] = restoreSerializedValue(v, placeholders)
+                  }
+                }
+              }
+              return item
+            })
+          } else if (typeof raw === 'object' && raw !== null) {
+            const nested = raw as Record<string, unknown>
+            for (const [k, v] of Object.entries(nested)) {
+              if (typeof v === 'string') {
+                nested[k] = restoreSerializedValue(v, placeholders)
+              }
+            }
+          }
+        }
+      }
+    }
+    return nodes
+  }
 
   /**
    * Extracts an expression from a container directive, using either its label or
@@ -262,9 +448,29 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
      * @returns Cleaned array without whitespace-only text nodes.
      */
     const processNodes = (nodes: RootContent[]): RootContent[] => {
+      const placeholders = new Map<string, DirectiveNode>()
+      const prevState = getState()
+      const scoped = prevState.createScope()
+      setState(scoped)
+      setGameData(scoped.getState())
+      setLockedKeys(scoped.getLockedKeys())
+      setOnceKeys(scoped.getOnceKeys())
+
       const cloned = nodes.map(node => structuredClone(node))
-      const processed = runDirectiveBlock(expandIndentedCode(cloned))
-      const stripped = stripLabel(processed).map(node => {
+      const expanded = expandIndentedCode(cloned)
+      const prepared = replaceStateDirectivesWithPlaceholders(
+        expanded,
+        placeholders
+      )
+      const processed = runDirectiveBlock(prepared)
+      const restored = restoreStatePlaceholders(processed, placeholders)
+
+      setState(prevState)
+      setGameData(prevState.getState())
+      setLockedKeys(prevState.getLockedKeys())
+      setOnceKeys(prevState.getOnceKeys())
+
+      const stripped = stripLabel(restored).map(node => {
         if (node.type === 'paragraph' && node.children.length === 1) {
           const child = node.children[0] as any
           if (

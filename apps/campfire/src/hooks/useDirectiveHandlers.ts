@@ -179,6 +179,7 @@ export const useDirectiveHandlers = () => {
     refreshState,
     addError
   })
+  const stateDirectiveNames = new Set(Object.keys(stateDirectiveHandlers))
 
   /**
    * Inserts a Show component that displays the value for a key or the result
@@ -300,7 +301,8 @@ export const useDirectiveHandlers = () => {
     },
     isTextNode,
     allowedBatchDirectives: ALLOWED_BATCH_DIRECTIVES,
-    bannedBatchDirectives: BANNED_BATCH_DIRECTIVES
+    bannedBatchDirectives: BANNED_BATCH_DIRECTIVES,
+    stateDirectiveNames
   })
 
   /**
