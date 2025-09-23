@@ -179,22 +179,28 @@ Current HP: :show[hp.value]{className="font-bold"}
         <tw-passagedata pid='7' name='Dead'>
           {`
 :::layer{className="space-y-3"}
-  Your vision fades as the world slips away.
-
-  :::trigger{label="Begin anew"}
-    ::goto["Start"]
+  :::wrapper
+    Your vision fades as the world slips away.
   :::
 
-  :::onExit
-    ::unset[playerName]
-    ::unset[playerClass]
-    ::unset[hp]
-    ::unset[hpInitialized]
-    ::unset[inventory]
-    ::unset[forestDamageApplied]
-    ::unset[herbsCollected]
-    ::unset[caveTrapTriggered]
-    ::unset[caveLootGranted]
+  :::wrapper
+    :::trigger{label="Begin anew"}
+      ::goto["Start"]
+    :::
+  :::
+
+  :::wrapper
+    :::onExit
+      ::unset[playerName]
+      ::unset[playerClass]
+      ::unset[hp]
+      ::unset[hpInitialized]
+      ::unset[inventory]
+      ::unset[forestDamageApplied]
+      ::unset[herbsCollected]
+      ::unset[caveTrapTriggered]
+      ::unset[caveLootGranted]
+    :::
   :::
 :::
 `}
