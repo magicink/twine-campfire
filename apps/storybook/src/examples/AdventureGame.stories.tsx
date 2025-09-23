@@ -82,7 +82,10 @@ Two paths beckon:
         </tw-passagedata>
         <tw-passagedata pid='4' name='Forest'>
           {`
-::setRange[hp=(hp.value-2)]
+:::if[(!forestDamageApplied)]
+  ::set[forestDamageApplied=true]
+  ::setRange[hp=(hp.value-2)]
+:::
 
 A snarling wolf lunges from the underbrush!
 
@@ -107,29 +110,46 @@ Current HP: :show[hp.value]{className="font-bold"}
     ::goto["Dead"]
   :::
 :::
+
+:::onExit
+  ::unset[forestDamageApplied]
+:::
 `}
         </tw-passagedata>
         <tw-passagedata pid='5' name='Herbs'>
           {`
-::push{key=inventory value="Herbs"}
+:::if[(!herbsCollected)]
+  ::set[herbsCollected=true]
+  ::push{key=inventory value="Herbs"}
+:::
 
 You gather fragrant herbs and bandage your wounds before returning.
 
 :::trigger{label="Back to the crossroads"}
   ::goto["Adventure"]
 :::
+
+:::onExit
+  ::unset[herbsCollected]
+:::
 `}
         </tw-passagedata>
         <tw-passagedata pid='6' name='Cave'>
           {`
-::setRange[hp=(hp.value-3)]
+:::if[(!caveTrapTriggered)]
+  ::set[caveTrapTriggered=true]
+  ::setRange[hp=(hp.value-3)]
+:::
 
 A hidden trap releases a volley of darts as you step inside the cave!
 
 Current HP: :show[hp.value]{className="font-bold"}
 
 :::if[(hp.value>0)]
-  ::push{key=inventory value="Gold"}
+  :::if[(!caveLootGranted)]
+    ::set[caveLootGranted=true]
+    ::push{key=inventory value="Gold"}
+  :::
   The trap spent, a cache of glittering coins remains.
 
   Your pack now holds:
@@ -148,6 +168,11 @@ Current HP: :show[hp.value]{className="font-bold"}
   :::trigger{label="Fall to your fate"}
     ::goto["Dead"]
   :::
+:::
+
+:::onExit
+  ::unset[caveTrapTriggered]
+  ::unset[caveLootGranted]
 :::
 `}
         </tw-passagedata>
