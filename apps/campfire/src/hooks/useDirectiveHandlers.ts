@@ -179,6 +179,7 @@ export const useDirectiveHandlers = () => {
     refreshState,
     addError
   })
+  const stateDirectiveNames = new Set(Object.keys(stateDirectiveHandlers))
 
   /**
    * Inserts a Show component that displays the value for a key or the result
@@ -300,7 +301,8 @@ export const useDirectiveHandlers = () => {
     },
     isTextNode,
     allowedBatchDirectives: ALLOWED_BATCH_DIRECTIVES,
-    bannedBatchDirectives: BANNED_BATCH_DIRECTIVES
+    bannedBatchDirectives: BANNED_BATCH_DIRECTIVES,
+    stateDirectiveNames
   })
 
   /**
@@ -943,9 +945,12 @@ export const useDirectiveHandlers = () => {
                 (child as MdText).value.includes(DIRECTIVE_MARKER)
             )
             if (idxText !== -1) last.children.splice(idxText, 1)
+            const hasDirectiveOutput =
+              typeof (last as Parent).data?.hName === 'string'
             if (
-              last.children.length === 0 ||
-              last.children.every(isWhitespaceNode)
+              !hasDirectiveOutput &&
+              (last.children.length === 0 ||
+                last.children.every(isWhitespaceNode))
             )
               processed.pop()
           }
