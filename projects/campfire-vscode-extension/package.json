@@ -53,10 +53,10 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "@types/vscode": "^1.80.0",
+    "@types/vscode": "^1.104.0",
     "typescript": "^5.4.0"
   },
   "engines": {
-    "vscode": "^1.80.0"
+    "vscode": "^1.104.0"
   }
 }
