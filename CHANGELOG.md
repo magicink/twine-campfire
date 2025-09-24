@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.106.0](https://github.com/magicink/twine-campfire/compare/v1.105.0...v1.106.0) (2025-09-24)
+
+
+### Features
+
+* **storybook:** add AdventureGame story ([#743](https://github.com/magicink/twine-campfire/issues/743)) ([541d443](https://github.com/magicink/twine-campfire/commit/541d4435c0fee449e0b8b867f8a996d7924b8fa9))
+
 ## [1.105.0](https://github.com/magicink/twine-campfire/compare/v1.104.1...v1.105.0) (2025-09-22)
 
 
