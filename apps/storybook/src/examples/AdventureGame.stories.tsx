@@ -171,8 +171,10 @@ Current HP: :show[hp.value]{className="font-bold"}
 :::
 
 :::onExit
-  ::unset[caveTrapTriggered]
-  ::unset[caveLootGranted]
+  :::batch
+    ::unset[caveTrapTriggered]
+    ::unset[caveLootGranted]
+  :::
 :::
 `}
         </tw-passagedata>
@@ -189,8 +191,8 @@ Current HP: :show[hp.value]{className="font-bold"}
     :::
   :::
 
-  :::wrapper
-    :::onExit
+  :::onExit
+    :::batch
       ::unset[playerName]
       ::unset[playerClass]
       ::unset[hp]
