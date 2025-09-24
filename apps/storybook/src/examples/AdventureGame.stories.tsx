@@ -152,9 +152,11 @@ Current HP: :show[hp.value]{className="font-bold"}
   :::
   The trap spent, a cache of glittering coins remains.
 
-  Your pack now holds:
-  :::for[item in inventory]
-    - :show[item]
+  :::if[(inventory && inventory.length)]
+    Your pack now holds:
+    :::for[item in inventory]
+      - :show[item]
+    :::
   :::
 
   :::trigger{label="Return to the crossroads"}
