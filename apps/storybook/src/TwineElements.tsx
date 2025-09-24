@@ -17,6 +17,14 @@ type TwStorydataProps = TwineElementProps & {
    * Identifier for the passage that should render first when the story loads.
    */
   startnode?: string
+  /**
+   * Human-readable title for the story displayed in the Twine UI.
+   */
+  name?: string
+  /**
+   * Space-separated list of story options (for example `debug`).
+   */
+  options?: string
 }
 
 /**
@@ -28,6 +36,10 @@ type TwPassagedataProps = TwineElementProps & {
    * Unique passage identifier referenced by other passages and directives.
    */
   pid?: string
+  /**
+   * Human-readable passage title used by links and debugging tools.
+   */
+  name?: string
 }
 
 /**
