@@ -81,10 +81,10 @@ const directiveSnippets: DirectiveSnippet[] = [
   {
     marker: '::',
     label: 'StoryIncludes',
-    detail: 'Reference external Twee files',
+    detail: 'Reference external Twee Story (.tws) resources',
     documentation:
-      'Lists additional Twee sources (.twee or .tws) that Twine should merge when building the story.',
-    body: ':: StoryIncludes\n${1:localfile.twee}\n$0'
+      'Lists additional Twee Story (.tws) resources that Twine should merge when building the story. Only .tws files are supported.',
+    body: ':: StoryIncludes\n${1:localfile.tws}\n$0'
   },
   {
     marker: '::',

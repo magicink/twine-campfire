@@ -51,7 +51,7 @@
   "Twee 3 Story Includes": {
     "prefix": "twee3-storyincludes",
     "body": [":: StoryIncludes", "${1:localfile.tws}", "$0"],
-    "description": "Twee 3 StoryIncludes special passage"
+    "description": "Twee 3 StoryIncludes special passage (only .tws resources)"
   },
   "Twee 3 User Stylesheet": {
     "prefix": "twee3-userstylesheet",
