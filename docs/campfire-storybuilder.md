@@ -38,7 +38,7 @@ bun run --filter campfire-storybuilder watch
 
 ## Package the extension
 
-Create a distributable `.vsix` archive using the bundled `vsce` CLI:
+Create a distributable `.vsix` archive using the bundled `vsce` CLI. The packaging script passes `--no-dependencies` so that `vsce` skips `npm list` validation (our workspace is managed by Bun rather than `npm`).
 
 ```sh
 bun run --filter campfire-storybuilder package
