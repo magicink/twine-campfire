@@ -97,7 +97,25 @@
         },
         {
           "name": "meta.section.storydata.header.twee3",
-          "match": "^(\\s*)(::)\\s+((?:Story(?:Data|Menu|Caption|Author|Title|Subtitle|Includes|Settings))|(?:User(?:Stylesheet|Script)))(\\s*\\[[^\\]]*\\])?(\\s*\\{[^\\}]*\\})?",
+          "match": "^(\\s*)(::)\\s+(Story(?:Data|Menu|Caption|Author|Title|Subtitle|Includes|Settings))(\\s*\\[[^\\]]*\\])?(\\s*\\{[^\\}]*\\})?",
+          "captures": {
+            "2": {
+              "name": "punctuation.definition.storydata.twee3"
+            },
+            "3": {
+              "name": "support.function.metadata.twee3"
+            },
+            "4": {
+              "name": "entity.other.attribute-name.tag.twee3"
+            },
+            "5": {
+              "name": "meta.section.metadata.twee3"
+            }
+          }
+        },
+        {
+          "name": "meta.section.userdata.header.twee3",
+          "match": "^(\\s*)(::)\\s+(User(?:Stylesheet|Script))(\\s*\\[[^\\]]*\\])?(\\s*\\{[^\\}]*\\})?",
           "captures": {
             "2": {
               "name": "punctuation.definition.storydata.twee3"
