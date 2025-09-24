@@ -83,8 +83,8 @@ const directiveSnippets: DirectiveSnippet[] = [
     label: 'StoryIncludes',
     detail: 'Reference external Twee files',
     documentation:
-      'Lists additional Twee sources that Twine should merge when building the story.',
-    body: ':: StoryIncludes\n${1:localfile.tws}\n$0'
+      'Lists additional Twee sources (.twee or .tws) that Twine should merge when building the story.',
+    body: ':: StoryIncludes\n${1:localfile.twee}\n$0'
   },
   {
     marker: '::',
@@ -336,7 +336,8 @@ const resolvePassageContext = (
 ): { name: string; line: number } | undefined => {
   for (let lineNumber = position.line; lineNumber >= 0; lineNumber -= 1) {
     const line = document.lineAt(lineNumber)
-    const match = line.text.match(/^::\s+([^\s\[{]+)/)
+    // Match passage names beginning with a letter or underscore followed by word characters.
+    const match = line.text.match(/^::\s+([A-Za-z_][A-Za-z0-9_]*)/)
     if (match) {
       return { name: match[1], line: lineNumber }
     }
