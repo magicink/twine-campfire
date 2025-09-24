@@ -353,10 +353,10 @@ const resolvePropertyRange = (
   document: TextDocument,
   position: Position
 ): Range => {
-  const range =
+  return (
     document.getWordRangeAtPosition(position, /"?[A-Za-z-]+"?/) ??
     new Range(position, position)
-  return range
+  )
 }
 
 /**
@@ -409,14 +409,14 @@ const resolveReplacementRange = (
  *
  * @param context - VS Code extension context provided on activation.
  */
-export const activate = (context: ExtensionContext): void => {
+export function activate(context: ExtensionContext): void {
   const provider = languages.registerCompletionItemProvider(
     { language: 'campfire' },
     {
       /**
        * Provide colon-triggered directive completions for Campfire.
        */
-      provideCompletionItems(document, position) {
+      provideCompletionItems(document: TextDocument, position: Position) {
         const range = resolveReplacementRange(document, position)
         return directiveSnippets.map(snippet =>
           createCompletionItem(snippet, range)
@@ -432,7 +432,7 @@ export const activate = (context: ExtensionContext): void => {
       /**
        * Surface completions for StoryData JSON keys and StorySettings toggles.
        */
-      provideCompletionItems(document, position) {
+      provideCompletionItems(document: TextDocument, position: Position) {
         const context = resolvePassageContext(document, position)
         if (!context) {
           return undefined
@@ -480,6 +480,6 @@ export const activate = (context: ExtensionContext): void => {
 /**
  * Clean up any resources when the extension is deactivated.
  */
-export const deactivate = (): void => {
+export function deactivate(): void {
   // No resources to dispose of because subscriptions are managed by VS Code.
 }

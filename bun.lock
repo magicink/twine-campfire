@@ -82,7 +82,7 @@
       "name": "campfire-storybuilder",
       "version": "0.1.0",
       "devDependencies": {
-        "@types/vscode": "^1.80.0",
+        "@types/vscode": "^1.104.0",
         "typescript": "^5.4.0",
       },
     },
