@@ -1,0 +1,82 @@
+{
+  "If Block": {
+    "prefix": "cf-if",
+    "body": ["::if ${1:condition}", "$0", "::else", "$2", ":::"],
+    "description": "Campfire if/else container"
+  },
+  "Slide Deck": {
+    "prefix": "cf-deck",
+    "body": [":::deck ${1:label}", "::slide", "$2", "::slide", "$3", ":::"],
+    "description": "Campfire slide deck"
+  },
+  "Input Field": {
+    "prefix": "cf-input",
+    "body": [":input name=\"${1:key}\" label=\"${2:Prompt}\"", "$0"],
+    "description": "Campfire inline input field"
+  },
+  "Twee 3 Passage": {
+    "prefix": "twee3-passage",
+    "body": [
+      ":: ${1:Passage Name}${2: [tags]}${3: {\"position\":\"320,180\",\"size\":\"160,120\"}}",
+      "",
+      "$0"
+    ],
+    "description": "Twee 3 passage header with optional tags and metadata"
+  },
+  "Twee 3 Story Title": {
+    "prefix": "twee3-storytitle",
+    "body": [":: StoryTitle", "${1:Campfire Story}", "$0"],
+    "description": "Twee 3 StoryTitle special passage"
+  },
+  "Twee 3 Story Menu": {
+    "prefix": "twee3-storymenu",
+    "body": [":: StoryMenu", "$0"],
+    "description": "Twee 3 StoryMenu special passage"
+  },
+  "Twee 3 Story Caption": {
+    "prefix": "twee3-storycaption",
+    "body": [":: StoryCaption", "$0"],
+    "description": "Twee 3 StoryCaption special passage"
+  },
+  "Twee 3 Story Author": {
+    "prefix": "twee3-storyauthor",
+    "body": [":: StoryAuthor", "${1:Author Name}", "$0"],
+    "description": "Twee 3 StoryAuthor special passage"
+  },
+  "Twee 3 Story Subtitle": {
+    "prefix": "twee3-storysubtitle",
+    "body": [":: StorySubtitle", "${1:An interactive tale}", "$0"],
+    "description": "Twee 3 StorySubtitle special passage"
+  },
+  "Twee 3 Story Includes": {
+    "prefix": "twee3-storyincludes",
+    "body": [":: StoryIncludes", "${1:localfile.tws}", "$0"],
+    "description": "Twee 3 StoryIncludes special passage"
+  },
+  "Twee 3 User Stylesheet": {
+    "prefix": "twee3-userstylesheet",
+    "body": [":: UserStylesheet[stylesheet]", "$0"],
+    "description": "Twee 3 UserStylesheet special passage"
+  },
+  "Twee 3 User Script": {
+    "prefix": "twee3-userscript",
+    "body": [":: UserScript[script]", "$0"],
+    "description": "Twee 3 UserScript special passage"
+  },
+  "Twee 3 Story Settings": {
+    "prefix": "twee3-storysettings",
+    "body": [
+      ":: StorySettings",
+      "undo:${1:on}",
+      "bookmark:${2:on}",
+      "hash:${3:on}",
+      "exitprompt:${4:on}",
+      "blankcss:${5:on}",
+      "obfuscate:${6:rot13}",
+      "jquery:${7:on}",
+      "modernizr:${8:on}",
+      "$0"
+    ],
+    "description": "Twee 3 StorySettings special passage"
+  }
+}

@@ -1,0 +1,132 @@
+{
+  "name": "Campfire",
+  "repository": {
+    "campfireDirectives": {
+      "patterns": [
+        {
+          "name": "entity.name.section.directive.campfire",
+          "match": "^(\\s*)(:::+|::|:)([A-Za-z][A-Za-z0-9_-]*)"
+        },
+        {
+          "name": "meta.directive.campfire",
+          "match": "(:::+|::|:)(allowLandscape|array|arrayOnce|batch|bgm|case|checkpoint|checkbox|clearCheckpoint|clearSave|concat|createRange|deck|default|effect|else|embed|for|goto|if|image|include|input|lang|layer|load|loadCheckpoint|onBlur|onExit|onFocus|onMouseEnter|onMouseLeave|option|pop|preloadAudio|preloadImage|preset|push|radio|random|randomOnce|reveal|save|select|set|setLanguageLabel|setOnce|setRange|shape|shift|show|slide|sound|splice|switch|t|text|textarea|title|translations|trigger|unset|unshift|volume|wrapper)",
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.directive.campfire"
+            },
+            "2": {
+              "name": "keyword.control.directive.campfire"
+            }
+          }
+        },
+        {
+          "name": "variable.other.directive-attribute.campfire",
+          "match": "\\b([A-Za-z_][A-Za-z0-9_-]*)(?=\\s*=)"
+        },
+        {
+          "name": "string.quoted.double.directive.campfire",
+          "begin": "\"",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.begin.campfire"
+            }
+          },
+          "end": "\"",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.campfire"
+            }
+          },
+          "patterns": [
+            {
+              "include": "text.html.markdown"
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.single.directive.campfire",
+          "begin": "'",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.begin.campfire"
+            }
+          },
+          "end": "'",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.campfire"
+            }
+          }
+        },
+        {
+          "name": "string.quoted.template.directive.campfire",
+          "begin": "`",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.begin.campfire"
+            }
+          },
+          "end": "`",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.campfire"
+            }
+          }
+        }
+      ]
+    },
+    "twee3Headers": {
+      "patterns": [
+        {
+          "name": "meta.section.passage.header.twee3",
+          "match": "^(\\s*)(::)(?=\\s+[^:\\s])\\s+([^\\[\\{\\n]+?)(\\s*\\[[^\\]]*\\])?(\\s*\\{[^\\}]*\\})?",
+          "captures": {
+            "2": {
+              "name": "punctuation.definition.passage.twee3"
+            },
+            "3": {
+              "name": "entity.name.section.passage.twee3"
+            },
+            "4": {
+              "name": "entity.other.attribute-name.tag.twee3"
+            },
+            "5": {
+              "name": "meta.section.metadata.twee3"
+            }
+          }
+        },
+        {
+          "name": "meta.section.storydata.header.twee3",
+          "match": "^(\\s*)(::)\\s+((?:Story(?:Data|Menu|Caption|Author|Title|Subtitle|Includes|Settings))|(?:User(?:Stylesheet|Script)))(\\s*\\[[^\\]]*\\])?(\\s*\\{[^\\}]*\\})?",
+          "captures": {
+            "2": {
+              "name": "punctuation.definition.storydata.twee3"
+            },
+            "3": {
+              "name": "support.function.metadata.twee3"
+            },
+            "4": {
+              "name": "entity.other.attribute-name.tag.twee3"
+            },
+            "5": {
+              "name": "meta.section.metadata.twee3"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "fileTypes": ["twee", "tws"],
+  "patterns": [
+    {
+      "include": "#twee3Headers"
+    },
+    {
+      "include": "#campfireDirectives"
+    },
+    {
+      "include": "text.html.markdown"
+    }
+  ],
+  "scopeName": "text.campfire"
+}

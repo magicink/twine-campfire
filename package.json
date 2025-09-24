@@ -11,7 +11,8 @@
   ],
   "workspaces": [
     "apps/campfire",
-    "apps/storybook"
+    "apps/storybook",
+    "projects/campfire-vscode-extension"
   ],
   "scripts": {
     "build": "rimraf apps/campfire/dist && bunx rollup -c apps/campfire/rollup.config.mjs && node build-format.mjs",

@@ -1,0 +1,62 @@
+{
+  "name": "campfire-storybuilder",
+  "displayName": "Campfire Storybuilder",
+  "version": "0.1.0",
+  "description": "Author Campfire stories in VS Code with syntax highlighting, snippets, and Campfire directive IntelliSense.",
+  "categories": [
+    "Programming Languages"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/campfire/twine-campfire"
+  },
+  "license": "MIT",
+  "publisher": "campfire",
+  "main": "./dist/extension.js",
+  "scripts": {
+    "build": "bun run tsc -p .",
+    "package": "bunx vsce package",
+    "watch": "bun run tsc -p . --watch"
+  },
+  "contributes": {
+    "grammars": [
+      {
+        "language": "campfire",
+        "scopeName": "text.campfire",
+        "path": "./syntaxes/campfire.tmLanguage.json"
+      }
+    ],
+    "languages": [
+      {
+        "id": "campfire",
+        "aliases": [
+          "Campfire",
+          "campfire",
+          "Twee 3"
+        ],
+        "extensions": [
+          ".twee",
+          ".tws"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "campfire",
+        "path": "./snippets/campfire.code-snippets"
+      }
+    ]
+  },
+  "activationEvents": [
+    "onLanguage:campfire"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "@types/vscode": "^1.80.0",
+    "typescript": "^5.4.0"
+  },
+  "engines": {
+    "vscode": "^1.80.0"
+  }
+}
