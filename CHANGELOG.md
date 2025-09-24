@@ -1,5 +1,34 @@
 # Changelog
 
+## [1.106.0](https://github.com/magicink/twine-campfire/compare/v1.105.0...v1.106.0) (2025-09-24)
+
+
+### Features
+
+* **storybook:** add AdventureGame story ([#743](https://github.com/magicink/twine-campfire/issues/743)) ([541d443](https://github.com/magicink/twine-campfire/commit/541d4435c0fee449e0b8b867f8a996d7924b8fa9))
+
+## [1.105.0](https://github.com/magicink/twine-campfire/compare/v1.104.1...v1.105.0) (2025-09-22)
+
+
+### Features
+
+* add allow landscape orientation directive ([#736](https://github.com/magicink/twine-campfire/issues/736)) ([5b2a216](https://github.com/magicink/twine-campfire/commit/5b2a21642990f6718b5cf859f89b67e0d9614478))
+* coalesce directive event bursts ([#734](https://github.com/magicink/twine-campfire/issues/734)) ([5e23172](https://github.com/magicink/twine-campfire/commit/5e23172c3f7fe4f6dc759f406dfa7266ed31ee6b))
+
+
+### Bug Fixes
+
+* **deck:** align reveal step metadata ([#723](https://github.com/magicink/twine-campfire/issues/723)) ([12412c7](https://github.com/magicink/twine-campfire/commit/12412c73ac4d2fdd65424738f7412f29eed13a31))
+* ensure directive events flush promptly ([#735](https://github.com/magicink/twine-campfire/issues/735)) ([4e13351](https://github.com/magicink/twine-campfire/commit/4e13351eec9b09a53eabf087eb458f5de72bd6ea))
+* handle for loops skipping falsy items ([#738](https://github.com/magicink/twine-campfire/issues/738)) ([31f31fe](https://github.com/magicink/twine-campfire/commit/31f31febd9e912ec327b3acb2fda7e0054549d77))
+
+## [1.104.1](https://github.com/magicink/twine-campfire/compare/v1.104.0...v1.104.1) (2025-09-15)
+
+
+### Bug Fixes
+
+* **textarea:** handle nested directives ([04af5a0](https://github.com/magicink/twine-campfire/commit/04af5a0811f297c20d29c9f1265f132a3e0c5fcf))
+
 ## [1.104.0](https://github.com/magicink/twine-campfire/compare/v1.103.0...v1.104.0) (2025-09-14)
 
 

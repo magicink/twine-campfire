@@ -1,8 +1,9 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { render, screen } from '@testing-library/preact'
+import { render, screen, act } from '@testing-library/preact'
 import type { Element } from 'hast'
 import { Passage } from '@campfire/components/Passage/Passage'
 import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
+import { useGameStore } from '@campfire/state/useGameStore'
 import { resetStores } from '@campfire/test-utils/helpers'
 
 describe('If directive', () => {
@@ -81,5 +82,36 @@ describe('If directive', () => {
     render(<Passage />)
     expect(screen.queryByRole('button', { name: 'One' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Two' })).toBeNull()
+  })
+
+  it('renders nested triggers when the condition becomes truthy', async () => {
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'ChooseClass' },
+      children: [
+        {
+          type: 'text',
+          value:
+            ':::if[(playerClass && playerClass.trim())]\n' +
+            '  :::trigger{label="Begin"}\n' +
+            '    ::goto["Next"]\n' +
+            '  :::\n' +
+            ':::'
+        }
+      ]
+    }
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+    render(<Passage />)
+    expect(screen.queryByRole('button', { name: 'Begin' })).toBeNull()
+    await act(() =>
+      useGameStore.getState().setGameData({ playerClass: 'Warrior' })
+    )
+    expect(
+      await screen.findByRole('button', { name: 'Begin' })
+    ).toBeInTheDocument()
   })
 })
