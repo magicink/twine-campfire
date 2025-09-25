@@ -20,13 +20,7 @@
   },
   "For Loop": {
     "prefix": "cf-for",
-    "body": [
-      "\\:::for[${1:item}${2}]",
-      "",
-      "  ${3:Item: :show[item]}",
-      "",
-      "\\:::"
-    ],
+    "body": ["\\:::for[${1:item}${2}]", "  ${3:Item: :show[item]}", "\\:::"],
     "description": "Campfire for iteration container"
   },
   "Input Field": {
