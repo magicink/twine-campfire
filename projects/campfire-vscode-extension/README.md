@@ -20,6 +20,8 @@ At the repository root, install the workspace dependencies (this also pulls the 
 
 ```sh
 bun install
+bun run build
+bun run package
 ```
 
 ## Build the extension
