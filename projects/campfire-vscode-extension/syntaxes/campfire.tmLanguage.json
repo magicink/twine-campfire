@@ -4,8 +4,16 @@
     "campfireDirectives": {
       "patterns": [
         {
-          "name": "entity.name.section.directive.campfire",
-          "match": "^(\\s*)(:::+|::|:)([A-Za-z][A-Za-z0-9_-]*)"
+          "name": "meta.directive.line.campfire",
+          "match": "^(\\s*)(:::+|::|:)([A-Za-z][A-Za-z0-9_-]*)",
+          "captures": {
+            "2": {
+              "name": "punctuation.definition.directive.campfire"
+            },
+            "3": {
+              "name": "keyword.control.directive.campfire"
+            }
+          }
         },
         {
           "name": "meta.directive.campfire",
@@ -72,6 +80,10 @@
               "name": "punctuation.definition.string.end.campfire"
             }
           }
+        },
+        {
+          "name": "support.constant.storysettings.option.campfire",
+          "match": "(?<=^\\s*)(undo|bookmark|hash|exitprompt|blankcss|obfuscate|jquery|modernizr)(?=\\s*:)"
         }
       ]
     },
@@ -112,30 +124,62 @@
               "name": "meta.section.metadata.twee3"
             }
           }
-        },
-        {
-          "name": "meta.section.userdata.header.twee3",
-          "match": "^(\\s*)(::)\\s+(User(?:Stylesheet|Script))(\\s*\\[[^\\]]*\\])?(\\s*\\{[^\\}]*\\})?",
-          "captures": {
-            "2": {
-              "name": "punctuation.definition.storydata.twee3"
-            },
-            "3": {
-              "name": "support.function.metadata.twee3"
-            },
-            "4": {
-              "name": "entity.other.attribute-name.tag.twee3"
-            },
-            "5": {
-              "name": "meta.section.metadata.twee3"
-            }
-          }
         }
       ]
     }
   },
   "fileTypes": ["twee", "tws"],
   "patterns": [
+    {
+      "name": "meta.section.userstylesheet.twee3",
+      "begin": "^(\\s*)(::)\\s+(UserStyles(?:heet)?)(\\s*\\[[^\\]]*\\])?(\\s*\\{[^\\}]*\\})?\\s*$",
+      "beginCaptures": {
+        "2": {
+          "name": "punctuation.definition.storydata.twee3"
+        },
+        "3": {
+          "name": "support.function.metadata.twee3"
+        },
+        "4": {
+          "name": "entity.other.attribute-name.tag.twee3"
+        },
+        "5": {
+          "name": "meta.section.metadata.twee3"
+        }
+      },
+      "end": "(?=^\\s*::\\s+[A-Za-z_][A-Za-z0-9_-]*|\\Z)",
+      "contentName": "source.css.embedded.userstylesheet.campfire",
+      "patterns": [
+        {
+          "include": "source.css"
+        }
+      ]
+    },
+    {
+      "name": "meta.section.userscript.twee3",
+      "begin": "^(\\s*)(::)\\s+(UserScript)(\\s*\\[[^\\]]*\\])?(\\s*\\{[^\\}]*\\})?\\s*$",
+      "beginCaptures": {
+        "2": {
+          "name": "punctuation.definition.storydata.twee3"
+        },
+        "3": {
+          "name": "support.function.metadata.twee3"
+        },
+        "4": {
+          "name": "entity.other.attribute-name.tag.twee3"
+        },
+        "5": {
+          "name": "meta.section.metadata.twee3"
+        }
+      },
+      "end": "(?=^\\s*::\\s+[A-Za-z_][A-Za-z0-9_-]*|\\Z)",
+      "contentName": "source.js.embedded.userscript.campfire",
+      "patterns": [
+        {
+          "include": "source.js"
+        }
+      ]
+    },
     {
       "include": "#twee3Headers"
     },

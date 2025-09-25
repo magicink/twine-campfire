@@ -1,72 +1,72 @@
-# Campfire Storybuilder — VS Code extension
+# Campfire Storybuilder VS Code Extension
 
-This folder contains the Campfire Storybuilder Visual Studio Code extension.
+The Campfire Storybuilder extension adds syntax highlighting, directive snippets, and IntelliSense completions for Campfire story files inside Visual Studio Code. Point it at `.twee` or `.tws` documents to get inline help for Campfire's directive syntax and container layout blocks.
 
-This README explains how to build the extension and install the generated .vsix locally.
+## Features
 
-## Where the .vsix is produced
+- TextMate grammar that highlights Campfire directive markers, names, and attributes so story logic stands out from prose.
+- Colon-triggered IntelliSense snippets for directives such as `::set`, `::trigger`, `:::deck`, and other Campfire building blocks.
+- Language configuration that wires up bracket matching, directive indentation, and snippet surrounds tailored for Campfire containers.
 
-The extension package script outputs the VSIX into the `dist/` folder as `campfire-storybuilder.vsix`.
+## Prerequisites
 
-Path (relative to repo root):
+- [Bun](https://bun.sh/) 1.0 or later
+- [Node.js](https://nodejs.org/) 18 or later (required by the VS Code packaging tool)
+- [Visual Studio Code](https://code.visualstudio.com/)
 
-`projects/campfire-vscode-extension/dist/campfire-storybuilder.vsix`
+## Install dependencies
 
-## Build and package (Windows, cmd.exe)
+At the repository root, install the workspace dependencies (this also pulls the extension's TypeScript tooling):
 
-Run these commands from the extension directory. They assume Bun is installed and available on your PATH.
-
-```cmd
-cd C:\git\twine-campfire\projects\campfire-vscode-extension
+```sh
 bun install
 bun run build
 bun run package
 ```
 
-Notes:
+## Build the extension
 
-- The `package` script in `package.json` uses `bunx vsce package --no-dependencies --out dist/campfire-storybuilder.vsix` which will write the VSIX into `dist/`.
-- If `vsce` is not available via `bunx`, you can install it globally (for example, `bunx npm:vsce` or `npm i -g vsce`) and re-run the `bun run package` step.
+Compile the TypeScript source to `dist/extension.js` before packaging or running the extension in a development host:
 
-## Install the .vsix in Visual Studio Code
-
-There are three common ways to install a local .vsix file:
-
-1. Using the VS Code UI
-
-- Open VS Code
-- Open the Extensions view (Ctrl+Shift+X)
-- Click the kebab menu (three dots) in the top-right, choose "Install from VSIX..."
-- Select `campfire-storybuilder.vsix` from the `dist/` folder
-
-2. Using the Command Palette
-
-- Open Command Palette (Ctrl+Shift+P)
-- Run: `Extensions: Install from VSIX...` and pick the `dist/campfire-storybuilder.vsix`
-
-3. Using the VS Code CLI (recommended for automation)
-
-```cmd
-code --install-extension C:\git\twine-campfire\projects\campfire-vscode-extension\dist\campfire-storybuilder.vsix
+```sh
+bun run --filter campfire-storybuilder build
 ```
 
-To uninstall (by extension identifier):
+To watch for changes while developing, use:
 
-```cmd
-code --uninstall-extension campfire.campfire-storybuilder
+```sh
+bun run --filter campfire-storybuilder watch
 ```
 
-(If the identifier above doesn't match your installed id, open the Extensions view in VS Code, find the extension, and copy the identifier shown under the extension name.)
+## Package the extension
 
-## Tips
+Create a distributable `.vsix` archive using the bundled `vsce` CLI. The packaging script passes `--no-dependencies` so that `vsce` skips `npm list` validation (our workspace is managed by Bun rather than `npm`).
 
-- If you make code changes, re-run `bun run build` before `bun run package`.
-- The `package.json` includes a `prepackage` lifecycle that runs the build automatically when using `npm` lifecycle tooling; you can also add a combined script such as `dist-package` to run both build and package together.
-- If you plan to distribute the extension, refer to the VS Code Marketplace publishing docs and ensure you bump the `version` in `package.json` before publishing.
+```sh
+bun run --filter campfire-storybuilder package
+```
 
----
+The command writes `campfire-storybuilder-<version>.vsix` to the extension directory.
 
-If you'd like, I can:
+## Install into VS Code
 
-- Add a `dist-package` npm script that runs the build and package in one command.
-- Update repository CI to archive the generated `.vsix` as a build artifact.
+1. Open Visual Studio Code.
+2. Press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> (or <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> on macOS) to open the command palette.
+3. Run **Extensions: Install from VSIX...** and select the generated `.vsix` file.
+4. Reload VS Code if prompted.
+
+After installation, open or create a file with the `.twee` or `.tws` extension to activate the Campfire language features.
+
+## Campfire directive snippets
+
+Campfire directives can be tedious to type by hand. The extension exposes completions for the most common operations:
+
+- `::set`, `::setOnce`, `::createRange`, `::array`, and `::arrayOnce` state helpers.
+- Inline utilities such as `:random`, `:input`, and `:show` for dynamic content.
+- Container helpers including `::if`, `::trigger`, `::select`, `:::deck`, `:::layer`, and `:::text`.
+
+Trigger completions with `:` and use the snippet placeholders to tab through each directive's attributes.
+
+## Updating the extension version
+
+The extension's version number lives in `projects/campfire-vscode-extension/package.json`. Increment it when you ship new functionality so that VS Code recognizes the update when re-installing the `.vsix` file.

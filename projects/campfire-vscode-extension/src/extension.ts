@@ -1,13 +1,17 @@
 import {
   CompletionItem,
   CompletionItemKind,
+  Diagnostic,
+  DiagnosticCollection,
+  DiagnosticSeverity,
   ExtensionContext,
   MarkdownString,
   Position,
   Range,
   SnippetString,
   TextDocument,
-  languages
+  languages,
+  workspace
 } from 'vscode'
 
 /**
@@ -33,110 +37,51 @@ const directiveSnippets: DirectiveSnippet[] = [
     marker: '::',
     label: 'passage',
     completionLabel: ':: Passage header',
-    detail: 'Define a Twee 3 passage',
+    detail: 'Define a Campfire passage',
     documentation:
-      'Creates a Twee 3 passage heading with optional tags and metadata. Delete the tag or metadata placeholders if you do not need them.',
-    body: ':: ${1:Passage Name}${2: [tags]}${3: {"position":"600,400","size":"100,200"}}\\n$0'
+      'Creates a Campfire passage heading. Add optional tags or metadata after the passage name as needed.',
+    body: ':: ${1:Passage Name}${2}${3}\n$0'
   },
   {
     marker: '::',
-    label: 'StoryTitle',
-    detail: 'Set the Twee 3 story title',
-    documentation:
-      'Populates the StoryTitle special passage used by Twee 3 to name the story.',
-    body: ':: StoryTitle\\n${1:Campfire Story}\\n$0'
-  },
-  {
-    marker: '::',
-    label: 'StoryMenu',
-    detail: 'Customize the Twee 3 story menu',
-    documentation:
-      'Defines the StoryMenu special passage used to populate the menu shown in Twine.',
-    body: ':: StoryMenu\n$0'
-  },
-  {
-    marker: '::',
-    label: 'StoryCaption',
-    detail: 'Set the Twee 3 story caption',
-    documentation:
-      'Creates a StoryCaption special passage for additional byline or credit text.',
-    body: ':: StoryCaption\n$0'
-  },
-  {
-    marker: '::',
-    label: 'StoryAuthor',
-    detail: 'Identify the story author',
-    documentation:
-      'Populates the StoryAuthor special passage with author attribution.',
-    body: ':: StoryAuthor\n${1:Author Name}\n$0'
-  },
-  {
-    marker: '::',
-    label: 'StorySubtitle',
-    detail: 'Set the Twee 3 story subtitle',
-    documentation:
-      'Adds a StorySubtitle passage for supplemental story titling.',
-    body: ':: StorySubtitle\n${1:An interactive tale}\n$0'
-  },
-  {
-    marker: '::',
-    label: 'StoryIncludes',
-    detail: 'Reference external Twine Story (.tws) resources',
-    documentation:
-      'Lists additional Twine Story (.tws) resources that Twine should merge when building the story. Only .tws files are supported.',
-    body: ':: StoryIncludes\n${1:localfile.tws}\n$0'
-  },
-  {
-    marker: '::',
-    label: 'UserStylesheet',
-    completionLabel: ':: UserStylesheet[stylesheet]',
-    detail: 'Add global story styles',
-    documentation:
-      'Provides CSS that Twine injects into every passage when rendering the story.',
-    body: ':: UserStylesheet[stylesheet]\n$0'
-  },
-  {
-    marker: '::',
-    label: 'UserScript',
-    completionLabel: ':: UserScript[script]',
-    detail: 'Add global story scripts',
-    documentation:
-      'Declares JavaScript that Twine runs once when the story loads.',
-    body: ':: UserScript[script]\n$0'
-  },
-  {
-    marker: '::',
-    label: 'StorySettings',
-    detail: 'Configure Twee 3 story options',
-    documentation:
-      'Declares a StorySettings passage listing all supported toggles such as undo, hash navigation, and script loading.',
-    body: [
-      ':: StorySettings',
-      'undo:${1:on}',
-      'bookmark:${2:on}',
-      'hash:${3:on}',
-      'exitprompt:${4:on}',
-      'blankcss:${5:on}',
-      'obfuscate:${6:rot13}',
-      'jquery:${7:on}',
-      'modernizr:${8:on}',
-      '$0'
-    ].join('\n')
-  },
-  {
-    marker: '::',
-    label: 'StoryData',
-    detail: 'Provide Twee 3 story metadata',
-    documentation:
-      'Begins a StoryData passage so you can configure IFID, story format, and other metadata in JSON.',
-    body: ':: StoryData\n$0'
-  },
-  {
-    marker: ':',
     label: 'set',
     detail: 'Assign a story variable',
-    documentation: 'Updates a state key to the provided value.',
-    body: ':set ${1:key}=${2:value}'
+    documentation:
+      'Updates one or more state keys to the provided values. Separate multiple assignments with spaces.',
+    body: '::set[${1:key}=${2:value}]'
+  },
+  {
+    marker: '::',
+    label: 'setOnce',
+    detail: 'Assign a story variable only once',
+    documentation:
+      'Sets the provided state key the first time it runs and leaves the existing value untouched afterwards.',
+    body: '::setOnce[${1:key}=${2:value}]'
+  },
+  {
+    marker: '::',
+    label: 'range',
+    completionLabel: ':: createRange',
+    detail: 'Create a numeric range',
+    documentation:
+      'Initializes a numeric range with starting, minimum, and maximum values. Update it later with `::setRange`.',
+    body: '::createRange[${1:key}=${2:value}]{min=${3:min} max=${4:max}}'
+  },
+  {
+    marker: '::',
+    label: 'array',
+    detail: 'Create an array in story state',
+    documentation:
+      'Initializes an array stored under the provided key. Items can be literal values or expressions.',
+    body: '::array[${1:key}=[${2:items}]]'
+  },
+  {
+    marker: '::',
+    label: 'arrayOnce',
+    detail: 'Create an array only if unset',
+    documentation:
+      'Like `::array`, but skips initialization when the key already exists.',
+    body: '::arrayOnce[${1:key}=[${2:items}]]'
   },
   {
     marker: ':',
@@ -151,6 +96,14 @@ const directiveSnippets: DirectiveSnippet[] = [
     detail: 'Collect input from the reader',
     documentation: 'Creates an inline input element bound to story state.',
     body: ':input name="${1:key}" label="${2:Prompt}"'
+  },
+  {
+    marker: ':',
+    label: 'show',
+    detail: 'Display a value from story state',
+    documentation:
+      'Renders the evaluated expression or state key in the passage output.',
+    body: ':show[${1:expression}]'
   },
   {
     marker: '::',
@@ -204,6 +157,14 @@ const directiveSnippets: DirectiveSnippet[] = [
     documentation:
       'Renders layered content that can be toggled via directives.',
     body: ':::layer ${1:label}\n\t$0\n:::'
+  },
+  {
+    marker: ':::',
+    label: 'text',
+    detail: 'Positioned text block',
+    documentation:
+      'Places formatted text on a layer or deck slide. Configure position and styling attributes as needed.',
+    body: ':::text{${1:attributes}}\n\t$0\n:::'
   }
 ]
 
@@ -227,153 +188,6 @@ const createCompletionItem = (
   item.documentation = new MarkdownString(snippet.documentation)
   item.range = range
   item.filterText = `${snippet.marker}${snippet.label}`
-  return item
-}
-
-/**
- * Completion details for StoryData JSON properties.
- */
-const storyDataProperties = [
-  {
-    label: '"ifid"',
-    detail: 'StoryData property',
-    documentation: "Sets the story's IFID (Interactive Fiction ID).",
-    body: '"ifid": "${1:D674C58C-DEFA-4F70-B7A2-27742230C0FC}"'
-  },
-  {
-    label: '"format"',
-    detail: 'StoryData property',
-    documentation: 'Names the story format used to render the project.',
-    body: '"format": "${1:SugarCube}"'
-  },
-  {
-    label: '"format-version"',
-    detail: 'StoryData property',
-    documentation: 'Specifies the version of the selected story format.',
-    body: '"format-version": "${1:2.28.2}"'
-  },
-  {
-    label: '"start"',
-    detail: 'StoryData property',
-    documentation: 'Identifies the default starting passage.',
-    body: '"start": "${1:My Starting Passage}"'
-  },
-  {
-    label: '"tag-colors"',
-    detail: 'StoryData property',
-    documentation: 'Maps passage tags to colors for the Twine UI.',
-    body: ['"tag-colors": {', '  "${1:tag}": "${2:color}"', '}'].join('\n')
-  },
-  {
-    label: '"zoom"',
-    detail: 'StoryData property',
-    documentation: 'Controls the initial zoom level of the story map.',
-    body: '"zoom": ${1:0.25}'
-  }
-]
-
-/**
- * Completion details for StorySettings options.
- */
-const storySettingsOptions = [
-  {
-    label: 'undo',
-    detail: 'StorySettings option',
-    documentation: 'Toggle undo support for the story.',
-    body: 'undo:${1:on}'
-  },
-  {
-    label: 'bookmark',
-    detail: 'StorySettings option',
-    documentation: 'Enable or disable bookmarking support.',
-    body: 'bookmark:${1:on}'
-  },
-  {
-    label: 'hash',
-    detail: 'StorySettings option',
-    documentation: 'Control hash-based navigation.',
-    body: 'hash:${1:on}'
-  },
-  {
-    label: 'exitprompt',
-    detail: 'StorySettings option',
-    documentation: 'Request confirmation before leaving the story.',
-    body: 'exitprompt:${1:on}'
-  },
-  {
-    label: 'blankcss',
-    detail: 'StorySettings option',
-    documentation: "Remove Twine's default StorySettings stylesheet.",
-    body: 'blankcss:${1:on}'
-  },
-  {
-    label: 'obfuscate',
-    detail: 'StorySettings option',
-    documentation:
-      'Obfuscate the published story source using the chosen method.',
-    body: 'obfuscate:${1:rot13}'
-  },
-  {
-    label: 'jquery',
-    detail: 'StorySettings option',
-    documentation: 'Load jQuery for the story.',
-    body: 'jquery:${1:on}'
-  },
-  {
-    label: 'modernizr',
-    detail: 'StorySettings option',
-    documentation: 'Load Modernizr for the story.',
-    body: 'modernizr:${1:on}'
-  }
-]
-
-/**
- * Describe the Twee 3 passage that surrounds the current position, if any.
- */
-const resolvePassageContext = (
-  document: TextDocument,
-  position: Position
-): { name: string; line: number } | undefined => {
-  for (let lineNumber = position.line; lineNumber >= 0; lineNumber -= 1) {
-    const line = document.lineAt(lineNumber)
-    // Match passage names beginning with a letter or underscore followed by word characters.
-    const match = line.text.match(/^::\s+([A-Za-z_][A-Za-z0-9_]*)/)
-    if (match) {
-      return { name: match[1], line: lineNumber }
-    }
-  }
-
-  return undefined
-}
-
-/**
- * Determine the replacement range for property completions.
- */
-const resolvePropertyRange = (
-  document: TextDocument,
-  position: Position
-): Range => {
-  return (
-    document.getWordRangeAtPosition(position, /"?[A-Za-z-]+"?/) ??
-    new Range(position, position)
-  )
-}
-
-/**
- * Create a completion item for StoryData or StorySettings properties.
- */
-const createPropertyCompletion = (
-  body: string,
-  label: string,
-  detail: string,
-  documentation: string,
-  range: Range
-): CompletionItem => {
-  const item = new CompletionItem(label, CompletionItemKind.Property)
-  item.insertText = new SnippetString(body)
-  item.detail = detail
-  item.documentation = new MarkdownString(documentation)
-  item.range = range
   return item
 }
 
@@ -426,55 +240,7 @@ export function activate(context: ExtensionContext): void {
     ':'
   )
 
-  const propertyProvider = languages.registerCompletionItemProvider(
-    { language: 'campfire' },
-    {
-      /**
-       * Surface completions for StoryData JSON keys and StorySettings toggles.
-       */
-      provideCompletionItems(document: TextDocument, position: Position) {
-        const context = resolvePassageContext(document, position)
-        if (!context) {
-          return undefined
-        }
-
-        if (position.line === context.line) {
-          return undefined
-        }
-
-        const range = resolvePropertyRange(document, position)
-
-        if (context.name === 'StoryData') {
-          return storyDataProperties.map(property =>
-            createPropertyCompletion(
-              property.body,
-              property.label,
-              property.detail,
-              property.documentation,
-              range
-            )
-          )
-        }
-
-        if (context.name === 'StorySettings') {
-          return storySettingsOptions.map(option =>
-            createPropertyCompletion(
-              option.body,
-              option.label,
-              option.detail,
-              option.documentation,
-              range
-            )
-          )
-        }
-
-        return undefined
-      }
-    },
-    '"'
-  )
-
-  context.subscriptions.push(provider, propertyProvider)
+  context.subscriptions.push(provider)
 }
 
 /**
