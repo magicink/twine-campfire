@@ -1,12 +1,21 @@
 {
   "If Block": {
     "prefix": "cf-if",
-    "body": ["::if ${1:condition}", "$0", "::else", "$2", ":::"],
+    "body": ["\\::if ${1:condition}", "  $0", "\\::else", "  $2", "\\:::"],
     "description": "Campfire if/else container"
   },
   "Slide Deck": {
     "prefix": "cf-deck",
-    "body": [":::deck ${1:label}", "::slide", "$2", "::slide", "$3", ":::"],
+    "body": [
+      "\\:::deck ${1:label}",
+      "  ::slide ${2:label}",
+      "    $3",
+      "  :::",
+      "  ::slide ${4:label}",
+      "    $5",
+      "  :::",
+      "\\:::"
+    ],
     "description": "Campfire slide deck"
   },
   "Input Field": {
