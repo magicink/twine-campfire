@@ -1,8 +1,8 @@
 {
-  "name": "campfire-storybuilder",
-  "displayName": "Campfire Storybuilder",
+  "name": "twee3-storybuilder",
+  "displayName": "Twee 3 Storybuilder",
   "version": "0.1.0",
-  "description": "Author Campfire stories in VS Code with syntax highlighting, snippets, and Campfire directive IntelliSense.",
+  "description": "Author Twee 3 stories in VS Code with syntax highlighting, special passage snippets, and StorySettings guidance.",
   "categories": [
     "Programming Languages"
   ],
@@ -21,34 +21,35 @@
   "contributes": {
     "grammars": [
       {
-        "language": "campfire",
-        "scopeName": "text.campfire",
-        "path": "./syntaxes/campfire.tmLanguage.json"
+        "language": "twee3",
+        "scopeName": "text.twee3",
+        "path": "./syntaxes/twee3.tmLanguage.json"
       }
     ],
     "languages": [
       {
-        "id": "campfire",
+        "id": "twee3",
         "aliases": [
-          "Campfire",
-          "campfire"
+          "Twee 3",
+          "twee3",
+          "Twee"
         ],
         "extensions": [
-          ".campfire",
-          ".camp"
+          ".twee",
+          ".tws"
         ],
         "configuration": "./language-configuration.json"
       }
     ],
     "snippets": [
       {
-        "language": "campfire",
-        "path": "./snippets/campfire.code-snippets"
+        "language": "twee3",
+        "path": "./snippets/twee3.code-snippets"
       }
     ]
   },
   "activationEvents": [
-    "onLanguage:campfire"
+    "onLanguage:twee3"
   ],
   "dependencies": {},
   "devDependencies": {

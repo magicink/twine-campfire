@@ -1,0 +1,77 @@
+{
+  "name": "Twee 3",
+  "repository": {
+    "comment": {
+      "name": "comment.block.twee3",
+      "begin": "/%",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.comment.begin.twee3"
+        }
+      },
+      "end": "%/",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.comment.end.twee3"
+        }
+      }
+    },
+    "macro": {
+      "name": "meta.macro.twee3",
+      "begin": "<<",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.macro.begin.twee3"
+        }
+      },
+      "end": ">>",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.macro.end.twee3"
+        }
+      },
+      "patterns": [
+        {
+          "name": "entity.name.function.macro.twee3",
+          "match": "^[A-Za-z][A-Za-z0-9_-]*"
+        }
+      ]
+    },
+    "passageHeader": {
+      "name": "meta.passage.heading.twee3",
+      "match": "^(\\s*)(::)(\\s*)([^\\[{\\n]+?)(?=\\s*(?:\\[[^\\]]*\\])?(?:\\{[^}]*\\})?\\s*$)",
+      "captures": {
+        "2": {
+          "name": "punctuation.definition.passage.twee3"
+        },
+        "4": {
+          "name": "entity.name.section.passage.twee3"
+        }
+      }
+    },
+    "storyLink": {
+      "name": "meta.link.passage.twee3",
+      "match": "\\[\\[[^\\]]+\\]\\]",
+      "captures": {
+        "0": {
+          "name": "string.other.link.twee3"
+        }
+      }
+    }
+  },
+  "patterns": [
+    {
+      "include": "#comment"
+    },
+    {
+      "include": "#passageHeader"
+    },
+    {
+      "include": "#macro"
+    },
+    {
+      "include": "#storyLink"
+    }
+  ],
+  "scopeName": "text.twee3"
+}
