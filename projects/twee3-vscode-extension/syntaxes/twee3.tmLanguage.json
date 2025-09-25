@@ -57,9 +57,31 @@
           "name": "string.other.link.twee3"
         }
       }
+    },
+    "storySettings": {
+      "name": "meta.storysettings.twee3",
+      "begin": "^(\\s*)(::)(\\s*)(StorySettings)(?=\\b)",
+      "beginCaptures": {
+        "2": {
+          "name": "punctuation.definition.passage.twee3"
+        },
+        "4": {
+          "name": "entity.name.section.passage.twee3"
+        }
+      },
+      "end": "(?=^\\s*::|\\Z)",
+      "contentName": "source.json",
+      "patterns": [
+        {
+          "include": "source.json"
+        }
+      ]
     }
   },
   "patterns": [
+    {
+      "include": "#storySettings"
+    },
     {
       "include": "#comment"
     },

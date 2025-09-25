@@ -116,8 +116,8 @@ const directiveSnippets: DirectiveSnippet[] = [
     label: 'StorySettings',
     detail: 'Configure Twee 3 story options',
     documentation:
-      'Declares a StorySettings passage where you can opt into supported toggles such as undo, bookmarking, and script loading.',
-    body: [':: StorySettings', '$0'].join('\n')
+      'Declares a StorySettings passage where you can opt into supported toggles such as undo, bookmarking, and script loading.\n\n```json\n{\n  "undo": "on"\n}\n```',
+    body: [':: StorySettings', '{', '  $0', '}'].join('\n')
   },
   {
     marker: '::',
@@ -202,53 +202,53 @@ const storySettingsOptions = [
     label: 'undo',
     detail: 'StorySettings option',
     documentation: 'Toggle undo support for the story. Accepts `on` or `off`.',
-    body: 'undo:${1:value}'
+    body: '"undo": "${1:on}"'
   },
   {
     label: 'bookmark',
     detail: 'StorySettings option',
     documentation:
       'Enable or disable bookmarking support. Accepts `on` or `off`.',
-    body: 'bookmark:${1:value}'
+    body: '"bookmark": "${1:on}"'
   },
   {
     label: 'hash',
     detail: 'StorySettings option',
     documentation: 'Control hash-based navigation. Accepts `on` or `off`.',
-    body: 'hash:${1:value}'
+    body: '"hash": "${1:on}"'
   },
   {
     label: 'exitprompt',
     detail: 'StorySettings option',
     documentation:
       'Request confirmation before leaving the story. Accepts `on` or `off`.',
-    body: 'exitprompt:${1:value}'
+    body: '"exitprompt": "${1:on}"'
   },
   {
     label: 'blankcss',
     detail: 'StorySettings option',
     documentation:
       "Remove Twine's default StorySettings stylesheet. Accepts `on` or `off`.",
-    body: 'blankcss:${1:value}'
+    body: '"blankcss": "${1:on}"'
   },
   {
     label: 'obfuscate',
     detail: 'StorySettings option',
     documentation:
       'Obfuscate the published story source using the chosen method. Accepts `off`, `none`, `spaces`, or `rot13`.',
-    body: 'obfuscate:${1:value}'
+    body: '"obfuscate": "${1:off}"'
   },
   {
     label: 'jquery',
     detail: 'StorySettings option',
     documentation: 'Load jQuery for the story. Accepts `on` or `off`.',
-    body: 'jquery:${1:value}'
+    body: '"jquery": "${1:on}"'
   },
   {
     label: 'modernizr',
     detail: 'StorySettings option',
     documentation: 'Load Modernizr for the story. Accepts `on` or `off`.',
-    body: 'modernizr:${1:value}'
+    body: '"modernizr": "${1:on}"'
   }
 ]
 
@@ -267,9 +267,9 @@ const storySettingsRules: Record<string, string[]> = {
 }
 
 /**
- * Describe the contiguous body lines that belong to a StoryData passage.
+ * Describe the contiguous body lines that belong to a special passage.
  */
-interface StoryDataBlock {
+interface SpecialPassageBlock {
   /** The line number containing the StoryData header. */
   headerLine: number
   /** The first line of the StoryData body following the header. */
@@ -278,22 +278,25 @@ interface StoryDataBlock {
   endLine: number
 }
 
-const storyDataPassagePattern = /^::\s+StoryData\b/
 const passageHeadingPattern = /^::\s+[A-Za-z_][A-Za-z0-9_]*/
 const storyDataIfidPattern = /"ifid"\s*:\s*("[^"]*"|[^\s,}]+)/
 
 /**
- * Gather StoryData passages within the provided document.
+ * Gather contiguous Twee 3 passage bodies that begin with the provided pattern.
  *
  * @param document - The Twee 3 document to scan.
- * @returns A collection of StoryData blocks describing each passage body.
+ * @param passagePattern - The regular expression that identifies a passage header.
+ * @returns A collection of blocks describing each matched passage body.
  */
-const collectStoryDataBlocks = (document: TextDocument): StoryDataBlock[] => {
-  const blocks: StoryDataBlock[] = []
+const collectPassageBlocks = (
+  document: TextDocument,
+  passagePattern: RegExp
+): SpecialPassageBlock[] => {
+  const blocks: SpecialPassageBlock[] = []
 
   for (let lineNumber = 0; lineNumber < document.lineCount; lineNumber += 1) {
     const line = document.lineAt(lineNumber)
-    if (!storyDataPassagePattern.test(line.text)) {
+    if (!passagePattern.test(line.text)) {
       continue
     }
 
@@ -316,15 +319,39 @@ const collectStoryDataBlocks = (document: TextDocument): StoryDataBlock[] => {
 }
 
 /**
- * Resolve the document range that spans the body of a StoryData passage.
+ * Gather StoryData passages within the provided document.
+ *
+ * @param document - The Twee 3 document to scan.
+ * @returns A collection of StoryData blocks describing each passage body.
+ */
+const collectStoryDataBlocks = (
+  document: TextDocument
+): SpecialPassageBlock[] => {
+  return collectPassageBlocks(document, /^::\s+StoryData\b/)
+}
+
+/**
+ * Gather StorySettings passages within the provided document.
+ *
+ * @param document - The Twee 3 document to scan.
+ * @returns A collection of StorySettings blocks describing each passage body.
+ */
+const collectStorySettingsBlocks = (
+  document: TextDocument
+): SpecialPassageBlock[] => {
+  return collectPassageBlocks(document, /^::\s+StorySettings\b/)
+}
+
+/**
+ * Resolve the document range that spans the body of a special passage.
  *
  * @param document - The Twee 3 document under inspection.
- * @param block - The StoryData block describing the passage.
+ * @param block - The passage block describing the content region.
  * @returns A range covering the passage body.
  */
-const resolveStoryDataBodyRange = (
+const resolvePassageBodyRange = (
   document: TextDocument,
-  block: StoryDataBlock
+  block: SpecialPassageBlock
 ): Range => {
   if (block.startLine >= block.endLine) {
     const position = new Position(block.startLine, 0)
@@ -345,7 +372,7 @@ const resolveStoryDataBodyRange = (
  */
 const locateIfidToken = (
   document: TextDocument,
-  block: StoryDataBlock
+  block: SpecialPassageBlock
 ): { keyRange: Range; valueRange: Range } | undefined => {
   for (let line = block.startLine; line < block.endLine; line += 1) {
     const textLine = document.lineAt(line)
@@ -396,81 +423,118 @@ const validateStorySettingsPassages = (
   }
 
   const diagnostics: Diagnostic[] = []
-  const passagePattern = /^::\s+StorySettings\b/
-  const settingPattern = /^(\s*)([A-Za-z_][A-Za-z0-9_-]*)\s*:\s*(\S.*)$/
+  const blocks = collectStorySettingsBlocks(document)
 
-  for (let lineNumber = 0; lineNumber < document.lineCount; lineNumber += 1) {
-    const line = document.lineAt(lineNumber)
-    if (!passagePattern.test(line.text)) {
-      continue
+  blocks.forEach(block => {
+    const bodyRange = resolvePassageBodyRange(document, block)
+    const bodyText = document.getText(bodyRange)
+    const trimmedBody = bodyText.trim()
+    const headerRange = document.lineAt(block.headerLine).range
+
+    if (trimmedBody.length === 0) {
+      diagnostics.push(
+        new Diagnostic(
+          headerRange,
+          'StorySettings must include a JSON object with recognized toggles.',
+          DiagnosticSeverity.Error
+        )
+      )
+      return
     }
 
-    let probe = lineNumber + 1
-    while (probe < document.lineCount) {
-      const settingLine = document.lineAt(probe)
-      if (/^::\s+[A-Za-z_][A-Za-z0-9_-]*/.test(settingLine.text)) {
-        break
+    let parsed: unknown
+    try {
+      parsed = JSON.parse(bodyText)
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Unable to parse StorySettings JSON.'
+      const range = bodyRange.isEmpty ? headerRange : bodyRange
+      diagnostics.push(
+        new Diagnostic(
+          range,
+          `StorySettings JSON could not be parsed: ${message}`,
+          DiagnosticSeverity.Error
+        )
+      )
+      return
+    }
+
+    if (
+      typeof parsed !== 'object' ||
+      parsed === null ||
+      Array.isArray(parsed)
+    ) {
+      const range = bodyRange.isEmpty ? headerRange : bodyRange
+      diagnostics.push(
+        new Diagnostic(
+          range,
+          'StorySettings must be a JSON object that maps options to values.',
+          DiagnosticSeverity.Error
+        )
+      )
+      return
+    }
+
+    const bodyOffset = document.offsetAt(bodyRange.start)
+    const locateTokenRange = (token: string): Range => {
+      const index = bodyText.indexOf(token)
+      if (index === -1) {
+        return bodyRange.isEmpty ? headerRange : bodyRange
       }
 
-      const trimmed = settingLine.text.trim()
-      if (trimmed.length > 0) {
-        const match = settingPattern.exec(settingLine.text)
-        if (!match) {
+      const start = document.positionAt(bodyOffset + index)
+      const end = document.positionAt(bodyOffset + index + token.length)
+      return new Range(start, end)
+    }
+
+    Object.entries(parsed as Record<string, unknown>).forEach(
+      ([name, value]) => {
+        const keyToken = `"${name}"`
+        const keyRange = locateTokenRange(keyToken)
+        const normalizedName = name.trim().toLowerCase()
+
+        if (!(normalizedName in storySettingsRules)) {
           diagnostics.push(
             new Diagnostic(
-              settingLine.range,
-              'StorySettings entries must use the "setting:value" format.',
+              keyRange,
+              `Unknown StorySettings option "${name}".`,
               DiagnosticSeverity.Error
             )
           )
-        } else {
-          const [, leadingWhitespace = '', name = '', value = ''] = match
-          const normalizedName = name.toLowerCase()
-          const normalizedValue = value.toLowerCase()
-          const nameStart = leadingWhitespace.length
-          const nameRange = new Range(
-            probe,
-            nameStart,
-            probe,
-            nameStart + name.length
+          return
+        }
+
+        if (typeof value !== 'string') {
+          const valueToken = JSON.stringify(value)
+          const valueRange = locateTokenRange(valueToken)
+          diagnostics.push(
+            new Diagnostic(
+              valueRange,
+              `StorySettings "${name}" must be a string value.`,
+              DiagnosticSeverity.Error
+            )
           )
+          return
+        }
 
-          if (!(normalizedName in storySettingsRules)) {
-            diagnostics.push(
-              new Diagnostic(
-                nameRange,
-                `Unknown StorySettings option "${name}".`,
-                DiagnosticSeverity.Error
-              )
+        const allowedValues = storySettingsRules[normalizedName]
+        const normalizedValue = value.trim().toLowerCase()
+        if (!allowedValues.includes(normalizedValue)) {
+          const valueToken = JSON.stringify(value)
+          const valueRange = locateTokenRange(valueToken)
+          diagnostics.push(
+            new Diagnostic(
+              valueRange,
+              `Invalid value "${value}" for ${name}. Expected one of: ${allowedValues.join(', ')}.`,
+              DiagnosticSeverity.Error
             )
-          } else {
-            const allowedValues = storySettingsRules[normalizedName]
-            const valueStart =
-              (match.index ?? 0) + leadingWhitespace.length + name.length + 1
-            const valueRange = new Range(
-              probe,
-              valueStart,
-              probe,
-              valueStart + value.length
-            )
-
-            if (!allowedValues.includes(normalizedValue)) {
-              diagnostics.push(
-                new Diagnostic(
-                  valueRange,
-                  `Invalid value "${value}" for ${name}. Expected one of: ${allowedValues.join(', ')}.`,
-                  DiagnosticSeverity.Error
-                )
-              )
-            }
-          }
+          )
         }
       }
-
-      probe += 1
-    }
-    lineNumber = probe - 1
-  }
+    )
+  })
 
   collection.set(document.uri, diagnostics)
 }
@@ -494,7 +558,7 @@ const validateStoryDataPassages = (
   const blocks = collectStoryDataBlocks(document)
 
   blocks.forEach(block => {
-    const bodyRange = resolveStoryDataBodyRange(document, block)
+    const bodyRange = resolvePassageBodyRange(document, block)
     const bodyText = document.getText(bodyRange)
     const trimmedBody = bodyText.trim()
     const headerRange = document.lineAt(block.headerLine).range
@@ -688,7 +752,7 @@ export function activate(context: ExtensionContext): void {
     { language: 'twee3' },
     {
       /**
-       * Surface completions for StoryData JSON keys and StorySettings toggles.
+       * Surface completions for StoryData JSON keys and StorySettings JSON properties.
        */
       provideCompletionItems(document: TextDocument, position: Position) {
         const context = resolvePassageContext(document, position)
@@ -759,7 +823,7 @@ export function activate(context: ExtensionContext): void {
           : undefined) ?? blocks[0]
 
       const newIfid = randomUUID().toUpperCase()
-      const bodyRange = resolveStoryDataBodyRange(editor.document, block)
+      const bodyRange = resolvePassageBodyRange(editor.document, block)
       const rawBody = editor.document.getText(bodyRange)
       const existingToken = locateIfidToken(editor.document, block)
 

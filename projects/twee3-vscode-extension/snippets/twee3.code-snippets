@@ -50,7 +50,7 @@
   },
   "Twee 3 Story Settings": {
     "prefix": "twee3-storysettings",
-    "body": [":: StorySettings", "$0"],
+    "body": [":: StorySettings", "{", "  $0", "}"],
     "description": "Twee 3 StorySettings special passage"
   }
 }
