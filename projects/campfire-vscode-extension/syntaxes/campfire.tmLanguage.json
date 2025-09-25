@@ -80,6 +80,10 @@
               "name": "punctuation.definition.string.end.campfire"
             }
           }
+        },
+        {
+          "name": "support.constant.storysettings.option.campfire",
+          "match": "(?<=^\\s*)(undo|bookmark|hash|exitprompt|blankcss|obfuscate|jquery|modernizr)(?=\\s*:)"
         }
       ]
     },

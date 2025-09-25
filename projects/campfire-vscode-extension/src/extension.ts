@@ -404,7 +404,7 @@ const validateStorySettingsPassages = (
 
   const diagnostics: Diagnostic[] = []
   const passagePattern = /^::\s+StorySettings\b/
-  const settingPattern = /^\s*([A-Za-z_][A-Za-z0-9_-]*)\s*:\s*(\S.*)$/
+  const settingPattern = /^(\s*)([A-Za-z_][A-Za-z0-9_-]*)\s*:\s*(\S.*)$/
 
   for (let lineNumber = 0; lineNumber < document.lineCount; lineNumber += 1) {
     const line = document.lineAt(lineNumber)
