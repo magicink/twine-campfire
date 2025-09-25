@@ -1,17 +1,14 @@
 import {
   CompletionItem,
   CompletionItemKind,
-  Diagnostic,
-  DiagnosticCollection,
-  DiagnosticSeverity,
   ExtensionContext,
+  Location,
   MarkdownString,
   Position,
   Range,
   SnippetString,
   TextDocument,
-  languages,
-  workspace
+  languages
 } from 'vscode'
 
 /**
@@ -281,6 +278,523 @@ const resolveReplacementRange = (
 }
 
 /**
+ * Result describing a section of text enclosed by matching delimiters.
+ */
+interface DelimitedSection {
+  /** Raw text between the delimiters. */
+  content: string
+  /** Absolute offset where the section's content begins. */
+  contentStart: number
+  /** Absolute offset of the closing delimiter. */
+  contentEnd: number
+  /** Absolute offset immediately after the closing delimiter. */
+  endIndex: number
+}
+
+/**
+ * Reference to a passage within the active document.
+ */
+interface PassageReference {
+  /** Normalized passage name targeted by the reference. */
+  passage: string
+  /** Range covering the clickable portion of the reference. */
+  range: Range
+}
+
+/**
+ * Extract a substring wrapped by the provided delimiters, accounting for nested delimiters and
+ * quoted strings.
+ *
+ * @param text - Entire document text being analyzed.
+ * @param start - Absolute offset where the opening delimiter appears.
+ * @param open - Opening delimiter character.
+ * @param close - Closing delimiter character.
+ * @returns Details describing the delimited section, or `null` when no closing delimiter is found.
+ */
+const extractDelimitedSection = (
+  text: string,
+  start: number,
+  open: string,
+  close: string
+): DelimitedSection | null => {
+  if (text[start] !== open) {
+    return null
+  }
+
+  let index = start
+  let depth = 0
+  let stringDelimiter: string | null = null
+  let contentStart = -1
+
+  while (index < text.length) {
+    const character = text[index]
+
+    if (stringDelimiter) {
+      if (character === '\\') {
+        index += 2
+        continue
+      }
+
+      if (character === stringDelimiter) {
+        stringDelimiter = null
+      }
+
+      index += 1
+      continue
+    }
+
+    if (character === '\\' && index + 1 < text.length) {
+      index += 2
+      continue
+    }
+
+    if (character === '"' || character === "'" || character === '`') {
+      stringDelimiter = character
+      index += 1
+      continue
+    }
+
+    if (character === open) {
+      depth += 1
+      if (depth === 1) {
+        contentStart = index + 1
+      }
+      index += 1
+      continue
+    }
+
+    if (character === close) {
+      depth -= 1
+      if (depth === 0) {
+        return {
+          content: text.slice(contentStart, index),
+          contentStart,
+          contentEnd: index,
+          endIndex: index + 1
+        }
+      }
+      index += 1
+      continue
+    }
+
+    index += 1
+  }
+
+  return null
+}
+
+/**
+ * Represents the decoded contents of a quoted string literal.
+ */
+interface QuotedString {
+  /** Unescaped string content. */
+  value: string
+  /** Absolute offset where the string content begins. */
+  start: number
+  /** Absolute offset where the string content ends (exclusive). */
+  end: number
+}
+
+/**
+ * Decode an escape sequence that begins at the provided offset.
+ *
+ * @param text - The string literal under evaluation.
+ * @param start - Offset of the backslash introducing the escape sequence.
+ * @returns The decoded text and number of characters consumed.
+ */
+const decodeEscapeSequence = (
+  text: string,
+  start: number
+): { value: string; length: number } => {
+  const next = text[start + 1]
+  if (!next) {
+    return { value: '\\', length: 1 }
+  }
+
+  switch (next) {
+    case 'n':
+      return { value: '\n', length: 2 }
+    case 'r':
+      return { value: '\r', length: 2 }
+    case 't':
+      return { value: '\t', length: 2 }
+    case 'b':
+      return { value: '\b', length: 2 }
+    case 'f':
+      return { value: '\f', length: 2 }
+    case '\\':
+      return { value: '\\', length: 2 }
+    case '"':
+      return { value: '"', length: 2 }
+    case "'":
+      return { value: "'", length: 2 }
+    case '`':
+      return { value: '`', length: 2 }
+    case 'u': {
+      const shortHex = text.slice(start + 2, start + 6)
+      if (/^[0-9a-fA-F]{4}$/.test(shortHex)) {
+        return {
+          value: String.fromCharCode(Number.parseInt(shortHex, 16)),
+          length: 6
+        }
+      }
+      return { value: 'u', length: 2 }
+    }
+    case 'x': {
+      const byte = text.slice(start + 2, start + 4)
+      if (/^[0-9a-fA-F]{2}$/.test(byte)) {
+        return {
+          value: String.fromCharCode(Number.parseInt(byte, 16)),
+          length: 4
+        }
+      }
+      return { value: 'x', length: 2 }
+    }
+    default:
+      return { value: next, length: 2 }
+  }
+}
+
+/**
+ * Convert the raw contents of a string literal into its unescaped value.
+ *
+ * @param text - Raw string literal content without surrounding quotes.
+ * @returns The decoded string with escape sequences resolved.
+ */
+const decodeStringLiteral = (text: string): string => {
+  let index = 0
+  let result = ''
+
+  while (index < text.length) {
+    const character = text[index]
+    if (character === '\\') {
+      const { value, length } = decodeEscapeSequence(text, index)
+      result += value
+      index += length
+      continue
+    }
+
+    result += character
+    index += 1
+  }
+
+  return result
+}
+
+/**
+ * Decode a subset of HTML entities commonly emitted by Twine when serializing passage names.
+ *
+ * @param value - Text possibly containing HTML entities.
+ * @returns Text with known entities converted to their corresponding characters.
+ */
+const decodeHtmlEntities = (value: string): string =>
+  value.replace(/&(#x?[0-9a-fA-F]+|[a-zA-Z]+);/g, (_, entity: string) => {
+    if (entity.startsWith('#')) {
+      const isHex = entity[1]?.toLowerCase() === 'x'
+      const numeric = isHex ? entity.slice(2) : entity.slice(1)
+      const codePoint = Number.parseInt(numeric, isHex ? 16 : 10)
+      return Number.isNaN(codePoint)
+        ? `&${entity};`
+        : String.fromCodePoint(codePoint)
+    }
+
+    switch (entity.toLowerCase()) {
+      case 'amp':
+        return '&'
+      case 'lt':
+        return '<'
+      case 'gt':
+        return '>'
+      case 'quot':
+        return '"'
+      case 'apos':
+        return "'"
+      default:
+        return `&${entity};`
+    }
+  })
+
+/**
+ * Extract the first quoted string literal from the supplied content, returning its unescaped value
+ * and absolute range within the document.
+ *
+ * @param content - Text that may begin with optional whitespace followed by a quoted literal.
+ * @param contentStart - Absolute offset where the content originates in the document.
+ * @returns Decoded string details or `null` when a quoted literal cannot be resolved.
+ */
+const extractQuotedString = (
+  content: string,
+  contentStart: number
+): QuotedString | null => {
+  let index = 0
+
+  while (index < content.length && /\s/.test(content[index])) {
+    index += 1
+  }
+
+  const quote = content[index]
+  if (quote !== '"' && quote !== "'" && quote !== '`') {
+    return null
+  }
+
+  const valueStart = index + 1
+  let pointer = valueStart
+
+  while (pointer < content.length) {
+    const character = content[pointer]
+    if (character === '\\') {
+      const { length } = decodeEscapeSequence(content, pointer)
+      pointer += length
+      continue
+    }
+
+    if (character === quote) {
+      const raw = content.slice(valueStart, pointer)
+      return {
+        value: decodeHtmlEntities(decodeStringLiteral(raw)),
+        start: contentStart + valueStart,
+        end: contentStart + pointer
+      }
+    }
+
+    pointer += 1
+  }
+
+  return null
+}
+
+/**
+ * Advance past any whitespace characters starting at the provided offset.
+ *
+ * @param text - Document text under inspection.
+ * @param index - Offset where whitespace skipping should begin.
+ * @returns Offset of the first non-whitespace character at or after `index`.
+ */
+const skipWhitespace = (text: string, index: number): number => {
+  let pointer = index
+  while (pointer < text.length && /\s/.test(text[pointer]!)) {
+    pointer += 1
+  }
+  return pointer
+}
+
+/**
+ * Build a lookup of passage names defined within the current document.
+ *
+ * @param document - Active Campfire text document.
+ * @returns Map from normalized passage names to their corresponding ranges.
+ */
+const collectPassageDefinitions = (
+  document: TextDocument
+): Map<string, Range> => {
+  const text = document.getText()
+  const definitions = new Map<string, Range>()
+
+  const tweeHeadingPattern = /^::\s*([^\[{\r\n]*)/gm
+  let headingMatch: RegExpExecArray | null
+  while ((headingMatch = tweeHeadingPattern.exec(text))) {
+    const captured = headingMatch[1]
+    const trimmed = captured.trim()
+    if (!trimmed) {
+      continue
+    }
+
+    const prefixLength = headingMatch[0].length - captured.length
+    const leadingWhitespace = captured.length - captured.trimStart().length
+    const nameStart = headingMatch.index + prefixLength + leadingWhitespace
+    const nameEnd = nameStart + trimmed.length
+    const range = new Range(
+      document.positionAt(nameStart),
+      document.positionAt(nameEnd)
+    )
+
+    const normalized = decodeHtmlEntities(trimmed)
+    if (!definitions.has(normalized)) {
+      definitions.set(normalized, range)
+    }
+  }
+
+  const passageTagPattern = /<tw-passagedata\b[^>]*>/gi
+  let tagMatch: RegExpExecArray | null
+  while ((tagMatch = passageTagPattern.exec(text))) {
+    const tag = tagMatch[0]
+    const nameMatch = /\bname\s*=\s*(['"])(.*?)\1/i.exec(tag)
+    if (!nameMatch) {
+      continue
+    }
+
+    const attributeOffset = nameMatch.index
+    const quote = nameMatch[1]
+    const rawName = nameMatch[2]
+    const quoteIndex = tag.slice(attributeOffset).indexOf(quote)
+    const valueStart = tagMatch.index + attributeOffset + quoteIndex + 1
+    const valueEnd = valueStart + rawName.length
+    const range = new Range(
+      document.positionAt(valueStart),
+      document.positionAt(valueEnd)
+    )
+    const normalized = decodeHtmlEntities(rawName)
+
+    if (!definitions.has(normalized)) {
+      definitions.set(normalized, range)
+    }
+  }
+
+  return definitions
+}
+
+/**
+ * Locate passage references made via `goto` directives within the current document.
+ *
+ * @param document - Active Campfire text document.
+ * @returns All `goto` references paired with their clickable ranges.
+ */
+const collectGotoReferences = (document: TextDocument): PassageReference[] => {
+  const text = document.getText()
+  const references: PassageReference[] = []
+  const directivePattern = /(?<!:)(?<!\\)(::|:)goto/gi
+  let match: RegExpExecArray | null
+
+  while ((match = directivePattern.exec(text))) {
+    let offset = match.index + match[0].length
+    offset = skipWhitespace(text, offset)
+
+    if (text[offset] === '[') {
+      const label = extractDelimitedSection(text, offset, '[', ']')
+      if (label) {
+        const quoted = extractQuotedString(label.content, label.contentStart)
+        if (quoted) {
+          references.push({
+            passage: quoted.value,
+            range: new Range(
+              document.positionAt(quoted.start),
+              document.positionAt(quoted.end)
+            )
+          })
+        }
+        offset = label.endIndex
+      }
+    }
+
+    offset = skipWhitespace(text, offset)
+    if (text[offset] !== '{') {
+      continue
+    }
+
+    const attributes = extractDelimitedSection(text, offset, '{', '}')
+    if (!attributes) {
+      continue
+    }
+
+    const attributeContent = attributes.content
+    const passagePattern = /\bpassage\b\s*=\s*/gi
+    let passageMatch: RegExpExecArray | null
+    while ((passageMatch = passagePattern.exec(attributeContent))) {
+      const valueIndex = passageMatch.index + passageMatch[0].length
+      const quoted = extractQuotedString(
+        attributeContent.slice(valueIndex),
+        attributes.contentStart + valueIndex
+      )
+
+      if (quoted) {
+        references.push({
+          passage: quoted.value,
+          range: new Range(
+            document.positionAt(quoted.start),
+            document.positionAt(quoted.end)
+          )
+        })
+        passagePattern.lastIndex = quoted.end - attributes.contentStart + 1
+      }
+    }
+  }
+
+  return references
+}
+
+/**
+ * Locate passage references created by Twine-style wikilinks (autolinks).
+ *
+ * @param document - Active Campfire text document.
+ * @returns Autolink references and their clickable ranges.
+ */
+const collectAutolinkReferences = (
+  document: TextDocument
+): PassageReference[] => {
+  const text = document.getText()
+  const references: PassageReference[] = []
+  const autolinkPattern = /\[\[([\s\S]+?)\]\]/g
+  let match: RegExpExecArray | null
+
+  while ((match = autolinkPattern.exec(text))) {
+    const content = match[1]
+    let targetSegment = content
+    let segmentOffset = 0
+
+    const reverseArrowIndex = content.indexOf('<-')
+    const forwardArrowIndex = content.lastIndexOf('->')
+    const pipeIndex = content.lastIndexOf('|')
+    const bracketIndex = content.indexOf('][')
+
+    if (forwardArrowIndex !== -1 && forwardArrowIndex + 2 < content.length) {
+      segmentOffset = forwardArrowIndex + 2
+      targetSegment = content.slice(segmentOffset)
+    } else if (reverseArrowIndex !== -1) {
+      targetSegment = content.slice(0, reverseArrowIndex)
+      segmentOffset = 0
+    } else if (pipeIndex !== -1 && pipeIndex + 1 < content.length) {
+      segmentOffset = pipeIndex + 1
+      targetSegment = content.slice(segmentOffset)
+    } else if (bracketIndex !== -1 && bracketIndex + 2 < content.length) {
+      segmentOffset = bracketIndex + 2
+      targetSegment = content.slice(segmentOffset)
+    }
+
+    const trimmed = targetSegment.trim()
+    if (!trimmed) {
+      continue
+    }
+
+    const leadingWhitespace =
+      targetSegment.length - targetSegment.trimStart().length
+    const start = match.index + 2 + segmentOffset + leadingWhitespace
+    const end = start + trimmed.length
+    references.push({
+      passage: decodeHtmlEntities(trimmed),
+      range: new Range(document.positionAt(start), document.positionAt(end))
+    })
+  }
+
+  return references
+}
+
+/**
+ * Resolve the range of the passage definition matching the supplied name.
+ *
+ * @param definitions - Map of passage definitions extracted from the document.
+ * @param passage - Passage name referenced in the document.
+ * @returns The range of the matching definition, if one exists.
+ */
+const resolveDefinitionRange = (
+  definitions: Map<string, Range>,
+  passage: string
+): Range | undefined => {
+  const direct = definitions.get(passage)
+  if (direct) {
+    return direct
+  }
+
+  const normalized = passage.toLowerCase()
+  for (const [key, range] of definitions) {
+    if (key.toLowerCase() === normalized) {
+      return range
+    }
+  }
+
+  return undefined
+}
+
+/**
  * Register Campfire language features when the extension activates.
  *
  * @param context - VS Code extension context provided on activation.
@@ -302,7 +816,36 @@ export function activate(context: ExtensionContext): void {
     ':'
   )
 
-  context.subscriptions.push(provider)
+  const definitionProvider = languages.registerDefinitionProvider(
+    { language: 'campfire' },
+    {
+      /**
+       * Provide passage definitions for Campfire navigation constructs.
+       */
+      provideDefinition(document: TextDocument, position: Position) {
+        const definitions = collectPassageDefinitions(document)
+        if (!definitions.size) {
+          return undefined
+        }
+
+        const references = [
+          ...collectGotoReferences(document),
+          ...collectAutolinkReferences(document)
+        ]
+        const reference = references.find(entry =>
+          entry.range.contains(position)
+        )
+        if (!reference) {
+          return undefined
+        }
+
+        const range = resolveDefinitionRange(definitions, reference.passage)
+        return range ? new Location(document.uri, range) : undefined
+      }
+    }
+  )
+
+  context.subscriptions.push(provider, definitionProvider)
 }
 
 /**
