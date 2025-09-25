@@ -67,6 +67,8 @@ Campfire directives can be tedious to type by hand. The extension exposes comple
 
 Trigger completions with `:` and use the snippet placeholders to tab through each directive's attributes.
 
+> **Note:** Campfire's Twee/TWS formats require container and leaf directives that begin in column zero to be escaped with a leading backslash. The bundled snippets intentionally emit those escapes so reviewers know the `\:::` and `\::set` markers are correct and will compile in column-zero contexts.
+
 ## Updating the extension version
 
 The extension's version number lives in `projects/campfire-vscode-extension/package.json`. Increment it when you ship new functionality so that VS Code recognizes the update when re-installing the `.vsix` file.
