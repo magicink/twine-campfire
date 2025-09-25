@@ -63,9 +63,35 @@ Campfire directives can be tedious to type by hand. The extension exposes comple
 
 - `::set`, `::setOnce`, `::createRange`, `::array`, and `::arrayOnce` state helpers.
 - Inline utilities such as `:random`, `:input`, and `:show` for dynamic content.
-- Container helpers including `::if`, `::trigger`, `::select`, `:::deck`, `:::layer`, and `:::text`.
+- Container helpers including `:::if`, `:::else`, `:::for`, `:::input`, `::trigger`, `::select`, `:::deck`, `:::layer`, and `:::text`.
 
 Trigger completions with `:` and use the snippet placeholders to tab through each directive's attributes.
+
+> **Note:** Campfire's Twee/TWS formats require container and leaf directives that begin in column zero to be escaped with a leading backslash. The bundled snippets intentionally emit those escapes so reviewers know the `\:::` and `\::set` markers are correct and will compile in column-zero contexts.
+
+### `:::for` iteration helper
+
+Render passage content for every value in an array or numeric range:
+
+```md
+:::for[item in [1,2,3]]
+
+Item: :show[item]
+
+:::
+```
+
+To loop over a range, create it first and iterate the resulting handle:
+
+```md
+::createRange[r=0]{min=1 max=3}
+
+:::for[x in r]
+
+Number: :show[x]
+
+:::
+```
 
 ## Updating the extension version
 

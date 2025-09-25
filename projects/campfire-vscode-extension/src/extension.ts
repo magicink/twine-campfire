@@ -30,21 +30,15 @@ interface DirectiveSnippet {
   documentation: string
   /** The snippet body inserted when the completion is accepted. */
   body: string
+  /** Indicates whether the snippet should be escaped when inserted at column zero. */
+  escapeAtColumnZero?: boolean
 }
 
 const directiveSnippets: DirectiveSnippet[] = [
   {
     marker: '::',
-    label: 'passage',
-    completionLabel: ':: Passage header',
-    detail: 'Define a Campfire passage',
-    documentation:
-      'Creates a Campfire passage heading. Add optional tags or metadata after the passage name as needed.',
-    body: ':: ${1:Passage Name}${2}${3}\n$0'
-  },
-  {
-    marker: '::',
     label: 'set',
+    escapeAtColumnZero: true,
     detail: 'Assign a story variable',
     documentation:
       'Updates one or more state keys to the provided values. Separate multiple assignments with spaces.',
@@ -53,6 +47,7 @@ const directiveSnippets: DirectiveSnippet[] = [
   {
     marker: '::',
     label: 'setOnce',
+    escapeAtColumnZero: true,
     detail: 'Assign a story variable only once',
     documentation:
       'Sets the provided state key the first time it runs and leaves the existing value untouched afterwards.',
@@ -62,6 +57,7 @@ const directiveSnippets: DirectiveSnippet[] = [
     marker: '::',
     label: 'range',
     completionLabel: ':: createRange',
+    escapeAtColumnZero: true,
     detail: 'Create a numeric range',
     documentation:
       'Initializes a numeric range with starting, minimum, and maximum values. Update it later with `::setRange`.',
@@ -70,6 +66,7 @@ const directiveSnippets: DirectiveSnippet[] = [
   {
     marker: '::',
     label: 'array',
+    escapeAtColumnZero: true,
     detail: 'Create an array in story state',
     documentation:
       'Initializes an array stored under the provided key. Items can be literal values or expressions.',
@@ -78,6 +75,7 @@ const directiveSnippets: DirectiveSnippet[] = [
   {
     marker: '::',
     label: 'arrayOnce',
+    escapeAtColumnZero: true,
     detail: 'Create an array only if unset',
     documentation:
       'Like `::array`, but skips initialization when the key already exists.',
@@ -94,8 +92,18 @@ const directiveSnippets: DirectiveSnippet[] = [
     marker: ':',
     label: 'input',
     detail: 'Collect input from the reader',
-    documentation: 'Creates an inline input element bound to story state.',
-    body: ':input name="${1:key}" label="${2:Prompt}"'
+    documentation:
+      'Creates an inline input element bound to story state with optional placeholder attributes.',
+    body: ':input[${1:key}]'
+  },
+  {
+    marker: ':::',
+    label: 'input',
+    escapeAtColumnZero: true,
+    detail: 'Container input block',
+    documentation:
+      'Wraps interactive input content so you can attach focus, blur, or change handlers to the field.',
+    body: ':::input[${1:key}]\n  :::${2:onFocus}\n    $0\n  :::\n:::'
   },
   {
     marker: ':',
@@ -106,65 +114,103 @@ const directiveSnippets: DirectiveSnippet[] = [
     body: ':show[${1:expression}]'
   },
   {
-    marker: '::',
+    marker: ':::',
     label: 'if',
+    escapeAtColumnZero: true,
     detail: 'Conditional block',
     documentation:
-      'Wraps content that only renders when the condition is truthy.',
-    body: '::if ${1:condition}\n\t$0\n:::'
+      'Wraps content that only renders when the expression is truthy. Pair with `:::else` for fallback content.',
+    body: ':::if[${1:expression}]\n  $0\n:::else\n  $2\n:::'
   },
   {
-    marker: '::',
+    marker: ':::',
     label: 'else',
+    escapeAtColumnZero: true,
     detail: 'Else block',
-    documentation: 'Extends a prior `if` with fallback content.',
-    body: '::else\n\t$0\n:::'
+    documentation: 'Extends a prior `if` container with fallback content.',
+    body: ':::else\n  $0\n:::'
   },
   {
     marker: '::',
     label: 'slide',
+    escapeAtColumnZero: true,
     detail: 'Slide within a deck',
     documentation:
       'Defines a single slide that appears within the surrounding deck.',
-    body: '::slide ${1:label}\n\t$0'
+    body: '::slide ${1:label}\n  $0\n:::'
   },
   {
     marker: '::',
     label: 'trigger',
+    escapeAtColumnZero: true,
     detail: 'Event trigger',
     documentation:
       'Creates an interactive trigger that defers execution until activated.',
-    body: '::trigger ${1:label}\n\t$0\n:::'
+    body: '::trigger ${1:label}\n  $0\n:::'
   },
   {
     marker: '::',
     label: 'select',
+    escapeAtColumnZero: true,
     detail: 'Selection list',
     documentation: 'Presents a list of options the reader can choose from.',
-    body: '::select ${1:key}\n\t:option value="${2:value}" label="${3:Label}"\n:::'
+    body: '::select ${1:key}\n  :option value="${2:value}" label="${3:Label}"\n:::'
+  },
+  {
+    marker: ':::',
+    label: 'for',
+    escapeAtColumnZero: true,
+    detail: 'Iteration block',
+    documentation: [
+      'Render content for every element in an array or range.',
+      '',
+      '```md',
+      ':::for[item in [1,2,3]]',
+      '',
+      'Item: :show[item]',
+      '',
+      ':::',
+      '```',
+      '',
+      'With ranges:',
+      '',
+      '```md',
+      '::createRange[r=0]{min=1 max=3}',
+      '',
+      ':::for[x in r]',
+      '',
+      'Number: :show[x]',
+      '',
+      ':::',
+      '```'
+    ].join('\n'),
+    body: ':::for[${1:item}${2}]\n  ${3:Item: :show[item]}\n:::'
   },
   {
     marker: ':::',
     label: 'deck',
+    escapeAtColumnZero: true,
     detail: 'Slide deck container',
     documentation: 'Groups multiple slides with navigation controls.',
-    body: ':::deck ${1:label}\n::slide ${2:label}\n\t$3\n::slide ${4:label}\n\t$5\n:::'
+    body: ':::deck ${1:label}\n  ::slide ${2:label}\n    $3\n  :::\n  ::slide ${4:label}\n    $5\n  :::\n:::'
   },
   {
     marker: ':::',
     label: 'layer',
+    escapeAtColumnZero: true,
     detail: 'Layer container',
     documentation:
       'Renders layered content that can be toggled via directives.',
-    body: ':::layer ${1:label}\n\t$0\n:::'
+    body: ':::layer ${1:label}\n  $0\n:::'
   },
   {
     marker: ':::',
     label: 'text',
+    escapeAtColumnZero: true,
     detail: 'Positioned text block',
     documentation:
       'Places formatted text on a layer or deck slide. Configure position and styling attributes as needed.',
-    body: ':::text{${1:attributes}}\n\t$0\n:::'
+    body: ':::text{${1:attributes}}\n  $0\n:::'
   }
 ]
 
@@ -179,11 +225,27 @@ const createCompletionItem = (
   snippet: DirectiveSnippet,
   range: Range
 ): CompletionItem => {
+  const shouldEscape = snippet.escapeAtColumnZero && range.start.character === 0
+  const escapeDirectiveLines = (text: string): string =>
+    text
+      .split('\n')
+      .map(line => {
+        if (line.startsWith('\\')) {
+          return line
+        }
+
+        return /^:{1,3}/.test(line) ? `\\${line}` : line
+      })
+      .join('\n')
+
+  const insertText = shouldEscape
+    ? escapeDirectiveLines(snippet.body)
+    : snippet.body
   const item = new CompletionItem(
     snippet.completionLabel ?? `${snippet.marker}${snippet.label}`,
     CompletionItemKind.Snippet
   )
-  item.insertText = new SnippetString(snippet.body)
+  item.insertText = new SnippetString(insertText)
   item.detail = snippet.detail
   item.documentation = new MarkdownString(snippet.documentation)
   item.range = range
