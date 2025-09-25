@@ -34,8 +34,8 @@
           "campfire"
         ],
         "extensions": [
-          ".campfire",
-          ".camp"
+          ".twee",
+          ".tws"
         ],
         "configuration": "./language-configuration.json"
       }

@@ -1,6 +1,6 @@
 # Campfire Storybuilder VS Code Extension
 
-The Campfire Storybuilder extension adds syntax highlighting, directive snippets, and IntelliSense completions for Campfire story files inside Visual Studio Code. Point it at `.campfire` or `.camp` documents to get inline help for Campfire's directive syntax and container layout blocks.
+The Campfire Storybuilder extension adds syntax highlighting, directive snippets, and IntelliSense completions for Campfire story files inside Visual Studio Code. Point it at `.twee` or `.tws` documents to get inline help for Campfire's directive syntax and container layout blocks.
 
 ## Features
 
@@ -53,7 +53,7 @@ The command writes `campfire-storybuilder-<version>.vsix` to the extension direc
 3. Run **Extensions: Install from VSIX...** and select the generated `.vsix` file.
 4. Reload VS Code if prompted.
 
-After installation, open or create a file with the `.campfire` or `.camp` extension to activate the Campfire language features.
+After installation, open or create a file with the `.twee` or `.tws` extension to activate the Campfire language features.
 
 ## Campfire directive snippets
 
