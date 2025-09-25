@@ -1,89 +1,465 @@
 {
   "name": "Campfire",
   "repository": {
+    "arrayLiteral": {
+      "name": "meta.sequence.array.attribute-value.campfire",
+      "begin": "\\[",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.array.begin.campfire"
+        }
+      },
+      "end": "\\]",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.array.end.campfire"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#attributeValues"
+        },
+        {
+          "match": ",",
+          "name": "punctuation.separator.sequence.campfire"
+        },
+        {
+          "match": "\\s+"
+        }
+      ]
+    },
+    "attributeValues": {
+      "patterns": [
+        {
+          "include": "#doubleQuotedString"
+        },
+        {
+          "include": "#singleQuotedString"
+        },
+        {
+          "include": "#templateString"
+        },
+        {
+          "match": "-?\\b\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?\\b",
+          "name": "constant.numeric.attribute-value.campfire"
+        },
+        {
+          "match": "\\b(?:true|false)\\b",
+          "name": "constant.language.boolean.attribute-value.campfire"
+        },
+        {
+          "match": "\\bnull\\b",
+          "name": "constant.language.null.attribute-value.campfire"
+        },
+        {
+          "include": "#arrayLiteral"
+        },
+        {
+          "include": "#objectLiteral"
+        },
+        {
+          "match": "[A-Za-z_$][A-Za-z0-9_$]*(?:\\.[A-Za-z_$][A-Za-z0-9_$]*|\\[[^\\]]+\\])*",
+          "name": "variable.other.attribute-value.campfire"
+        }
+      ]
+    },
     "campfireDirectives": {
       "patterns": [
         {
-          "name": "meta.directive.line.campfire",
-          "match": "^(\\s*)(:::+|::|:)([A-Za-z][A-Za-z0-9_-]*)",
-          "captures": {
+          "include": "#containerClosing"
+        },
+        {
+          "include": "#containerEventDirective"
+        },
+        {
+          "include": "#containerDirective"
+        },
+        {
+          "include": "#leafDirective"
+        },
+        {
+          "include": "#inlineDirective"
+        },
+        {
+          "name": "support.constant.storysettings.option.campfire",
+          "match": "(?<=^\\s*)(undo|bookmark|hash|exitprompt|blankcss|obfuscate|jquery|modernizr)(?=\\s*:)"
+        }
+      ]
+    },
+    "containerClosing": {
+      "name": "meta.directive.marker.campfire",
+      "match": "^(\\s*)(:::)(\\s*)$",
+      "captures": {
+        "2": {
+          "name": "punctuation.definition.directive.campfire"
+        }
+      }
+    },
+    "containerDirective": {
+      "patterns": [
+        {
+          "name": "meta.directive.container.campfire",
+          "begin": "^(\\\\s*)(:::)(?:allowLandscape|array|arrayOnce|batch|bgm|case|checkbox|checkpoint|clearCheckpoint|clearSave|concat|createRange|deck|default|effect|else|embed|for|goto|if|image|include|input|lang|layer|load|loadCheckpoint|onExit|option|pop|preloadAudio|preloadImage|preset|push|radio|random|randomOnce|reveal|save|select|set|setLanguageLabel|setOnce|setRange|shape|shift|show|slide|sound|splice|switch|t|text|textarea|title|translations|trigger|unset|unshift|volume|wrapper)(?=\\\\b)",
+          "beginCaptures": {
             "2": {
               "name": "punctuation.definition.directive.campfire"
             },
             "3": {
               "name": "keyword.control.directive.campfire"
             }
-          }
+          },
+          "end": "(?=$)",
+          "patterns": [
+            {
+              "include": "#directiveSpacing"
+            },
+            {
+              "include": "#directiveLabel"
+            },
+            {
+              "include": "#directiveAttributes"
+            }
+          ]
         },
         {
-          "name": "meta.directive.campfire",
-          "match": "(:::+|::|:)(allowLandscape|array|arrayOnce|batch|bgm|case|checkpoint|checkbox|clearCheckpoint|clearSave|concat|createRange|deck|default|effect|else|embed|for|goto|if|image|include|input|lang|layer|load|loadCheckpoint|onBlur|onExit|onFocus|onMouseEnter|onMouseLeave|option|pop|preloadAudio|preloadImage|preset|push|radio|random|randomOnce|reveal|save|select|set|setLanguageLabel|setOnce|setRange|shape|shift|show|slide|sound|splice|switch|t|text|textarea|title|translations|trigger|unset|unshift|volume|wrapper)",
-          "captures": {
+          "name": "meta.directive.container.invalid.campfire",
+          "begin": "^(\\s*)(:::)([A-Za-z][A-Za-z0-9_-]*)",
+          "beginCaptures": {
+            "2": {
+              "name": "punctuation.definition.directive.campfire"
+            },
+            "3": {
+              "name": "invalid.illegal.directive-name.campfire"
+            }
+          },
+          "end": "(?=$)",
+          "patterns": [
+            {
+              "include": "#directiveSpacing"
+            },
+            {
+              "include": "#directiveLabel"
+            },
+            {
+              "include": "#directiveAttributes"
+            }
+          ]
+        }
+      ]
+    },
+    "containerEventDirective": {
+      "name": "meta.directive.container.event.campfire",
+      "begin": "^(\\s*)(:::)(onMouseEnter|onMouseLeave|onFocus|onBlur)(?=\\b)",
+      "beginCaptures": {
+        "2": {
+          "name": "punctuation.definition.directive.campfire"
+        },
+        "3": {
+          "name": "support.function.event.directive.campfire"
+        }
+      },
+      "end": "(?=$)",
+      "patterns": [
+        {
+          "include": "#directiveSpacing"
+        },
+        {
+          "include": "#directiveLabel"
+        },
+        {
+          "include": "#directiveAttributes"
+        }
+      ]
+    },
+    "directiveAttributes": {
+      "name": "meta.directive.attributes.campfire",
+      "begin": "\\{",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.attributes.begin.campfire"
+        }
+      },
+      "end": "\\}",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.attributes.end.campfire"
+        }
+      },
+      "patterns": [
+        {
+          "match": "\\b([A-Za-z_][A-Za-z0-9_-]*)(?=\\s*=)",
+          "name": "variable.parameter.attribute.campfire"
+        },
+        {
+          "match": "=",
+          "name": "punctuation.separator.key-value.campfire"
+        },
+        {
+          "include": "#attributeValues"
+        },
+        {
+          "match": ",",
+          "name": "punctuation.separator.sequence.campfire"
+        },
+        {
+          "match": "\\s+"
+        },
+        {
+          "match": "[^,\\s\\}]+",
+          "name": "invalid.illegal.attribute-value.campfire"
+        }
+      ]
+    },
+    "directiveLabel": {
+      "name": "meta.directive.label.campfire",
+      "begin": "\\[",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.label.begin.campfire"
+        }
+      },
+      "end": "\\]",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.label.end.campfire"
+        }
+      },
+      "contentName": "source.js.embedded.expression.campfire",
+      "patterns": [
+        {
+          "include": "source.js"
+        }
+      ]
+    },
+    "directiveSpacing": {
+      "match": "\\s+"
+    },
+    "doubleQuotedString": {
+      "name": "string.quoted.double.attribute-value.campfire",
+      "begin": "\\\"",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.begin.campfire"
+        }
+      },
+      "end": "\\\"",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.end.campfire"
+        }
+      },
+      "patterns": [
+        {
+          "match": "\\\\.",
+          "name": "constant.character.escape.campfire"
+        },
+        {
+          "include": "#templateInterpolation"
+        }
+      ]
+    },
+    "inlineDirective": {
+      "patterns": [
+        {
+          "name": "meta.directive.inline.campfire",
+          "begin": "(?<!:)(?<!\\\\w)(:)(?:allowLandscape|array|arrayOnce|batch|bgm|case|checkbox|checkpoint|clearCheckpoint|clearSave|concat|createRange|deck|default|effect|else|embed|for|goto|if|image|include|input|lang|layer|load|loadCheckpoint|onExit|option|pop|preloadAudio|preloadImage|preset|push|radio|random|randomOnce|reveal|save|select|set|setLanguageLabel|setOnce|setRange|shape|shift|show|slide|sound|splice|switch|t|text|textarea|title|translations|trigger|unset|unshift|volume|wrapper)(?=\\\\b)",
+          "beginCaptures": {
             "1": {
               "name": "punctuation.definition.directive.campfire"
             },
             "2": {
               "name": "keyword.control.directive.campfire"
             }
-          }
-        },
-        {
-          "name": "variable.other.directive-attribute.campfire",
-          "match": "\\b([A-Za-z_][A-Za-z0-9_-]*)(?=\\s*=)"
-        },
-        {
-          "name": "string.quoted.double.directive.campfire",
-          "begin": "\"",
-          "beginCaptures": {
-            "0": {
-              "name": "punctuation.definition.string.begin.campfire"
-            }
           },
-          "end": "\"",
-          "endCaptures": {
-            "0": {
-              "name": "punctuation.definition.string.end.campfire"
-            }
-          },
+          "end": "(?=$|\\s|[!?,.;:)\\]\\\\|]|(?=[A-Za-z0-9]))",
           "patterns": [
             {
-              "include": "text.html.markdown"
+              "include": "#directiveSpacing"
+            },
+            {
+              "include": "#directiveLabel"
+            },
+            {
+              "include": "#directiveAttributes"
             }
           ]
         },
         {
-          "name": "string.quoted.single.directive.campfire",
-          "begin": "'",
+          "name": "meta.directive.inline.invalid.campfire",
+          "begin": "(?<!:)(?<!\\w)(:)([A-Za-z][A-Za-z0-9_-]*)",
           "beginCaptures": {
-            "0": {
-              "name": "punctuation.definition.string.begin.campfire"
+            "1": {
+              "name": "punctuation.definition.directive.campfire"
+            },
+            "2": {
+              "name": "invalid.illegal.directive-name.campfire"
             }
           },
-          "end": "'",
-          "endCaptures": {
-            "0": {
-              "name": "punctuation.definition.string.end.campfire"
+          "end": "(?=$|\\s|[!?,.;:)\\]\\\\|]|(?=[A-Za-z0-9]))",
+          "patterns": [
+            {
+              "include": "#directiveSpacing"
+            },
+            {
+              "include": "#directiveLabel"
+            },
+            {
+              "include": "#directiveAttributes"
             }
-          }
-        },
+          ]
+        }
+      ]
+    },
+    "leafDirective": {
+      "patterns": [
         {
-          "name": "string.quoted.template.directive.campfire",
-          "begin": "`",
+          "name": "meta.directive.leaf.campfire",
+          "begin": "^(\\\\s*)(::)(?!:)(?:allowLandscape|array|arrayOnce|batch|bgm|case|checkbox|checkpoint|clearCheckpoint|clearSave|concat|createRange|deck|default|effect|else|embed|for|goto|if|image|include|input|lang|layer|load|loadCheckpoint|onExit|option|pop|preloadAudio|preloadImage|preset|push|radio|random|randomOnce|reveal|save|select|set|setLanguageLabel|setOnce|setRange|shape|shift|show|slide|sound|splice|switch|t|text|textarea|title|translations|trigger|unset|unshift|volume|wrapper)(?=\\\\b)",
           "beginCaptures": {
-            "0": {
-              "name": "punctuation.definition.string.begin.campfire"
+            "2": {
+              "name": "punctuation.definition.directive.campfire"
+            },
+            "3": {
+              "name": "keyword.control.directive.campfire"
             }
           },
-          "end": "`",
-          "endCaptures": {
-            "0": {
-              "name": "punctuation.definition.string.end.campfire"
+          "end": "(?=$)",
+          "patterns": [
+            {
+              "include": "#directiveSpacing"
+            },
+            {
+              "include": "#directiveLabel"
+            },
+            {
+              "include": "#directiveAttributes"
             }
-          }
+          ]
         },
         {
-          "name": "support.constant.storysettings.option.campfire",
-          "match": "(?<=^\\s*)(undo|bookmark|hash|exitprompt|blankcss|obfuscate|jquery|modernizr)(?=\\s*:)"
+          "name": "meta.directive.leaf.invalid.campfire",
+          "begin": "^(\\s*)(::)(?!:)([A-Za-z][A-Za-z0-9_-]*)",
+          "beginCaptures": {
+            "2": {
+              "name": "punctuation.definition.directive.campfire"
+            },
+            "3": {
+              "name": "invalid.illegal.directive-name.campfire"
+            }
+          },
+          "end": "(?=$)",
+          "patterns": [
+            {
+              "include": "#directiveSpacing"
+            },
+            {
+              "include": "#directiveLabel"
+            },
+            {
+              "include": "#directiveAttributes"
+            }
+          ]
+        }
+      ]
+    },
+    "objectLiteral": {
+      "name": "meta.mapping.object.attribute-value.campfire",
+      "begin": "\\{",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.object.begin.campfire"
+        }
+      },
+      "end": "\\}",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.object.end.campfire"
+        }
+      },
+      "patterns": [
+        {
+          "match": "\\b[A-Za-z_$][A-Za-z0-9_$]*\\b(?=\\s*:)",
+          "name": "support.type.property-name.campfire"
+        },
+        {
+          "match": ":",
+          "name": "punctuation.separator.key-value.campfire"
+        },
+        {
+          "include": "#attributeValues"
+        },
+        {
+          "match": ",",
+          "name": "punctuation.separator.sequence.campfire"
+        },
+        {
+          "match": "\\s+"
+        }
+      ]
+    },
+    "singleQuotedString": {
+      "name": "string.quoted.single.attribute-value.campfire",
+      "begin": "'",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.begin.campfire"
+        }
+      },
+      "end": "'",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.end.campfire"
+        }
+      },
+      "patterns": [
+        {
+          "match": "\\\\.",
+          "name": "constant.character.escape.campfire"
+        }
+      ]
+    },
+    "templateInterpolation": {
+      "name": "meta.interpolation.template.expression.campfire",
+      "begin": "\\$\\{",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.section.interpolation.begin.campfire"
+        }
+      },
+      "end": "\\}",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.section.interpolation.end.campfire"
+        }
+      },
+      "contentName": "source.js.embedded.expression.campfire",
+      "patterns": [
+        {
+          "include": "source.js"
+        }
+      ]
+    },
+    "templateString": {
+      "name": "string.quoted.template.attribute-value.campfire",
+      "begin": "`",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.begin.campfire"
+        }
+      },
+      "end": "`",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.end.campfire"
+        }
+      },
+      "patterns": [
+        {
+          "match": "\\\\.",
+          "name": "constant.character.escape.campfire"
+        },
+        {
+          "include": "#templateInterpolation"
         }
       ]
     },
