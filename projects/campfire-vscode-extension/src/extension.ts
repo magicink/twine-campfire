@@ -169,21 +169,40 @@ const directiveSnippets: DirectiveSnippet[] = [
 ]
 
 /**
+ * Prefix directive markers with a backslash so Twee3 headers do not capture them.
+ * Only applies to directives that begin a line with `::` or `:::`.
+ *
+ * @param body - The snippet body to potentially escape.
+ * @returns The snippet body with directive lines escaped as needed.
+ */
+const escapeDirectiveLines = (body: string): string =>
+  body.replace(
+    /(^|\n)(:::+|::)/g,
+    (_match: string, prefix: string, marker: string) => `${prefix}\\${marker}`
+  )
+
+/**
  * Build a VS Code completion item from a directive snippet definition.
  *
  * @param snippet - The Campfire directive snippet to transform into a completion item.
  * @param range - The document range that should be replaced when the snippet is inserted.
+ * @param shouldEscape - Whether directive markers should be escaped to avoid Twee3 headers.
  * @returns A fully configured completion item for the IntelliSense list.
  */
 const createCompletionItem = (
   snippet: DirectiveSnippet,
-  range: Range
+  range: Range,
+  shouldEscape: boolean
 ): CompletionItem => {
   const item = new CompletionItem(
     snippet.completionLabel ?? `${snippet.marker}${snippet.label}`,
     CompletionItemKind.Snippet
   )
-  item.insertText = new SnippetString(snippet.body)
+  const body =
+    shouldEscape && (snippet.marker === '::' || snippet.marker === ':::')
+      ? escapeDirectiveLines(snippet.body)
+      : snippet.body
+  item.insertText = new SnippetString(body)
   item.detail = snippet.detail
   item.documentation = new MarkdownString(snippet.documentation)
   item.range = range
@@ -232,8 +251,9 @@ export function activate(context: ExtensionContext): void {
        */
       provideCompletionItems(document: TextDocument, position: Position) {
         const range = resolveReplacementRange(document, position)
+        const shouldEscape = range.start.character === 0
         return directiveSnippets.map(snippet =>
-          createCompletionItem(snippet, range)
+          createCompletionItem(snippet, range, shouldEscape)
         )
       }
     },
