@@ -445,17 +445,8 @@ const validateStorySettingsPassages = (
             )
           } else {
             const allowedValues = storySettingsRules[normalizedName]
-            const rawValueStart = settingLine.text.indexOf(
-              value,
-              nameStart + name.length
-            )
             const valueStart =
-              rawValueStart === -1
-                ? (match.index ?? 0) +
-                  leadingWhitespace.length +
-                  name.length +
-                  1
-                : rawValueStart
+              (match.index ?? 0) + leadingWhitespace.length + name.length + 1
             const valueRange = new Range(
               probe,
               valueStart,
