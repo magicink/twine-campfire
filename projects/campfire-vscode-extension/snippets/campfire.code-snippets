@@ -16,9 +16,7 @@
   },
   "Random From": {
     "prefix": "cf-random-from",
-    "body": [
-      "::random[${1:key}]{from=['${2:choice1}','${3:choice2}','${4:choice3}']}"
-    ],
+    "body": ["::random[${1:key}]{from=${2:[choice1, choice2, choice3]}}"],
     "description": "Assign a random item from an array or state key"
   },
   "Random Once Range": {
@@ -28,9 +26,7 @@
   },
   "Random Once From": {
     "prefix": "cf-random-once-from",
-    "body": [
-      "::randomOnce[${1:key}]{from=['${2:choice1}','${3:choice2}','${4:choice3}']}"
-    ],
+    "body": ["::randomOnce[${1:key}]{from=${2:[choice1, choice2, choice3]}}"],
     "description": "Assign a random item once and lock the result"
   },
   "Unset State": {
@@ -99,12 +95,12 @@
   },
   "If Block": {
     "prefix": "cf-if",
-    "body": [":::if[${1:condition}]", "", "$0", "", ":::"],
+    "body": [":::if[${1:condition}]", "$0", ":::"],
     "description": "Render content when an expression is truthy"
   },
   "Else Block": {
     "prefix": "cf-else",
-    "body": [":::else", "", "$0", "", ":::"],
+    "body": [":::else", "$0", ":::"],
     "description": "Fallback content for a preceding if or switch"
   },
   "Switch Block": {
@@ -132,17 +128,17 @@
   },
   "Case Block": {
     "prefix": "cf-case",
-    "body": [":::case[${1:\"value\"}]", "", "$0", "", ":::"],
+    "body": [":::case[${1:\"value\"}]", "$0", ":::"],
     "description": "Content for a matching switch case"
   },
   "Default Block": {
     "prefix": "cf-default",
-    "body": [":::default", "", "$0", "", ":::"],
+    "body": [":::default", "$0", ":::"],
     "description": "Fallback block inside a switch"
   },
   "For Loop": {
     "prefix": "cf-for",
-    "body": [":::for[${1:item} in ${2:collection}]", "", "$0", "", ":::"],
+    "body": [":::for[${1:item} in ${2:collection}]", "$0", ":::"],
     "description": "Iterate over an array or range"
   },
   "Input Leaf": {
@@ -163,9 +159,7 @@
     "prefix": "cf-input",
     "body": [
       ":::input[${1:key}]{placeholder=\"${2:Placeholder}\"}",
-      "",
       "$0",
-      "",
       ":::"
     ],
     "description": "Container input that supports event directives"
@@ -181,9 +175,7 @@
     "prefix": "cf-textarea",
     "body": [
       ":::textarea[${1:key}]{placeholder=\"${2:Placeholder}\" rows=${3:3}}",
-      "",
       "$0",
-      "",
       ":::"
     ],
     "description": "Textarea container that supports event directives"
@@ -206,7 +198,7 @@
   },
   "Option Container": {
     "prefix": "cf-option-container",
-    "body": [":::option{value=\"${1:value}\"}", "", "$0", "", ":::"],
+    "body": [":::option{value=\"${1:value}\"}", "$0", ":::"],
     "description": "Container option for custom label content"
   },
   "Checkbox Inline": {
@@ -216,7 +208,7 @@
   },
   "Checkbox Container": {
     "prefix": "cf-checkbox",
-    "body": [":::checkbox[${1:key}]{value=${2:true}}", "", "$0", "", ":::"],
+    "body": [":::checkbox[${1:key}]{value=${2:true}}", "$0", ":::"],
     "description": "Checkbox container with event support"
   },
   "Radio Inline": {
@@ -226,38 +218,36 @@
   },
   "Radio Container": {
     "prefix": "cf-radio",
-    "body": [":::radio[${1:key}]{value=\"${2:value}\"}", "", "$0", "", ":::"],
+    "body": [":::radio[${1:key}]{value=\"${2:value}\"}", "$0", ":::"],
     "description": "Radio container with event support"
   },
   "Trigger Button": {
     "prefix": "cf-trigger",
     "body": [
       ":::trigger{label=\"${1:Label}\" className=\"${2:campfire-trigger}\"}",
-      "",
       "$0",
-      "",
       ":::"
     ],
     "description": "Trigger container that runs directives on click"
   },
   "On Mouse Enter Event": {
     "prefix": "cf-onmouseenter",
-    "body": [":::onMouseEnter", "", "$0", "", ":::"],
+    "body": [":::onMouseEnter", "$0", ":::"],
     "description": "Run directives when the element is hovered"
   },
   "On Mouse Leave Event": {
     "prefix": "cf-onmouseleave",
-    "body": [":::onMouseLeave", "", "$0", "", ":::"],
+    "body": [":::onMouseLeave", "$0", ":::"],
     "description": "Run directives when the element stops being hovered"
   },
   "On Focus Event": {
     "prefix": "cf-onfocus",
-    "body": [":::onFocus", "", "$0", "", ":::"],
+    "body": [":::onFocus", "$0", ":::"],
     "description": "Run directives when the element receives focus"
   },
   "On Blur Event": {
     "prefix": "cf-onblur",
-    "body": [":::onBlur", "", "$0", "", ":::"],
+    "body": [":::onBlur", "$0", ":::"],
     "description": "Run directives when the element loses focus"
   },
   "Batch Block": {
@@ -331,32 +321,24 @@
   },
   "Slide Block": {
     "prefix": "cf-slide",
-    "body": [":::slide{transition=\"${1:fade}\"}", "", "$0", "", ":::"],
+    "body": [":::slide{transition=\"${1:fade}\"}", "$0", ":::"],
     "description": "Configure an individual slide"
   },
   "Reveal Block": {
     "prefix": "cf-reveal",
-    "body": [":::reveal{at=${1:0}}", "", "$0", "", ":::"],
+    "body": [":::reveal{at=${1:0}}", "$0", ":::"],
     "description": "Reveal slide content at a deck step"
   },
   "Layer Block": {
     "prefix": "cf-layer",
-    "body": [
-      ":::layer{x=${1:0} y=${2:0} w=${3:100} h=${4:100}}",
-      "",
-      "$0",
-      "",
-      ":::"
-    ],
+    "body": [":::layer{x=${1:0} y=${2:0} w=${3:100} h=${4:100}}", "$0", ":::"],
     "description": "Position content absolutely on a slide"
   },
   "Text Block": {
     "prefix": "cf-text",
     "body": [
       ":::text{x=${1:0} y=${2:0} size=${3:32} className=\"${4:campfire-text}\"}",
-      "",
       "$0",
-      "",
       ":::"
     ],
     "description": "Position styled text on a slide"
@@ -379,9 +361,7 @@
     "prefix": "cf-wrapper",
     "body": [
       ":::wrapper{as=\"${1:div}\" className=\"${2:campfire-wrapper}\"}",
-      "",
       "$0",
-      "",
       ":::"
     ],
     "description": "Wrap content in a custom element"
