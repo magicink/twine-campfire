@@ -1,42 +1,494 @@
 {
+  "Set State": {
+    "prefix": "cf-set",
+    "body": ["::set[${1:key}=${2:value}]"],
+    "description": "Assign a value or expression to a state key"
+  },
+  "Set State Once": {
+    "prefix": "cf-set-once",
+    "body": ["::setOnce[${1:key}=${2:value}]"],
+    "description": "Assign a value only if the key is unset"
+  },
+  "Random Range": {
+    "prefix": "cf-random-range",
+    "body": ["::random[${1:key}]{min=${2:0} max=${3:1}}"],
+    "description": "Assign a random number between min and max"
+  },
+  "Random From": {
+    "prefix": "cf-random-from",
+    "body": [
+      "::random[${1:key}]{from=['${2:choice1}','${3:choice2}','${4:choice3}']}"
+    ],
+    "description": "Assign a random item from an array or state key"
+  },
+  "Random Once Range": {
+    "prefix": "cf-random-once-range",
+    "body": ["::randomOnce[${1:key}]{min=${2:0} max=${3:1}}"],
+    "description": "Assign a random number once and lock the result"
+  },
+  "Random Once From": {
+    "prefix": "cf-random-once-from",
+    "body": [
+      "::randomOnce[${1:key}]{from=['${2:choice1}','${3:choice2}','${4:choice3}']}"
+    ],
+    "description": "Assign a random item once and lock the result"
+  },
+  "Unset State": {
+    "prefix": "cf-unset",
+    "body": ["::unset[${1:key}]"],
+    "description": "Remove a key from state"
+  },
+  "Create Range": {
+    "prefix": "cf-create-range",
+    "body": ["::createRange[${1:key}=${2:start}]{min=${3:0} max=${4:10}}"],
+    "description": "Create a numeric range with bounds"
+  },
+  "Set Range": {
+    "prefix": "cf-set-range",
+    "body": ["::setRange[${1:key}=${2:value}]"],
+    "description": "Update the value of an existing range"
+  },
+  "Create Array": {
+    "prefix": "cf-array",
+    "body": ["::array[${1:key}=[${2:1},${3:2},${4:'three'}]]"],
+    "description": "Create an array"
+  },
+  "Create Array Once": {
+    "prefix": "cf-array-once",
+    "body": ["::arrayOnce[${1:key}=[${2:1},${3:2},${4:'three'}]]"],
+    "description": "Create an array only if it is unset"
+  },
+  "Concat Array": {
+    "prefix": "cf-concat",
+    "body": ["::concat{key=${1:target} value=${2:source}}"],
+    "description": "Append items from one array to another"
+  },
+  "Pop Array": {
+    "prefix": "cf-pop",
+    "body": ["::pop{key=${1:array} into=${2:removedItem}}"],
+    "description": "Remove the last item from an array"
+  },
+  "Push Array": {
+    "prefix": "cf-push",
+    "body": ["::push{key=${1:array} value=${2:item}}"],
+    "description": "Add items to the end of an array"
+  },
+  "Shift Array": {
+    "prefix": "cf-shift",
+    "body": ["::shift{key=${1:array} into=${2:removedItem}}"],
+    "description": "Remove the first item from an array"
+  },
+  "Splice Array": {
+    "prefix": "cf-splice",
+    "body": [
+      "::splice{key=${1:array} index=${2:start} count=${3:count} value=${4:item} into=${5:removedItems}}"
+    ],
+    "description": "Splice array items and optionally store removed values"
+  },
+  "Unshift Array": {
+    "prefix": "cf-unshift",
+    "body": ["::unshift{key=${1:array} value=${2:item}}"],
+    "description": "Add items to the start of an array"
+  },
+  "Show Value": {
+    "prefix": "cf-show",
+    "body": [
+      ":show[${1:key}]{as=\"${2:span}\" className=\"${3:className}\" style=\"${4:}\"}"
+    ],
+    "description": "Display a state key, expression, or interpolated string"
+  },
   "If Block": {
     "prefix": "cf-if",
-    "body": ["\\:::if[${1:condition}]", "  $0", "\\:::else", "  $2", "\\:::"],
-    "description": "Campfire if/else container"
+    "body": [":::if[${1:condition}]", "", "$0", "", ":::"],
+    "description": "Render content when an expression is truthy"
   },
-  "Slide Deck": {
-    "prefix": "cf-deck",
+  "Else Block": {
+    "prefix": "cf-else",
+    "body": [":::else", "", "$0", "", ":::"],
+    "description": "Fallback content for a preceding if or switch"
+  },
+  "Switch Block": {
+    "prefix": "cf-switch",
     "body": [
-      "\\:::deck ${1:label}",
-      "  ::slide ${2:label}",
-      "    $3",
-      "  :::",
-      "  ::slide ${4:label}",
-      "    $5",
-      "  :::",
-      "\\:::"
+      ":::switch[${1:expression}]",
+      ":::case[${2:\"value\"}]",
+      "",
+      "$3",
+      "",
+      ":::",
+      ":::case[${4:\"other\"}]",
+      "",
+      "$5",
+      "",
+      ":::",
+      ":::default",
+      "",
+      "$6",
+      "",
+      ":::",
+      ":::"
     ],
-    "description": "Campfire slide deck"
+    "description": "Evaluate an expression and handle matching cases"
+  },
+  "Case Block": {
+    "prefix": "cf-case",
+    "body": [":::case[${1:\"value\"}]", "", "$0", "", ":::"],
+    "description": "Content for a matching switch case"
+  },
+  "Default Block": {
+    "prefix": "cf-default",
+    "body": [":::default", "", "$0", "", ":::"],
+    "description": "Fallback block inside a switch"
   },
   "For Loop": {
     "prefix": "cf-for",
-    "body": ["\\:::for[${1:item}${2}]", "  ${3:Item: :show[item]}", "\\:::"],
-    "description": "Campfire for iteration container"
+    "body": [":::for[${1:item} in ${2:collection}]", "", "$0", "", ":::"],
+    "description": "Iterate over an array or range"
   },
-  "Input Field": {
-    "prefix": "cf-input",
-    "body": [":input[${1:key}]"],
-    "description": "Campfire inline input field"
+  "Input Leaf": {
+    "prefix": "cf-input-leaf",
+    "body": [
+      "::input[${1:key}]{placeholder=\"${2:Placeholder}\" value=\"${3:}\"}"
+    ],
+    "description": "Render a bound text input"
+  },
+  "Input Inline": {
+    "prefix": "cf-input-inline",
+    "body": [
+      ":input[${1:key}]{placeholder=\"${2:Placeholder}\" value=\"${3:}\"}"
+    ],
+    "description": "Inline bound text input"
   },
   "Input Container": {
-    "prefix": "cf-input-container",
+    "prefix": "cf-input",
     "body": [
-      ":::input[${1:key}]",
-      "  :::${2:onFocus}",
-      "    $0",
-      "  :::",
+      ":::input[${1:key}]{placeholder=\"${2:Placeholder}\"}",
+      "",
+      "$0",
+      "",
       ":::"
     ],
-    "description": "Campfire container input field"
+    "description": "Container input that supports event directives"
+  },
+  "Textarea Inline": {
+    "prefix": "cf-textarea-inline",
+    "body": [
+      ":textarea[${1:key}]{placeholder=\"${2:Placeholder}\" rows=${3:3}}"
+    ],
+    "description": "Inline textarea bound to a state key"
+  },
+  "Textarea Container": {
+    "prefix": "cf-textarea",
+    "body": [
+      ":::textarea[${1:key}]{placeholder=\"${2:Placeholder}\" rows=${3:3}}",
+      "",
+      "$0",
+      "",
+      ":::"
+    ],
+    "description": "Textarea container that supports event directives"
+  },
+  "Select Field": {
+    "prefix": "cf-select",
+    "body": [
+      ":::select[${1:key}]{label=\"${2:Choose a value}\"}",
+      "::option{value=\"${3:value}\" label=\"${4:Label}\"}",
+      "::option{value=\"${5:other}\" label=\"${6:Other}\"}",
+      "",
+      ":::"
+    ],
+    "description": "Select container with option children"
+  },
+  "Option Leaf": {
+    "prefix": "cf-option",
+    "body": ["::option{value=\"${1:value}\" label=\"${2:Label}\"}"],
+    "description": "Leaf option inside a select"
+  },
+  "Option Container": {
+    "prefix": "cf-option-container",
+    "body": [":::option{value=\"${1:value}\"}", "", "$0", "", ":::"],
+    "description": "Container option for custom label content"
+  },
+  "Checkbox Inline": {
+    "prefix": "cf-checkbox-inline",
+    "body": [":checkbox[${1:key}]{value=${2:true}}"],
+    "description": "Inline checkbox bound to a state key"
+  },
+  "Checkbox Container": {
+    "prefix": "cf-checkbox",
+    "body": [":::checkbox[${1:key}]{value=${2:true}}", "", "$0", "", ":::"],
+    "description": "Checkbox container with event support"
+  },
+  "Radio Inline": {
+    "prefix": "cf-radio-inline",
+    "body": [":radio[${1:key}]{value=\"${2:value}\"}"],
+    "description": "Inline radio button bound to a state key"
+  },
+  "Radio Container": {
+    "prefix": "cf-radio",
+    "body": [":::radio[${1:key}]{value=\"${2:value}\"}", "", "$0", "", ":::"],
+    "description": "Radio container with event support"
+  },
+  "Trigger Button": {
+    "prefix": "cf-trigger",
+    "body": [
+      ":::trigger{label=\"${1:Label}\" className=\"${2:campfire-trigger}\"}",
+      "",
+      "$0",
+      "",
+      ":::"
+    ],
+    "description": "Trigger container that runs directives on click"
+  },
+  "On Mouse Enter Event": {
+    "prefix": "cf-onmouseenter",
+    "body": [":::onMouseEnter", "", "$0", "", ":::"],
+    "description": "Run directives when the element is hovered"
+  },
+  "On Mouse Leave Event": {
+    "prefix": "cf-onmouseleave",
+    "body": [":::onMouseLeave", "", "$0", "", ":::"],
+    "description": "Run directives when the element stops being hovered"
+  },
+  "On Focus Event": {
+    "prefix": "cf-onfocus",
+    "body": [":::onFocus", "", "$0", "", ":::"],
+    "description": "Run directives when the element receives focus"
+  },
+  "On Blur Event": {
+    "prefix": "cf-onblur",
+    "body": [":::onBlur", "", "$0", "", ":::"],
+    "description": "Run directives when the element loses focus"
+  },
+  "Batch Block": {
+    "prefix": "cf-batch",
+    "body": [
+      ":::batch",
+      "",
+      "::set[${1:key}=${2:value}]",
+      "::set[${3:otherKey}=${4:value}]",
+      "",
+      ":::"
+    ],
+    "description": "Group data directives together (no nested batch)"
+  },
+  "On Exit Block": {
+    "prefix": "cf-onexit",
+    "body": [":::onExit", "", "::set[${1:key}=${2:value}]", "", ":::"],
+    "description": "Run data directives once when leaving the passage"
+  },
+  "Effect Block": {
+    "prefix": "cf-effect",
+    "body": [
+      ":::effect[${1:watchKey}]",
+      "",
+      "::set[${2:key}=${3:value}]",
+      "",
+      ":::"
+    ],
+    "description": "React to watched state keys"
+  },
+  "Goto Passage": {
+    "prefix": "cf-goto",
+    "body": ["::goto[\"${1:Passage Name}\"]"],
+    "description": "Jump to another passage"
+  },
+  "Include Passage": {
+    "prefix": "cf-include",
+    "body": ["::include[\"${1:Passage Name}\"]"],
+    "description": "Embed another passage"
+  },
+  "Story Title": {
+    "prefix": "cf-title",
+    "body": ["::title[\"${1:Story Title}\"]"],
+    "description": "Set the document title"
+  },
+  "Allow Landscape": {
+    "prefix": "cf-allow-landscape",
+    "body": ["::allowLandscape"],
+    "description": "Unlock landscape orientation"
+  },
+  "Deck Block": {
+    "prefix": "cf-deck",
+    "body": [
+      ":::deck{size=\"${1:16x9}\" transition=\"${2:slide}\"}",
+      "",
+      ":::slide",
+      "",
+      "$3",
+      "",
+      ":::",
+      "",
+      ":::slide",
+      "",
+      "$4",
+      "",
+      ":::",
+      "",
+      ":::"
+    ],
+    "description": "Deck container with nested slides"
+  },
+  "Slide Block": {
+    "prefix": "cf-slide",
+    "body": [":::slide{transition=\"${1:fade}\"}", "", "$0", "", ":::"],
+    "description": "Configure an individual slide"
+  },
+  "Reveal Block": {
+    "prefix": "cf-reveal",
+    "body": [":::reveal{at=${1:0}}", "", "$0", "", ":::"],
+    "description": "Reveal slide content at a deck step"
+  },
+  "Layer Block": {
+    "prefix": "cf-layer",
+    "body": [
+      ":::layer{x=${1:0} y=${2:0} w=${3:100} h=${4:100}}",
+      "",
+      "$0",
+      "",
+      ":::"
+    ],
+    "description": "Position content absolutely on a slide"
+  },
+  "Text Block": {
+    "prefix": "cf-text",
+    "body": [
+      ":::text{x=${1:0} y=${2:0} size=${3:32} className=\"${4:campfire-text}\"}",
+      "",
+      "$0",
+      "",
+      ":::"
+    ],
+    "description": "Position styled text on a slide"
+  },
+  "Shape Leaf": {
+    "prefix": "cf-shape",
+    "body": [
+      "::shape{type=\"${1:rect}\" x=${2:0} y=${3:0} w=${4:100} h=${5:100}}"
+    ],
+    "description": "Draw a shape positioned on the slide"
+  },
+  "Shape Inline": {
+    "prefix": "cf-shape-inline",
+    "body": [
+      ":shape{type=\"${1:rect}\" x=${2:0} y=${3:0} w=${4:100} h=${5:100}}"
+    ],
+    "description": "Inline shape directive"
+  },
+  "Wrapper Block": {
+    "prefix": "cf-wrapper",
+    "body": [
+      ":::wrapper{as=\"${1:div}\" className=\"${2:campfire-wrapper}\"}",
+      "",
+      "$0",
+      "",
+      ":::"
+    ],
+    "description": "Wrap content in a custom element"
+  },
+  "Preset Inline": {
+    "prefix": "cf-preset",
+    "body": [":preset{type=\"${1:deck}\" name=\"${2:name}\"}"],
+    "description": "Define a reusable preset"
+  },
+  "Image Leaf": {
+    "prefix": "cf-image",
+    "body": [
+      "::image{src=\"${1:path/to/image.png}\" x=${2:0} y=${3:0} w=${4:320} h=${5:180}}"
+    ],
+    "description": "Position an image on a slide"
+  },
+  "Preload Image": {
+    "prefix": "cf-preload-image",
+    "body": ["::preloadImage[${1:id}]{src=\"${2:path/to/image.png}\"}"],
+    "description": "Preload an image asset"
+  },
+  "Embed Leaf": {
+    "prefix": "cf-embed",
+    "body": [
+      "::embed{src=\"${1:https://example.com/embed}\" w=${2:640} h=${3:360} allow=\"${4:autoplay}\"}"
+    ],
+    "description": "Embed external content within a slide"
+  },
+  "Preload Audio": {
+    "prefix": "cf-preload-audio",
+    "body": ["::preloadAudio[${1:id}]{src=\"${2:path/to/audio.mp3}\"}"],
+    "description": "Preload an audio clip"
+  },
+  "Sound Effect": {
+    "prefix": "cf-sound",
+    "body": ["::sound[${1:id}]{volume=${2:1} delay=${3:0} rate=${4:1}}"],
+    "description": "Play a sound effect"
+  },
+  "Background Music": {
+    "prefix": "cf-bgm",
+    "body": [
+      "::bgm[${1:id}]{src=\"${2:path/to/music.mp3}\" volume=${3:0.5} loop=${4:true} fade=${5:1000}}"
+    ],
+    "description": "Control looping background music"
+  },
+  "Stop Background Music": {
+    "prefix": "cf-bgm-stop",
+    "body": ["::bgm{stop=true fade=${1:500}}"],
+    "description": "Stop the current background music"
+  },
+  "Volume Levels": {
+    "prefix": "cf-volume",
+    "body": ["::volume{bgm=${1:0.5} sfx=${2:0.8}}"],
+    "description": "Set global audio levels"
+  },
+  "Checkpoint": {
+    "prefix": "cf-checkpoint",
+    "body": ["::checkpoint{id=\"${1:checkpoint-id}\" label=\"${2:Label}\"}"],
+    "description": "Create a checkpoint with a label"
+  },
+  "Clear Checkpoint": {
+    "prefix": "cf-clear-checkpoint",
+    "body": ["::clearCheckpoint"],
+    "description": "Remove the stored checkpoint"
+  },
+  "Load Checkpoint": {
+    "prefix": "cf-load-checkpoint",
+    "body": ["::loadCheckpoint"],
+    "description": "Load the stored checkpoint"
+  },
+  "Save Game": {
+    "prefix": "cf-save",
+    "body": ["::save{id=\"${1:slot-id}\"}"],
+    "description": "Write the current state to local storage"
+  },
+  "Load Game": {
+    "prefix": "cf-load",
+    "body": ["::load{id=\"${1:slot-id}\"}"],
+    "description": "Load state from local storage"
+  },
+  "Clear Save": {
+    "prefix": "cf-clear-save",
+    "body": ["::clearSave{id=\"${1:slot-id}\"}"],
+    "description": "Remove a saved game slot"
+  },
+  "Lang Leaf": {
+    "prefix": "cf-lang",
+    "body": ["::lang[${1:en-US}]"],
+    "description": "Switch the active locale"
+  },
+  "Translate Inline": {
+    "prefix": "cf-t",
+    "body": [
+      ":t[${1:key}]{ns=\"${2:ui}\" count=${3:count} fallback=\"${4:Fallback}\" className=\"${5:className}\" style=\"${6:}\"}"
+    ],
+    "description": "Output a translated string"
+  },
+  "Translations Leaf": {
+    "prefix": "cf-translations",
+    "body": [
+      "::translations[${1:locale}]{${2:namespace}:${3:key}=\"${4:value}\"}"
+    ],
+    "description": "Define a translation string"
+  },
+  "Set Language Label": {
+    "prefix": "cf-set-language-label",
+    "body": ["::setLanguageLabel[${1:locale}=\"${2:Label}\"]"],
+    "description": "Provide a display label for a locale"
   }
 }
