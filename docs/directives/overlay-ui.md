@@ -20,17 +20,38 @@ Overlay passages persist across navigation and should avoid directives like
 
 ## Toggling Overlays
 
-Use the overlay store helpers to control overlay visibility:
+Run overlay directives inside event containers such as `trigger` buttons to
+show, hide, or toggle overlays without writing React code.
 
-```ts
-import { useOverlayStore } from '@campfire/state/useOverlayStore'
+### Toggle a single overlay
 
-// Hide or show a single overlay by name
-useOverlayStore.getState().toggleOverlay('hud')
-
-// Toggle all overlays in a group
-useOverlayStore.getState().toggleGroup('menu')
+```md
+:::trigger{label="Toggle HUD"}
+::toggleOverlay["hud"]
+:::
 ```
 
-Each overlay uses an independent deck store, so slide-based overlays retain
-their state when navigating between passages.
+### Show or hide overlays explicitly
+
+```md
+:::trigger{label="Show Map"}
+::showOverlay["map"]
+:::
+
+:::trigger{label="Hide Map"}
+::hideOverlay["map"]
+:::
+```
+
+### Toggle an overlay group
+
+```md
+:::trigger{label="Toggle Menu"}
+::toggleOverlayGroup["menu"]
+:::
+```
+
+Overlay names and groups must match the tagged overlay passage names and
+`overlay-group-{name}` tags you defined earlier. Each overlay uses an
+independent deck store, so slide-based overlays retain their state when
+navigating between passages.
