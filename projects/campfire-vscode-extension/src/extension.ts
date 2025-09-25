@@ -84,7 +84,6 @@ const directiveSnippets: DirectiveSnippet[] = [
   {
     marker: ':',
     label: 'random',
-    escapeAtColumnZero: true,
     detail: 'Select a random value',
     documentation: 'Assigns a random option to a state key.',
     body: ':random ${1:key} ${2:choiceA} ${3:choiceB}'
@@ -93,8 +92,18 @@ const directiveSnippets: DirectiveSnippet[] = [
     marker: ':',
     label: 'input',
     detail: 'Collect input from the reader',
-    documentation: 'Creates an inline input element bound to story state.',
-    body: ':input name="${1:key}" label="${2:Prompt}"'
+    documentation:
+      'Creates an inline input element bound to story state with optional placeholder attributes.',
+    body: ':input[${1:key}]{placeholder="${2:Placeholder}"}'
+  },
+  {
+    marker: ':::',
+    label: 'input',
+    escapeAtColumnZero: true,
+    detail: 'Container input block',
+    documentation:
+      'Wraps interactive input content so you can attach focus, blur, or change handlers to the field.',
+    body: ':::input[${1:key}]\n  :::${2:onFocus}\n    $0\n  :::\n:::'
   },
   {
     marker: ':',
