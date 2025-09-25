@@ -15,7 +15,8 @@
   "main": "./dist/extension.js",
   "scripts": {
     "build": "bun run tsc -p .",
-    "package": "bunx vsce package --no-dependencies",
+    "prepackage": "bun run build",
+    "package": "bunx vsce package --no-dependencies --out dist/campfire-storybuilder.vsix",
     "watch": "bun run tsc -p . --watch"
   },
   "contributes": {
