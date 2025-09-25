@@ -15,7 +15,6 @@ import {
   window,
   workspace
 } from 'vscode'
-import { randomUUID } from 'crypto'
 
 /**
  * A descriptor for Twee 3 snippets that can be surfaced as IntelliSense completions.
@@ -378,6 +377,32 @@ const UUID_REGEX =
 
 const isUuid = (value: string): boolean => {
   return UUID_REGEX.test(value)
+}
+
+/**
+ * Generate a UUID for StoryData IFID values.
+ * Prefer the platform-provided crypto.randomUUID when available; otherwise
+ * fall back to a simple UUIDv4 implementation.
+ */
+const generateIfid = (): string => {
+  try {
+    if (
+      typeof globalThis !== 'undefined' &&
+      (globalThis as any).crypto &&
+      typeof (globalThis as any).crypto.randomUUID === 'function'
+    ) {
+      return (globalThis as any).crypto.randomUUID()
+    }
+  } catch {
+    // ignore and fallback
+  }
+
+  // Fallback: RFC4122 version 4 UUID (random)
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = (Math.random() * 16) | 0
+    const v = c === 'x' ? r : (r & 0x3) | 0x8
+    return v.toString(16)
+  })
 }
 
 /**
@@ -758,7 +783,8 @@ export function activate(context: ExtensionContext): void {
           ? blocks.find(candidate => candidate.headerLine === context.line)
           : undefined) ?? blocks[0]
 
-      const newIfid = randomUUID().toUpperCase()
+      // Use the local helper instead of importing Node's crypto.randomUUID
+      const newIfid = generateIfid().toUpperCase()
       const bodyRange = resolveStoryDataBodyRange(editor.document, block)
       const rawBody = editor.document.getText(bodyRange)
       const existingToken = locateIfidToken(editor.document, block)
