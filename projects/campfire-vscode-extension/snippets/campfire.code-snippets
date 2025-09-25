@@ -31,7 +31,7 @@
   },
   "Input Field": {
     "prefix": "cf-input",
-    "body": [":input[${1:key}]{placeholder=\"${2:Placeholder}\"}"],
+    "body": [":input[${1:key}]"],
     "description": "Campfire inline input field"
   },
   "Input Container": {

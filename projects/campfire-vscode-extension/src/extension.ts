@@ -94,7 +94,7 @@ const directiveSnippets: DirectiveSnippet[] = [
     detail: 'Collect input from the reader',
     documentation:
       'Creates an inline input element bound to story state with optional placeholder attributes.',
-    body: ':input[${1:key}]{placeholder="${2:Placeholder}"}'
+    body: ':input[${1:key}]'
   },
   {
     marker: ':::',
