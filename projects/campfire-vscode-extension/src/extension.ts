@@ -105,21 +105,21 @@ const directiveSnippets: DirectiveSnippet[] = [
     body: ':show[${1:expression}]'
   },
   {
-    marker: '::',
+    marker: ':::',
     label: 'if',
     escapeAtColumnZero: true,
     detail: 'Conditional block',
     documentation:
-      'Wraps content that only renders when the condition is truthy.',
-    body: '::if ${1:condition}\n  $0\n:::'
+      'Wraps content that only renders when the expression is truthy. Pair with `:::else` for fallback content.',
+    body: ':::if[${1:expression}]\n  $0\n:::else\n  $2\n:::'
   },
   {
-    marker: '::',
+    marker: ':::',
     label: 'else',
     escapeAtColumnZero: true,
     detail: 'Else block',
-    documentation: 'Extends a prior `if` with fallback content.',
-    body: '::else\n  $0\n:::'
+    documentation: 'Extends a prior `if` container with fallback content.',
+    body: ':::else\n  $0\n:::'
   },
   {
     marker: '::',
@@ -146,6 +146,15 @@ const directiveSnippets: DirectiveSnippet[] = [
     detail: 'Selection list',
     documentation: 'Presents a list of options the reader can choose from.',
     body: '::select ${1:key}\n  :option value="${2:value}" label="${3:Label}"\n:::'
+  },
+  {
+    marker: ':::',
+    label: 'for',
+    escapeAtColumnZero: true,
+    detail: 'Iteration block',
+    documentation:
+      'Repeats the enclosed content for every item in an array or range.',
+    body: ':::for[${1:item} in ${2:collection}]\n  $0\n:::'
   },
   {
     marker: ':::',

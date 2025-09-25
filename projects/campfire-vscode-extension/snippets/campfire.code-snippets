@@ -1,7 +1,7 @@
 {
   "If Block": {
     "prefix": "cf-if",
-    "body": ["\\::if ${1:condition}", "  $0", "\\::else", "  $2", "\\:::"],
+    "body": ["\\:::if[${1:condition}]", "  $0", "\\:::else", "  $2", "\\:::"],
     "description": "Campfire if/else container"
   },
   "Slide Deck": {
@@ -17,6 +17,11 @@
       "\\:::"
     ],
     "description": "Campfire slide deck"
+  },
+  "For Loop": {
+    "prefix": "cf-for",
+    "body": ["\\:::for[${1:item} in ${2:collection}]", "  $0", "\\:::"],
+    "description": "Campfire for iteration container"
   },
   "Input Field": {
     "prefix": "cf-input",
