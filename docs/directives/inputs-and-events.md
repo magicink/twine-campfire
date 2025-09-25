@@ -8,12 +8,18 @@ Collect data or trigger actions directly in the passage.
 
 ### `input`
 
-Render a text input bound to a game state key. Use as a leaf or container. The container form can include event directives. If the key already exists in game state, its value is used; otherwise, the optional `value` attribute sets the starting value.
+Render a text input bound to a game state key. Use as a leaf, inline text directive, or container. The container form can include event directives. If the key already exists in game state, its value is used; otherwise, the optional `value` attribute sets the starting value.
 
 Leaf form:
 
 ```md
-:input[name]{placeholder="Your name"}
+::input[name]{placeholder="Your name"}
+```
+
+Inline form (within text):
+
+```md
+Enter your name: :input[name]{placeholder="Your name"}
 ```
 
 Container form:
