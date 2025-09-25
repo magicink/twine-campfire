@@ -21,7 +21,7 @@
   "For Loop": {
     "prefix": "cf-for",
     "body": [
-      "\\:::for[${1:item} in ${2:[1,2,3]}]",
+      "\\:::for[${1:item}${2}]",
       "",
       "  ${3:Item: :show[item]}",
       "",

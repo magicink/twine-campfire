@@ -184,7 +184,7 @@ const directiveSnippets: DirectiveSnippet[] = [
       ':::',
       '```'
     ].join('\n'),
-    body: ':::for[${1:item} in ${2:[1,2,3]}]\n\n  ${3:Item: :show[item]}\n\n:::'
+    body: ':::for[${1:item}${2}]\n\n  ${3:Item: :show[item]}\n\n:::'
   },
   {
     marker: ':::',
