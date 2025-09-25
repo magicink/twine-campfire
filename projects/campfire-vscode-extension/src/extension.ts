@@ -161,9 +161,30 @@ const directiveSnippets: DirectiveSnippet[] = [
     label: 'for',
     escapeAtColumnZero: true,
     detail: 'Iteration block',
-    documentation:
-      'Repeats the enclosed content for every item in an array or range.',
-    body: ':::for[${1:item} in ${2:collection}]\n  $0\n:::'
+    documentation: [
+      'Render content for every element in an array or range.',
+      '',
+      '```md',
+      ':::for[item in [1,2,3]]',
+      '',
+      'Item: :show[item]',
+      '',
+      ':::',
+      '```',
+      '',
+      'With ranges:',
+      '',
+      '```md',
+      '::createRange[r=0]{min=1 max=3}',
+      '',
+      ':::for[x in r]',
+      '',
+      'Number: :show[x]',
+      '',
+      ':::',
+      '```'
+    ].join('\n'),
+    body: ':::for[${1:item} in ${2:[1,2,3]}]\n\n  ${3:Item: :show[item]}\n\n:::'
   },
   {
     marker: ':::',
