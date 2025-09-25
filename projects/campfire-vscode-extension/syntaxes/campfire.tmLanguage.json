@@ -4,8 +4,16 @@
     "campfireDirectives": {
       "patterns": [
         {
-          "name": "entity.name.section.directive.campfire",
-          "match": "^(\\s*)(:::+|::|:)([A-Za-z][A-Za-z0-9_-]*)"
+          "name": "meta.directive.line.campfire",
+          "match": "^(\\s*)(:::+|::|:)([A-Za-z][A-Za-z0-9_-]*)",
+          "captures": {
+            "2": {
+              "name": "punctuation.definition.directive.campfire"
+            },
+            "3": {
+              "name": "keyword.control.directive.campfire"
+            }
+          }
         },
         {
           "name": "meta.directive.campfire",

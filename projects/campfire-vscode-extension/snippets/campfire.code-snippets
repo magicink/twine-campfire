@@ -65,18 +65,7 @@
   },
   "Twee 3 Story Settings": {
     "prefix": "twee3-storysettings",
-    "body": [
-      ":: StorySettings",
-      "undo:${1:on}",
-      "bookmark:${2:on}",
-      "hash:${3:on}",
-      "exitprompt:${4:on}",
-      "blankcss:${5:on}",
-      "obfuscate:${6:rot13}",
-      "jquery:${7:on}",
-      "modernizr:${8:on}",
-      "$0"
-    ],
+    "body": [":: StorySettings", "$0"],
     "description": "Twee 3 StorySettings special passage"
   }
 }

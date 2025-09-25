@@ -1,13 +1,17 @@
 import {
   CompletionItem,
   CompletionItemKind,
+  Diagnostic,
+  DiagnosticCollection,
+  DiagnosticSeverity,
   ExtensionContext,
   MarkdownString,
   Position,
   Range,
   SnippetString,
   TextDocument,
-  languages
+  languages,
+  workspace
 } from 'vscode'
 
 /**
@@ -35,8 +39,8 @@ const directiveSnippets: DirectiveSnippet[] = [
     completionLabel: ':: Passage header',
     detail: 'Define a Twee 3 passage',
     documentation:
-      'Creates a Twee 3 passage heading with optional tags and metadata. Delete the tag or metadata placeholders if you do not need them.',
-    body: ':: ${1:Passage Name}${2: [tags]}${3: {"position":"600,400","size":"100,200"}}\\n$0'
+      'Creates a Twee 3 passage heading. Add optional tags or metadata after the passage name as needed.',
+    body: ':: ${1:Passage Name}${2}${3}\\n$0'
   },
   {
     marker: '::',
@@ -109,19 +113,8 @@ const directiveSnippets: DirectiveSnippet[] = [
     label: 'StorySettings',
     detail: 'Configure Twee 3 story options',
     documentation:
-      'Declares a StorySettings passage listing all supported toggles such as undo, hash navigation, and script loading.',
-    body: [
-      ':: StorySettings',
-      'undo:${1:on}',
-      'bookmark:${2:on}',
-      'hash:${3:on}',
-      'exitprompt:${4:on}',
-      'blankcss:${5:on}',
-      'obfuscate:${6:rot13}',
-      'jquery:${7:on}',
-      'modernizr:${8:on}',
-      '$0'
-    ].join('\n')
+      'Declares a StorySettings passage where you can opt into supported toggles such as undo, bookmarking, and script loading.',
+    body: [':: StorySettings', '$0'].join('\n')
   },
   {
     marker: '::',
@@ -132,11 +125,45 @@ const directiveSnippets: DirectiveSnippet[] = [
     body: ':: StoryData\n$0'
   },
   {
-    marker: ':',
+    marker: '::',
     label: 'set',
     detail: 'Assign a story variable',
-    documentation: 'Updates a state key to the provided value.',
-    body: ':set ${1:key}=${2:value}'
+    documentation:
+      'Updates one or more state keys to the provided values. Separate multiple assignments with spaces.',
+    body: '::set[${1:key}=${2:value}]'
+  },
+  {
+    marker: '::',
+    label: 'setOnce',
+    detail: 'Assign a story variable only once',
+    documentation:
+      'Sets the provided state key the first time it runs and leaves the existing value untouched afterwards.',
+    body: '::setOnce[${1:key}=${2:value}]'
+  },
+  {
+    marker: '::',
+    label: 'range',
+    completionLabel: ':: createRange',
+    detail: 'Create a numeric range',
+    documentation:
+      'Initializes a numeric range with starting, minimum, and maximum values. Update it later with `::setRange`.',
+    body: '::createRange[${1:key}=${2:value}]{min=${3:min} max=${4:max}}'
+  },
+  {
+    marker: '::',
+    label: 'array',
+    detail: 'Create an array in story state',
+    documentation:
+      'Initializes an array stored under the provided key. Items can be literal values or expressions.',
+    body: '::array[${1:key}=[${2:items}]]'
+  },
+  {
+    marker: '::',
+    label: 'arrayOnce',
+    detail: 'Create an array only if unset',
+    documentation:
+      'Like `::array`, but skips initialization when the key already exists.',
+    body: '::arrayOnce[${1:key}=[${2:items}]]'
   },
   {
     marker: ':',
@@ -151,6 +178,14 @@ const directiveSnippets: DirectiveSnippet[] = [
     detail: 'Collect input from the reader',
     documentation: 'Creates an inline input element bound to story state.',
     body: ':input name="${1:key}" label="${2:Prompt}"'
+  },
+  {
+    marker: ':',
+    label: 'show',
+    detail: 'Display a value from story state',
+    documentation:
+      'Renders the evaluated expression or state key in the passage output.',
+    body: ':show[${1:expression}]'
   },
   {
     marker: '::',
@@ -204,6 +239,14 @@ const directiveSnippets: DirectiveSnippet[] = [
     documentation:
       'Renders layered content that can be toggled via directives.',
     body: ':::layer ${1:label}\n\t$0\n:::'
+  },
+  {
+    marker: ':::',
+    label: 'text',
+    detail: 'Positioned text block',
+    documentation:
+      'Places formatted text on a layer or deck slide. Configure position and styling attributes as needed.',
+    body: ':::text{${1:attributes}}\n\t$0\n:::'
   }
 ]
 
@@ -279,53 +322,171 @@ const storySettingsOptions = [
   {
     label: 'undo',
     detail: 'StorySettings option',
-    documentation: 'Toggle undo support for the story.',
-    body: 'undo:${1:on}'
+    documentation: 'Toggle undo support for the story. Accepts `on` or `off`.',
+    body: 'undo:${1:value}'
   },
   {
     label: 'bookmark',
     detail: 'StorySettings option',
-    documentation: 'Enable or disable bookmarking support.',
-    body: 'bookmark:${1:on}'
+    documentation:
+      'Enable or disable bookmarking support. Accepts `on` or `off`.',
+    body: 'bookmark:${1:value}'
   },
   {
     label: 'hash',
     detail: 'StorySettings option',
-    documentation: 'Control hash-based navigation.',
-    body: 'hash:${1:on}'
+    documentation: 'Control hash-based navigation. Accepts `on` or `off`.',
+    body: 'hash:${1:value}'
   },
   {
     label: 'exitprompt',
     detail: 'StorySettings option',
-    documentation: 'Request confirmation before leaving the story.',
-    body: 'exitprompt:${1:on}'
+    documentation:
+      'Request confirmation before leaving the story. Accepts `on` or `off`.',
+    body: 'exitprompt:${1:value}'
   },
   {
     label: 'blankcss',
     detail: 'StorySettings option',
-    documentation: "Remove Twine's default StorySettings stylesheet.",
-    body: 'blankcss:${1:on}'
+    documentation:
+      "Remove Twine's default StorySettings stylesheet. Accepts `on` or `off`.",
+    body: 'blankcss:${1:value}'
   },
   {
     label: 'obfuscate',
     detail: 'StorySettings option',
     documentation:
-      'Obfuscate the published story source using the chosen method.',
-    body: 'obfuscate:${1:rot13}'
+      'Obfuscate the published story source using the chosen method. Accepts `off`, `none`, `spaces`, or `rot13`.',
+    body: 'obfuscate:${1:value}'
   },
   {
     label: 'jquery',
     detail: 'StorySettings option',
-    documentation: 'Load jQuery for the story.',
-    body: 'jquery:${1:on}'
+    documentation: 'Load jQuery for the story. Accepts `on` or `off`.',
+    body: 'jquery:${1:value}'
   },
   {
     label: 'modernizr',
     detail: 'StorySettings option',
-    documentation: 'Load Modernizr for the story.',
-    body: 'modernizr:${1:on}'
+    documentation: 'Load Modernizr for the story. Accepts `on` or `off`.',
+    body: 'modernizr:${1:value}'
   }
 ]
+
+/**
+ * Supported StorySettings toggles and their allowed values.
+ */
+const storySettingsRules: Record<string, string[]> = {
+  undo: ['on', 'off'],
+  bookmark: ['on', 'off'],
+  hash: ['on', 'off'],
+  exitprompt: ['on', 'off'],
+  blankcss: ['on', 'off'],
+  obfuscate: ['off', 'none', 'spaces', 'rot13'],
+  jquery: ['on', 'off'],
+  modernizr: ['on', 'off']
+}
+
+/**
+ * Diagnose StorySettings entries and surface issues via VS Code diagnostics.
+ *
+ * @param document - The Campfire document to validate.
+ * @param collection - The diagnostic collection to populate with detected issues.
+ */
+const validateStorySettingsPassages = (
+  document: TextDocument,
+  collection: DiagnosticCollection
+): void => {
+  if (document.languageId !== 'campfire') {
+    collection.delete(document.uri)
+    return
+  }
+
+  const diagnostics: Diagnostic[] = []
+  const passagePattern = /^::\s+StorySettings\b/
+  const settingPattern = /^\s*([A-Za-z_][A-Za-z0-9_-]*)\s*:\s*(\S.*)$/
+
+  for (let lineNumber = 0; lineNumber < document.lineCount; lineNumber += 1) {
+    const line = document.lineAt(lineNumber)
+    if (!passagePattern.test(line.text)) {
+      continue
+    }
+
+    let probe = lineNumber + 1
+    while (probe < document.lineCount) {
+      const settingLine = document.lineAt(probe)
+      if (/^::\s+[A-Za-z_][A-Za-z0-9_]*/.test(settingLine.text)) {
+        break
+      }
+
+      const trimmed = settingLine.text.trim()
+      if (trimmed.length > 0) {
+        const match = settingPattern.exec(settingLine.text)
+        if (!match) {
+          diagnostics.push(
+            new Diagnostic(
+              settingLine.range,
+              'StorySettings entries must use the "setting:value" format.',
+              DiagnosticSeverity.Error
+            )
+          )
+        } else {
+          const [, leadingWhitespace, name, value] = match
+          const normalizedName = name.toLowerCase()
+          const normalizedValue = value.toLowerCase()
+          const nameStart = leadingWhitespace.length
+          const nameRange = new Range(
+            probe,
+            nameStart,
+            probe,
+            nameStart + name.length
+          )
+
+          if (!(normalizedName in storySettingsRules)) {
+            diagnostics.push(
+              new Diagnostic(
+                nameRange,
+                `Unknown StorySettings option "${name}".`,
+                DiagnosticSeverity.Error
+              )
+            )
+          } else {
+            const allowedValues = storySettingsRules[normalizedName]
+            const rawValueStart = settingLine.text.indexOf(
+              value,
+              nameStart + name.length
+            )
+            const valueStart =
+              rawValueStart === -1
+                ? settingLine.text.length - value.length
+                : rawValueStart
+            const valueRange = new Range(
+              probe,
+              valueStart,
+              probe,
+              valueStart + value.length
+            )
+
+            if (!allowedValues.includes(normalizedValue)) {
+              diagnostics.push(
+                new Diagnostic(
+                  valueRange,
+                  `Invalid value "${value}" for ${name}. Expected one of: ${allowedValues.join(', ')}.`,
+                  DiagnosticSeverity.Error
+                )
+              )
+            }
+          }
+        }
+      }
+
+      probe += 1
+    }
+    lineNumber = probe - 1
+  }
+
+  collection.set(document.uri, diagnostics)
+}
 
 /**
  * Describe the Twee 3 passage that surrounds the current position, if any.
@@ -410,6 +571,10 @@ const resolveReplacementRange = (
  * @param context - VS Code extension context provided on activation.
  */
 export function activate(context: ExtensionContext): void {
+  const storySettingsDiagnostics = languages.createDiagnosticCollection(
+    'campfire-storysettings'
+  )
+
   const provider = languages.registerCompletionItemProvider(
     { language: 'campfire' },
     {
@@ -474,7 +639,27 @@ export function activate(context: ExtensionContext): void {
     '"'
   )
 
-  context.subscriptions.push(provider, propertyProvider)
+  /**
+   * Re-run StorySettings validation for the provided document.
+   *
+   * @param document - The document to scan for StorySettings issues.
+   */
+  const handleDocument = (document: TextDocument): void => {
+    validateStorySettingsPassages(document, storySettingsDiagnostics)
+  }
+
+  workspace.textDocuments.forEach(handleDocument)
+
+  context.subscriptions.push(
+    storySettingsDiagnostics,
+    provider,
+    propertyProvider,
+    workspace.onDidOpenTextDocument(handleDocument),
+    workspace.onDidChangeTextDocument(event => handleDocument(event.document)),
+    workspace.onDidCloseTextDocument(document =>
+      storySettingsDiagnostics.delete(document.uri)
+    )
+  )
 }
 
 /**
