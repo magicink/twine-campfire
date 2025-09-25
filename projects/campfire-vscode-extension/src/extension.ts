@@ -572,7 +572,7 @@ const extractQuotedString = (
  */
 const skipWhitespace = (text: string, index: number): number => {
   let pointer = index
-  while (pointer < text.length && /\s/.test(text[pointer]!)) {
+  while (pointer < text.length && /\s/.test(text[pointer])) {
     pointer += 1
   }
   return pointer
@@ -584,9 +584,19 @@ const skipWhitespace = (text: string, index: number): number => {
  * @param document - Active Campfire text document.
  * @returns Map from normalized passage names to their corresponding ranges.
  */
+const passageDefinitionCache = new WeakMap<
+  TextDocument,
+  { version: number; definitions: Map<string, Range> }
+>()
+
 const collectPassageDefinitions = (
   document: TextDocument
 ): Map<string, Range> => {
+  const cached = passageDefinitionCache.get(document)
+  if (cached && cached.version === document.version) {
+    return cached.definitions
+  }
+
   const text = document.getText()
   const definitions = new Map<string, Range>()
 
@@ -639,6 +649,11 @@ const collectPassageDefinitions = (
       definitions.set(normalized, range)
     }
   }
+
+  passageDefinitionCache.set(document, {
+    version: document.version,
+    definitions
+  })
 
   return definitions
 }
