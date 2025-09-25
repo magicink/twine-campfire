@@ -7,6 +7,8 @@ The Twee 3 Storybuilder extension adds syntax highlighting, special passage snip
 - TextMate grammar that highlights Twee 3 passage headers, macros, and wiki-links alongside Markdown.
 - Colon-triggered completions for Twee 3 special passages including `StoryTitle`, `StorySettings`, `StoryData`, `UserStylesheet`, and more.
 - JSON key suggestions for StoryData along with StorySettings toggle snippets and validation diagnostics for unsupported options.
+- StoryData validation that requires an `ifid` and warns when the UUID is missing or malformed.
+- Command palette and Run menu entry that generates a fresh StoryData IFID for the active Twee 3 document.
 
 ## Prerequisites
 
@@ -54,6 +56,10 @@ The command writes `twee3-storybuilder-<version>.vsix` to the extension director
 4. Reload VS Code if prompted.
 
 After installation, open or create a file with the `.twee` or `.tws` extension to activate the Twee 3 language features.
+
+## Generate StoryData IFIDs
+
+Use the **Run → Generate StoryData IFID** menu item (or run **Twee 3: Generate StoryData IFID** from the command palette) to create a UUID for the `StoryData` passage. The command updates the IFID in place when it already exists or inserts a new JSON block when the passage is empty. Fix any JSON syntax errors flagged by diagnostics before running the command.
 
 ## Twee 3 passage headers
 
