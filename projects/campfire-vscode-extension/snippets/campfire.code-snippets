@@ -1,17 +1,42 @@
 {
   "If Block": {
     "prefix": "cf-if",
-    "body": ["::if ${1:condition}", "$0", "::else", "$2", ":::"],
+    "body": ["\\:::if[${1:condition}]", "  $0", "\\:::else", "  $2", "\\:::"],
     "description": "Campfire if/else container"
   },
   "Slide Deck": {
     "prefix": "cf-deck",
-    "body": [":::deck ${1:label}", "::slide", "$2", "::slide", "$3", ":::"],
+    "body": [
+      "\\:::deck ${1:label}",
+      "  ::slide ${2:label}",
+      "    $3",
+      "  :::",
+      "  ::slide ${4:label}",
+      "    $5",
+      "  :::",
+      "\\:::"
+    ],
     "description": "Campfire slide deck"
+  },
+  "For Loop": {
+    "prefix": "cf-for",
+    "body": ["\\:::for[${1:item}${2}]", "  ${3:Item: :show[item]}", "\\:::"],
+    "description": "Campfire for iteration container"
   },
   "Input Field": {
     "prefix": "cf-input",
-    "body": [":input name=\"${1:key}\" label=\"${2:Prompt}\"", "$0"],
+    "body": [":input[${1:key}]"],
     "description": "Campfire inline input field"
+  },
+  "Input Container": {
+    "prefix": "cf-input-container",
+    "body": [
+      ":::input[${1:key}]",
+      "  :::${2:onFocus}",
+      "    $0",
+      "  :::",
+      ":::"
+    ],
+    "description": "Campfire container input field"
   }
 }
