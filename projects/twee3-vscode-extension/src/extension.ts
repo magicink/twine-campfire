@@ -373,10 +373,11 @@ const locateIfidToken = (
  * @param value - The IFID value extracted from StoryData.
  * @returns True when the value conforms to the UUID format.
  */
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 const isUuid = (value: string): boolean => {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-    value
-  )
+  return UUID_REGEX.test(value)
 }
 
 /**
@@ -407,7 +408,7 @@ const validateStorySettingsPassages = (
     let probe = lineNumber + 1
     while (probe < document.lineCount) {
       const settingLine = document.lineAt(probe)
-      if (/^::\s+[A-Za-z_][A-Za-z0-9_]*/.test(settingLine.text)) {
+      if (/^::\s+[A-Za-z_][A-Za-z0-9_-]*/.test(settingLine.text)) {
         break
       }
 
@@ -423,7 +424,7 @@ const validateStorySettingsPassages = (
             )
           )
         } else {
-          const [, leadingWhitespace, name, value] = match
+          const [, leadingWhitespace = '', name = '', value = ''] = match
           const normalizedName = name.toLowerCase()
           const normalizedValue = value.toLowerCase()
           const nameStart = leadingWhitespace.length
@@ -450,7 +451,10 @@ const validateStorySettingsPassages = (
             )
             const valueStart =
               rawValueStart === -1
-                ? settingLine.text.length - value.length
+                ? (match.index ?? 0) +
+                  leadingWhitespace.length +
+                  name.length +
+                  1
                 : rawValueStart
             const valueRange = new Range(
               probe,
