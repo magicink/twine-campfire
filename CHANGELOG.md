@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.107.1](https://github.com/magicink/twine-campfire/compare/v1.107.0...v1.107.1) (2025-09-26)
+
+
+### Bug Fixes
+
+* process passage text on main thread ([#772](https://github.com/magicink/twine-campfire/issues/772)) ([#773](https://github.com/magicink/twine-campfire/issues/773)) ([577cf3c](https://github.com/magicink/twine-campfire/commit/577cf3cb49785e6544c259d6279837843c97bc20))
+
 ## [1.107.0](https://github.com/magicink/twine-campfire/compare/v1.106.0...v1.107.0) (2025-09-26)
 
 
