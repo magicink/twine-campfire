@@ -43,7 +43,7 @@
     "lineComment": "//"
   },
   "indentationRules": {
-    "increaseIndentPattern": "^\\s*(:::+|::)\\s*(if|deck|slide|layer|trigger|wrapper|select|random|when|else if?)?\\b.*$",
+    "increaseIndentPattern": "^\\s*(:::+|::)\\s*(if|deck|slide|layer|trigger|wrapper|select|random|when)?\\b.*$",
     "decreaseIndentPattern": "^\\s*:::\\s*$"
   },
   "surroundingPairs": [

@@ -42,18 +42,7 @@ describe('If', () => {
     expect(screen.getByText('Hello')).toBeInTheDocument()
   })
 
-  it('renders fallback when condition is false', () => {
-    render(
-      <If
-        test='false'
-        content={makeContent('Content')}
-        fallback={makeContent('Fallback')}
-      />
-    )
-    expect(screen.getByText('Fallback')).toBeInTheDocument()
-  })
-
-  it('renders nothing when condition is false and no fallback', () => {
+  it('renders nothing when condition is false', () => {
     const { container } = render(
       <If test='false' content={makeContent('Nope')} />
     )

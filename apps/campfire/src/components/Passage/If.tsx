@@ -27,15 +27,13 @@ import { rehypeSlideText } from '@campfire/utils/rehypeSlideText'
 interface IfProps {
   test: string
   content: string
-  fallback?: string
 }
 
 /**
  * Evaluates a JavaScript expression against game data and renders
- * serialized nodes when the expression is truthy or an optional
- * fallback when it is falsy.
+ * serialized nodes when the expression is truthy.
  */
-export const If = ({ test, content, fallback }: IfProps) => {
+export const If = ({ test, content }: IfProps) => {
   const handlers = useDirectiveHandlers()
   const processor = useMemo(() => {
     const proc = unified()
@@ -82,9 +80,8 @@ export const If = ({ test, content, fallback }: IfProps) => {
   } catch {
     condition = false
   }
-  const source = condition ? content : fallback
-  if (!source) return null
-  const nodes: RootContent[] = JSON.parse(source)
+  if (!condition) return null
+  const nodes: RootContent[] = JSON.parse(content)
   const root: Root = { type: 'root', children: nodes }
   const result = processor.processSync(root)
   const output = result.result
