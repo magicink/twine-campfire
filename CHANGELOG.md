@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.108.0](https://github.com/magicink/twine-campfire/compare/v1.107.1...v1.108.0) (2025-09-26)
+
+
+### Features
+
+* remove else directive ([#775](https://github.com/magicink/twine-campfire/issues/775)) ([7d06e6b](https://github.com/magicink/twine-campfire/commit/7d06e6bd7524df230e80dace1b86c845c8902f8d))
+
 ## [1.107.1](https://github.com/magicink/twine-campfire/compare/v1.107.0...v1.107.1) (2025-09-26)
 
 
