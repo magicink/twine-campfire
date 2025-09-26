@@ -12,6 +12,7 @@
 - Define colors using `oklch()` notation instead of hex or other color formats.
 - Never directly edit `CHANGELOG.md`; it is managed automatically.
 - If this `AGENTS.md` file is updated, also update `.github/copilot-instructions.md` to reflect the changes.
+- Husky hooks: do not source `.husky/_/husky.sh` in hook scripts. That helper is ignored by the repo and sourcing it will be removed in future Husky versions; instead, keep hooks self-contained. @codex
 - If you update the `template.ejs` file, also update the Storybook preview template to keep them in sync.
 - If you update React components, add or update corresponding Storybook stories to reflect the changes.
 

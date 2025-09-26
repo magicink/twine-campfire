@@ -1,6 +1,3 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
 # Sync the extension version with monorepo root version before other checks
 bun run sync-version
 
