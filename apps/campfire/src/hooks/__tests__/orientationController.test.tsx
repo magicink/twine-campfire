@@ -11,7 +11,7 @@ import { createNavigationHandlers } from '@campfire/hooks/handlers/navigationHan
 import type { DirectiveHandler } from '@campfire/remark-campfire'
 
 interface TestScreenOrientation extends ScreenOrientation {
-  lock: (orientation: OrientationLockType) => Promise<void>
+  lock: (orientation: string) => Promise<void>
   unlock: () => void
 }
 
