@@ -344,9 +344,11 @@ Note: When a `wrapper` is placed inside a `trigger` directive block, it is rende
 
 Define reusable attribute sets that can be applied via the `from` attribute on `deck`, `reveal`, `image`, `shape`, `text`, and `wrapper` directives.
 
+> **Note:** `preset` is a leaf directive. Use the `::preset{}` form—inline `:preset` and container `:::preset` syntax are not supported.
+
 ```md
-:preset{type="deck" name="wide" size="16x9"}
-:preset{type="text" name="title" x=100 y=50 size=32 color="var(--color-gray-200)"}
+::preset{type="deck" name="wide" size="16x9"}
+::preset{type="text" name="title" x=100 y=50 size=32 color="var(--color-gray-200)"}
 
 :::deck{from="wide"}
 :::slide

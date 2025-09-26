@@ -20,7 +20,7 @@ export const Basic: StoryObj = {
       <TwStorydata startnode='1' options='debug'>
         <TwPassagedata pid='1' name='Start'>
           {`
-:preset{type="wrapper" name="radioLabel" as="div" className="flex items-center gap-2"}
+::preset{type="wrapper" name="radioLabel" as="div" className="flex items-center gap-2"}
 ::set[choice="b"]
 :::layer{className="flex gap-[12px] items-center justify-center"}
   :::wrapper{from="radioLabel"}

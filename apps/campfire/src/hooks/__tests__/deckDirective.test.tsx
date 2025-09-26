@@ -274,7 +274,7 @@ describe('deck directive', () => {
 
   it('applies deck presets with overrides', () => {
     const md =
-      ':preset{type="deck" name="wide" theme="dark" transition="fade"}\n:::deck{from="wide" transition="slide"}\n:::'
+      '::preset{type="deck" name="wide" theme="dark" transition="fade"}\n:::deck{from="wide" transition="slide"}\n:::'
     render(<MarkdownRunner markdown={md} />)
     const getDeck = (node: any): any => {
       if (Array.isArray(node)) return getDeck(node[0])

@@ -675,12 +675,13 @@ const directiveSnippets: DirectiveSnippet[] = [
     body: ':::reveal{at=${1:0}}\n  $0\n:::'
   },
   {
-    marker: ':',
+    marker: '::',
     label: 'preset',
+    escapeAtColumnZero: true,
     detail: 'Define preset',
     documentation:
-      'Define reusable attribute sets that can be applied via the `from` attribute on other directives.',
-    body: ':preset{type="${1:deck}" name="${2:presetName}" ${3:attributes}}'
+      'Define reusable attribute sets that can be applied via the `from` attribute on other directives. Use the leaf `::preset{}` form—inline and container syntax are not supported.',
+    body: '::preset{type="${1:deck}" name="${2:presetName}" ${3:attributes}}'
   }
 ]
 
