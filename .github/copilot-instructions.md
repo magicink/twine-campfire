@@ -17,6 +17,10 @@
 5. **Build**: Use `bun run build` to regenerate `dist/format.js`. This cleans `apps/campfire/dist`, bundles with Rollup, then assembles the final story format.
 6. Use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages.
 
+## Husky hooks
+
+- Do not source `.husky/_/husky.sh` from hook scripts. That helper is ignored by the repo and will be removed in future Husky versions; keep hooks self-contained instead. @codex
+
 ## Project Layout
 
 - **Root**: configuration (`package.json`, `bunfig.toml`, `tsconfig.json`, `commitlint.config.js`, `release-please-config.json`) and scripts like `build-format.mjs`.
