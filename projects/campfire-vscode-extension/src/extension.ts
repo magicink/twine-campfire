@@ -674,18 +674,19 @@ const collectGotoReferences = (document: TextDocument): PassageReference[] => {
     let offset = match.index + match[0].length
     offset = skipWhitespace(text, offset)
 
+    let labelReference: PassageReference | null = null
     if (text[offset] === '[') {
       const label = extractDelimitedSection(text, offset, '[', ']')
       if (label) {
         const quoted = extractQuotedString(label.content, label.contentStart)
         if (quoted) {
-          references.push({
+          labelReference = {
             passage: quoted.value,
             range: new Range(
               document.positionAt(quoted.start),
               document.positionAt(quoted.end)
             )
-          })
+          }
         }
         offset = label.endIndex
       }
@@ -693,17 +694,24 @@ const collectGotoReferences = (document: TextDocument): PassageReference[] => {
 
     offset = skipWhitespace(text, offset)
     if (text[offset] !== '{') {
+      if (labelReference) {
+        references.push(labelReference)
+      }
       continue
     }
 
     const attributes = extractDelimitedSection(text, offset, '{', '}')
     if (!attributes) {
+      if (labelReference) {
+        references.push(labelReference)
+      }
       continue
     }
 
     const attributeContent = attributes.content
     const passagePattern = /\bpassage\b\s*=\s*/gi
     let passageMatch: RegExpExecArray | null
+    let foundPassageAttribute = false
     while ((passageMatch = passagePattern.exec(attributeContent))) {
       const valueIndex = passageMatch.index + passageMatch[0].length
       const quoted = extractQuotedString(
@@ -712,6 +720,7 @@ const collectGotoReferences = (document: TextDocument): PassageReference[] => {
       )
 
       if (quoted) {
+        foundPassageAttribute = true
         references.push({
           passage: quoted.value,
           range: new Range(
@@ -721,6 +730,10 @@ const collectGotoReferences = (document: TextDocument): PassageReference[] => {
         })
         passagePattern.lastIndex = quoted.end - attributes.contentStart + 1
       }
+    }
+
+    if (!foundPassageAttribute && labelReference) {
+      references.push(labelReference)
     }
   }
 
