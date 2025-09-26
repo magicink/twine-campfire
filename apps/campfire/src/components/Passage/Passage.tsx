@@ -18,7 +18,6 @@ import {
 } from '@campfire/state/useStoryDataStore'
 import { useDeckStore } from '@campfire/state/useDeckStore'
 import { componentMap } from '@campfire/components/Passage/componentMap'
-import type { WorkerRequest, WorkerResponse } from './directiveWorker'
 
 /**
  * Builds a document title from story and passage names.
@@ -71,27 +70,6 @@ const cloneTree = (node: ComponentChild): ComponentChild => {
  */
 const canCachePassage = (text: string): boolean => !/::load\b/.test(text)
 
-/** Shape of the shared directive worker state. */
-interface WorkerState {
-  worker: Worker | null
-  pending: Map<number, (r: string) => void>
-  nextId: number
-  unloadHandler?: () => void
-}
-
-/**
- * Retrieves the singleton Web Worker state used for directive normalization.
- * Stored on the global object to avoid duplication across hot reloads.
- *
- * @returns Worker state singleton.
- */
-const getWorkerState = (): WorkerState =>
-  (globalThis.__campfirePassageWorker ??= {
-    worker: null,
-    pending: new Map<number, (r: string) => void>(),
-    nextId: 0
-  })
-
 /**
  * Retrieves the shared passage cache for compiled content.
  * Stored globally to survive hot reloads and allow size management.
@@ -111,70 +89,24 @@ const getPassageCache = (): Map<
 const MAX_PASSAGE_CACHE = 100
 
 /**
- * Lazily creates the directive normalization worker in supported browsers.
- * Subsequent calls reuse the existing worker and add a single unload cleanup.
- */
-const initWorker = () => {
-  const state = getWorkerState()
-  if (
-    state.worker ||
-    typeof window === 'undefined' ||
-    typeof Worker === 'undefined'
-  )
-    return
-
-  state.worker = new Worker(new URL('./directiveWorker.ts', import.meta.url), {
-    type: 'module'
-  })
-
-  if (!state.unloadHandler) {
-    state.unloadHandler = () => {
-      state.worker?.terminate()
-      state.worker = null
-      window.removeEventListener('beforeunload', state.unloadHandler!)
-      state.unloadHandler = undefined
-    }
-    window.addEventListener('beforeunload', state.unloadHandler)
-  }
-
-  state.worker.onmessage = event => {
-    const { id, result } = event.data as WorkerResponse
-    const resolver = state.pending.get(id)
-    if (resolver) {
-      resolver(result)
-      state.pending.delete(id)
-    }
-  }
-}
-
-/**
- * Normalizes passage text in a Web Worker when available.
- * Falls back to main-thread processing using `requestIdleCallback` or
- * `setTimeout` when workers are unsupported.
+ * Normalizes passage text without using Web Workers.
+ * Defers execution with `requestIdleCallback` when available to avoid
+ * blocking rendering during large updates.
  *
  * @param text - Raw passage text.
  * @returns Promise resolving to normalized text.
  */
-const parseInWorker = (text: string): Promise<string> => {
-  const state = getWorkerState()
-  initWorker()
+const normalizePassageText = (text: string): Promise<string> =>
+  new Promise(resolve => {
+    if (typeof window !== 'undefined' && window.requestIdleCallback) {
+      window.requestIdleCallback(() =>
+        resolve(normalizeDirectiveIndentation(text))
+      )
+      return
+    }
 
-  return state.worker
-    ? new Promise(resolve => {
-        const id = state.nextId++
-        state.pending.set(id, resolve)
-        state.worker!.postMessage({ id, text } as WorkerRequest)
-      })
-    : new Promise(resolve => {
-        if (typeof window !== 'undefined' && window.requestIdleCallback) {
-          window.requestIdleCallback(() =>
-            resolve(normalizeDirectiveIndentation(text))
-          )
-        } else {
-          setTimeout(() => resolve(normalizeDirectiveIndentation(text)), 0)
-        }
-      })
-}
+    setTimeout(() => resolve(normalizeDirectiveIndentation(text)), 0)
+  })
 
 /**
  * Renders the current passage from the story data store.
@@ -246,7 +178,7 @@ export const Passage = () => {
         setContent(cloneTree(cached.content))
         return
       }
-      const normalized = await parseInWorker(text)
+      const normalized = await normalizePassageText(text)
       if (controller.signal.aborted) return
       const file = await processor.process(normalized)
       if (controller.signal.aborted) return
