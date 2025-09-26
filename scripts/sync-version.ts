@@ -2,14 +2,14 @@ import { readFileSync, writeFileSync } from 'fs'
 import { join } from 'path'
 
 /**
- * Synchronizes the version from the main Campfire app to the VS Code extension
+ * Synchronizes the version from the monorepo root to the VS Code extension
  * @param {boolean} checkOnly - If true, only checks if versions match without updating
  * @returns {boolean} - True if versions are already in sync or were synced successfully
  */
 const syncVersion = (checkOnly: boolean = false): boolean => {
-  // Read Campfire version
-  const campfirePackagePath = join(process.cwd(), 'apps/campfire/package.json')
-  const campfirePackage = JSON.parse(readFileSync(campfirePackagePath, 'utf-8'))
+  // Read monorepo root version (the source of truth)
+  const rootPackagePath = join(process.cwd(), 'package.json')
+  const rootPackage = JSON.parse(readFileSync(rootPackagePath, 'utf-8'))
 
   // Read extension package.json
   const extensionPackagePath = join(
@@ -21,30 +21,30 @@ const syncVersion = (checkOnly: boolean = false): boolean => {
   )
 
   // Check if versions match
-  const versionsMatch = campfirePackage.version === extensionPackage.version
+  const versionsMatch = rootPackage.version === extensionPackage.version
 
   // In check-only mode, just return whether versions match
   if (checkOnly) {
     if (!versionsMatch) {
       console.error(
-        `Version mismatch: Campfire (${campfirePackage.version}) vs Extension (${extensionPackage.version})`
+        `Version mismatch: Root (${rootPackage.version}) vs Extension (${extensionPackage.version})`
       )
       return false
     }
-    console.log(`Versions are in sync: ${campfirePackage.version}`)
+    console.log(`Versions are in sync: ${rootPackage.version}`)
     return true
   }
 
   // If versions already match, no need to update
   if (versionsMatch) {
     console.log(
-      `VS Code extension version already matches Campfire (${campfirePackage.version})`
+      `VS Code extension version already matches root version (${rootPackage.version})`
     )
     return true
   }
 
   // Update version
-  extensionPackage.version = campfirePackage.version
+  extensionPackage.version = rootPackage.version
 
   // Write back
   writeFileSync(
@@ -52,7 +52,7 @@ const syncVersion = (checkOnly: boolean = false): boolean => {
     JSON.stringify(extensionPackage, null, 2) + '\n'
   )
 
-  console.log(`Updated VS Code extension version to ${campfirePackage.version}`)
+  console.log(`Updated VS Code extension version to ${rootPackage.version}`)
   return true
 }
 
