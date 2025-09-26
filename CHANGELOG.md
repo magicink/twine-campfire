@@ -1,5 +1,34 @@
 # Changelog
 
+## [1.107.0](https://github.com/magicink/twine-campfire/compare/v1.106.0...v1.107.0) (2025-09-26)
+
+
+### Features
+
+* add LICENSE and README for Campfire Storybuilder extension ([#753](https://github.com/magicink/twine-campfire/issues/753)) ([90508dc](https://github.com/magicink/twine-campfire/commit/90508dcca44eca6b21ff1221be73f1d8b3011cd9))
+* align Campfire directive snippets ([#760](https://github.com/magicink/twine-campfire/issues/760)) ([30527d3](https://github.com/magicink/twine-campfire/commit/30527d3e2f0e0d53794b354018b93fa0b51638ac))
+* enable passage navigation from Campfire goto and autolinks ([#762](https://github.com/magicink/twine-campfire/issues/762)) ([c0a8225](https://github.com/magicink/twine-campfire/commit/c0a822520a0454b0d095d577388862a9449eb126))
+* **extension:** add Story metadata completions ([#748](https://github.com/magicink/twine-campfire/issues/748)) ([083f532](https://github.com/magicink/twine-campfire/commit/083f532be1a74989d1e15f282b34b7b75857a5a9))
+* implement UUID generation for StoryData IFID values and add MIT License ([#755](https://github.com/magicink/twine-campfire/issues/755)) ([190a084](https://github.com/magicink/twine-campfire/commit/190a0840e76b994d22f972398982a6246115a9c1))
+* validate StorySettings options ([#752](https://github.com/magicink/twine-campfire/issues/752)) ([0df1e99](https://github.com/magicink/twine-campfire/commit/0df1e99cd5395b372190f44190d22c0edd986421))
+* **vscode:** enhance directive snippets and sync versioning process ([#765](https://github.com/magicink/twine-campfire/issues/765)) ([fd3fe68](https://github.com/magicink/twine-campfire/commit/fd3fe688359d8d99860426b8549b572fea473099))
+* **vscode:** improve campfire directive highlighting ([#761](https://github.com/magicink/twine-campfire/issues/761)) ([93ba519](https://github.com/magicink/twine-campfire/commit/93ba519651ac02905e35ece01cf23778bfa97c27))
+
+
+### Bug Fixes
+
+* allow inline translation directive ([#769](https://github.com/magicink/twine-campfire/issues/769)) ([69fd0d0](https://github.com/magicink/twine-campfire/commit/69fd0d0c825173949f27b7e52edb2bd72f132dd9))
+* correct deck snippet placeholders ([#763](https://github.com/magicink/twine-campfire/issues/763)) ([272befc](https://github.com/magicink/twine-campfire/commit/272befca45512141303fce2039bf000ef930fd81))
+* disable dependency scan when packaging extension ([#751](https://github.com/magicink/twine-campfire/issues/751)) ([ab023bb](https://github.com/magicink/twine-campfire/commit/ab023bb753cfa1dc14c122e528addf50d3ef44ef))
+* enforce leaf-only preset directive ([#768](https://github.com/magicink/twine-campfire/issues/768)) ([37a92b9](https://github.com/magicink/twine-campfire/commit/37a92b91e5f1e925e910b8440cabd7dc96a50ba0))
+* hide empty inventory in AdventureGame story ([38822d7](https://github.com/magicink/twine-campfire/commit/38822d7a85d83701396fd06a144b8f32b66e5c9e))
+* **passage:** remove redundant typeof checks in Passage component ([#766](https://github.com/magicink/twine-campfire/issues/766)) ([bfd7280](https://github.com/magicink/twine-campfire/commit/bfd7280a805f84063a076fda8c2a8e8807030ed1))
+* **storybook:** hide empty inventory list ([660b44c](https://github.com/magicink/twine-campfire/commit/660b44cf13dc6c93f820213f6469c897398b4ea0))
+* **storybook:** render twine story markup via h ([#747](https://github.com/magicink/twine-campfire/issues/747)) ([7d4eb92](https://github.com/magicink/twine-campfire/commit/7d4eb921188e40576bc85243171a4742642538f7))
+* tighten for snippet spacing ([#759](https://github.com/magicink/twine-campfire/issues/759)) ([976486d](https://github.com/magicink/twine-campfire/commit/976486dca32526f2d77b6fab05144734d8aa43ac))
+* update @types/vscode and refactor function declarations for consistency ([#750](https://github.com/magicink/twine-campfire/issues/750)) ([6461651](https://github.com/magicink/twine-campfire/commit/6461651d4e084b4e488d76eb76827d14e79969ab))
+* update orientation handling to accept string type for lock methods ([#767](https://github.com/magicink/twine-campfire/issues/767)) ([bb120dc](https://github.com/magicink/twine-campfire/commit/bb120dc138a48709834d3a0516d22bdf64109259))
+
 ## [1.106.0](https://github.com/magicink/twine-campfire/compare/v1.105.0...v1.106.0) (2025-09-24)
 
 
