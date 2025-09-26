@@ -166,14 +166,13 @@ const parseInWorker = (text: string): Promise<string> => {
         state.worker!.postMessage({ id, text } as WorkerRequest)
       })
     : new Promise(resolve => {
-        if (
-          typeof window !== 'undefined' &&
-          typeof window.requestIdleCallback === 'function'
-        )
+        if (typeof window !== 'undefined' && window.requestIdleCallback) {
           window.requestIdleCallback(() =>
             resolve(normalizeDirectiveIndentation(text))
           )
-        else setTimeout(() => resolve(normalizeDirectiveIndentation(text)), 0)
+        } else {
+          setTimeout(() => resolve(normalizeDirectiveIndentation(text)), 0)
+        }
       })
 }
 
@@ -202,27 +201,20 @@ export const Passage = () => {
 
   useEffect(() => {
     if (!passage) return
-    const id =
-      typeof passage.properties?.pid === 'string'
-        ? passage.properties.pid
-        : undefined
+    // `pid` is expected to be a string when present; cast to keep types concise
+    const id = passage.properties?.pid as string | undefined
     const isNewPassage = prevPassageId.current !== id
     if (isNewPassage) {
       prevPassageId.current = id
       clearTitleOverride()
       resetDeck()
     }
-    const name =
-      typeof passage.properties?.name === 'string'
-        ? passage.properties.name
-        : undefined
+    // `name` is expected to be a string when present
+    const name = passage.properties?.name as string | undefined
     if (!isTitleOverridden()) {
-      const storyName =
-        typeof storyData.name === 'string' ? storyData.name : undefined
+      const storyName = storyData.name as string | undefined
       const separator =
-        typeof storyData['title-separator'] === 'string'
-          ? (storyData['title-separator'] as string)
-          : ': '
+        (storyData['title-separator'] as string | undefined) ?? ': '
       const showPassage =
         storyData['title-show-passage'] !== 'false' &&
         storyData['title-show-passage'] !== false
@@ -241,15 +233,10 @@ export const Passage = () => {
         setContent(null)
         return
       }
-      const id =
-        typeof passage.properties?.pid === 'string'
-          ? passage.properties.pid
-          : undefined
+      const id = passage.properties?.pid as string | undefined
       const text = passage.children
         .map((child: Content) =>
-          child.type === 'text' && typeof child.value === 'string'
-            ? (child as HastText).value
-            : ''
+          child.type === 'text' ? (child as HastText).value : ''
         )
         .join('')
       const cache = getPassageCache()
