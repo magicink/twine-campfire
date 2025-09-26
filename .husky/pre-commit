@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
 
+bun run sync-version
 bun lint-staged
 bun run typecheck

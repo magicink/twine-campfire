@@ -88,10 +88,19 @@ const directiveSnippets: DirectiveSnippet[] = [
   {
     marker: ':',
     label: 'input',
-    detail: 'Collect input from the reader',
+    detail: 'Inline text input',
     documentation:
       'Creates an inline input element bound to story state with optional placeholder attributes.',
-    body: ':input[${1:key}]'
+    body: ':input[${1:key}]{placeholder="${2:placeholder}"}'
+  },
+  {
+    marker: '::',
+    label: 'input',
+    escapeAtColumnZero: true,
+    detail: 'Leaf text input',
+    documentation:
+      'Creates a text input element bound to story state with optional attributes.',
+    body: '::input[${1:key}]{placeholder="${2:placeholder}"}'
   },
   {
     marker: ':::',
@@ -100,15 +109,83 @@ const directiveSnippets: DirectiveSnippet[] = [
     detail: 'Container input block',
     documentation:
       'Wraps interactive input content so you can attach focus, blur, or change handlers to the field.',
-    body: ':::input[${1:key}]\n  :::${2:onFocus}\n    $0\n  :::\n:::'
+    body: ':::input[${1:key}]\n  $0\n:::'
   },
   {
     marker: ':',
-    label: 'show',
-    detail: 'Display a value from story state',
+    label: 'textarea',
+    detail: 'Inline textarea',
     documentation:
-      'Renders the evaluated expression or state key in the passage output.',
-    body: ':show[${1:expression}]'
+      'Creates an inline multi-line text area bound to story state.',
+    body: ':textarea[${1:key}]{placeholder="${2:placeholder}"}'
+  },
+  {
+    marker: ':::',
+    label: 'textarea',
+    escapeAtColumnZero: true,
+    detail: 'Container textarea block',
+    documentation:
+      'Wraps interactive textarea content so you can attach focus, blur, or change handlers to the field.',
+    body: ':::textarea[${1:key}]\n  $0\n:::'
+  },
+  {
+    marker: ':',
+    label: 'checkbox',
+    detail: 'Inline checkbox',
+    documentation: 'Creates an inline toggle checkbox bound to story state.',
+    body: ':checkbox[${1:key}]'
+  },
+  {
+    marker: ':::',
+    label: 'checkbox',
+    escapeAtColumnZero: true,
+    detail: 'Container checkbox block',
+    documentation:
+      'Wraps interactive checkbox content so you can attach focus, blur, or change handlers to the field.',
+    body: ':::checkbox[${1:key}]\n  $0\n:::'
+  },
+  {
+    marker: ':',
+    label: 'radio',
+    detail: 'Inline radio button',
+    documentation:
+      'Creates an inline radio button bound to story state. Use multiple radios with the same key to build a group.',
+    body: ':radio[${1:key}]{value="${2:value}"}'
+  },
+  {
+    marker: ':::',
+    label: 'radio',
+    escapeAtColumnZero: true,
+    detail: 'Container radio block',
+    documentation:
+      'Wraps interactive radio content so you can attach focus, blur, or change handlers to the field.',
+    body: ':::radio[${1:key}]{value="${2:value}"}\n  $0\n:::'
+  },
+  {
+    marker: ':::',
+    label: 'select',
+    escapeAtColumnZero: true,
+    detail: 'Selection dropdown',
+    documentation:
+      'Presents a dropdown list of options the reader can choose from.',
+    body: ':::select[${1:key}]{label="${2:Choose an option}"}\n  $0\n:::'
+  },
+  {
+    marker: '::',
+    label: 'option',
+    escapeAtColumnZero: true,
+    detail: 'Selection option',
+    documentation: 'Defines an option within a select dropdown.',
+    body: '::option{value="${1:value}" label="${2:Label}"}'
+  },
+  {
+    marker: ':::',
+    label: 'option',
+    escapeAtColumnZero: true,
+    detail: 'Container option block',
+    documentation:
+      'Defines an option with rich content within a select dropdown.',
+    body: ':::option{value="${1:value}"}\n  $0\n:::'
   },
   {
     marker: ':::',
@@ -137,21 +214,21 @@ const directiveSnippets: DirectiveSnippet[] = [
     body: '::slide ${1:label}\n  $0\n:::'
   },
   {
-    marker: '::',
+    marker: ':::',
     label: 'trigger',
     escapeAtColumnZero: true,
     detail: 'Event trigger',
     documentation:
       'Creates an interactive trigger that defers execution until activated.',
-    body: '::trigger ${1:label}\n  $0\n:::'
+    body: ':::trigger{label="${1:Button text}"}\n  $0\n:::'
   },
   {
-    marker: '::',
-    label: 'select',
-    escapeAtColumnZero: true,
-    detail: 'Selection list',
-    documentation: 'Presents a list of options the reader can choose from.',
-    body: '::select ${1:key}\n  :option value="${2:value}" label="${3:Label}"\n:::'
+    marker: ':',
+    label: 'show',
+    detail: 'Display a value from story state',
+    documentation:
+      'Renders the evaluated expression or state key in the passage output.',
+    body: ':show[${1:expression}]'
   },
   {
     marker: ':::',
@@ -159,29 +236,36 @@ const directiveSnippets: DirectiveSnippet[] = [
     escapeAtColumnZero: true,
     detail: 'Iteration block',
     documentation: [
-      'Render content for every element in an array or range.',
+      'Iterates over arrays, ranges, or state keys to render content for each element.',
       '',
+      '**Array iteration:**',
       '```md',
       ':::for[item in [1,2,3]]',
-      '',
-      'Item: :show[item]',
-      '',
+      '  Item: :show[item]',
       ':::',
       '```',
       '',
-      'With ranges:',
-      '',
+      '**Range iteration:**',
       '```md',
-      '::createRange[r=0]{min=1 max=3}',
+      '::createRange[counter=1]{min=1 max=5}',
       '',
-      ':::for[x in r]',
-      '',
-      'Number: :show[x]',
-      '',
+      ':::for[num in counter]',
+      '  Count: :show[num]',
       ':::',
-      '```'
+      '```',
+      '',
+      '**State array iteration:**',
+      '```md',
+      '::array[items=["apple","banana","cherry"]]',
+      '',
+      ':::for[fruit in items]',
+      '  Fruit: :show[fruit]',
+      ':::',
+      '```',
+      '',
+      'The variable name (e.g., `item`, `num`, `fruit`) becomes available within the loop content and can be used with `:show[]` or other directives.'
     ].join('\n'),
-    body: ':::for[${1:item}${2}]\n  ${3:Item: :show[item]}\n:::'
+    body: ':::for[${1:item}${2}]\n  $0\n:::'
   },
   {
     marker: ':::',
@@ -189,7 +273,7 @@ const directiveSnippets: DirectiveSnippet[] = [
     escapeAtColumnZero: true,
     detail: 'Slide deck container',
     documentation: 'Groups multiple slides with navigation controls.',
-    body: ':::deck\n  :::slide\n    ${1:Slide content}\n  :::\n  :::slide\n    ${2:More content}\n  :::\n:::'
+    body: ':::deck\n  $0\n:::'
   },
   {
     marker: ':::',
@@ -208,6 +292,395 @@ const directiveSnippets: DirectiveSnippet[] = [
     documentation:
       'Places formatted text on a layer or deck slide. Configure position and styling attributes as needed.',
     body: ':::text{${1:attributes}}\n  $0\n:::'
+  },
+  {
+    marker: ':::',
+    label: 'onMouseEnter',
+    escapeAtColumnZero: true,
+    detail: 'Mouse enter event',
+    documentation:
+      'Fires when the element is hovered by the pointer. Use inside input, select, or trigger blocks.',
+    body: ':::onMouseEnter\n  $0\n:::'
+  },
+  {
+    marker: ':::',
+    label: 'onMouseLeave',
+    escapeAtColumnZero: true,
+    detail: 'Mouse leave event',
+    documentation:
+      'Fires when the element is no longer hovered. Use inside input, select, or trigger blocks.',
+    body: ':::onMouseLeave\n  $0\n:::'
+  },
+  {
+    marker: ':::',
+    label: 'onFocus',
+    escapeAtColumnZero: true,
+    detail: 'Focus event',
+    documentation:
+      'Fires when the element receives focus. Use inside input, select, or trigger blocks.',
+    body: ':::onFocus\n  $0\n:::'
+  },
+  {
+    marker: ':::',
+    label: 'onBlur',
+    escapeAtColumnZero: true,
+    detail: 'Blur event',
+    documentation:
+      'Fires when the element loses focus. Use inside input, select, or trigger blocks.',
+    body: ':::onBlur\n  $0\n:::'
+  },
+  {
+    marker: ':::',
+    label: 'batch',
+    escapeAtColumnZero: true,
+    detail: 'Apply multiple directives',
+    documentation:
+      'Apply multiple directives as a single update. Supports only data directives like set, array, unset, etc.',
+    body: ':::batch\n  $0\n:::'
+  },
+  {
+    marker: ':::',
+    label: 'onExit',
+    escapeAtColumnZero: true,
+    detail: 'Passage exit event',
+    documentation:
+      'Run data directives once when leaving the passage. Only one onExit block allowed per passage.',
+    body: ':::onExit\n  $0\n:::'
+  },
+  {
+    marker: ':::',
+    label: 'effect',
+    escapeAtColumnZero: true,
+    detail: 'State change watcher',
+    documentation:
+      'Run data directives when watched state keys change. Runs once on mount and again whenever watched keys update.',
+    body: ':::effect[${1:watchedKey}]\n  $0\n:::'
+  },
+  {
+    marker: '::',
+    label: 'unset',
+    escapeAtColumnZero: true,
+    detail: 'Remove state key',
+    documentation: 'Remove a key from state.',
+    body: '::unset[${1:key}]'
+  },
+  {
+    marker: '::',
+    label: 'setRange',
+    escapeAtColumnZero: true,
+    detail: 'Update range value',
+    documentation: 'Update the value of an existing range.',
+    body: '::setRange[${1:key}=${2:value}]'
+  },
+  {
+    marker: '::',
+    label: 'concat',
+    escapeAtColumnZero: true,
+    detail: 'Concat arrays',
+    documentation: 'Append items from one array to another.',
+    body: '::concat{key=${1:target} value=${2:source}}'
+  },
+  {
+    marker: '::',
+    label: 'pop',
+    escapeAtColumnZero: true,
+    detail: 'Pop from array',
+    documentation: 'Remove the last item from an array.',
+    body: '::pop{key=${1:array} into=${2:removedItem}}'
+  },
+  {
+    marker: '::',
+    label: 'push',
+    escapeAtColumnZero: true,
+    detail: 'Push to array',
+    documentation: 'Add items to the end of an array.',
+    body: '::push{key=${1:array} value=${2:item}}'
+  },
+  {
+    marker: '::',
+    label: 'shift',
+    escapeAtColumnZero: true,
+    detail: 'Shift from array',
+    documentation: 'Remove the first item from an array.',
+    body: '::shift{key=${1:array} into=${2:removedItem}}'
+  },
+  {
+    marker: '::',
+    label: 'splice',
+    escapeAtColumnZero: true,
+    detail: 'Splice array',
+    documentation: 'Splice array items and optionally store removed values.',
+    body: '::splice{key=${1:array} index=${2:start} count=${3:count} value=${4:item} into=${5:removedItems}}'
+  },
+  {
+    marker: '::',
+    label: 'unshift',
+    escapeAtColumnZero: true,
+    detail: 'Unshift to array',
+    documentation: 'Add items to the start of an array.',
+    body: '::unshift{key=${1:array} value=${2:item}}'
+  },
+  {
+    marker: ':::',
+    label: 'switch',
+    escapeAtColumnZero: true,
+    detail: 'Switch block',
+    documentation: 'Evaluate an expression and handle matching cases.',
+    body: ':::switch[${1:expression}]\n  :::case[${2:"value"}]\n    $3\n  :::\n  :::default\n    $4\n  :::\n:::'
+  },
+  {
+    marker: ':::',
+    label: 'case',
+    escapeAtColumnZero: true,
+    detail: 'Case block',
+    documentation: 'Content for a matching switch case.',
+    body: ':::case[${1:"value"}]\n  $0\n:::'
+  },
+  {
+    marker: ':::',
+    label: 'default',
+    escapeAtColumnZero: true,
+    detail: 'Default case',
+    documentation: 'Fallback block inside a switch.',
+    body: ':::default\n  $0\n:::'
+  },
+  {
+    marker: '::',
+    label: 'goto',
+    escapeAtColumnZero: true,
+    detail: 'Go to passage',
+    documentation: 'Jump to another passage.',
+    body: '::goto["${1:Passage Name}"]'
+  },
+  {
+    marker: '::',
+    label: 'include',
+    escapeAtColumnZero: true,
+    detail: 'Include passage',
+    documentation: 'Embed another passage.',
+    body: '::include["${1:Passage Name}"]'
+  },
+  {
+    marker: '::',
+    label: 'title',
+    escapeAtColumnZero: true,
+    detail: 'Set title',
+    documentation: 'Set the document title.',
+    body: '::title["${1:Story Title}"]'
+  },
+  {
+    marker: '::',
+    label: 'allowLandscape',
+    escapeAtColumnZero: true,
+    detail: 'Allow landscape',
+    documentation: 'Unlock landscape orientation.',
+    body: '::allowLandscape'
+  },
+  {
+    marker: ':::',
+    label: 'wrapper',
+    escapeAtColumnZero: true,
+    detail: 'Wrapper container',
+    documentation: 'Wrap content with custom styling or elements.',
+    body: ':::wrapper{as="${1:div}" className="${2:className}"}\n  $0\n:::'
+  },
+  {
+    marker: '::',
+    label: 'image',
+    escapeAtColumnZero: true,
+    detail: 'Position image',
+    documentation: 'Position an image on a slide.',
+    body: '::image{src="${1:path/to/image.png}" x=${2:0} y=${3:0} w=${4:320} h=${5:180}}'
+  },
+  {
+    marker: '::',
+    label: 'preloadImage',
+    escapeAtColumnZero: true,
+    detail: 'Preload image',
+    documentation: 'Preload an image asset.',
+    body: '::preloadImage[${1:id}]{src="${2:path/to/image.png}"}'
+  },
+  {
+    marker: '::',
+    label: 'embed',
+    escapeAtColumnZero: true,
+    detail: 'Embed content',
+    documentation: 'Embed external content within a slide.',
+    body: '::embed{src="${1:https://example.com/embed}" w=${2:640} h=${3:360}}'
+  },
+  {
+    marker: '::',
+    label: 'preloadAudio',
+    escapeAtColumnZero: true,
+    detail: 'Preload audio',
+    documentation: 'Preload an audio clip.',
+    body: '::preloadAudio[${1:id}]{src="${2:path/to/audio.mp3}"}'
+  },
+  {
+    marker: '::',
+    label: 'sound',
+    escapeAtColumnZero: true,
+    detail: 'Play sound',
+    documentation: 'Play a sound effect.',
+    body: '::sound[${1:id}]{volume=${2:1} delay=${3:0} rate=${4:1}}'
+  },
+  {
+    marker: '::',
+    label: 'bgm',
+    escapeAtColumnZero: true,
+    detail: 'Background music',
+    documentation: 'Control looping background music.',
+    body: '::bgm[${1:id}]{src="${2:path/to/music.mp3}" volume=${3:0.5} loop=${4:true}}'
+  },
+  {
+    marker: '::',
+    label: 'volume',
+    escapeAtColumnZero: true,
+    detail: 'Set volume',
+    documentation: 'Set global audio levels.',
+    body: '::volume{bgm=${1:0.5} sfx=${2:0.8}}'
+  },
+  {
+    marker: '::',
+    label: 'checkpoint',
+    escapeAtColumnZero: true,
+    detail: 'Create checkpoint',
+    documentation: 'Create a checkpoint with a label.',
+    body: '::checkpoint{id="${1:checkpoint-id}" label="${2:Label}"}'
+  },
+  {
+    marker: '::',
+    label: 'clearCheckpoint',
+    escapeAtColumnZero: true,
+    detail: 'Clear checkpoint',
+    documentation: 'Remove the stored checkpoint.',
+    body: '::clearCheckpoint'
+  },
+  {
+    marker: '::',
+    label: 'loadCheckpoint',
+    escapeAtColumnZero: true,
+    detail: 'Load checkpoint',
+    documentation: 'Load the stored checkpoint.',
+    body: '::loadCheckpoint'
+  },
+  {
+    marker: '::',
+    label: 'save',
+    escapeAtColumnZero: true,
+    detail: 'Save game',
+    documentation: 'Write the current state to local storage.',
+    body: '::save{id="${1:slot-id}"}'
+  },
+  {
+    marker: '::',
+    label: 'load',
+    escapeAtColumnZero: true,
+    detail: 'Load game',
+    documentation: 'Load state from local storage.',
+    body: '::load{id="${1:slot-id}"}'
+  },
+  {
+    marker: '::',
+    label: 'clearSave',
+    escapeAtColumnZero: true,
+    detail: 'Clear save',
+    documentation: 'Remove a saved game slot.',
+    body: '::clearSave{id="${1:slot-id}"}'
+  },
+  {
+    marker: '::',
+    label: 'lang',
+    escapeAtColumnZero: true,
+    detail: 'Set language',
+    documentation: 'Switch the active locale.',
+    body: '::lang[${1:en-US}]'
+  },
+  {
+    marker: ':',
+    label: 't',
+    detail: 'Translate',
+    documentation: 'Output a translated string.',
+    body: ':t[${1:key}]{ns="${2:ui}" fallback="${3:Fallback}"}'
+  },
+  {
+    marker: '::',
+    label: 'translations',
+    escapeAtColumnZero: true,
+    detail: 'Define translations',
+    documentation: 'Define a translation string.',
+    body: '::translations[${1:locale}]{${2:namespace}:${3:key}="${4:value}"}'
+  },
+  {
+    marker: '::',
+    label: 'setLanguageLabel',
+    escapeAtColumnZero: true,
+    detail: 'Set language label',
+    documentation: 'Provide a display label for a locale.',
+    body: '::setLanguageLabel[${1:locale}="${2:Label}"]'
+  },
+  {
+    marker: '::',
+    label: 'toggleOverlay',
+    escapeAtColumnZero: true,
+    detail: 'Toggle overlay visibility',
+    documentation: 'Toggle a single overlay on/off by name.',
+    body: '::toggleOverlay["${1:overlayName}"]'
+  },
+  {
+    marker: '::',
+    label: 'showOverlay',
+    escapeAtColumnZero: true,
+    detail: 'Show overlay',
+    documentation: 'Explicitly show an overlay by name.',
+    body: '::showOverlay["${1:overlayName}"]'
+  },
+  {
+    marker: '::',
+    label: 'hideOverlay',
+    escapeAtColumnZero: true,
+    detail: 'Hide overlay',
+    documentation: 'Explicitly hide an overlay by name.',
+    body: '::hideOverlay["${1:overlayName}"]'
+  },
+  {
+    marker: '::',
+    label: 'toggleOverlayGroup',
+    escapeAtColumnZero: true,
+    detail: 'Toggle overlay group',
+    documentation: 'Toggle an entire overlay group by name.',
+    body: '::toggleOverlayGroup["${1:groupName}"]'
+  },
+  {
+    marker: ':',
+    label: 'shape',
+    detail: 'Inline shape',
+    documentation: 'Draw basic shapes within a slide (inline form).',
+    body: ':shape{type="${1:rect}" x=${2:10} y=${3:20} w=${4:100} h=${5:50}}'
+  },
+  {
+    marker: '::',
+    label: 'shape',
+    escapeAtColumnZero: true,
+    detail: 'Shape element',
+    documentation: 'Draw basic shapes within a slide.',
+    body: '::shape{type="${1:rect}" x=${2:10} y=${3:20} w=${4:100} h=${5:50}}'
+  },
+  {
+    marker: ':::',
+    label: 'reveal',
+    escapeAtColumnZero: true,
+    detail: 'Step-by-step reveal',
+    documentation: 'Reveal slide content step-by-step at specific deck steps.',
+    body: ':::reveal{at=${1:0}}\n  $0\n:::'
+  },
+  {
+    marker: ':',
+    label: 'preset',
+    detail: 'Define preset',
+    documentation:
+      'Define reusable attribute sets that can be applied via the `from` attribute on other directives.',
+    body: ':preset{type="${1:deck}" name="${2:presetName}" ${3:attributes}}'
   }
 ]
 
