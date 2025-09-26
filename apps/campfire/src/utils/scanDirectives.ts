@@ -39,7 +39,7 @@ export const scanDirectives = function* (
   const isDirectiveStart = (pos: number): boolean => {
     for (let i = lineStart; i < pos; i++) {
       const c = source[i]
-      if (c !== ' ' && c !== '\t') return false
+      if (c !== ' ' && c !== '\t' && c !== '[') return false
     }
     const count = countColons(pos)
     return count > 0 && count <= 3

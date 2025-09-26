@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'bun:test'
+import { describe, it, expect, beforeEach, vi } from 'bun:test'
 import { render, screen, waitFor, act } from '@testing-library/preact'
 import i18next from 'i18next'
 import { initReactI18next } from 'react-i18next'
@@ -64,7 +64,7 @@ describe('Passage i18n directives', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':t[hello]' }]
+      children: [{ type: 'text', value: '::t[hello]' }]
     }
 
     useStoryDataStore.setState({
@@ -78,6 +78,26 @@ describe('Passage i18n directives', () => {
     expect(text).toBeInTheDocument()
   })
 
+  it('renders inline t directive within surrounding text', async () => {
+    i18next.addResource('en-US', 'translation', 'hello', 'Hello')
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [{ type: 'text', value: 'Before :t[hello] after' }]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await screen.findByText('Hello')
+    expect(document.body.textContent).toContain('Before Hello after')
+  })
+
   it('applies className and style attributes to t directive', async () => {
     i18next.addResource('en-US', 'translation', 'hello', 'Hello')
     const passage: Element = {
@@ -87,7 +107,7 @@ describe('Passage i18n directives', () => {
       children: [
         {
           type: 'text',
-          value: ':t[hello]{className="greet" style="color:blue"}'
+          value: '::t[hello]{className="greet" style="color:blue"}'
         }
       ]
     }
@@ -110,7 +130,7 @@ describe('Passage i18n directives', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':t[flag ? "hello" : "missing"]' }]
+      children: [{ type: 'text', value: '::t[flag ? "hello" : "missing"]' }]
     }
 
     useGameStore.setState({ gameData: { flag: true } })
@@ -140,7 +160,7 @@ describe('Passage i18n directives', () => {
           value:
             '::translations[en-US]{translation:apple_other="{{count}} apples"}\n'
         },
-        { type: 'text', value: ':t[apple]{count=2}' }
+        { type: 'text', value: '::t[apple]{count=2}' }
       ]
     }
 
@@ -170,7 +190,7 @@ describe('Passage i18n directives', () => {
           value:
             '::translations[en-US]{translation:apple_other="{{count}} apples"}\n'
         },
-        { type: 'text', value: ':t[apple]{count=appleCount}' }
+        { type: 'text', value: '::t[apple]{count=appleCount}' }
       ]
     }
 
@@ -196,7 +216,7 @@ describe('Passage i18n directives', () => {
           type: 'text',
           value: '::translations[en-US]{translation:greet="Hello, {{name}}!"}\n'
         },
-        { type: 'text', value: ':t[greet]{name=player}' }
+        { type: 'text', value: '::t[greet]{name=player}' }
       ]
     }
 
@@ -218,7 +238,7 @@ describe('Passage i18n directives', () => {
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
       children: [
-        { type: 'text', value: ':t[missing]{fallback=`Hello ${player}`}' }
+        { type: 'text', value: '::t[missing]{fallback="Hello ${player}"}' }
       ]
     }
 
@@ -244,7 +264,11 @@ describe('Passage i18n directives', () => {
           type: 'text',
           value: '::translations[en-US]{translation:next="Next"}\n'
         },
-        { type: 'text', value: '[[:t[next]->Next]]' }
+        {
+          type: 'text',
+          value:
+            ':::trigger{label=""}\n::goto["Next"]\n:::wrapper{as="span"}\n:t[next]\n:::\n:::\n'
+        }
       ]
     }
     const next: Element = {
@@ -266,6 +290,41 @@ describe('Passage i18n directives', () => {
     expect(useStoryDataStore.getState().currentPassageId).toBe('Next')
   })
 
+  it('logs an error when t is used as a container directive', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    i18next.addResource('en-US', 'translation', 'hello', 'Hello')
+    const passage: Element = {
+      type: 'element',
+      tagName: 'tw-passagedata',
+      properties: { pid: '1', name: 'Start' },
+      children: [
+        {
+          type: 'text',
+          value: ':::t[hello]\nContent\n:::\n'
+        }
+      ]
+    }
+
+    useStoryDataStore.setState({
+      passages: [passage],
+      currentPassageId: '1'
+    })
+
+    render(<Passage />)
+
+    await waitFor(() => {
+      expect(
+        errorSpy.mock.calls.some(call =>
+          call[0]
+            ?.toString()
+            .includes('t can only be used as a leaf or text directive')
+        )
+      ).toBe(true)
+    })
+    expect(screen.queryByText('Content')).toBeNull()
+    errorSpy.mockRestore()
+  })
+
   it('creates namespaces from translations directive', async () => {
     const passage: Element = {
       type: 'element',
@@ -276,7 +335,7 @@ describe('Passage i18n directives', () => {
           type: 'text',
           value: '::translations[en-US]{ui:goodbye="Au revoir"}\n'
         },
-        { type: 'text', value: ':t[ui:goodbye]' }
+        { type: 'text', value: '::t[ui:goodbye]' }
       ]
     }
 
@@ -299,7 +358,7 @@ describe('Passage i18n directives', () => {
       properties: { pid: '1', name: 'Start' },
       children: [
         { type: 'text', value: '::translations[en-US]{ui:bye="Bye"}\n' },
-        { type: 'text', value: ':t[bye]{ns="ui"}' }
+        { type: 'text', value: '::t[bye]{ns="ui"}' }
       ]
     }
 
@@ -321,7 +380,7 @@ describe('Passage i18n directives', () => {
       type: 'element',
       tagName: 'tw-passagedata',
       properties: { pid: '1', name: 'Start' },
-      children: [{ type: 'text', value: ':t[hello]' }]
+      children: [{ type: 'text', value: '::t[hello]' }]
     }
 
     useStoryDataStore.setState({
@@ -351,7 +410,7 @@ describe('Passage i18n directives', () => {
       children: [
         {
           type: 'text',
-          value: ':::effect[lang]\n::lang[lang]\n:::\n:t[ui:greet]'
+          value: ':::effect[lang]\n::lang[lang]\n:::\n::t[ui:greet]'
         }
       ]
     }
@@ -384,7 +443,7 @@ describe('Passage i18n directives', () => {
           type: 'text',
           value: '::translations[en-US]{ui:greet="Hello there"}\n'
         },
-        { type: 'text', value: ':t[ui:greet]' }
+        { type: 'text', value: '::t[ui:greet]' }
       ]
     }
 

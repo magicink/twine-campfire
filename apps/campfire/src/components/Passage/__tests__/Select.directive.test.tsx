@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'bun:test'
+import { describe, it, expect, beforeEach, vi } from 'bun:test'
 import { render, screen, fireEvent, act } from '@testing-library/preact'
 import type { Element } from 'hast'
 import { Passage } from '@campfire/components/Passage/Passage'
@@ -78,30 +78,8 @@ describe('Select directive', () => {
     ).toBe('blue')
   })
 
-  it('renders container options with wrapper formatting', async () => {
-    const passage: Element = {
-      type: 'element',
-      tagName: 'tw-passagedata',
-      properties: { pid: '1', name: 'Start' },
-      children: [
-        {
-          type: 'text',
-          value:
-            ':::select[color]\n:::option{value="red"}\n\n:::wrapper{className="bold"}\nRed\n:::\n\n:::\n:::\n'
-        }
-      ]
-    }
-    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-    render(<Passage />)
-    const select = await screen.findByTestId('select')
-    fireEvent.click(select)
-    await new Promise(r => setTimeout(r, 0))
-    const option = screen.getByTestId('option')
-    expect(option.textContent).toBe('Red')
-    expect(option.querySelector('.campfire-wrapper')).not.toBeNull()
-  })
-
-  it('selects values from options formatted with wrapper directives', async () => {
+  it('logs an error when option is used as a container directive', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const passage: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
@@ -119,14 +97,15 @@ describe('Select directive', () => {
     const select = await screen.findByTestId('select')
     fireEvent.click(select)
     await new Promise(r => setTimeout(r, 0))
-    const option = screen.getByTestId('option')
-    expect(option.querySelector('.campfire-wrapper')?.classList).toContain(
-      'bold'
-    )
-    fireEvent.click(option)
+    expect(screen.queryByTestId('option')).toBeNull()
     expect(
-      (useGameStore.getState().gameData as Record<string, unknown>).color
-    ).toBe('red')
+      errorSpy.mock.calls.some(call =>
+        call[0]
+          ?.toString()
+          .includes('option can only be used as a leaf directive')
+      )
+    ).toBe(true)
+    errorSpy.mockRestore()
   })
 
   it('runs event directives only on interaction', async () => {

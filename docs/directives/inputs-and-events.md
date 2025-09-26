@@ -74,7 +74,7 @@ Container form:
 
 ### `select`
 
-Render a dropdown bound to a game state key. Must be used as a container with nested `option` directives. The container form can include event directives. If the key already exists in game state, its value is used; otherwise, the optional `value` attribute sets the initial selection. The optional `label` attribute provides placeholder text when no option is chosen.
+Render a dropdown bound to a game state key. Use it as a container with nested leaf `option` directives. The container form can include event directives. If the key already exists in game state, its value is used; otherwise, the optional `value` attribute sets the initial selection. The optional `label` attribute provides placeholder text when no option is chosen.
 
 ```md
 :::select[color]{label="Choose a color"}
@@ -94,7 +94,7 @@ Render a dropdown bound to a game state key. Must be used as a container with ne
 
 The select button uses the same default styling as trigger and link buttons and includes a downward caret on the right. The menu closes when clicking outside the button or pressing Escape.
 
-`option` directives accept the following inputs:
+`option` directives are leaf-only and accept the following inputs:
 
 | Input     | Description                               |
 | --------- | ----------------------------------------- |
@@ -102,18 +102,6 @@ The select button uses the same default styling as trigger and link buttons and 
 | label     | Text displayed for the option (leaf form) |
 | className | Optional space-separated classes          |
 | style     | Optional inline style declarations        |
-
-Container form:
-
-```md
-:::select[color]{label="Choose a color"}
-:::option{value="red"}
-:::wrapper{className="fancy"}Red:::
-:::
-:::
-```
-
-The container form uses its content for the option label, enabling formatting via directives like `wrapper`.
 
 ### `checkbox`
 
