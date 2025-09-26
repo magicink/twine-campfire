@@ -189,7 +189,7 @@ const directiveSnippets: DirectiveSnippet[] = [
     escapeAtColumnZero: true,
     detail: 'Slide deck container',
     documentation: 'Groups multiple slides with navigation controls.',
-    body: ':::deck ${1:label}\n  ::slide ${2:label}\n    $3\n  :::\n  ::slide ${4:label}\n    $5\n  :::\n:::'
+    body: ':::deck\n  :::slide\n    ${1:Slide content}\n  :::\n  :::slide\n    ${2:More content}\n  :::\n:::'
   },
   {
     marker: ':::',
