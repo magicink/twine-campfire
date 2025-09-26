@@ -70,7 +70,7 @@ export interface ControlFlowHandlerContext {
 }
 
 /**
- * Creates handlers for control flow directives (`if`, `for`, `else`, `batch`).
+ * Creates handlers for control flow directives (`if`, `for`, `batch`).
  *
  * @param ctx - Context providing state access and utilities.
  * @returns An object containing the control flow directive handlers.
@@ -390,7 +390,7 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
     return [SKIP, newIndex]
   }
 
-  /** Serializes `:::if` blocks into `<if>` components with optional fallback. */
+  /** Serializes `:::if` blocks into `<if>` components. */
   const handleIf: DirectiveHandler = (directive, parent, index) => {
     const pair = ensureParentIndex(parent, index)
     if (!pair) return
@@ -416,31 +416,7 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
         }
       }
     }
-    const elseIndex = children.findIndex(
-      child =>
-        child.type === 'containerDirective' &&
-        (child as ContainerDirective).name === 'else'
-    )
-    const elseSiblingIndex = p.children.findIndex(
-      (child, j) =>
-        j > i &&
-        child.type === 'containerDirective' &&
-        (child as ContainerDirective).name === 'else'
-    )
-    let fallbackNodes: RootContent[] | undefined
-    let main = children
-    if (elseIndex !== -1) {
-      const next = children[elseIndex] as ContainerDirective
-      main = children.slice(0, elseIndex)
-      fallbackNodes = next.children as RootContent[]
-    } else if (elseSiblingIndex !== -1) {
-      const next = p.children[elseSiblingIndex] as ContainerDirective
-      fallbackNodes = next.children as RootContent[]
-      const markerIndex = removeNode(p, elseSiblingIndex)
-      if (typeof markerIndex === 'number') {
-        removeDirectiveMarker(p, markerIndex)
-      }
-    }
+    const main = children
     /**
      * Strips directive labels, runs preprocessing and removes empty text nodes.
      *
@@ -487,17 +463,12 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
       )
     }
     const content = JSON.stringify(processNodes(main))
-    const fallback = fallbackNodes
-      ? JSON.stringify(processNodes(fallbackNodes))
-      : undefined
     const node: Parent = {
       type: 'paragraph',
       children: [],
       data: {
         hName: 'if',
-        hProperties: fallback
-          ? { test: expr, content, fallback }
-          : { test: expr, content }
+        hProperties: { test: expr, content }
       }
     }
     const newIndex = replaceWithIndentation(directive, p, i, [
@@ -763,20 +734,6 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
     return [SKIP, newIndex + offset]
   }
 
-  /** Inlines the children of `:::else` directives when present. */
-  const handleElse: DirectiveHandler = (directive, parent, index) => {
-    const pair = ensureParentIndex(parent, index)
-    if (!pair) return
-    const [p, i] = pair
-    const container = directive as ContainerDirective
-    const content = stripLabel(container.children as RootContent[])
-    const newIndex = replaceWithIndentation(directive, p, i, content)
-    const markerIndex = newIndex + content.length
-    removeDirectiveMarker(p, markerIndex)
-    const offset = content.length > 0 ? content.length - 1 : 0
-    return [SKIP, newIndex + offset]
-  }
-
   /**
    * Executes a block of directives against a temporary state and commits
    * the resulting changes in a single update.
@@ -843,7 +800,6 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
     switch: handleSwitch,
     if: handleIf,
     for: handleFor,
-    else: handleElse,
     batch: handleBatch
   }
 }

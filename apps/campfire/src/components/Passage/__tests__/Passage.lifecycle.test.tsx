@@ -67,7 +67,7 @@ describe('Passage lifecycle directives', () => {
     const root = unified()
       .use(remarkParse)
       .use(remarkDirective)
-      .parse(':::if[false]\n::set[a=1]\n:::else\n::set[b=2]\n:::') as Root
+      .parse(':::if[true]\n::set[a=1]\n:::') as Root
     const content = JSON.stringify(root.children)
     const { unmount } = render(<OnExit content={content} />)
     act(() => {
@@ -77,8 +77,7 @@ describe('Passage lifecycle directives', () => {
       await new Promise(resolve => setTimeout(resolve, 0))
     })
     const data = useGameStore.getState().gameData as Record<string, unknown>
-    expect(data.a).toBeUndefined()
-    expect(data.b).toBe(2)
+    expect(data.a).toBe(1)
     expect(useGameStore.getState().errors).toEqual([])
   })
 

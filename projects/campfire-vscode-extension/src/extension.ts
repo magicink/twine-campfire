@@ -191,16 +191,8 @@ const directiveSnippets: DirectiveSnippet[] = [
     escapeAtColumnZero: true,
     detail: 'Conditional block',
     documentation:
-      'Wraps content that only renders when the expression is truthy. Pair with `:::else` for fallback content.',
-    body: ':::if[${1:expression}]\n  $0\n:::else\n  $2\n:::'
-  },
-  {
-    marker: ':::',
-    label: 'else',
-    escapeAtColumnZero: true,
-    detail: 'Else block',
-    documentation: 'Extends a prior `if` container with fallback content.',
-    body: ':::else\n  $0\n:::'
+      'Wraps content that only renders when the expression is truthy.',
+    body: ':::if[${1:expression}]\n  $0\n:::'
   },
   {
     marker: '::',

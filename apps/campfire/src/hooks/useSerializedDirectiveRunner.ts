@@ -38,19 +38,7 @@ export const useSerializedDirectiveRunner = (content: string) => {
           condition = false
         }
         const children = stripLabel(container.children as RootContent[])
-        const elseIndex = children.findIndex(
-          child =>
-            child.type === 'containerDirective' &&
-            (child as ContainerDirective).name === 'else'
-        )
-        let branch: RootContent[] = []
-        if (condition) {
-          branch = elseIndex === -1 ? children : children.slice(0, elseIndex)
-        } else if (elseIndex !== -1) {
-          const elseNode = children[elseIndex] as ContainerDirective
-          branch = stripLabel(elseNode.children as RootContent[])
-        }
-        return resolveIf(branch, data)
+        return condition ? resolveIf(children, data) : []
       }
       return [node]
     })
