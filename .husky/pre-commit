@@ -4,8 +4,9 @@
 # Sync the extension version with monorepo root version before other checks
 bun run sync-version
 
-# Explicitly add the VS Code extension package.json if it was updated
+# Explicitly add the updated package.json files if they were modified
 git add projects/campfire-vscode-extension/package.json
+git add apps/campfire/package.json
 
 # Run existing pre-commit checks
 bun lint-staged

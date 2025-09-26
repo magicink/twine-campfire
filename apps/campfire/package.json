@@ -1,6 +1,6 @@
 {
-  "name": "campfire",
-  "version": "1.0.0",
+  "name": "campfire-storyformat",
+  "version": "1.106.0",
   "private": true,
   "type": "module",
   "main": "dist/format.js",
