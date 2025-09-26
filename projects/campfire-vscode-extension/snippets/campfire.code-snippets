@@ -161,11 +161,6 @@
     "body": ["::option{value=\"${1:value}\" label=\"${2:Label}\"}"],
     "description": "Leaf option inside a select"
   },
-  "Option Container": {
-    "prefix": "cf-option-container",
-    "body": [":::option{value=\"${1:value}\"}", "$0", ":::"],
-    "description": "Container option for custom label content"
-  },
   "Checkbox Inline": {
     "prefix": "cf-checkbox-inline",
     "body": [":checkbox[${1:key}]"],
@@ -383,8 +378,13 @@
   },
   "Translate": {
     "prefix": "cf-t",
-    "body": [":t[${1:key}]{ns=\"${2:ui}\" fallback=\"${3:Fallback}\"}"],
+    "body": ["::t[${1:key}]{ns=\"${2:ui}\" fallback=\"${3:Fallback}\"}"],
     "description": "Output a translated string"
+  },
+  "Translate Inline": {
+    "prefix": "cf-t-inline",
+    "body": [":t[${1:key}]{ns=\"${2:ui}\" fallback=\"${3:Fallback}\"}"],
+    "description": "Output a translated string inline"
   },
   "Translations": {
     "prefix": "cf-translations",

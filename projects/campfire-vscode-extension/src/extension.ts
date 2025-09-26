@@ -120,6 +120,13 @@ const directiveSnippets: DirectiveSnippet[] = [
     body: ':textarea[${1:key}]{placeholder="${2:placeholder}"}'
   },
   {
+    marker: ':',
+    label: 't',
+    detail: 'Inline translate',
+    documentation: 'Output a translated string inline.',
+    body: ':t[${1:key}]{ns="${2:ui}" fallback="${3:Fallback}"}'
+  },
+  {
     marker: ':::',
     label: 'textarea',
     escapeAtColumnZero: true,
@@ -177,15 +184,6 @@ const directiveSnippets: DirectiveSnippet[] = [
     detail: 'Selection option',
     documentation: 'Defines an option within a select dropdown.',
     body: '::option{value="${1:value}" label="${2:Label}"}'
-  },
-  {
-    marker: ':::',
-    label: 'option',
-    escapeAtColumnZero: true,
-    detail: 'Container option block',
-    documentation:
-      'Defines an option with rich content within a select dropdown.',
-    body: ':::option{value="${1:value}"}\n  $0\n:::'
   },
   {
     marker: ':::',
@@ -597,11 +595,12 @@ const directiveSnippets: DirectiveSnippet[] = [
     body: '::lang[${1:en-US}]'
   },
   {
-    marker: ':',
+    marker: '::',
     label: 't',
+    escapeAtColumnZero: true,
     detail: 'Translate',
     documentation: 'Output a translated string.',
-    body: ':t[${1:key}]{ns="${2:ui}" fallback="${3:Fallback}"}'
+    body: '::t[${1:key}]{ns="${2:ui}" fallback="${3:Fallback}"}'
   },
   {
     marker: '::',
