@@ -73,7 +73,7 @@ describe('slide directive', () => {
 
   it('applies slide presets with overrides', () => {
     const md =
-      ':preset{type="slide" name="fade" enter="slide" enterDir="right" enterDuration=200 exit="zoom" exitDir="left"}\n:::deck\n:::slide{from="fade" exitDir="up" exitDuration=700}\nHi\n:::\n:::'
+      '::preset{type="slide" name="fade" enter="slide" enterDir="right" enterDuration=200 exit="zoom" exitDir="left"}\n:::deck\n:::slide{from="fade" exitDir="up" exitDuration=700}\nHi\n:::\n:::'
     render(<MarkdownRunner markdown={md} />)
     const slide = findSlide(output)!
     expect(slide.props.transition).toEqual({

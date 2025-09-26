@@ -3,6 +3,7 @@ import { render } from '@testing-library/preact'
 import type { ComponentChild } from 'preact'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { renderDirectiveMarkdown } from '@campfire/components/Deck/Slide'
+import { useGameStore } from '@campfire/state/useGameStore'
 
 let output: ComponentChild | null = null
 
@@ -21,6 +22,7 @@ const MarkdownRunner = ({ markdown }: { markdown: string }) => {
 beforeEach(() => {
   output = null
   document.body.innerHTML = ''
+  useGameStore.getState().clearErrors()
 })
 
 describe('text directive', () => {
@@ -114,7 +116,7 @@ Hi
 
   it('applies text presets with overrides', () => {
     const md =
-      ':preset{type="text" name="title" x=10 y=20 size=24 color="red"}\n:::text{from="title" size=32}\nHi\n:::'
+      '::preset{type="text" name="title" x=10 y=20 size=24 color="red"}\n:::text{from="title" size=32}\nHi\n:::'
     render(<MarkdownRunner markdown={md} />)
     const el = document.querySelector(
       '[data-testid="slideText"]'
@@ -141,5 +143,25 @@ Hi
     expect(style).toContain('top: 24px')
     expect(style).toContain('font-size: 36px')
     expect(style).toContain('color: blue')
+  })
+
+  it('records an error when preset is used as a container directive', () => {
+    const original = console.error
+    const logged: unknown[][] = []
+    console.error = (...args: unknown[]) => {
+      logged.push(args)
+    }
+    const store = useGameStore.getState()
+    store.clearErrors()
+    const md =
+      ':::preset{type="text" name="headline" x=12 y=24 size=28 color="blue"}\n' +
+      ':::text{from="headline" size=36}\nHello\n:::'
+    render(<MarkdownRunner markdown={md} />)
+    expect(useGameStore.getState().errors).toContain(
+      'preset can only be used as a leaf directive'
+    )
+    expect(logged[0]?.[0]).toBe('preset can only be used as a leaf directive')
+    store.clearErrors()
+    console.error = original
   })
 })

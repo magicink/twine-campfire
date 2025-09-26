@@ -69,7 +69,7 @@ describe('reveal directive', () => {
 
   it('applies reveal presets with overrides', () => {
     const md =
-      ':preset{type="reveal" name="fade" at=2 enter="slide" enterDir="right" enterDuration=200 exit="zoom" exitDir="left"}\n:::reveal{from="fade" exitAt=3 enterDir="up" exitDuration=700}\nHi\n:::'
+      '::preset{type="reveal" name="fade" at=2 enter="slide" enterDir="right" enterDuration=200 exit="zoom" exitDir="left"}\n:::reveal{from="fade" exitAt=3 enterDir="up" exitDuration=700}\nHi\n:::'
     render(<MarkdownRunner markdown={md} />)
     const reveal = findReveal(output)!
     expect(reveal.props.at).toBe(2)
@@ -109,7 +109,7 @@ describe('reveal directive', () => {
 
   it('maps onEnter from attributes and presets', () => {
     const md =
-      ':preset{type="reveal" name="start" onEnter="a"}\n:::reveal{from="start" onEnter="b"}\nHi\n:::'
+      '::preset{type="reveal" name="start" onEnter="a"}\n:::reveal{from="start" onEnter="b"}\nHi\n:::'
     render(<MarkdownRunner markdown={md} />)
     const reveal = findReveal(output)!
     expect(reveal.props.onEnter).toBe('b')

@@ -130,7 +130,11 @@
   },
   "Input Container": {
     "prefix": "cf-input",
-    "body": [":::input[${1:key}]{placeholder=\"${2:Placeholder}\"}", "$0", ":::"],
+    "body": [
+      ":::input[${1:key}]{placeholder=\"${2:Placeholder}\"}",
+      "$0",
+      ":::"
+    ],
     "description": "Container input that supports event directives"
   },
   "Textarea Inline": {
@@ -140,16 +144,16 @@
   },
   "Textarea Container": {
     "prefix": "cf-textarea",
-    "body": [":::textarea[${1:key}]{placeholder=\"${2:Placeholder}\"}", "$0", ":::"],
+    "body": [
+      ":::textarea[${1:key}]{placeholder=\"${2:Placeholder}\"}",
+      "$0",
+      ":::"
+    ],
     "description": "Textarea container that supports event directives"
   },
   "Select Field": {
     "prefix": "cf-select",
-    "body": [
-      ":::select[${1:key}]{label=\"${2:Choose a value}\"}",
-      "$0",
-      ":::"
-    ],
+    "body": [":::select[${1:key}]{label=\"${2:Choose a value}\"}", "$0", ":::"],
     "description": "Select container with option children"
   },
   "Option Leaf": {
@@ -263,12 +267,20 @@
   },
   "Slide with Transitions": {
     "prefix": "cf-slide-transitions",
-    "body": [":::slide{enter=\"${1:slide}\" exit=\"${2:fade}\" enterDir=\"${3:left}\" exitDir=\"${4:right}\"}", "$0", ":::"],
+    "body": [
+      ":::slide{enter=\"${1:slide}\" exit=\"${2:fade}\" enterDir=\"${3:left}\" exitDir=\"${4:right}\"}",
+      "$0",
+      ":::"
+    ],
     "description": "Slide with entrance and exit transitions"
   },
   "Slide with Steps": {
     "prefix": "cf-slide-steps",
-    "body": [":::slide{steps=${1:3} onEnter=\"${2:directives}\" onExit=\"${3:directives}\"}", "$0", ":::"],
+    "body": [
+      ":::slide{steps=${1:3} onEnter=\"${2:directives}\" onExit=\"${3:directives}\"}",
+      "$0",
+      ":::"
+    ],
     "description": "Slide with build steps and event hooks"
   },
   "Layer": {
@@ -283,12 +295,18 @@
   },
   "Wrapper": {
     "prefix": "cf-wrapper",
-    "body": [":::wrapper{as=\"${1:div}\" className=\"${2:className}\"}", "$0", ":::"],
+    "body": [
+      ":::wrapper{as=\"${1:div}\" className=\"${2:className}\"}",
+      "$0",
+      ":::"
+    ],
     "description": "Wrap content with custom styling or elements"
   },
   "Position Image": {
     "prefix": "cf-image",
-    "body": ["::image{src=\"${1:path/to/image.png}\" x=${2:0} y=${3:0} w=${4:320} h=${5:180}}"],
+    "body": [
+      "::image{src=\"${1:path/to/image.png}\" x=${2:0} y=${3:0} w=${4:320} h=${5:180}}"
+    ],
     "description": "Position an image on a slide"
   },
   "Preload Image": {
@@ -313,7 +331,9 @@
   },
   "Background Music": {
     "prefix": "cf-bgm",
-    "body": ["::bgm[${1:id}]{src=\"${2:path/to/music.mp3}\" volume=${3:0.5} loop=${4:true}}"],
+    "body": [
+      "::bgm[${1:id}]{src=\"${2:path/to/music.mp3}\" volume=${3:0.5} loop=${4:true}}"
+    ],
     "description": "Control looping background music"
   },
   "Stop Background Music": {
@@ -368,7 +388,9 @@
   },
   "Translations": {
     "prefix": "cf-translations",
-    "body": ["::translations[${1:locale}]{${2:namespace}:${3:key}=\"${4:value}\"}"],
+    "body": [
+      "::translations[${1:locale}]{${2:namespace}:${3:key}=\"${4:value}\"}"
+    ],
     "description": "Define a translation string"
   },
   "Set Language Label": {
@@ -398,12 +420,16 @@
   },
   "Shape Inline": {
     "prefix": "cf-shape-inline",
-    "body": [":shape{type=\"${1:rect}\" x=${2:10} y=${3:20} w=${4:100} h=${5:50}}"],
+    "body": [
+      ":shape{type=\"${1:rect}\" x=${2:10} y=${3:20} w=${4:100} h=${5:50}}"
+    ],
     "description": "Draw basic shapes within a slide (inline form)"
   },
   "Shape Element": {
     "prefix": "cf-shape",
-    "body": ["::shape{type=\"${1:rect}\" x=${2:10} y=${3:20} w=${4:100} h=${5:50}}"],
+    "body": [
+      "::shape{type=\"${1:rect}\" x=${2:10} y=${3:20} w=${4:100} h=${5:50}}"
+    ],
     "description": "Draw basic shapes within a slide"
   },
   "Reveal Block": {
@@ -413,7 +439,9 @@
   },
   "Define Preset": {
     "prefix": "cf-preset",
-    "body": [":preset{type=\"${1:deck}\" name=\"${2:presetName}\" ${3:attributes}}"],
+    "body": [
+      "::preset{type=\"${1:deck}\" name=\"${2:presetName}\" ${3:attributes}}"
+    ],
     "description": "Define reusable attribute sets for other directives"
   }
 }

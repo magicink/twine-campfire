@@ -436,6 +436,8 @@ export const useDirectiveHandlers = () => {
     const pair = ensureParentIndex(parent, index)
     if (!pair) return
     const [p, i] = pair
+    const invalid = requireLeafDirective(directive, p, i, addError)
+    if (invalid !== undefined) return invalid
     const { attrs: presetAttrs } = extractAttributes(
       directive,
       p,

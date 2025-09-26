@@ -49,7 +49,7 @@ describe('layer directive', () => {
 
   it('applies layer presets with overrides for numeric fields', () => {
     const md =
-      ':preset{type="layer" name="base" x=5 y=5 w=50 h=60 z=2 rotate=15 scale=2 anchor="center"}\n' +
+      '::preset{type="layer" name="base" x=5 y=5 w=50 h=60 z=2 rotate=15 scale=2 anchor="center"}\n' +
       ':::layer{from="base" y=10 w=40 rotate=30 anchor="bottom-right"}\nHi\n:::'
     render(<MarkdownRunner markdown={md} />)
     const el = document.querySelector('[data-testid="layer"]') as HTMLElement
@@ -64,7 +64,7 @@ describe('layer directive', () => {
 
   it('uses anchor from presets when not overridden', () => {
     const md =
-      ':preset{type="layer" name="base" x=1 y=2 anchor="center"}\n:::layer{from="base"}\nHi\n:::'
+      '::preset{type="layer" name="base" x=1 y=2 anchor="center"}\n:::layer{from="base"}\nHi\n:::'
     render(<MarkdownRunner markdown={md} />)
     const el = document.querySelector('[data-testid="layer"]') as HTMLElement
     expect(el.style.transformOrigin).toBe('50% 50%')
