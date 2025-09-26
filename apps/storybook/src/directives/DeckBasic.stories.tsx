@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/preact'
 import { Campfire } from '@campfire/components'
 import { DebugWindow } from '../DebugWindow'
+import { TwPassagedata, TwStorydata } from '../TwineElements'
 
 const meta: Meta = {
   title: 'Campfire/Directives/Deck'
@@ -16,8 +17,8 @@ export default meta
 export const Basic: StoryObj = {
   render: () => (
     <>
-      <tw-storydata startnode='1' options='debug'>
-        <tw-passagedata pid={'2'} name={'overlay-1'} tags={'overlay'} hidden>
+      <TwStorydata startnode='1' options='debug'>
+        <TwPassagedata pid={'2'} name={'overlay-1'} tags={'overlay'} hidden>
           {`
 :::wrapper{className='bg-white/50 text-black absolute bottom-4 left-4 p-4 rounded shadow-lg'}
 Overlay Text
@@ -27,10 +28,10 @@ Overlay Text
 Overlay Text2
 :::
 `}
-        </tw-passagedata>
-        <tw-passagedata pid='1' name='Start'>
+        </TwPassagedata>
+        <TwPassagedata pid='1' name='Start'>
           {`
-:preset{type="text" name="title" x=80 y=80 as="p" size=36}
+::preset{type="text" name="title" x=80 y=80 as="p" size=36}
 
 :::deck{size='800x600' groupClassName='rounded-none shadow-none' navClassName='justify-between' hudClassName='left-3 right-auto' rewindButtonClassName='bg-[var(--color-indigo-600)]' playButtonClassName='bg-[var(--color-red-600)]' fastForwardButtonClassName='bg-[var(--color-indigo-600)]' slideHudClassName='font-bold' showSlideCount}
   :::slide{transition='fade'}
@@ -72,8 +73,8 @@ Overlay Text2
   :::
 :::
 `}
-        </tw-passagedata>
-      </tw-storydata>
+        </TwPassagedata>
+      </TwStorydata>
       <Campfire />
       <DebugWindow />
     </>

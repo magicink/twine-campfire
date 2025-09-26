@@ -118,6 +118,7 @@ For more on internal classes and default styling, see [Styling elements](docs/st
 ## Further reading
 
 - [Twine documentation](https://twinery.org/)
+- [Campfire Storybuilder VS Code extension](projects/campfire-vscode-extension/README.md)
 - [remark-directive](https://github.com/remarkjs/remark-directive)
 - [i18next](https://www.i18next.com/)
 

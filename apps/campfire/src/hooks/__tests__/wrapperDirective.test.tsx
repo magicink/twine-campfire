@@ -78,7 +78,7 @@ describe('wrapper directive', () => {
 
   it('applies wrapper presets with overrides', () => {
     const md =
-      ':preset{type="wrapper" name="box" as="section" className="one" data-test="ok"}\n' +
+      '::preset{type="wrapper" name="box" as="section" className="one" data-test="ok"}\n' +
       ':::wrapper{from="box" as="p" className="two"}\nContent\n:::'
     render(<MarkdownRunner markdown={md} />)
     const el = document.querySelector('[data-testid="wrapper"]') as HTMLElement
@@ -92,7 +92,7 @@ describe('wrapper directive', () => {
 
   it('does not wrap inline radio content in paragraphs', () => {
     const md =
-      ':preset{type="wrapper" name="radioLabel" as="div" className="flex items-center gap-2"}\n' +
+      '::preset{type="wrapper" name="radioLabel" as="div" className="flex items-center gap-2"}\n' +
       '::set[choice="b"]\n' +
       ':::layer{className="flex gap-[12px] items-center justify-center"}\n' +
       '  :::wrapper{from="radioLabel"}\n' +

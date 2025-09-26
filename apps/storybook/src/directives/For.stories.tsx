@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/preact'
 import { Campfire } from '@campfire/components'
+import { TwPassagedata, TwStorydata } from '../TwineElements'
 import { DebugWindow } from '../DebugWindow'
 
 const meta: Meta = {
@@ -17,8 +18,8 @@ export default meta
 export const Numbers: StoryObj = {
   render: () => (
     <>
-      <tw-storydata startnode='1' options='debug'>
-        <tw-passagedata pid='1' name='Start'>
+      <TwStorydata startnode='1' options='debug'>
+        <TwPassagedata pid='1' name='Start'>
           {`
 :::for[x in [1,2,3]]
 
@@ -26,8 +27,8 @@ Value :show[x]{as="span" className="text-sky-600"}
 
 :::
           `}
-        </tw-passagedata>
-      </tw-storydata>
+        </TwPassagedata>
+      </TwStorydata>
       <Campfire />
       <DebugWindow />
     </>
@@ -43,8 +44,8 @@ Value :show[x]{as="span" className="text-sky-600"}
 export const Fruits: StoryObj = {
   render: () => (
     <>
-      <tw-storydata startnode='1' options='debug'>
-        <tw-passagedata pid='1' name='Start'>
+      <TwStorydata startnode='1' options='debug'>
+        <TwPassagedata pid='1' name='Start'>
           {`
 ::array[fruits=["apple","banana","cherry"]]
 
@@ -58,8 +59,8 @@ export const Fruits: StoryObj = {
 
 :::
           `}
-        </tw-passagedata>
-      </tw-storydata>
+        </TwPassagedata>
+      </TwStorydata>
       <Campfire />
       <DebugWindow />
     </>

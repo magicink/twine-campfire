@@ -56,7 +56,7 @@ describe('embed directive', () => {
 
   it('applies preset attributes when using from', () => {
     const md =
-      ':preset{type="embed" name="video" src="https://vid.example/embed" allowFullScreen=true data-track="preset"}\n' +
+      '::preset{type="embed" name="video" src="https://vid.example/embed" allowFullScreen=true data-track="preset"}\n' +
       ':::reveal\n::embed{from="video" allow="autoplay"}\n:::\n'
     render(<MarkdownRunner markdown={md} />)
     const el = document.querySelector(

@@ -195,6 +195,12 @@ export const createI18nHandlers = (ctx: I18nHandlerContext) => {
    * @param index - The index of the directive within its parent.
    */
   const handleTranslate: DirectiveHandler = (directive, parent, index) => {
+    if (directive.type === 'containerDirective') {
+      const msg = 't can only be used as a leaf or text directive'
+      console.error(msg)
+      addError(msg)
+      return removeNode(parent, index)
+    }
     let raw = ''
     let ns: string | undefined
     let key: string | undefined
@@ -202,17 +208,21 @@ export const createI18nHandlers = (ctx: I18nHandlerContext) => {
     if (label) {
       raw = label
     } else {
-      const children = directive.children as (RootContent & { name?: string })[]
-      if (
-        children.length === 2 &&
-        children[0].type === 'text' &&
-        children[1].type === 'textDirective'
-      ) {
-        ns = (children[0] as MdText).value.trim()
-        key = (children[1] as DirectiveNode).name
-        raw = `${ns}:${key}`
-      } else if (children.length === 1 && children[0].type === 'text') {
-        raw = (children[0] as MdText).value.trim()
+      const children = (directive as { children?: RootContent[] }).children
+      if (Array.isArray(children)) {
+        if (
+          children.length === 2 &&
+          children[0].type === 'text' &&
+          children[1].type === 'textDirective'
+        ) {
+          ns = (children[0] as MdText).value.trim()
+          key = (children[1] as DirectiveNode).name
+          raw = `${ns}:${key}`
+        } else if (children.length === 1 && children[0].type === 'text') {
+          raw = (children[0] as MdText).value.trim()
+        } else {
+          raw = toString(directive).trim()
+        }
       } else {
         raw = toString(directive).trim()
       }

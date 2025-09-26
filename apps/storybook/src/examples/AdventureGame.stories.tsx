@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/preact'
 import { Campfire } from '@campfire/components'
 import { DebugWindow } from '../DebugWindow'
+import { TwPassagedata, TwStorydata } from '../TwineElements'
 
 const meta: Meta = {
   title: 'Campfire/Examples/AdventureGame'
@@ -17,8 +18,8 @@ export default meta
 export const AdventureGame: StoryObj = {
   render: () => (
     <>
-      <tw-storydata startnode='1' options='debug'>
-        <tw-passagedata pid='1' name='Start'>
+      <TwStorydata startnode='1' options='debug'>
+        <TwPassagedata pid='1' name='Start'>
           {`
 Hello adventurer! Enter your name:
 ::input[playerName]{placeholder="Your name"}
@@ -29,8 +30,8 @@ Hello adventurer! Enter your name:
   :::
 :::
 `}
-        </tw-passagedata>
-        <tw-passagedata pid='2' name='ChooseClass'>
+        </TwPassagedata>
+        <TwPassagedata pid='2' name='ChooseClass'>
           {`
 ::preset{type="wrapper" name="classChoice" as="label" className="flex items-center gap-2"}
 
@@ -55,8 +56,8 @@ Greetings, :show[playerName]{className="font-semibold"}! Choose your class:
   :::
 :::
 `}
-        </tw-passagedata>
-        <tw-passagedata pid='3' name='Adventure'>
+        </TwPassagedata>
+        <TwPassagedata pid='3' name='Adventure'>
           {`
 :::if[(!hpInitialized)]
   ::setOnce[hpInitialized=true]
@@ -79,8 +80,8 @@ Two paths beckon:
   ::goto["Cave"]
 :::
 `}
-        </tw-passagedata>
-        <tw-passagedata pid='4' name='Forest'>
+        </TwPassagedata>
+        <TwPassagedata pid='4' name='Forest'>
           {`
 :::if[(!forestDamageApplied)]
   ::set[forestDamageApplied=true]
@@ -115,8 +116,8 @@ Current HP: :show[hp.value]{className="font-bold"}
   ::unset[forestDamageApplied]
 :::
 `}
-        </tw-passagedata>
-        <tw-passagedata pid='5' name='Herbs'>
+        </TwPassagedata>
+        <TwPassagedata pid='5' name='Herbs'>
           {`
 :::if[(!herbsCollected)]
   ::set[herbsCollected=true]
@@ -133,8 +134,8 @@ You gather fragrant herbs and bandage your wounds before returning.
   ::unset[herbsCollected]
 :::
 `}
-        </tw-passagedata>
-        <tw-passagedata pid='6' name='Cave'>
+        </TwPassagedata>
+        <TwPassagedata pid='6' name='Cave'>
           {`
 :::if[(!caveTrapTriggered)]
   ::set[caveTrapTriggered=true]
@@ -152,9 +153,11 @@ Current HP: :show[hp.value]{className="font-bold"}
   :::
   The trap spent, a cache of glittering coins remains.
 
-  Your pack now holds:
-  :::for[item in inventory]
-    - :show[item]
+  :::if[(inventory && inventory.length)]
+    Your pack now holds:
+    :::for[item in inventory]
+      - :show[item]
+    :::
   :::
 
   :::trigger{label="Return to the crossroads"}
@@ -171,12 +174,14 @@ Current HP: :show[hp.value]{className="font-bold"}
 :::
 
 :::onExit
-  ::unset[caveTrapTriggered]
-  ::unset[caveLootGranted]
+  :::batch
+    ::unset[caveTrapTriggered]
+    ::unset[caveLootGranted]
+  :::
 :::
 `}
-        </tw-passagedata>
-        <tw-passagedata pid='7' name='Dead'>
+        </TwPassagedata>
+        <TwPassagedata pid='7' name='Dead'>
           {`
 :::layer{className="space-y-3"}
   :::wrapper
@@ -191,6 +196,7 @@ Current HP: :show[hp.value]{className="font-bold"}
 
   :::wrapper
     :::onExit
+    :::batch
       ::unset[playerName]
       ::unset[playerClass]
       ::unset[hp]
@@ -204,8 +210,8 @@ Current HP: :show[hp.value]{className="font-bold"}
   :::
 :::
 `}
-        </tw-passagedata>
-      </tw-storydata>
+        </TwPassagedata>
+      </TwStorydata>
       <Campfire />
       <DebugWindow />
     </>

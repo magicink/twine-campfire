@@ -1,0 +1,58 @@
+{
+  "autoCloseBefore": ";:.,=}])>\n\t",
+  "autoClosingPairs": [
+    {
+      "open": "{",
+      "close": "}"
+    },
+    {
+      "open": "[",
+      "close": "]"
+    },
+    {
+      "open": "(",
+      "close": ")"
+    },
+    {
+      "open": "'",
+      "close": "'",
+      "notIn": ["string", "comment"]
+    },
+    {
+      "open": "\"",
+      "close": "\"",
+      "notIn": ["string", "comment"]
+    },
+    {
+      "open": "`",
+      "close": "`",
+      "notIn": ["string", "comment"]
+    },
+    {
+      "open": ":::",
+      "close": ":::"
+    }
+  ],
+  "brackets": [
+    ["{", "}"],
+    ["[", "]"],
+    ["(", ")"],
+    [":::", ":::"]
+  ],
+  "comments": {
+    "lineComment": "//"
+  },
+  "indentationRules": {
+    "increaseIndentPattern": "^\\s*(:::+|::)\\s*(if|deck|slide|layer|trigger|wrapper|select|random|when|else if?)?\\b.*$",
+    "decreaseIndentPattern": "^\\s*:::\\s*$"
+  },
+  "surroundingPairs": [
+    ["{", "}"],
+    ["[", "]"],
+    ["(", ")"],
+    ["\"", "\""],
+    ["'", "'"],
+    ["`", "`"],
+    [":::", ":::"]
+  ]
+}

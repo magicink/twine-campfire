@@ -18,13 +18,14 @@ Replace `lang` with a locale like `fr`.
 
 ### `t`
 
-Output a translated string or expression. Use the optional `count` attribute for pluralization and `fallback` for default text when the translation is missing.
+Output a translated string or expression as either a leaf (`::t`) or inline (`:t`) directive. Use the optional `count` attribute for pluralization and `fallback` for default text when the translation is missing.
 
 ```md
-:t[ui:apple]{count=2}
-:t[apple]{ns="ui"}
-:t[favoriteFruit]
-:t[missing]{fallback=`Hello ${player}`}
+::t[ui:apple]{count=2}
+::t[apple]{ns="ui"}
+::t[favoriteFruit]
+::t[missing]{fallback="Hello ${player}"}
+:t[ui:apple]
 ```
 
 Replace `apple` and `ui` with your key and namespace. You can also provide the
@@ -62,7 +63,7 @@ for additional translations.
 :t[greeting]{ns="ui" name="Aiden"}
 ```
 
-Attributes on `:t` become interpolation variables for i18next.
+Attributes on `::t`/`:t` become interpolation variables for i18next.
 
 | Input  | Description                     |
 | ------ | ------------------------------- |

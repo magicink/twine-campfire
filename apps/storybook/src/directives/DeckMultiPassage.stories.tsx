@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/preact'
 import { Campfire } from '@campfire/components'
 import { DebugWindow } from '../DebugWindow'
+import { TwPassagedata, TwStorydata } from '../TwineElements'
 
 const meta: Meta = {
   title: 'Campfire/Directives/Deck'
@@ -16,8 +17,8 @@ export default meta
 export const MultiPassage: StoryObj = {
   render: () => (
     <>
-      <tw-storydata startnode='1' options='debug'>
-        <tw-passagedata pid='1' name='Start'>
+      <TwStorydata startnode='1' options='debug'>
+        <TwPassagedata pid='1' name='Start'>
           {`
 :::deck{size='1280x720'}
   :::slide
@@ -40,8 +41,8 @@ export const MultiPassage: StoryObj = {
   :::
 :::
 `}
-        </tw-passagedata>
-        <tw-passagedata pid='2' name='Second'>
+        </TwPassagedata>
+        <TwPassagedata pid='2' name='Second'>
           {`
 :::deck{size='1280x720'}
   :::slide
@@ -64,8 +65,8 @@ export const MultiPassage: StoryObj = {
   :::
 :::
 `}
-        </tw-passagedata>
-      </tw-storydata>
+        </TwPassagedata>
+      </TwStorydata>
       <Campfire data-testid='campfire' />
       <DebugWindow />
     </>

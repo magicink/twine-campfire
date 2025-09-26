@@ -11,12 +11,19 @@
   ],
   "workspaces": [
     "apps/campfire",
-    "apps/storybook"
+    "apps/storybook",
+    "projects/campfire-vscode-extension"
   ],
   "scripts": {
-    "build": "rimraf apps/campfire/dist && bunx rollup -c apps/campfire/rollup.config.mjs && node build-format.mjs",
+    "build": "bun run sync-version && rimraf apps/campfire/dist && bunx rollup -c apps/campfire/rollup.config.mjs && node build-format.mjs",
+    "check-version": "bun run scripts/sync-version.ts --check",
     "prepare": "husky || true",
+    "sync-version": "bun run scripts/sync-version.ts",
     "typecheck": "tsc --noEmit"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,json,css,scss,md}": "prettier --write",
+    "projects/campfire-vscode-extension/package.json": "git add"
   },
   "prettier": "@brandontom/prettier",
   "dependencies": {

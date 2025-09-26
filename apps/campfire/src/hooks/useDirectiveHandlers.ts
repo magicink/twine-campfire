@@ -436,6 +436,8 @@ export const useDirectiveHandlers = () => {
     const pair = ensureParentIndex(parent, index)
     if (!pair) return
     const [p, i] = pair
+    const invalid = requireLeafDirective(directive, p, i, addError)
+    if (invalid !== undefined) return invalid
     const { attrs: presetAttrs } = extractAttributes(
       directive,
       p,
@@ -695,7 +697,6 @@ export const useDirectiveHandlers = () => {
   } as const
 
   type TextSchema = typeof textSchema
-  type TextAttrs = ExtractedAttrs<TextSchema>
 
   /** Schema describing supported image directive attributes. */
   const imageSchema = {
@@ -718,7 +719,6 @@ export const useDirectiveHandlers = () => {
   } as const
 
   type ImageSchema = typeof imageSchema
-  type ImageAttrs = ExtractedAttrs<ImageSchema>
 
   /** Schema describing supported embed directive attributes. */
   const embedSchema = {
@@ -743,7 +743,6 @@ export const useDirectiveHandlers = () => {
   } as const
 
   type EmbedSchema = typeof embedSchema
-  type EmbedAttrs = ExtractedAttrs<EmbedSchema>
 
   /** Schema describing supported shape directive attributes. */
   const shapeSchema = {

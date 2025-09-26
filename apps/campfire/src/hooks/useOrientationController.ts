@@ -6,12 +6,17 @@ import {
 } from '@campfire/state/orientationState'
 
 interface LegacyScreen extends Screen {
-  lockOrientation?: (orientation: OrientationLockType) => unknown
+  lockOrientation?: (orientation: string) => unknown
   unlockOrientation?: () => unknown
 }
 
+interface ExtendedScreenOrientation {
+  lock?: (orientation: string) => Promise<void>
+  unlock?: () => void
+}
+
 interface OrientationControl {
-  lock?: (orientation: OrientationLockType) => void
+  lock?: (orientation: string) => void
   unlock?: () => void
 }
 
@@ -30,10 +35,10 @@ const safeInvoke = <T extends unknown[]>(
     const result = fn(...args)
     if (
       result &&
-      typeof (result as PromiseLike<unknown>).then === 'function' &&
-      typeof (result as PromiseLike<unknown>).catch === 'function'
+      typeof (result as any).then === 'function' &&
+      typeof (result as any).catch === 'function'
     ) {
-      ;(result as PromiseLike<unknown>).catch(() => {})
+      ;(result as Promise<unknown>).catch(() => {})
     }
   } catch {
     // ignore failures to avoid breaking unsupported browsers
@@ -48,7 +53,9 @@ const safeInvoke = <T extends unknown[]>(
 const createOrientationControl = (): OrientationControl => {
   const screenObject = globalThis.screen as LegacyScreen | undefined
   if (!screenObject) return {}
-  const orientation = screenObject.orientation
+  const orientation = screenObject.orientation as
+    | ExtendedScreenOrientation
+    | undefined
   const lockCandidate =
     orientation && typeof orientation.lock === 'function'
       ? orientation.lock.bind(orientation)
@@ -64,11 +71,8 @@ const createOrientationControl = (): OrientationControl => {
   return {
     lock:
       lockCandidate &&
-      ((value: OrientationLockType) => {
-        safeInvoke(
-          lockCandidate as (value: OrientationLockType) => unknown,
-          value
-        )
+      ((value: string) => {
+        safeInvoke(lockCandidate as (value: string) => unknown, value)
       }),
     unlock:
       unlockCandidate &&
@@ -79,7 +83,7 @@ const createOrientationControl = (): OrientationControl => {
 }
 
 /**
- * Controls screen orientation by locking to portrait on mount and toggling to
+ * Controls screen orientation by locking to portrait-mode on mount and toggling to
  * landscape when the corresponding directive flag is set.
  */
 export const useOrientationController = () => {

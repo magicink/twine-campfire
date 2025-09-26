@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/preact'
 import { Campfire } from '@campfire/components'
 import { DebugWindow } from '../DebugWindow'
+import { TwPassagedata, TwStorydata } from '../TwineElements'
 
 const meta: Meta = {
   title: 'Campfire/Directives/Localization'
@@ -16,8 +17,8 @@ export default meta
 export const LanguageSelect: StoryObj = {
   render: () => (
     <>
-      <tw-storydata startnode='1' options='debug'>
-        <tw-passagedata pid='1' name='Start'>
+      <TwStorydata startnode='1' options='debug'>
+        <TwPassagedata pid='1' name='Start'>
           {`
 ::set[lang="en-US"]
 ::setLanguageLabel[en-US="English (US)"]
@@ -42,8 +43,8 @@ export const LanguageSelect: StoryObj = {
 
 :t[ui:greet]
           `}
-        </tw-passagedata>
-      </tw-storydata>
+        </TwPassagedata>
+      </TwStorydata>
       <Campfire />
       <DebugWindow />
     </>

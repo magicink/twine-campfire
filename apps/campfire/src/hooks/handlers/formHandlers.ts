@@ -22,7 +22,8 @@ import {
   removeDirectiveMarker,
   isMarkerParagraph,
   isMarkerText,
-  ensureParentIndex
+  ensureParentIndex,
+  requireLeafDirective
 } from '@campfire/utils/directiveHandlerUtils'
 import { isWhitespaceRootContent } from '@campfire/utils/nodePredicates'
 
@@ -587,15 +588,11 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
   }
 
   const handleOption: DirectiveHandler = (directive, parent, index) => {
+    const invalid = requireLeafDirective(directive, parent, index, addError)
+    if (invalid !== undefined) return invalid
     const pair = ensureParentIndex(parent, index)
     if (!pair) return
     const [p, i] = pair
-    if (directive.type === 'textDirective') {
-      const msg = 'option cannot be used as an inline directive'
-      console.error(msg)
-      addError(msg)
-      return removeNode(p, i)
-    }
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const rawValue = attrs.value
     const value = parseAttributeValue(
@@ -625,42 +622,24 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       addError
     )
 
-    if (directive.type === 'leafDirective') {
-      const rawLabel = attrs.label
-      const labelAttr = parseAttributeValue(
-        rawLabel,
-        { type: 'string' },
-        getGameData()
-      )
-      if (labelAttr == null) {
-        const msg = 'option leaf directives require a label attribute'
-        console.error(msg)
-        addError(msg)
-        return removeNode(p, i)
-      }
-      const node: Parent = {
-        type: 'paragraph',
-        children: [{ type: 'text', value: String(labelAttr) }],
-        data: { hName: 'option', hProperties: props as Properties }
-      }
-      return replaceWithIndentation(directive, p, i, [node as RootContent])
-    }
-
-    const container = directive as ContainerDirective
-    const rawChildren = runDirectiveBlock(
-      expandIndentedCode(container.children as RootContent[])
+    const rawLabel = attrs.label
+    const labelAttr = parseAttributeValue(
+      rawLabel,
+      { type: 'string' },
+      getGameData()
     )
-    const children = rawChildren.filter(node => !isWhitespaceRootContent(node))
+    if (labelAttr == null) {
+      const msg = 'option leaf directives require a label attribute'
+      console.error(msg)
+      addError(msg)
+      return removeNode(p, i)
+    }
     const node: Parent = {
       type: 'paragraph',
-      children: children as RootContent[],
+      children: [{ type: 'text', value: String(labelAttr) }],
       data: { hName: 'option', hProperties: props as Properties }
     }
-    const newIndex = replaceWithIndentation(directive, p, i, [
-      node as RootContent
-    ])
-    removeTrailingMarker(p, newIndex + 1)
-    return [SKIP, newIndex]
+    return replaceWithIndentation(directive, p, i, [node as RootContent])
   }
 
   const handleSelect: DirectiveHandler = (directive, parent, index) => {

@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/preact'
 import { Campfire } from '@campfire/components'
 import { DebugWindow } from '../DebugWindow'
+import { TwPassagedata, TwStorydata } from '../TwineElements'
 
 const meta: Meta = {
   title: 'Campfire/Directives/Radio'
@@ -16,10 +17,10 @@ export default meta
 export const Basic: StoryObj = {
   render: () => (
     <>
-      <tw-storydata startnode='1' options='debug'>
-        <tw-passagedata pid='1' name='Start'>
+      <TwStorydata startnode='1' options='debug'>
+        <TwPassagedata pid='1' name='Start'>
           {`
-:preset{type="wrapper" name="radioLabel" as="div" className="flex items-center gap-2"}
+::preset{type="wrapper" name="radioLabel" as="div" className="flex items-center gap-2"}
 ::set[choice="b"]
 :::layer{className="flex gap-[12px] items-center justify-center"}
   :::wrapper{from="radioLabel"}
@@ -36,8 +37,8 @@ export const Basic: StoryObj = {
   :::
 :::
 `}
-        </tw-passagedata>
-      </tw-storydata>
+        </TwPassagedata>
+      </TwStorydata>
       <Campfire />
       <DebugWindow />
     </>
@@ -52,8 +53,8 @@ export const Basic: StoryObj = {
 export const AsInput: StoryObj = {
   render: () => (
     <>
-      <tw-storydata startnode='1' options='debug'>
-        <tw-passagedata pid='1' name='Start'>
+      <TwStorydata startnode='1' options='debug'>
+        <TwPassagedata pid='1' name='Start'>
           {`
   :::layer{className="flex gap-[4px] items-center justify-center"}
     :input[choice]{type='radio' value='a'}
@@ -61,8 +62,8 @@ export const AsInput: StoryObj = {
     :input[choice]{type='radio' value='c' disabled='true'}
   :::
 `}
-        </tw-passagedata>
-      </tw-storydata>
+        </TwPassagedata>
+      </TwStorydata>
       <Campfire />
       <DebugWindow />
     </>
