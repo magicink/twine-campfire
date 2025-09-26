@@ -8,7 +8,7 @@ Run content only when conditions hold.
 
 ### `if`
 
-Render a block when a JavaScript expression against game data is truthy. Add an `else` container for fallback content.
+Render a block when a JavaScript expression against game data is truthy.
 
 Basic truthy check:
 
@@ -56,20 +56,6 @@ Type checking:
 :::if[typeof key_a !== "string"]
 
 CONTENT WHEN `key_a` IS NOT A STRING
-
-:::
-```
-
-Using with else block:
-
-```md
-:::if[some_key]
-
-TRUTHY CONTENT
-
-:::else
-
-FALLBACK CONTENT
 
 :::
 ```

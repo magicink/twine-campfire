@@ -1,7 +1,7 @@
 {
   "name": "campfire-storybuilder",
   "displayName": "Campfire Storybuilder",
-  "version": "1.106.0",
+  "version": "1.107.1",
   "description": "Author Campfire stories in VS Code with syntax highlighting, snippets, and Campfire directive IntelliSense.",
   "categories": [
     "Programming Languages"

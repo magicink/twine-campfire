@@ -56,7 +56,7 @@ Campfire directives can be tedious to type by hand. The extension exposes comple
 
 - `::set`, `::setOnce`, `::createRange`, `::array`, and `::arrayOnce` state helpers.
 - Inline utilities such as `:random`, `:input`, and `:show` for dynamic content.
-- Container helpers including `:::if`, `:::else`, `:::input`, `::trigger`, `::select`, `:::deck`, `:::layer`, and `:::text`.
+- Container helpers including `:::if`, `:::input`, `::trigger`, `::select`, `:::deck`, `:::layer`, and `:::text`.
 
 Trigger completions with `:` and use the snippet placeholders to tab through each directive's attributes.
 

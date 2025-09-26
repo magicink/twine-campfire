@@ -81,11 +81,6 @@
     "body": [":::if[${1:condition}]", "$0", ":::"],
     "description": "Render content when an expression is truthy"
   },
-  "Else Block": {
-    "prefix": "cf-else",
-    "body": [":::else", "$0", ":::"],
-    "description": "Fallback content for a preceding if or switch"
-  },
   "Switch Block": {
     "prefix": "cf-switch",
     "body": [

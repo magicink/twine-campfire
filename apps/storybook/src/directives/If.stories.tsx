@@ -26,10 +26,6 @@ export const Truthy: StoryObj = {
 
 Flag is true
 
-:::else
-
-Flag is false
-
 :::
           `}
         </TwPassagedata>
@@ -41,7 +37,7 @@ Flag is false
 }
 
 /**
- * Shows fallback content when the condition is false.
+ * Shows that nothing from the directive renders when the condition is false.
  *
  * @returns Campfire story demonstrating `if` with a falsy value.
  */
@@ -55,13 +51,11 @@ export const Falsy: StoryObj = {
 
 :::if[flag]
 
-Flag is true
-
-:::else
-
-Flag is false
+This never renders
 
 :::
+
+Flag remains false.
           `}
         </TwPassagedata>
       </TwStorydata>

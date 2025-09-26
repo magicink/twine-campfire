@@ -144,41 +144,19 @@ not open
     expect(screen.queryByText(':::')).toBeNull()
   })
 
-  it('executes only the matching branch when else is present', async () => {
-    document.body.innerHTML = `
-<tw-storydata name="Story" startnode="1">
-  <tw-passagedata pid="1" name="Start">\n::set[open=true]
-
-:::if[open]
-::set[yes=true]
-:::else
-::set[no=true]
-:::
-  </tw-passagedata>
-</tw-storydata>
-    `
-    render(<Campfire />)
-    await waitFor(() => expect(useGameStore.getState().gameData.yes).toBe(true))
-    expect(useGameStore.getState().gameData.no).toBeUndefined()
-    expect(screen.queryByText(':::')).toBeNull()
-  })
-
-  it('renders else block when condition is false', async () => {
+  it('skips the block when the condition is false', async () => {
     document.body.innerHTML = `
 <tw-storydata name="Story" startnode="1">
   <tw-passagedata pid="1" name="Start">::set[open=false]
 
 :::if[open]
 ::set[yes=true]
-:::else
-::set[no=true]
 :::
   </tw-passagedata>
 </tw-storydata>
     `
     render(<Campfire />)
-    await waitFor(() => expect(useGameStore.getState().gameData.no).toBe(true))
+    await waitFor(() => expect(screen.queryByText(':::')).toBeNull())
     expect(useGameStore.getState().gameData.yes).toBeUndefined()
-    expect(screen.queryByText(':::')).toBeNull()
   })
 })

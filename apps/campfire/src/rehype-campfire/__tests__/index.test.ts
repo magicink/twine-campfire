@@ -114,30 +114,6 @@ describe('rehypeCampfire', () => {
     expect(first.tagName).toBe('show')
   })
 
-  it('unwraps else directives from paragraphs', () => {
-    const tree: Root = {
-      type: 'root',
-      children: [
-        {
-          type: 'element',
-          tagName: 'p',
-          properties: {},
-          children: [
-            {
-              type: 'element',
-              tagName: 'else',
-              properties: { content: '[]' },
-              children: []
-            }
-          ]
-        }
-      ]
-    }
-    rehypeCampfire()(tree)
-    const first = tree.children[0] as any
-    expect(first.tagName).toBe('else')
-  })
-
   it('unwraps input directives from paragraphs', () => {
     const tree: Root = {
       type: 'root',
@@ -307,33 +283,5 @@ describe('rehypeCampfire', () => {
     expect(content).toHaveLength(2)
     expect(content[0].tagName).toBe('show')
     expect(content[1].value).toBe('.')
-  })
-
-  it('unwraps paragraphs inside if directive fallback', () => {
-    const tree: Root = {
-      type: 'root',
-      children: [
-        {
-          type: 'element',
-          tagName: 'if',
-          properties: {
-            test: 'false',
-            fallback: JSON.stringify([
-              {
-                type: 'paragraph',
-                children: [{ type: 'text', value: 'Flag is false' }]
-              }
-            ])
-          },
-          children: []
-        }
-      ]
-    }
-    rehypeCampfire()(tree)
-    const first = tree.children[0] as any
-    const fallback = JSON.parse(first.properties.fallback)
-    expect(fallback).toHaveLength(1)
-    expect(fallback[0].type).toBe('text')
-    expect(fallback[0].value).toBe('Flag is false')
   })
 })
