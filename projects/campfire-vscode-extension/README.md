@@ -16,23 +16,22 @@ The Campfire Storybuilder extension adds syntax highlighting, directive snippets
 
 ## Install dependencies
 
-At the repository root, install the workspace dependencies (this also pulls the extension's TypeScript tooling):
+At the repository root, install the workspace dependencies (this pulls in the extension's TypeScript tooling and the `vsce` CLI used to package it):
 
 ```sh
 bun install
-bun run build
-bun run package
 ```
 
 ## Build the extension
 
-Compile the TypeScript source to `dist/extension.js` before packaging or running the extension in a development host:
+Run the packaging script to compile the TypeScript sources and emit the `.vsix`. The `package` task invokes `bun run build` via
+its `prepackage` hook, so you do not need to build separately:
 
 ```sh
-bun run --filter campfire-storybuilder build
+bun run --filter campfire-storybuilder package
 ```
 
-To watch for changes while developing, use:
+To watch for changes without creating a `.vsix`, use:
 
 ```sh
 bun run --filter campfire-storybuilder watch
@@ -40,13 +39,7 @@ bun run --filter campfire-storybuilder watch
 
 ## Package the extension
 
-Create a distributable `.vsix` archive using the bundled `vsce` CLI. The packaging script passes `--no-dependencies` so that `vsce` skips `npm list` validation (our workspace is managed by Bun rather than `npm`).
-
-```sh
-bun run --filter campfire-storybuilder package
-```
-
-The command writes `campfire-storybuilder-<version>.vsix` to the extension directory.
+The packaging script writes `campfire-storybuilder-<version>.vsix` to the extension directory. It passes `--no-dependencies` so that `vsce` skips `npm list` validation (our workspace is managed by Bun rather than `npm`).
 
 ## Install into VS Code
 
@@ -63,35 +56,11 @@ Campfire directives can be tedious to type by hand. The extension exposes comple
 
 - `::set`, `::setOnce`, `::createRange`, `::array`, and `::arrayOnce` state helpers.
 - Inline utilities such as `:random`, `:input`, and `:show` for dynamic content.
-- Container helpers including `:::if`, `:::else`, `:::for`, `:::input`, `::trigger`, `::select`, `:::deck`, `:::layer`, and `:::text`.
+- Container helpers including `:::if`, `:::else`, `:::input`, `::trigger`, `::select`, `:::deck`, `:::layer`, and `:::text`.
 
 Trigger completions with `:` and use the snippet placeholders to tab through each directive's attributes.
 
 > **Note:** Campfire's Twee/TWS formats require container and leaf directives that begin in column zero to be escaped with a leading backslash. The bundled snippets intentionally emit those escapes so reviewers know the `\:::` and `\::set` markers are correct and will compile in column-zero contexts.
-
-### `:::for` iteration helper
-
-Render passage content for every value in an array or numeric range:
-
-```md
-:::for[item in [1,2,3]]
-
-Item: :show[item]
-
-:::
-```
-
-To loop over a range, create it first and iterate the resulting handle:
-
-```md
-::createRange[r=0]{min=1 max=3}
-
-:::for[x in r]
-
-Number: :show[x]
-
-:::
-```
 
 ## Updating the extension version
 
