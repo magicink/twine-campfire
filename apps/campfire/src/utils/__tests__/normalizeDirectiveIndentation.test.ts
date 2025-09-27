@@ -13,4 +13,10 @@ describe('normalizeDirectiveIndentation', () => {
     const output = normalizeDirectiveIndentation(input)
     expect(output).toBe('   :three\n \t:mix')
   })
+
+  it('restores container boundaries removed by Twine whitespace trimming', () => {
+    const input = '::::::wrapper{className="test"}'
+    const output = normalizeDirectiveIndentation(input)
+    expect(output).toBe(':::\n:::wrapper{className="test"}')
+  })
 })
