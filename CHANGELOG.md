@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.108.1](https://github.com/magicink/twine-campfire/compare/v1.108.0...v1.108.1) (2025-09-27)
+
+
+### Bug Fixes
+
+* restore directive boundaries after Twine whitespace trimming ([#778](https://github.com/magicink/twine-campfire/issues/778)) ([a92ef15](https://github.com/magicink/twine-campfire/commit/a92ef15530ea9588051dbeefcd8ca5f1fdd6f4a3))
+* restrict leaf-only directives in Campfire grammar ([35f099b](https://github.com/magicink/twine-campfire/commit/35f099b256fe0b4f87f2c803c2644df49d0a837c))
+
 ## [1.108.0](https://github.com/magicink/twine-campfire/compare/v1.107.1...v1.108.0) (2025-09-26)
 
 
