@@ -99,7 +99,7 @@
       "patterns": [
         {
           "name": "meta.directive.container.campfire",
-          "begin": "^(\\\\s*)(:::)(?:allowLandscape|array|arrayOnce|batch|bgm|case|checkbox|checkpoint|clearCheckpoint|clearSave|concat|createRange|deck|default|effect|embed|for|goto|if|image|include|input|lang|layer|load|loadCheckpoint|onExit|option|pop|preloadAudio|preloadImage|push|radio|random|randomOnce|reveal|save|select|set|setLanguageLabel|setOnce|setRange|shape|shift|show|slide|sound|splice|switch|t|text|textarea|title|translations|trigger|unset|unshift|volume|wrapper)(?=\\\\b)",
+          "begin": "^(\\\\s*)(:::)(?:batch|case|checkbox|deck|default|effect|embed|for|if|image|input|layer|onExit|radio|reveal|select|shape|show|slide|switch|t|text|textarea|trigger)(?=\\\\b)",
           "beginCaptures": {
             "2": {
               "name": "punctuation.definition.directive.campfire"
