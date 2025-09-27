@@ -16,12 +16,12 @@ const restoreContainerBoundaries = (input: string): string => {
       const start = index
       output += ':::'
       index += 3
-      const prevChar = start > 0 ? (input[start - 1] ?? '') : ''
+      const prevChar = start > 0 ? input[start - 1] : ''
       if (input.startsWith(':::', index) && !/[A-Za-z0-9]/.test(prevChar)) {
         output += '\n'
       }
     } else {
-      output += input[index] ?? ''
+      output += input[index]
       index += 1
     }
   }
