@@ -14,6 +14,9 @@ declare global {
   var __campfirePassageCache:
     | Map<string, { text: string; content: ComponentChild }>
     | undefined
+
+  // eslint-disable-next-line no-var
+  var getStoryTitle: () => string | undefined
 }
 
 export {}

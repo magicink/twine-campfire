@@ -57,3 +57,28 @@ const useStoryDataStoreBase = create<StoryDataState>((set, get) => {
 
 /** Story data store with selector helpers. */
 export const useStoryDataStore = createSelectors(useStoryDataStoreBase)
+
+/**
+ * Retrieves the current story title from the story data store or DOM fallback.
+ *
+ * Falls back to reading the `name` attribute on the `<tw-storydata>` element
+ * when the store has not yet been populated, ensuring directive expressions can
+ * safely access the story title during early initialization.
+ *
+ * @returns The story title when available, otherwise undefined.
+ */
+export const getStoryTitle = (): string | undefined => {
+  const state = useStoryDataStore.getState()
+  const { storyData } = state
+  const name = storyData?.name
+  if (typeof name === 'string' && name.trim()) {
+    return name
+  }
+
+  const doc = globalThis.document
+  const title = doc?.querySelector('tw-storydata')?.getAttribute('name')?.trim()
+
+  return title || undefined
+}
+;(globalThis as { getStoryTitle?: typeof getStoryTitle }).getStoryTitle =
+  getStoryTitle

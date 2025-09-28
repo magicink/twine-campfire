@@ -159,4 +159,18 @@ not open
     await waitFor(() => expect(screen.queryByText(':::')).toBeNull())
     expect(useGameStore.getState().gameData.yes).toBeUndefined()
   })
+
+  it('allows directives to access the story title helper', async () => {
+    document.body.innerHTML = `
+<tw-storydata name="Helper Story" startnode="1">
+  <tw-passagedata pid="1" name="Start">::set[storyTitle=getStoryTitle()]</tw-passagedata>
+</tw-storydata>
+    `
+
+    render(<Campfire />)
+
+    await waitFor(() =>
+      expect(useGameStore.getState().gameData.storyTitle).toBe('Helper Story')
+    )
+  })
 })
