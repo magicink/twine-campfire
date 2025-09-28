@@ -80,5 +80,7 @@ export const getStoryTitle = (): string | undefined => {
 
   return title || undefined
 }
-;(globalThis as { getStoryTitle?: typeof getStoryTitle }).getStoryTitle =
-  getStoryTitle
+
+const globalScope = globalThis as { getStoryTitle?: typeof getStoryTitle }
+
+globalScope.getStoryTitle = getStoryTitle
