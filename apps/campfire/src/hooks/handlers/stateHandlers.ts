@@ -79,6 +79,11 @@ interface EvalScope {
   parent?: EvalScope
 }
 
+interface EvalScope {
+  bindings: Record<string, unknown>
+  parent?: EvalScope
+}
+
 /**
  * Context required to create state and array directive handlers.
  */
@@ -628,13 +633,9 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
    */
   const handleUnset: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (invalid !== undefined) return invalid
-    const attrs = directive.attributes || {}
-    const key = ensureKey(
-      (attrs as Record<string, unknown>).key ??
-        (hasLabel(directive) ? directive.label : toString(directive)),
-      parent,
-      index
+    bindings: {},
+      chain.push(cursor)
+    chain.reverse()
     )
     if (!key) return index
 
