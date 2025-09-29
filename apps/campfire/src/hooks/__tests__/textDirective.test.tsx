@@ -1,9 +1,25 @@
-import { describe, it, expect, beforeEach } from 'bun:test'
+import { describe, it, expect, beforeEach, beforeAll, afterAll } from 'bun:test'
 import { render } from '@testing-library/preact'
 import type { ComponentChild } from 'preact'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { renderDirectiveMarkdown } from '@campfire/components/Deck/Slide'
 import { useGameStore } from '@campfire/state/useGameStore'
+import { GlobalRegistrator } from '@happy-dom/global-registrator'
+
+let didRegisterHappyDom = false
+
+beforeAll(() => {
+  if (typeof document === 'undefined') {
+    GlobalRegistrator.register()
+    didRegisterHappyDom = true
+  }
+})
+
+afterAll(async () => {
+  if (didRegisterHappyDom) {
+    await GlobalRegistrator.unregister()
+  }
+})
 
 let output: ComponentChild | null = null
 
