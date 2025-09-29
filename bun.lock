@@ -25,9 +25,10 @@
       },
     },
     "apps/campfire": {
-      "name": "campfire",
-      "version": "1.0.0",
+      "name": "campfire-storyformat",
+      "version": "1.108.0",
       "dependencies": {
+        "acorn": "^8.14.0",
         "ejs": "^3.1.10",
         "expression-eval": "^5.0.1",
         "fast-deep-equal": "^3.1.3",
@@ -80,7 +81,7 @@
     },
     "projects/campfire-vscode-extension": {
       "name": "campfire-storybuilder",
-      "version": "0.1.0",
+      "version": "1.108.0",
       "devDependencies": {
         "@types/vscode": "^1.104.0",
         "typescript": "^5.4.0",
@@ -428,11 +429,11 @@
 
     "camelcase-keys": ["camelcase-keys@6.2.2", "", { "dependencies": { "camelcase": "^5.3.1", "map-obj": "^4.0.0", "quick-lru": "^4.0.1" } }, "sha512-YrwaA0vEKazPBkn0ipTiMpSajYDSe+KjQfrjhcBMxJt/znbvlHd8Pw/Vamaz5EB4Wfhs3SUR3Z9mwRu/P3s3Yg=="],
 
-    "campfire": ["campfire@workspace:apps/campfire"],
-
     "campfire-storybook": ["campfire-storybook@workspace:apps/storybook"],
 
     "campfire-storybuilder": ["campfire-storybuilder@workspace:projects/campfire-vscode-extension"],
+
+    "campfire-storyformat": ["campfire-storyformat@workspace:apps/campfire"],
 
     "ccount": ["ccount@2.0.1", "", {}, "sha512-eyrF0jiFpY+3drT6383f1qhkbGsLSifNAjA61IUjZjmLCWjItY6LB9ft9YhoDgwfmclB2zhu51Lc7+95b8NRAg=="],
 

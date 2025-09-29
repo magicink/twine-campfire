@@ -152,7 +152,7 @@
     },
     "containerEvalDirective": {
       "name": "meta.directive.container.eval.campfire",
-      "begin": "^(\\\\s*)(:::)(eval)(?=\\\\b)(\\\\s*)$",
+      "begin": "^(\\s*)(:::)(eval)(?=\\b)(\\s*)$",
       "beginCaptures": {
         "2": {
           "name": "punctuation.definition.directive.campfire"

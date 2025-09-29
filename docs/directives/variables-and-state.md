@@ -66,7 +66,9 @@ Inside the container, the following helpers are available:
 | `evalExpression` | Reuses Campfire's expression evaluator for convenience |
 
 Use this directive sparingly—it runs immediately when the passage renders and can perform any side effects allowed by the
-runtime.
+runtime. The interpreter supports expression statements, variable declarations, and `if` branches, but does not execute loops
+or advanced JavaScript features. Never include untrusted code: while the interpreter limits syntax, evaluated expressions can
+still interact with the surrounding runtime.
 
 ### `random`
 
