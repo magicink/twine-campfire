@@ -72,6 +72,9 @@
           "include": "#containerEventDirective"
         },
         {
+          "include": "#containerEvalDirective"
+        },
+        {
           "include": "#containerDirective"
         },
         {
@@ -144,6 +147,25 @@
               "include": "#directiveAttributes"
             }
           ]
+        }
+      ]
+    },
+    "containerEvalDirective": {
+      "name": "meta.directive.container.eval.campfire",
+      "begin": "^(\\s*)(:::)(eval)(?=\\b)(\\s*)$",
+      "beginCaptures": {
+        "2": {
+          "name": "punctuation.definition.directive.campfire"
+        },
+        "3": {
+          "name": "keyword.control.directive.campfire"
+        }
+      },
+      "end": "^(?=\\s*:::\\s*$)",
+      "contentName": "source.js.embedded.block.eval.campfire",
+      "patterns": [
+        {
+          "include": "source.js"
         }
       ]
     },
