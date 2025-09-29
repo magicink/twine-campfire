@@ -1,5 +1,18 @@
 import { toString } from 'mdast-util-to-string'
 import { parse } from 'acorn'
+import type {
+  BlockStatement,
+  EmptyStatement,
+  Expression,
+  ExpressionStatement,
+  Identifier,
+  IfStatement,
+  ModuleDeclaration,
+  Node as AcornNode,
+  Pattern,
+  Statement,
+  VariableDeclaration
+} from 'acorn'
 import type { Parent, RootContent } from 'mdast'
 import type {
   DirectiveHandler,
@@ -31,6 +44,35 @@ import { parseTypedValue } from '@campfire/utils/directiveUtils'
 import { extractQuoted, evalExpression } from '@campfire/utils/core'
 import type { ContainerDirective } from 'mdast-util-directive'
 import type { SetOptions, StateManagerType } from '@campfire/state/stateManager'
+
+const isRootContentNode = (value: unknown): value is RootContent =>
+  typeof value === 'object' && value !== null && 'type' in value
+
+const isStatementNode = (
+  node: Statement | ModuleDeclaration
+): node is Statement =>
+  node.type !== 'ImportDeclaration' &&
+  node.type !== 'ExportNamedDeclaration' &&
+  node.type !== 'ExportDefaultDeclaration' &&
+  node.type !== 'ExportAllDeclaration'
+
+const isExpressionStatement = (node: Statement): node is ExpressionStatement =>
+  node.type === 'ExpressionStatement'
+
+const isBlockStatement = (node: Statement): node is BlockStatement =>
+  node.type === 'BlockStatement'
+
+const isVariableDeclaration = (node: Statement): node is VariableDeclaration =>
+  node.type === 'VariableDeclaration'
+
+const isIfStatement = (node: Statement): node is IfStatement =>
+  node.type === 'IfStatement'
+
+const isEmptyStatement = (node: Statement): node is EmptyStatement =>
+  node.type === 'EmptyStatement'
+
+const isIdentifierPattern = (pattern: Pattern): pattern is Identifier =>
+  pattern.type === 'Identifier'
 
 /**
  * Context required to create state and array directive handlers.
@@ -611,9 +653,6 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
    * @param index - Index of the directive within the parent.
    * @returns The index of the removed node, if any.
    */
-  const isRootContentNode = (value: unknown): value is RootContent =>
-    typeof value === 'object' && value !== null && 'type' in value
-
   interface EvalScope {
     bindings: Record<string, unknown>
     parent?: EvalScope
@@ -623,12 +662,6 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
     bindings: Object.create(null) as Record<string, unknown>,
     parent
   })
-
-  const getRootEvalScope = (scope: EvalScope): EvalScope => {
-    let current = scope
-    while (current.parent) current = current.parent
-    return current
-  }
 
   const flattenScopeValues = (scope: EvalScope): Record<string, unknown> => {
     const chain: EvalScope[] = []
@@ -645,70 +678,12 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
     }, {})
   }
 
-  interface BaseNode {
-    type: string
-    start: number
-    end: number
-  }
-
-  interface ProgramNode extends BaseNode {
-    body: StatementNode[]
-  }
-
-  interface ExpressionNode extends BaseNode {}
-
-  interface IdentifierNode extends BaseNode {
-    type: 'Identifier'
-    name: string
-  }
-
-  interface VariableDeclaratorNode extends BaseNode {
-    type: 'VariableDeclarator'
-    id: IdentifierNode | ExpressionNode
-    init: ExpressionNode | null
-  }
-
-  interface VariableDeclarationNode extends BaseNode {
-    type: 'VariableDeclaration'
-    kind: 'var' | 'let' | 'const'
-    declarations: VariableDeclaratorNode[]
-  }
-
-  interface ExpressionStatementNode extends BaseNode {
-    type: 'ExpressionStatement'
-    expression: ExpressionNode
-  }
-
-  interface BlockStatementNode extends BaseNode {
-    type: 'BlockStatement'
-    body: StatementNode[]
-  }
-
-  interface IfStatementNode extends BaseNode {
-    type: 'IfStatement'
-    test: ExpressionNode
-    consequent: StatementNode
-    alternate?: StatementNode | null
-  }
-
-  interface EmptyStatementNode extends BaseNode {
-    type: 'EmptyStatement'
-  }
-
-  type StatementNode =
-    | ExpressionStatementNode
-    | BlockStatementNode
-    | VariableDeclarationNode
-    | IfStatementNode
-    | EmptyStatementNode
-    | (BaseNode & Record<string, unknown>)
-
-  const getNodeSource = (source: string, node: BaseNode): string =>
+  const getNodeSource = (source: string, node: AcornNode): string =>
     source.slice(node.start, node.end)
 
   const evaluateExpressionNode = (
     source: string,
-    expression: ExpressionNode,
+    expression: Expression,
     scope: EvalScope,
     context: Record<string, unknown>
   ) =>
@@ -718,62 +693,68 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
     })
 
   const executeStatementNode = (
-    node: StatementNode,
+    node: Statement,
     source: string,
     scope: EvalScope,
     context: Record<string, unknown>
   ) => {
-    switch (node.type) {
-      case 'EmptyStatement':
-        return
-      case 'ExpressionStatement':
-        evaluateExpressionNode(source, node.expression, scope, context)
-        return
-      case 'BlockStatement': {
-        const nested = createEvalScope(scope)
-        for (const stmt of node.body) {
-          executeStatementNode(stmt as StatementNode, source, nested, context)
-        }
-        return
-      }
-      case 'VariableDeclaration': {
-        for (const decl of node.declarations) {
-          if (decl.id.type !== 'Identifier') {
-            throw new Error(
-              'Only simple identifier bindings are supported in eval directives'
-            )
-          }
-          const target = node.kind === 'var' ? getRootEvalScope(scope) : scope
-          const value =
-            decl.init === null
-              ? undefined
-              : evaluateExpressionNode(source, decl.init, scope, context)
-          target.bindings[decl.id.name] = value
-        }
-        return
-      }
-      case 'IfStatement': {
-        const test = evaluateExpressionNode(source, node.test, scope, context)
-        if (test) {
-          executeStatementNode(
-            node.consequent as StatementNode,
-            source,
-            scope,
-            context
-          )
-        } else if (node.alternate) {
-          executeStatementNode(
-            node.alternate as StatementNode,
-            source,
-            scope,
-            context
-          )
-        }
-        return
-      }
-      default:
-        throw new Error(`Unsupported statement in eval directive: ${node.type}`)
+    if (isEmptyStatement(node)) return
+
+    if (isExpressionStatement(node)) {
+      evaluateExpressionNode(source, node.expression, scope, context)
+      return
     }
+
+    if (isBlockStatement(node)) {
+      const nested = createEvalScope(scope)
+      for (const stmt of node.body) {
+        executeStatementNode(stmt, source, nested, context)
+      }
+      return
+    }
+
+    if (isVariableDeclaration(node)) {
+      if (node.kind === 'var') {
+        const msg = 'eval directive only supports block-scoped variables'
+        console.error(msg)
+        addError(msg)
+        return
+      }
+
+      const targetScope = scope
+      for (const declaration of node.declarations) {
+        if (!isIdentifierPattern(declaration.id)) {
+          const msg =
+            'eval directive only supports identifier variable declarations'
+          console.error(msg)
+          addError(msg)
+          continue
+        }
+
+        const value =
+          declaration.init === null
+            ? undefined
+            : evaluateExpressionNode(source, declaration.init, scope, context)
+        targetScope.bindings[declaration.id.name] = value
+      }
+      return
+    }
+
+    if (isIfStatement(node)) {
+      const test = Boolean(
+        evaluateExpressionNode(source, node.test, scope, context)
+      )
+      if (test) {
+        executeStatementNode(node.consequent, source, scope, context)
+      } else if (node.alternate) {
+        executeStatementNode(node.alternate, source, scope, context)
+      }
+      return
+    }
+
+    const msg = `Unsupported statement in eval directive: ${node.type}`
+    console.error(msg)
+    addError(msg)
   }
 
   const runEvalScript = (source: string, context: Record<string, unknown>) => {
@@ -781,9 +762,15 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
     const program = parse(source, {
       ecmaVersion: 'latest',
       sourceType: 'script'
-    }) as unknown as ProgramNode
+    })
     const scope = createEvalScope()
     for (const statement of program.body) {
+      if (!isStatementNode(statement)) {
+        const msg = `eval directive does not support ${statement.type} syntax`
+        console.error(msg)
+        addError(msg)
+        continue
+      }
       executeStatementNode(statement, source, scope, context)
     }
   }
