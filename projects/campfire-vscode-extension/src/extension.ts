@@ -51,6 +51,15 @@ const directiveSnippets: DirectiveSnippet[] = [
     body: '::setOnce[${1:key}=${2:value}]'
   },
   {
+    marker: ':::',
+    label: 'eval',
+    escapeAtColumnZero: true,
+    detail: 'Run arbitrary JavaScript',
+    documentation:
+      "Executes JavaScript against story state as a container block. Access the state manager via `state`, the current snapshot via `game`, and Campfire's expression helper via `evalExpression`. Labels and attributes are not supported.",
+    body: ':::eval\n$0\n:::'
+  },
+  {
     marker: '::',
     label: 'range',
     completionLabel: ':: createRange',
