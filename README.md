@@ -62,6 +62,7 @@ See the dedicated docs for detailed usage:
 - [Asset management](docs/directives/asset-management.md)
 - [Persistence](docs/directives/persistence.md)
 - [Localization & internationalization](docs/directives/localization.md)
+- [Helper functions reference](docs/helper-functions.md)
 
 Campfire prints descriptive error messages to the browser console when it encounters invalid markup.
 
