@@ -1,8 +1,20 @@
 import { GlobalRegistrator } from '@happy-dom/global-registrator'
-import { afterAll } from 'bun:test'
+import { afterAll, beforeAll } from 'bun:test'
 
-GlobalRegistrator.register()
+const ensureRegistration = () => {
+  if (!GlobalRegistrator.isRegistered) {
+    GlobalRegistrator.register()
+  }
+}
+
+ensureRegistration()
+
+beforeAll(() => {
+  ensureRegistration()
+})
 
 afterAll(async () => {
-  await GlobalRegistrator.unregister()
+  if (GlobalRegistrator.isRegistered) {
+    await GlobalRegistrator.unregister()
+  }
 })
