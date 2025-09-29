@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.109.0](https://github.com/magicink/twine-campfire/compare/v1.108.1...v1.109.0) (2025-09-29)
+
+
+### Features
+
+* implement container-only eval directive ([#785](https://github.com/magicink/twine-campfire/issues/785)) ([d76b263](https://github.com/magicink/twine-campfire/commit/d76b2635b02b6879f33186ef3196d7f4377c9bb9))
+
+
+### Bug Fixes
+
+* restore unset directive handler guard ([#786](https://github.com/magicink/twine-campfire/issues/786)) ([77ef2a8](https://github.com/magicink/twine-campfire/commit/77ef2a8a7a61245d7f517b1abe1a8f089114d07f))
+* stabilize happy dom registration ([#788](https://github.com/magicink/twine-campfire/issues/788)) ([19b9540](https://github.com/magicink/twine-campfire/commit/19b954024d45f506b92d1f2437d7162e0d5aa018))
+
 ## [1.108.1](https://github.com/magicink/twine-campfire/compare/v1.108.0...v1.108.1) (2025-09-27)
 
 
