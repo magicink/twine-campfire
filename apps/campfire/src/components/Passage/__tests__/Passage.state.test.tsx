@@ -232,14 +232,14 @@ describe('Passage game state directives', () => {
 
       await waitFor(() => {
         expect(useGameStore.getState().errors).toContain(
-          'eval does not support labels or attributes'
+          'eval does not support attributes'
         )
       })
 
       expect(
         (useGameStore.getState().gameData as Record<string, unknown>).hp
       ).toBe(1)
-      expect(logged[0]?.[0]).toBe('eval does not support labels or attributes')
+      expect(logged[0]?.[0]).toBe('eval does not support attributes')
     } finally {
       console.error = originalError
     }
@@ -279,14 +279,14 @@ describe('Passage game state directives', () => {
 
       await waitFor(() => {
         expect(useGameStore.getState().errors).toContain(
-          'eval does not support labels or attributes'
+          'eval does not support labels'
         )
       })
 
       expect(
         (useGameStore.getState().gameData as Record<string, unknown>).hp
       ).toBe(1)
-      expect(logged[0]?.[0]).toBe('eval does not support labels or attributes')
+      expect(logged[0]?.[0]).toBe('eval does not support labels')
     } finally {
       console.error = originalError
     }

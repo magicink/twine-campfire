@@ -623,7 +623,7 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
 
     const attrs = directive.attributes || {}
     if (Object.keys(attrs).length > 0) {
-      const msg = 'eval does not support labels or attributes'
+      const msg = 'eval does not support attributes'
       console.error(msg)
       addError(msg)
       return removeNode(p, i)
@@ -632,7 +632,7 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
     const container = directive as ContainerDirective
     const label = getLabel(container).trim()
     if (label) {
-      const msg = 'eval does not support labels or attributes'
+      const msg = 'eval does not support labels'
       console.error(msg)
       addError(msg)
       return removeNode(p, i)
