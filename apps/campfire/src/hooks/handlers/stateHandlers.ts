@@ -1,5 +1,5 @@
 import { toString } from 'mdast-util-to-string'
-import type { Parent } from 'mdast'
+import type { Parent, RootContent } from 'mdast'
 import type {
   DirectiveHandler,
   DirectiveHandlerResult
@@ -12,7 +12,10 @@ import {
   hasLabel,
   removeNode,
   applyKeyValue,
-  isRange
+  isRange,
+  stripLabel,
+  expandIndentedCode,
+  getLabel
 } from '@campfire/utils/directiveUtils'
 import {
   ensureParentIndex,
@@ -24,7 +27,8 @@ import {
   parseNumericValue
 } from '@campfire/utils/math'
 import { parseTypedValue } from '@campfire/utils/directiveUtils'
-import { extractQuoted } from '@campfire/utils/core'
+import { extractQuoted, evalExpression } from '@campfire/utils/core'
+import type { ContainerDirective } from 'mdast-util-directive'
 import type { SetOptions, StateManagerType } from '@campfire/state/stateManager'
 
 /**
@@ -591,6 +595,91 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
     return removeNode(parent, index)
   }
 
+  /**
+   * Executes arbitrary JavaScript provided to the `eval` directive.
+   *
+   * Exposes the active {@link StateManagerType} instance as `state`, the
+   * current game data snapshot as `game`, and the {@link evalExpression}
+   * helper for convenience. Code is executed in strict mode using the
+   * Function constructor. Any errors are logged and surfaced through
+   * {@link addError}.
+   *
+   * @param directive - The directive node representing the eval directive.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within the parent.
+   * @returns The index of the removed node, if any.
+   */
+  const handleEval: DirectiveHandler = (directive, parent, index) => {
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
+
+    if (directive.type !== 'containerDirective') {
+      const msg = 'eval can only be used as a container directive'
+      console.error(msg)
+      addError(msg)
+      return removeNode(p, i)
+    }
+
+    const attrs = directive.attributes || {}
+    if (Object.keys(attrs).length > 0) {
+      const msg = 'eval does not support attributes'
+      console.error(msg)
+      addError(msg)
+      return removeNode(p, i)
+    }
+
+    const container = directive as ContainerDirective
+    const label = getLabel(container).trim()
+    if (label) {
+      const msg = 'eval does not support labels'
+      console.error(msg)
+      addError(msg)
+      return removeNode(p, i)
+    }
+
+    const expanded = expandIndentedCode(
+      (container.children as RootContent[]) || []
+    )
+    const body = stripLabel(expanded)
+    const code = body
+      .map(child => toString(child))
+      .join('\n')
+      .trim()
+
+    if (!code) {
+      const removed = removeNode(p, i)
+      return typeof removed === 'number' ? removed : i
+    }
+
+    try {
+      const manager = getState()
+      const fn = new Function(
+        'state',
+        'game',
+        'evalExpression',
+        `'use strict';\n${code}\n`
+      ) as (
+        state: StateManagerType<Record<string, unknown>>,
+        game: Record<string, unknown>,
+        evaluate: typeof evalExpression
+      ) => unknown
+
+      fn(manager, manager.getState() as Record<string, unknown>, evalExpression)
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? `Failed to evaluate eval directive: ${error.message}`
+          : 'Failed to evaluate eval directive'
+      console.error(message, error)
+      addError(message)
+    } finally {
+      refreshState()
+    }
+
+    return removeNode(p, i)
+  }
+
   const handlers = {
     set: (d: DirectiveNode, p: Parent | undefined, i: number | undefined) =>
       handleSet(d, p, i, false),
@@ -617,7 +706,8 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
     unshift: handleUnshift,
     splice: handleSplice,
     concat: handleConcat,
-    unset: handleUnset
+    unset: handleUnset,
+    eval: handleEval
   }
 
   return { handlers, setValue }

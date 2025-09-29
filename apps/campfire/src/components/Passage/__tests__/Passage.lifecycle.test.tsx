@@ -245,7 +245,7 @@ describe('Passage lifecycle directives', () => {
 
     await waitFor(() => {
       expect(useGameStore.getState().errors).toEqual([
-        'onExit only supports directives: set, setOnce, array, arrayOnce, createRange, setRange, unset, random, randomOnce, push, pop, shift, unshift, splice, concat, checkpoint, loadCheckpoint, clearCheckpoint, save, load, clearSave, lang, translations, if, for, switch, batch'
+        'onExit only supports directives: set, setOnce, array, arrayOnce, createRange, setRange, unset, random, randomOnce, push, pop, shift, unshift, splice, concat, eval, checkpoint, loadCheckpoint, clearCheckpoint, save, load, clearSave, lang, translations, if, for, switch, batch'
       ])
       expect(logged).toHaveLength(1)
     })

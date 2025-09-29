@@ -2,7 +2,7 @@
 
 Operations that set, update, or remove scalar values, manage numeric ranges, and manipulate arrays.
 
-State directives must use the leaf `::` prefix. Inline `:` forms are not supported.
+State directives must use the leaf `::` prefix unless otherwise noted. Inline `:` forms are not supported.
 
 ### `set`
 
@@ -45,6 +45,28 @@ Set a key only if it has not been set. This directive is leaf-only and cannot wr
 | value | Value to assign on first use |
 
 Replace `visited` with the key to lock on first use.
+
+### `eval`
+
+Evaluate arbitrary JavaScript with access to the game state using the container `:::` syntax. The directive must not include
+labels or attributes—only the code block between the opening and closing markers is executed.
+
+```md
+:::eval
+state.setValue("hp", state.getValue("hp") + 5)
+:::
+```
+
+Inside the container, the following helpers are available:
+
+| Helper           | Description                                            |
+| ---------------- | ------------------------------------------------------ |
+| `state`          | Active state manager for reading or writing values     |
+| `game`           | Snapshot of the current game data                      |
+| `evalExpression` | Reuses Campfire's expression evaluator for convenience |
+
+Use this directive sparingly—it runs immediately when the passage renders and can perform any side effects allowed by the
+runtime.
 
 ### `random`
 
