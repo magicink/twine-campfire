@@ -1,6 +1,8 @@
 import {
   CompletionItem,
   CompletionItemKind,
+  Diagnostic,
+  DiagnosticSeverity,
   ExtensionContext,
   Location,
   MarkdownString,
@@ -8,7 +10,8 @@ import {
   Range,
   SnippetString,
   TextDocument,
-  languages
+  languages,
+  workspace
 } from 'vscode'
 
 /**
@@ -49,6 +52,15 @@ const directiveSnippets: DirectiveSnippet[] = [
     documentation:
       'Sets the provided state key the first time it runs and leaves the existing value untouched afterwards.',
     body: '::setOnce[${1:key}=${2:value}]'
+  },
+  {
+    marker: ':::',
+    label: 'eval',
+    escapeAtColumnZero: true,
+    detail: 'Run arbitrary JavaScript',
+    documentation:
+      "Executes JavaScript against story state as a container block. Access the state manager via `state`, the current snapshot via `game`, and Campfire's expression helper via `evalExpression`. Labels and attributes are not supported.",
+    body: ':::eval\n$0\n:::'
   },
   {
     marker: '::',
@@ -1262,6 +1274,53 @@ const collectAutolinkReferences = (
 }
 
 /**
+ * Build diagnostics for eval directives that use unsupported labels or attributes.
+ *
+ * @param document - Active Campfire text document.
+ * @returns Diagnostics describing unsupported label or attribute usage.
+ */
+const collectEvalDirectiveDiagnostics = (
+  document: TextDocument
+): Diagnostic[] => {
+  const text = document.getText()
+  const diagnostics: Diagnostic[] = []
+  const directivePattern = /(?<!:)(?<!\\):::\s*eval\b/gi
+  let match: RegExpExecArray | null
+
+  while ((match = directivePattern.exec(text))) {
+    let offset = match.index + match[0].length
+    offset = skipWhitespace(text, offset)
+
+    if (text[offset] === '[') {
+      const label = extractDelimitedSection(text, offset, '[', ']')
+      const endIndex = label ? label.endIndex : offset + 1
+      const diagnostic = new Diagnostic(
+        new Range(document.positionAt(offset), document.positionAt(endIndex)),
+        'Labels are not supported on ::eval directives.',
+        DiagnosticSeverity.Error
+      )
+      diagnostic.source = 'campfire'
+      diagnostics.push(diagnostic)
+      offset = skipWhitespace(text, endIndex)
+    }
+
+    if (text[offset] === '{') {
+      const attributes = extractDelimitedSection(text, offset, '{', '}')
+      const endIndex = attributes ? attributes.endIndex : offset + 1
+      const diagnostic = new Diagnostic(
+        new Range(document.positionAt(offset), document.positionAt(endIndex)),
+        'Attributes are not supported on ::eval directives.',
+        DiagnosticSeverity.Error
+      )
+      diagnostic.source = 'campfire'
+      diagnostics.push(diagnostic)
+    }
+  }
+
+  return diagnostics
+}
+
+/**
  * Resolve the range of the passage definition matching the supplied name.
  *
  * @param definitions - Map of passage definitions extracted from the document.
@@ -1309,6 +1368,20 @@ export function activate(context: ExtensionContext): void {
     ':'
   )
 
+  const diagnostics = languages.createDiagnosticCollection(
+    'campfire-directives'
+  )
+  const updateDiagnostics = (document: TextDocument): void => {
+    if (document.languageId !== 'campfire') {
+      diagnostics.delete(document.uri)
+      return
+    }
+
+    diagnostics.set(document.uri, collectEvalDirectiveDiagnostics(document))
+  }
+
+  workspace.textDocuments.forEach(updateDiagnostics)
+
   const definitionProvider = languages.registerDefinitionProvider(
     { language: 'campfire' },
     {
@@ -1338,7 +1411,22 @@ export function activate(context: ExtensionContext): void {
     }
   )
 
-  context.subscriptions.push(provider, definitionProvider)
+  const changeSubscription = workspace.onDidChangeTextDocument(event =>
+    updateDiagnostics(event.document)
+  )
+  const openSubscription = workspace.onDidOpenTextDocument(updateDiagnostics)
+  const closeSubscription = workspace.onDidCloseTextDocument(document =>
+    diagnostics.delete(document.uri)
+  )
+
+  context.subscriptions.push(
+    provider,
+    definitionProvider,
+    diagnostics,
+    changeSubscription,
+    openSubscription,
+    closeSubscription
+  )
 }
 
 /**

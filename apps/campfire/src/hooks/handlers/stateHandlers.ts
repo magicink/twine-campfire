@@ -1,5 +1,19 @@
 import { toString } from 'mdast-util-to-string'
-import type { Parent } from 'mdast'
+import { parse } from 'acorn'
+import type {
+  BlockStatement,
+  EmptyStatement,
+  Expression,
+  ExpressionStatement,
+  Identifier,
+  IfStatement,
+  ModuleDeclaration,
+  Node as AcornNode,
+  Pattern,
+  Statement,
+  VariableDeclaration
+} from 'acorn'
+import type { Parent, RootContent } from 'mdast'
 import type {
   DirectiveHandler,
   DirectiveHandlerResult
@@ -12,7 +26,10 @@ import {
   hasLabel,
   removeNode,
   applyKeyValue,
-  isRange
+  isRange,
+  stripLabel,
+  expandIndentedCode,
+  getLabel
 } from '@campfire/utils/directiveUtils'
 import {
   ensureParentIndex,
@@ -24,8 +41,48 @@ import {
   parseNumericValue
 } from '@campfire/utils/math'
 import { parseTypedValue } from '@campfire/utils/directiveUtils'
-import { extractQuoted } from '@campfire/utils/core'
+import { extractQuoted, evalExpression } from '@campfire/utils/core'
+import type { ContainerDirective } from 'mdast-util-directive'
 import type { SetOptions, StateManagerType } from '@campfire/state/stateManager'
+
+const isRootContentNode = (value: unknown): value is RootContent =>
+  typeof value === 'object' && value !== null && 'type' in value
+
+const isStatementNode = (
+  node: Statement | ModuleDeclaration
+): node is Statement =>
+  node.type !== 'ImportDeclaration' &&
+  node.type !== 'ExportNamedDeclaration' &&
+  node.type !== 'ExportDefaultDeclaration' &&
+  node.type !== 'ExportAllDeclaration'
+
+const isExpressionStatement = (node: Statement): node is ExpressionStatement =>
+  node.type === 'ExpressionStatement'
+
+const isBlockStatement = (node: Statement): node is BlockStatement =>
+  node.type === 'BlockStatement'
+
+const isVariableDeclaration = (node: Statement): node is VariableDeclaration =>
+  node.type === 'VariableDeclaration'
+
+const isIfStatement = (node: Statement): node is IfStatement =>
+  node.type === 'IfStatement'
+
+const isEmptyStatement = (node: Statement): node is EmptyStatement =>
+  node.type === 'EmptyStatement'
+
+const isIdentifierPattern = (pattern: Pattern): pattern is Identifier =>
+  pattern.type === 'Identifier'
+
+interface EvalScope {
+  bindings: Record<string, unknown>
+  parent?: EvalScope
+}
+
+interface EvalScope {
+  bindings: Record<string, unknown>
+  parent?: EvalScope
+}
 
 /**
  * Context required to create state and array directive handlers.
@@ -576,19 +633,213 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
    */
   const handleUnset: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (invalid !== undefined) return invalid
-    const attrs = directive.attributes || {}
-    const key = ensureKey(
-      (attrs as Record<string, unknown>).key ??
-        (hasLabel(directive) ? directive.label : toString(directive)),
-      parent,
-      index
+    bindings: {},
+      chain.push(cursor)
+    chain.reverse()
     )
     if (!key) return index
 
     unsetValue(key)
 
     return removeNode(parent, index)
+  }
+
+  /**
+   * Executes arbitrary JavaScript provided to the `eval` directive.
+   *
+   * Exposes the active {@link StateManagerType} instance as `state`, the
+   * current game data snapshot as `game`, and the {@link evalExpression}
+   * helper for convenience. Code is parsed and executed using a limited
+   * interpreter that supports expression statements, block scoping, variable
+   * declarations, and conditional branching. Any errors are logged and
+   * surfaced through {@link addError}.
+   *
+   * @param directive - The directive node representing the eval directive.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within the parent.
+   * @returns The index of the removed node, if any.
+   */
+  const createEvalScope = (parent?: EvalScope): EvalScope => ({
+    bindings: {},
+    parent
+  })
+
+  const flattenScopeValues = (scope: EvalScope): Record<string, unknown> => {
+    const chain: EvalScope[] = []
+    for (
+      let cursor: EvalScope | undefined = scope;
+      cursor;
+      cursor = cursor.parent
+    ) {
+      chain.push(cursor)
+    }
+    chain.reverse()
+    return chain.reduce<Record<string, unknown>>((acc, ctx) => {
+      Object.assign(acc, ctx.bindings)
+      return acc
+    }, {})
+  }
+
+  const getNodeSource = (source: string, node: AcornNode): string =>
+    source.slice(node.start, node.end)
+
+  const evaluateExpressionNode = (
+    source: string,
+    expression: Expression,
+    scope: EvalScope,
+    context: Record<string, unknown>
+  ) =>
+    evalExpression(getNodeSource(source, expression), {
+      ...context,
+      ...flattenScopeValues(scope)
+    })
+
+  const executeStatementNode = (
+    node: Statement,
+    source: string,
+    scope: EvalScope,
+    context: Record<string, unknown>
+  ) => {
+    if (isEmptyStatement(node)) return
+
+    if (isExpressionStatement(node)) {
+      evaluateExpressionNode(source, node.expression, scope, context)
+      return
+    }
+
+    if (isBlockStatement(node)) {
+      const nested = createEvalScope(scope)
+      for (const stmt of node.body) {
+        executeStatementNode(stmt, source, nested, context)
+      }
+      return
+    }
+
+    if (isVariableDeclaration(node)) {
+      if (node.kind === 'var') {
+        const msg = 'eval directive only supports block-scoped variables'
+        console.error(msg)
+        addError(msg)
+        return
+      }
+
+      const targetScope = scope
+      for (const declaration of node.declarations) {
+        if (!isIdentifierPattern(declaration.id)) {
+          const msg =
+            'eval directive only supports identifier variable declarations'
+          console.error(msg)
+          addError(msg)
+          continue
+        }
+
+        const value =
+          declaration.init === null
+            ? undefined
+            : evaluateExpressionNode(source, declaration.init, scope, context)
+        targetScope.bindings[declaration.id.name] = value
+      }
+      return
+    }
+
+    if (isIfStatement(node)) {
+      const test = Boolean(
+        evaluateExpressionNode(source, node.test, scope, context)
+      )
+      if (test) {
+        executeStatementNode(node.consequent, source, scope, context)
+      } else if (node.alternate) {
+        executeStatementNode(node.alternate, source, scope, context)
+      }
+      return
+    }
+
+    const msg = `Unsupported statement in eval directive: ${node.type}`
+    console.error(msg)
+    addError(msg)
+  }
+
+  const runEvalScript = (source: string, context: Record<string, unknown>) => {
+    if (!source.trim()) return
+    const program = parse(source, {
+      ecmaVersion: 'latest',
+      sourceType: 'script'
+    })
+    const scope = createEvalScope()
+    for (const statement of program.body) {
+      if (!isStatementNode(statement)) {
+        const msg = `eval directive does not support ${statement.type} syntax`
+        console.error(msg)
+        addError(msg)
+        continue
+      }
+      executeStatementNode(statement, source, scope, context)
+    }
+  }
+
+  const handleEval: DirectiveHandler = (directive, parent, index) => {
+    const pair = ensureParentIndex(parent, index)
+    if (!pair) return
+    const [p, i] = pair
+
+    if (directive.type !== 'containerDirective') {
+      const msg = 'eval can only be used as a container directive'
+      console.error(msg)
+      addError(msg)
+      return removeNode(p, i)
+    }
+
+    const attrs = directive.attributes || {}
+    if (Object.keys(attrs).length > 0) {
+      const msg = 'eval does not support attributes'
+      console.error(msg)
+      addError(msg)
+      return removeNode(p, i)
+    }
+
+    const container = directive as ContainerDirective
+    const label = getLabel(container).trim()
+    if (label) {
+      const msg = 'eval does not support labels'
+      console.error(msg)
+      addError(msg)
+      return removeNode(p, i)
+    }
+
+    const children = Array.isArray(container.children)
+      ? container.children.filter(isRootContentNode)
+      : []
+    const expanded = expandIndentedCode(children)
+    const body = stripLabel(expanded)
+    const code = body
+      .map(child => toString(child))
+      .join('\n')
+      .trim()
+
+    if (!code) {
+      const removed = removeNode(p, i)
+      return typeof removed === 'number' ? removed : i
+    }
+
+    try {
+      const manager = getState()
+      runEvalScript(code, {
+        state: manager,
+        game: manager.getState() as Record<string, unknown>,
+        evalExpression
+      })
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? `Failed to evaluate eval directive: ${error.message}`
+          : 'Failed to evaluate eval directive'
+      console.error(message, error)
+      addError(message)
+    } finally {
+      refreshState()
+    }
+
+    return removeNode(p, i)
   }
 
   const handlers = {
@@ -617,7 +868,8 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
     unshift: handleUnshift,
     splice: handleSplice,
     concat: handleConcat,
-    unset: handleUnset
+    unset: handleUnset,
+    eval: handleEval
   }
 
   return { handlers, setValue }
