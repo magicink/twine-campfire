@@ -74,6 +74,11 @@ const isEmptyStatement = (node: Statement): node is EmptyStatement =>
 const isIdentifierPattern = (pattern: Pattern): pattern is Identifier =>
   pattern.type === 'Identifier'
 
+interface EvalScope {
+  bindings: Record<string, unknown>
+  parent?: EvalScope
+}
+
 /**
  * Context required to create state and array directive handlers.
  */
@@ -653,13 +658,8 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
    * @param index - Index of the directive within the parent.
    * @returns The index of the removed node, if any.
    */
-  interface EvalScope {
-    bindings: Record<string, unknown>
-    parent?: EvalScope
-  }
-
   const createEvalScope = (parent?: EvalScope): EvalScope => ({
-    bindings: Object.create(null) as Record<string, unknown>,
+    bindings: {},
     parent
   })
 
@@ -670,8 +670,9 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
       cursor;
       cursor = cursor.parent
     ) {
-      chain.unshift(cursor)
+      chain.push(cursor)
     }
+    chain.reverse()
     return chain.reduce<Record<string, unknown>>((acc, ctx) => {
       Object.assign(acc, ctx.bindings)
       return acc
