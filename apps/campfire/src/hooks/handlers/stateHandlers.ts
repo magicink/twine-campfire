@@ -633,10 +633,13 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
    */
   const handleUnset: DirectiveHandler = (directive, parent, index) => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
-    bindings: {},
-      chain.push(cursor)
-    chain.reverse()
-    )
+    if (invalid !== undefined) return invalid
+
+    const attrs = (directive.attributes || {}) as Record<string, unknown>
+    const derivedKey =
+      (attrs.key as string | undefined) ??
+      (hasLabel(directive) ? directive.label : toString(directive))
+    const key = ensureKey(derivedKey, parent, index)
     if (!key) return index
 
     unsetValue(key)
