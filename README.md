@@ -28,8 +28,6 @@ They come in leaf, text, or container form, each serving a different role.
   :::
   ```
 
-Directives are grouped by purpose.
-
 ### Example
 
 Here's a practical example showing how directives can be combined to create interactive content:
