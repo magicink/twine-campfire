@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.110.0](https://github.com/magicink/twine-campfire/compare/v1.109.0...v1.110.0) (2025-09-30)
+
+
+### Features
+
+* remove eval directive support ([#793](https://github.com/magicink/twine-campfire/issues/793)) ([#794](https://github.com/magicink/twine-campfire/issues/794)) ([fc6a0c3](https://github.com/magicink/twine-campfire/commit/fc6a0c382d3fbc0f4f4abb11e15c521f267f20d1))
+
 ## [1.109.0](https://github.com/magicink/twine-campfire/compare/v1.108.1...v1.109.0) (2025-09-29)
 
 
