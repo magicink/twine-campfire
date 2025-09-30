@@ -1,25 +1,28 @@
 import type { ComponentChild } from 'preact'
 import type { DirectiveHandler } from '@campfire/remark-campfire'
-import { LinkButton } from '@campfire/components/Passage/LinkButton'
-import { TriggerButton } from '@campfire/components/Passage/TriggerButton'
-import { Input } from '@campfire/components/Passage/Input'
-import { Checkbox } from '@campfire/components/Passage/Checkbox'
-import { Radio } from '@campfire/components/Passage/Radio'
-import { Textarea } from '@campfire/components/Passage/Textarea'
-import { Select } from '@campfire/components/Passage/Select'
-import { Option } from '@campfire/components/Passage/Option'
-import { If } from '@campfire/components/Passage/If'
-import { Show } from '@campfire/components/Passage/Show'
-import { Translate } from '@campfire/components/Passage/Translate'
-import { OnExit } from '@campfire/components/Passage/OnExit'
-import { Effect } from '@campfire/components/Passage/Effect'
-import { Switch } from '@campfire/components/Passage/Switch'
+import componentMap from '@campfire/components/Passage/componentMap'
 import { Deck } from '@campfire/components/Deck/Deck'
 import { Slide } from './Slide'
 import { SlideReveal } from './SlideReveal'
 import { Layer } from './Layer'
 import { SlideText, SlideImage, SlideShape, SlideEmbed } from './SlideElements'
+import { Effect } from '@campfire/components/Passage/Effect'
+import { OnExit } from '@campfire/components/Passage/OnExit'
 import { createMarkdownProcessor } from '@campfire/utils/createMarkdownProcessor'
+
+const {
+  deck: _deck,
+  slide: _slide,
+  reveal: _reveal,
+  layer: _layer,
+  slideText: _slideText,
+  slideImage: _slideImage,
+  slideShape: _slideShape,
+  slideEmbed: _slideEmbed,
+  effect: _effect,
+  onExit: _onExit,
+  ...passageComponents
+} = componentMap
 
 /**
  * Converts Markdown containing Campfire directives into Preact elements.
@@ -34,20 +37,9 @@ export const renderDirectiveMarkdown = (
   handlers: Record<string, DirectiveHandler>
 ): ComponentChild => {
   const processor = createMarkdownProcessor(handlers, {
-    button: LinkButton,
-    trigger: TriggerButton,
-    input: Input,
-    checkbox: Checkbox,
-    radio: Radio,
-    textarea: Textarea,
-    select: Select,
-    option: Option,
-    if: If,
-    show: Show,
-    translate: Translate,
+    ...passageComponents,
     effect: Effect,
     onExit: OnExit,
-    switch: Switch,
     deck: Deck,
     slide: Slide,
     reveal: SlideReveal,

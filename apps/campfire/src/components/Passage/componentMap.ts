@@ -14,15 +14,15 @@ import { Translate } from '@campfire/components/Passage/Translate'
 import { OnExit } from '@campfire/components/Passage/OnExit'
 import { Effect } from '@campfire/components/Passage/Effect'
 import { Deck } from '@campfire/components/Deck/Deck'
+import { Slide } from '@campfire/components/Deck/Slide/Slide'
+import { SlideReveal } from '@campfire/components/Deck/Slide/SlideReveal'
+import { Layer } from '@campfire/components/Deck/Slide/Layer'
 import {
-  Slide,
-  SlideReveal,
   SlideText,
   SlideImage,
   SlideShape,
-  SlideEmbed,
-  Layer
-} from '@campfire/components/Deck/Slide'
+  SlideEmbed
+} from '@campfire/components/Deck/Slide/SlideElements'
 
 /**
  * Maps directive names to their corresponding Campfire components.
