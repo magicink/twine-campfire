@@ -167,38 +167,7 @@ describe('Passage game state directives', () => {
     await waitFor(() => expect(useGameStore.getState().gameData.num).toBe(9))
   })
 
-  it('executes arbitrary JavaScript via the eval directive', async () => {
-    useGameStore.setState(state => ({
-      ...state,
-      gameData: { hp: 1 }
-    }))
-    const passage: Element = {
-      type: 'element',
-      tagName: 'tw-passagedata',
-      properties: { pid: '1', name: 'Start' },
-      children: [
-        {
-          type: 'text',
-          value: ':::eval\nstate.setValue("hp", state.getValue("hp") + 2)\n:::'
-        }
-      ]
-    }
-
-    useStoryDataStore.setState({
-      passages: [passage],
-      currentPassageId: '1'
-    })
-
-    render(<Passage />)
-
-    await waitFor(() =>
-      expect(
-        (useGameStore.getState().gameData as Record<string, unknown>).hp
-      ).toBe(3)
-    )
-  })
-
-  it('rejects eval directives that include attributes', async () => {
+  it('reports removed eval directives without executing code', async () => {
     const logged: unknown[] = []
     const originalError = console.error
     console.error = (...args: unknown[]) => {
@@ -218,7 +187,7 @@ describe('Passage game state directives', () => {
         children: [
           {
             type: 'text',
-            value: ':::eval{label="nope"}\nstate.setValue("hp", 99)\n:::'
+            value: ':::eval\nstate.setValue("hp", 99)\n:::'
           }
         ]
       }
@@ -230,63 +199,16 @@ describe('Passage game state directives', () => {
 
       render(<Passage />)
 
+      const message =
+        'eval directive has been removed. Remove the directive from your story.'
       await waitFor(() => {
-        expect(useGameStore.getState().errors).toContain(
-          'eval does not support attributes'
-        )
+        expect(useGameStore.getState().errors).toContain(message)
       })
 
       expect(
         (useGameStore.getState().gameData as Record<string, unknown>).hp
       ).toBe(1)
-      expect(logged[0]?.[0]).toBe('eval does not support attributes')
-    } finally {
-      console.error = originalError
-    }
-  })
-
-  it('rejects eval directives that include labels', async () => {
-    const logged: unknown[] = []
-    const originalError = console.error
-    console.error = (...args: unknown[]) => {
-      logged.push(args)
-    }
-
-    try {
-      useGameStore.setState(state => ({
-        ...state,
-        gameData: { hp: 1 }
-      }))
-
-      const passage: Element = {
-        type: 'element',
-        tagName: 'tw-passagedata',
-        properties: { pid: '1', name: 'Start' },
-        children: [
-          {
-            type: 'text',
-            value: ':::eval[should-fail]\nstate.setValue("hp", 99)\n:::'
-          }
-        ]
-      }
-
-      useStoryDataStore.setState({
-        passages: [passage],
-        currentPassageId: '1'
-      })
-
-      render(<Passage />)
-
-      await waitFor(() => {
-        expect(useGameStore.getState().errors).toContain(
-          'eval does not support labels'
-        )
-      })
-
-      expect(
-        (useGameStore.getState().gameData as Record<string, unknown>).hp
-      ).toBe(1)
-      expect(logged[0]?.[0]).toBe('eval does not support labels')
+      expect(logged[0]?.[0]).toBe(message)
     } finally {
       console.error = originalError
     }
@@ -541,7 +463,7 @@ describe('Passage game state directives', () => {
 
     await waitFor(() => {
       expect(useGameStore.getState().errors).toEqual([
-        'batch only supports directives: set, setOnce, array, arrayOnce, createRange, setRange, unset, random, randomOnce, push, pop, shift, unshift, splice, concat, eval, checkpoint, loadCheckpoint, clearCheckpoint, save, load, clearSave, lang, translations, if, for, switch'
+        'batch only supports directives: set, setOnce, array, arrayOnce, createRange, setRange, unset, random, randomOnce, push, pop, shift, unshift, splice, concat, checkpoint, loadCheckpoint, clearCheckpoint, save, load, clearSave, lang, translations, if, for, switch'
       ])
       expect(logged).toHaveLength(1)
     })

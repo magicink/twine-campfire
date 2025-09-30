@@ -69,7 +69,6 @@ const ALLOWED_ONEXIT_DIRECTIVES = new Set([
   'unshift',
   'splice',
   'concat',
-  'eval',
   'checkpoint',
   'loadCheckpoint',
   'clearCheckpoint',

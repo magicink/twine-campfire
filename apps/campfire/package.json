@@ -13,7 +13,6 @@
     "test": "bun test"
   },
   "dependencies": {
-    "acorn": "^8.14.0",
     "ejs": "^3.1.10",
     "expression-eval": "^5.0.1",
     "fast-deep-equal": "^3.1.3",

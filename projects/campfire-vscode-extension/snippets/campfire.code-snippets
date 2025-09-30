@@ -9,11 +9,6 @@
     "body": ["::setOnce[${1:key}=${2:value}]"],
     "description": "Assign a value only if the key is unset"
   },
-  "Eval JavaScript": {
-    "prefix": "cf-eval",
-    "body": [":::eval", "$0", ":::"],
-    "description": "Run arbitrary JavaScript against game state"
-  },
   "Create Range": {
     "prefix": "cf-create-range",
     "body": ["::createRange[${1:key}=${2:start}]{min=${3:0} max=${4:10}}"],

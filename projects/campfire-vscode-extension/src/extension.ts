@@ -54,15 +54,6 @@ const directiveSnippets: DirectiveSnippet[] = [
     body: '::setOnce[${1:key}=${2:value}]'
   },
   {
-    marker: ':::',
-    label: 'eval',
-    escapeAtColumnZero: true,
-    detail: 'Run arbitrary JavaScript',
-    documentation:
-      "Executes JavaScript against story state as a container block. Access the state manager via `state`, the current snapshot via `game`, and Campfire's expression helper via `evalExpression`. Labels and attributes are not supported.",
-    body: ':::eval\n$0\n:::'
-  },
-  {
     marker: '::',
     label: 'range',
     completionLabel: ':: createRange',
@@ -1274,53 +1265,6 @@ const collectAutolinkReferences = (
 }
 
 /**
- * Build diagnostics for eval directives that use unsupported labels or attributes.
- *
- * @param document - Active Campfire text document.
- * @returns Diagnostics describing unsupported label or attribute usage.
- */
-const collectEvalDirectiveDiagnostics = (
-  document: TextDocument
-): Diagnostic[] => {
-  const text = document.getText()
-  const diagnostics: Diagnostic[] = []
-  const directivePattern = /(?<!:)(?<!\\):::\s*eval\b/gi
-  let match: RegExpExecArray | null
-
-  while ((match = directivePattern.exec(text))) {
-    let offset = match.index + match[0].length
-    offset = skipWhitespace(text, offset)
-
-    if (text[offset] === '[') {
-      const label = extractDelimitedSection(text, offset, '[', ']')
-      const endIndex = label ? label.endIndex : offset + 1
-      const diagnostic = new Diagnostic(
-        new Range(document.positionAt(offset), document.positionAt(endIndex)),
-        'Labels are not supported on ::eval directives.',
-        DiagnosticSeverity.Error
-      )
-      diagnostic.source = 'campfire'
-      diagnostics.push(diagnostic)
-      offset = skipWhitespace(text, endIndex)
-    }
-
-    if (text[offset] === '{') {
-      const attributes = extractDelimitedSection(text, offset, '{', '}')
-      const endIndex = attributes ? attributes.endIndex : offset + 1
-      const diagnostic = new Diagnostic(
-        new Range(document.positionAt(offset), document.positionAt(endIndex)),
-        'Attributes are not supported on ::eval directives.',
-        DiagnosticSeverity.Error
-      )
-      diagnostic.source = 'campfire'
-      diagnostics.push(diagnostic)
-    }
-  }
-
-  return diagnostics
-}
-
-/**
  * Resolve the range of the passage definition matching the supplied name.
  *
  * @param definitions - Map of passage definitions extracted from the document.
@@ -1377,7 +1321,7 @@ export function activate(context: ExtensionContext): void {
       return
     }
 
-    diagnostics.set(document.uri, collectEvalDirectiveDiagnostics(document))
+    diagnostics.set(document.uri, [])
   }
 
   workspace.textDocuments.forEach(updateDiagnostics)
