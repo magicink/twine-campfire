@@ -5,6 +5,7 @@ import { Passage } from '@campfire/components/Passage/Passage'
 import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
 import { useGameStore } from '@campfire/state/useGameStore'
 import { resetStores } from '@campfire/test-utils/helpers'
+import { expectContainerDirectiveBehavior } from '@campfire/test-utils/formFieldTests'
 
 /**
  * Tests for Radio directive attributes.
@@ -48,45 +49,11 @@ describe('Radio directive', () => {
   })
 
   it('runs event directives when used as a container', async () => {
-    const passage: Element = {
-      type: 'element',
-      tagName: 'tw-passagedata',
-      properties: { pid: '1', name: 'Start' },
-      children: [
-        {
-          type: 'text',
-          value:
-            ':::radio[choice]{value="a"}\n:::onFocus\n::set[focused=true]\n:::\n:::onMouseEnter\n::set[hovered=true]\n:::\n:::\n:radio[choice]{value="b"}\n'
-        }
-      ]
-    }
-    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-    render(<Passage />)
-    const buttons = await screen.findAllByTestId('radio')
-    act(() => {
-      ;(buttons[0] as HTMLButtonElement).focus()
+    await expectContainerDirectiveBehavior({
+      directiveName: 'radio',
+      directiveConfig: '[choice]{value="a"}',
+      testId: 'radio'
     })
-    expect(useGameStore.getState().gameData.focused).toBe(true)
-    fireEvent.mouseEnter(buttons[0])
-    expect(useGameStore.getState().gameData.hovered).toBe(true)
-  })
-
-  it('removes directive markers for container radios', async () => {
-    const passage: Element = {
-      type: 'element',
-      tagName: 'tw-passagedata',
-      properties: { pid: '1', name: 'Start' },
-      children: [
-        {
-          type: 'text',
-          value: ':::radio[choice]{value="a"}\n:::\n:radio[choice]{value="b"}\n'
-        }
-      ]
-    }
-    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-    render(<Passage />)
-    await screen.findAllByTestId('radio')
-    expect(document.body.textContent).not.toContain(':::')
   })
 
   it('initializes state from checked attribute', async () => {

@@ -5,6 +5,7 @@ import { Passage } from '@campfire/components/Passage/Passage'
 import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
 import { useGameStore } from '@campfire/state/useGameStore'
 import { resetStores } from '@campfire/test-utils/helpers'
+import { expectContainerDirectiveBehavior } from '@campfire/test-utils/formFieldTests'
 
 /**
  * Tests for Input directive attributes.
@@ -38,45 +39,11 @@ describe('Input directive', () => {
   })
 
   it('runs event directives when used as a container', async () => {
-    const passage: Element = {
-      type: 'element',
-      tagName: 'tw-passagedata',
-      properties: { pid: '1', name: 'Start' },
-      children: [
-        {
-          type: 'text',
-          value:
-            ':::input[name]\n:::onFocus\n::set[focused=true]\n:::\n:::onMouseEnter\n::set[hovered=true]\n:::\n:::\n'
-        }
-      ]
-    }
-    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-    render(<Passage />)
-    const input = await screen.findByTestId('input')
-    act(() => {
-      ;(input as HTMLInputElement).focus()
+    await expectContainerDirectiveBehavior({
+      directiveName: 'input',
+      directiveConfig: '[name]',
+      testId: 'input'
     })
-    expect(useGameStore.getState().gameData.focused).toBe(true)
-    fireEvent.mouseEnter(input)
-    expect(useGameStore.getState().gameData.hovered).toBe(true)
-  })
-
-  it('removes directive markers for container inputs', async () => {
-    const passage: Element = {
-      type: 'element',
-      tagName: 'tw-passagedata',
-      properties: { pid: '1', name: 'Start' },
-      children: [
-        {
-          type: 'text',
-          value: ':::input[name]\n:::\n'
-        }
-      ]
-    }
-    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-    render(<Passage />)
-    await screen.findByTestId('input')
-    expect(document.body.textContent).not.toContain(':::')
   })
 
   it('initializes state from value attribute', async () => {
