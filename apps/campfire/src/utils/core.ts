@@ -1,4 +1,5 @@
 import { compile } from 'expression-eval'
+import type { Content, Text as HastText } from 'hast'
 import type { JSX } from 'preact'
 
 /**
@@ -205,3 +206,21 @@ export const getBaseUrl = (): string => {
   }
   return 'http://localhost'
 }
+
+/**
+ * Extracts concatenated text content from a collection of HAST child nodes.
+ *
+ * Only nodes with a `type` of `'text'` contribute to the output so the helper
+ * mirrors existing passage processing behavior.
+ *
+ * @param children - Child nodes potentially containing text values.
+ * @returns The joined text from all text nodes.
+ */
+export const getPassageText = (children: Content[]): string =>
+  children
+    .map(child =>
+      child.type === 'text' && typeof (child as HastText).value === 'string'
+        ? (child as HastText).value
+        : ''
+    )
+    .join('')

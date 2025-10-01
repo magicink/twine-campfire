@@ -1,6 +1,6 @@
 import { cloneElement, type ComponentChild, type VNode } from 'preact'
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks'
-import type { Text as HastText, Content } from 'hast'
+import type { Content } from 'hast'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import {
   remarkHeadingStyles,
@@ -18,6 +18,7 @@ import {
 } from '@campfire/state/useStoryDataStore'
 import { useDeckStore } from '@campfire/state/useDeckStore'
 import { componentMap } from '@campfire/components/Passage/componentMap'
+import { getPassageText } from '@campfire/utils/core'
 
 /**
  * Builds a document title from story and passage names.
@@ -166,11 +167,7 @@ export const Passage = () => {
         return
       }
       const id = passage.properties?.pid as string | undefined
-      const text = passage.children
-        .map((child: Content) =>
-          child.type === 'text' ? (child as HastText).value : ''
-        )
-        .join('')
+      const text = getPassageText(passage.children as Content[])
       const cache = getPassageCache()
       const shouldCache = id && canCachePassage(text)
       const cached = shouldCache ? cache.get(id) : undefined
