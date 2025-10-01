@@ -1,6 +1,9 @@
-import { render, fireEvent } from '@testing-library/preact'
+import { render, fireEvent, act, waitFor } from '@testing-library/preact'
+import type { Element } from 'hast'
 import type { ComponentChildren, ComponentType } from 'preact'
 import { useGameStore } from '@campfire/state/useGameStore'
+import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
+import { Passage } from '@campfire/components/Passage/Passage'
 import { expect, it } from 'bun:test'
 
 interface FormFieldTestConfig {
@@ -12,6 +15,13 @@ interface FormFieldTestConfig {
   children?: ComponentChildren
   initialState?: Record<string, unknown>
   triggerInput?: (utils: ReturnType<typeof render>) => void | Promise<void>
+}
+
+interface ContainerDirectiveTestConfig {
+  directiveName: string
+  directiveConfig: string
+  testId: string
+  additionalMarkup?: string
 }
 
 /**
@@ -78,5 +88,52 @@ export const runFormFieldTests = ({
     expect(
       (useGameStore.getState().gameData as Record<string, unknown>).field
     ).toBe('')
+  })
+}
+
+/**
+ * Verifies shared behavior for container directives that wrap form fields.
+ *
+ * @param config - Directive configuration for the container test.
+ */
+export const expectContainerDirectiveBehavior = async ({
+  directiveName,
+  directiveConfig,
+  testId,
+  additionalMarkup = ''
+}: ContainerDirectiveTestConfig) => {
+  const passage: Element = {
+    type: 'element',
+    tagName: 'tw-passagedata',
+    properties: { pid: '1', name: 'Start' },
+    children: [
+      {
+        type: 'text',
+        value:
+          `:::${directiveName}${directiveConfig}\n` +
+          ':::onFocus\n::set[focused=true]\n:::\n' +
+          ':::onMouseEnter\n::set[hovered=true]\n:::\n' +
+          ':::\n' +
+          additionalMarkup
+      }
+    ]
+  }
+
+  useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+  const { findAllByTestId } = render(<Passage />)
+  const elements = await findAllByTestId(testId)
+  const [element] = elements
+
+  act(() => {
+    ;(element as HTMLElement).focus()
+  })
+
+  expect(useGameStore.getState().gameData.focused).toBe(true)
+
+  fireEvent.mouseEnter(element)
+
+  expect(useGameStore.getState().gameData.hovered).toBe(true)
+  await waitFor(() => {
+    expect(document.body.textContent).not.toContain(':::')
   })
 }
