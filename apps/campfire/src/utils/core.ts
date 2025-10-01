@@ -1,5 +1,5 @@
 import { compile } from 'expression-eval'
-import type { Content, Text as HastText } from 'hast'
+import type { Content } from 'hast'
 import type { JSX } from 'preact'
 
 /**
@@ -219,8 +219,8 @@ export const getBaseUrl = (): string => {
 export const getPassageText = (children: Content[]): string =>
   children
     .map(child =>
-      child.type === 'text' && typeof (child as HastText).value === 'string'
-        ? (child as HastText).value
+      child.type === 'text' && typeof child.value === 'string'
+        ? child.value
         : ''
     )
     .join('')
