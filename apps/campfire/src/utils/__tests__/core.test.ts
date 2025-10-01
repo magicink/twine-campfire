@@ -1,7 +1,9 @@
 import { describe, it, expect, afterEach } from 'bun:test'
+import type { Content } from 'hast'
 import {
   extractQuoted,
   getBaseUrl,
+  getPassageText,
   mergeClasses,
   parseDisabledAttr
 } from '@campfire/utils/core'
@@ -35,6 +37,24 @@ describe('mergeClasses', () => {
     expect(mergeClasses('a', undefined, 'a', ['b', '', 'c'], false)).toBe(
       'a b c'
     )
+  })
+})
+
+describe('getPassageText', () => {
+  it('joins direct text nodes and ignores non-text nodes', () => {
+    const children: Content[] = [
+      { type: 'text', value: 'Hello ' },
+      {
+        type: 'element',
+        tagName: 'span',
+        properties: {},
+        children: [{ type: 'text', value: 'nested' }]
+      } as Content,
+      { type: 'text', value: 'world' },
+      { type: 'comment', value: 'ignore me' }
+    ]
+
+    expect(getPassageText(children)).toBe('Hello world')
   })
 })
 

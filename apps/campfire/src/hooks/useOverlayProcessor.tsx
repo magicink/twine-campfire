@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'preact/hooks'
 import type { ComponentChild } from 'preact'
-import type { Content, Text as HastText } from 'hast'
+import type { Content } from 'hast'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { createMarkdownProcessor } from '@campfire/utils/createMarkdownProcessor'
 import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
@@ -13,6 +13,7 @@ import {
 import { componentMap } from '@campfire/components/Passage/componentMap'
 import { useOverlayDeckStore } from '@campfire/state/useOverlayDeckStore'
 import { normalizeDirectiveIndentation } from '@campfire/utils/normalizeDirectiveIndentation'
+import { getPassageText } from '@campfire/utils/core'
 
 /**
  * Processes overlay passages into persistent components rendered above passages.
@@ -64,13 +65,7 @@ export const useOverlayProcessor = (): void => {
         group?: string
       }[]
       for (const passage of overlays) {
-        const text = passage.children
-          .map((child: Content) =>
-            child.type === 'text' && typeof child.value === 'string'
-              ? (child as HastText).value
-              : ''
-          )
-          .join('')
+        const text = getPassageText(passage.children as Content[])
         const normalized = normalizeDirectiveIndentation(text)
         if (controller.signal.aborted) return
         const file = await processor.process(normalized)

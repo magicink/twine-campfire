@@ -8,9 +8,9 @@ import remarkCampfire, {
   remarkCampfireIndentation
 } from '@campfire/remark-campfire'
 import type { RootContent } from 'mdast'
-import type { ElementContent, Text as HastText } from 'hast'
+import type { Content, ElementContent } from 'hast'
 import i18next from 'i18next'
-import { QUOTE_PATTERN } from '@campfire/utils/core'
+import { QUOTE_PATTERN, getPassageText } from '@campfire/utils/core'
 import {
   removeNode,
   replaceWithIndentation
@@ -231,11 +231,7 @@ export const createNavigationHandlers = (ctx: NavigationHandlerContext) => {
 
     if (!passage) return removeNode(p, i)
 
-    const text = passage.children
-      .map((child: ElementContent) =>
-        child.type === 'text' ? (child as HastText).value : ''
-      )
-      .join('')
+    const text = getPassageText(passage.children as Content[])
 
     const processor = unified()
       .use(remarkParse)
