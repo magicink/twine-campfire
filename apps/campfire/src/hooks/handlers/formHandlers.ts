@@ -150,6 +150,106 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
     }
   }
 
+  type DirectiveAttributes = Record<string, unknown>
+
+  const EXCLUDE_CLASS_STYLE = ['className', 'style']
+  const EXCLUDE_INPUT_ATTRS = [
+    ...EXCLUDE_CLASS_STYLE,
+    'placeholder',
+    'type',
+    'value',
+    'defaultValue'
+  ]
+  const EXCLUDE_VALUE_DEFAULT = [
+    ...EXCLUDE_CLASS_STYLE,
+    'value',
+    'defaultValue'
+  ]
+  const EXCLUDE_VALUE_DEFAULT_CHECKED = [...EXCLUDE_VALUE_DEFAULT, 'checked']
+  const EXCLUDE_VALUE_DEFAULT_PLACEHOLDER = [
+    ...EXCLUDE_VALUE_DEFAULT,
+    'placeholder'
+  ]
+
+  /**
+   * Safely retrieves a string attribute value.
+   *
+   * @param attrs - Directive attributes to inspect.
+   * @param key - The attribute name to read.
+   * @returns The string value when present; otherwise `undefined`.
+   */
+  const getStringAttr = (
+    attrs: DirectiveAttributes,
+    key: string
+  ): string | undefined =>
+    typeof attrs[key] === 'string' ? (attrs[key] as string) : undefined
+
+  /**
+   * Normalizes directive props shared across form handlers.
+   *
+   * @param attrs - Directive attributes.
+   * @param interpolationContext - Data available for attribute interpolation.
+   * @param options - Configuration for value/placeholder/event handling.
+   * @returns Normalized props and any remaining children nodes.
+   */
+  const normalizeDirectiveProps = (
+    attrs: DirectiveAttributes,
+    interpolationContext: Record<string, unknown>,
+    options: {
+      stateKey: string
+      placeholderResolver?: (attrs: DirectiveAttributes) => string | undefined
+      initialValueResolver?: (attrs: DirectiveAttributes) => string | undefined
+      valueResolver?: (attrs: DirectiveAttributes) => unknown
+      mergeEvents?: boolean
+      parent?: Parent
+      index?: number
+      rawChildren?: RootContent[]
+    }
+  ): { props: Record<string, unknown>; remainingChildren: RootContent[] } => {
+    const {
+      stateKey,
+      placeholderResolver,
+      initialValueResolver,
+      valueResolver
+    } = options
+    const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
+      attrs,
+      interpolationContext
+    )
+    const props: Record<string, unknown> = { stateKey }
+    if (typeof classAttr === 'string' && classAttr.trim()) {
+      props.className = classAttr.split(/\s+/).filter(Boolean)
+    }
+    if (styleAttr) props.style = styleAttr
+    if (valueResolver) {
+      const value = valueResolver(attrs)
+      if (value !== undefined) props.value = value
+    }
+    const placeholder = placeholderResolver?.(attrs)
+    if (placeholder) props.placeholder = placeholder
+    const initialValue = initialValueResolver?.(attrs)
+    if (initialValue) props.initialValue = initialValue
+    if (
+      options.mergeEvents &&
+      options.parent &&
+      typeof options.index === 'number' &&
+      options.rawChildren
+    ) {
+      const { events, remaining } = collectInteractiveExtras(
+        options.parent,
+        options.index,
+        interactiveEvents,
+        extractEventProps,
+        options.rawChildren
+      )
+      for (const [eventName, handler] of Object.entries(events)) {
+        props[eventName] = handler
+      }
+      return { props, remainingChildren: remaining }
+    }
+    return { props, remainingChildren: [] }
+  }
+
   const handleInput: DirectiveHandler = (directive, parent, index) => {
     const pair = ensureParentIndex(parent, index)
     if (!pair) return
@@ -172,30 +272,13 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       const key = ensureKey(label.trim(), p, i)
       if (!key) return i
       warnReservedClassAttribute(attrs)
-      const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
-        attrs,
-        getGameData()
-      )
-      const placeholder =
-        typeof attrs.placeholder === 'string' ? attrs.placeholder : undefined
-      const initialValue =
-        typeof attrs.value === 'string'
-          ? attrs.value
-          : typeof attrs.defaultValue === 'string'
-            ? attrs.defaultValue
-            : undefined
-      const props: Record<string, unknown> = { stateKey: key }
-      if (classAttr)
-        props.className = (classAttr as string).split(/\s+/).filter(Boolean)
-      if (styleAttr) props.style = styleAttr
-      if (placeholder) props.placeholder = placeholder
-      if (initialValue) props.initialValue = initialValue
-      applyAdditionalAttributes(
-        attrs,
-        props,
-        ['className', 'style', 'placeholder', 'type', 'value', 'defaultValue'],
-        addError
-      )
+      const { props } = normalizeDirectiveProps(attrs, getGameData(), {
+        stateKey: key,
+        placeholderResolver: a => getStringAttr(a, 'placeholder'),
+        initialValueResolver: a =>
+          getStringAttr(a, 'value') ?? getStringAttr(a, 'defaultValue')
+      })
+      applyAdditionalAttributes(attrs, props, EXCLUDE_INPUT_ATTRS, addError)
       const node: Parent = {
         type: 'paragraph',
         children: [],
@@ -209,46 +292,22 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       const key = ensureKey(label.trim(), p, i)
       if (!key) return i
       warnReservedClassAttribute(attrs)
-      const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
-        attrs,
-        getGameData()
-      )
-      const placeholder =
-        typeof attrs.placeholder === 'string' ? attrs.placeholder : undefined
-      const initialValue =
-        typeof attrs.value === 'string'
-          ? attrs.value
-          : typeof attrs.defaultValue === 'string'
-            ? attrs.defaultValue
-            : undefined
       const rawChildren = stripLabel(
         runDirectiveBlock(
           expandIndentedCode(stripLabel(container.children as RootContent[]))
         )
       )
-      const { events } = collectInteractiveExtras(
-        p,
-        i,
-        interactiveEvents,
-        extractEventProps,
+      const { props } = normalizeDirectiveProps(attrs, getGameData(), {
+        stateKey: key,
+        placeholderResolver: a => getStringAttr(a, 'placeholder'),
+        initialValueResolver: a =>
+          getStringAttr(a, 'value') ?? getStringAttr(a, 'defaultValue'),
+        mergeEvents: true,
+        parent: p,
+        index: i,
         rawChildren
-      )
-      const props: Record<string, unknown> = { stateKey: key }
-      if (classAttr)
-        props.className = (classAttr as string).split(/\s+/).filter(Boolean)
-      if (styleAttr) props.style = styleAttr
-      if (placeholder) props.placeholder = placeholder
-      if (initialValue) props.initialValue = initialValue
-      if (events.onMouseEnter) props.onMouseEnter = events.onMouseEnter
-      if (events.onMouseLeave) props.onMouseLeave = events.onMouseLeave
-      if (events.onFocus) props.onFocus = events.onFocus
-      if (events.onBlur) props.onBlur = events.onBlur
-      applyAdditionalAttributes(
-        attrs,
-        props,
-        ['className', 'style', 'placeholder', 'type', 'value', 'defaultValue'],
-        addError
-      )
+      })
+      applyAdditionalAttributes(attrs, props, EXCLUDE_INPUT_ATTRS, addError)
       const node: Parent = {
         type: 'paragraph',
         children: [],
@@ -279,27 +338,17 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       if (!key) return i
       const attrs = (directive.attributes || {}) as Record<string, unknown>
       warnReservedClassAttribute(attrs)
-      const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
-        attrs,
-        getGameData()
-      )
-      const initialValue =
-        typeof attrs.value === 'string'
-          ? attrs.value
-          : typeof attrs.defaultValue === 'string'
-            ? attrs.defaultValue
-            : typeof attrs.checked === 'string'
-              ? attrs.checked
-              : undefined
-      const props: Record<string, unknown> = { stateKey: key }
-      if (classAttr)
-        props.className = (classAttr as string).split(/\s+/).filter(Boolean)
-      if (styleAttr) props.style = styleAttr
-      if (initialValue) props.initialValue = initialValue
+      const { props } = normalizeDirectiveProps(attrs, getGameData(), {
+        stateKey: key,
+        initialValueResolver: a =>
+          getStringAttr(a, 'value') ??
+          getStringAttr(a, 'defaultValue') ??
+          getStringAttr(a, 'checked')
+      })
       applyAdditionalAttributes(
         attrs,
         props,
-        ['className', 'style', 'value', 'defaultValue', 'checked'],
+        EXCLUDE_VALUE_DEFAULT_CHECKED,
         addError
       )
       const node: Parent = {
@@ -316,43 +365,26 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       if (!key) return i
       const attrs = (container.attributes || {}) as Record<string, unknown>
       warnReservedClassAttribute(attrs)
-      const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
-        attrs,
-        getGameData()
-      )
-      const initialValue =
-        typeof attrs.value === 'string'
-          ? attrs.value
-          : typeof attrs.defaultValue === 'string'
-            ? attrs.defaultValue
-            : typeof attrs.checked === 'string'
-              ? attrs.checked
-              : undefined
       const rawChildren = stripLabel(
         runDirectiveBlock(
           expandIndentedCode(stripLabel(container.children as RootContent[]))
         )
       )
-      const { events } = collectInteractiveExtras(
-        p,
-        i,
-        interactiveEvents,
-        extractEventProps,
+      const { props } = normalizeDirectiveProps(attrs, getGameData(), {
+        stateKey: key,
+        initialValueResolver: a =>
+          getStringAttr(a, 'value') ??
+          getStringAttr(a, 'defaultValue') ??
+          getStringAttr(a, 'checked'),
+        mergeEvents: true,
+        parent: p,
+        index: i,
         rawChildren
-      )
-      const props: Record<string, unknown> = { stateKey: key }
-      if (classAttr)
-        props.className = (classAttr as string).split(/\s+/).filter(Boolean)
-      if (styleAttr) props.style = styleAttr
-      if (initialValue) props.initialValue = initialValue
-      if (events.onMouseEnter) props.onMouseEnter = events.onMouseEnter
-      if (events.onMouseLeave) props.onMouseLeave = events.onMouseLeave
-      if (events.onFocus) props.onFocus = events.onFocus
-      if (events.onBlur) props.onBlur = events.onBlur
+      })
       applyAdditionalAttributes(
         attrs,
         props,
-        ['className', 'style', 'value', 'defaultValue', 'checked'],
+        EXCLUDE_VALUE_DEFAULT_CHECKED,
         addError
       )
       const node: Parent = {
@@ -385,29 +417,21 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       if (!key) return i
       const attrs = (directive.attributes || {}) as Record<string, unknown>
       warnReservedClassAttribute(attrs)
-      const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
-        attrs,
-        getGameData()
-      )
-      const valueAttr = typeof attrs.value === 'string' ? attrs.value : ''
-      const initialValue =
-        typeof attrs.defaultValue === 'string'
-          ? attrs.defaultValue
-          : attrs.checked !== undefined
-            ? valueAttr
-            : undefined
-      const props: Record<string, unknown> = {
+      const { props } = normalizeDirectiveProps(attrs, getGameData(), {
         stateKey: key,
-        value: valueAttr
-      }
-      if (classAttr)
-        props.className = (classAttr as string).split(/\s+/).filter(Boolean)
-      if (styleAttr) props.style = styleAttr
-      if (initialValue) props.initialValue = initialValue
+        valueResolver: a => getStringAttr(a, 'value') ?? '',
+        initialValueResolver: a => {
+          const defaultValue = getStringAttr(a, 'defaultValue')
+          if (defaultValue) return defaultValue
+          return a.checked !== undefined
+            ? (getStringAttr(a, 'value') ?? '')
+            : undefined
+        }
+      })
       applyAdditionalAttributes(
         attrs,
         props,
-        ['className', 'style', 'value', 'defaultValue', 'checked'],
+        EXCLUDE_VALUE_DEFAULT_CHECKED,
         addError
       )
       const node: Parent = {
@@ -426,43 +450,28 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       if (!key) return i
       const attrs = (container.attributes || {}) as Record<string, unknown>
       warnReservedClassAttribute(attrs)
-      const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
-        attrs,
-        getGameData()
-      )
-      const valueAttr = typeof attrs.value === 'string' ? attrs.value : ''
-      const initialValue =
-        typeof attrs.defaultValue === 'string'
-          ? attrs.defaultValue
-          : attrs.checked !== undefined
-            ? valueAttr
-            : undefined
       const rawChildren = runDirectiveBlock(
         expandIndentedCode(container.children as RootContent[])
       )
-      const { events } = collectInteractiveExtras(
-        p,
-        i,
-        interactiveEvents,
-        extractEventProps,
-        rawChildren
-      )
-      const props: Record<string, unknown> = {
+      const { props } = normalizeDirectiveProps(attrs, getGameData(), {
         stateKey: key,
-        value: valueAttr
-      }
-      if (classAttr)
-        props.className = (classAttr as string).split(/\s+/).filter(Boolean)
-      if (styleAttr) props.style = styleAttr
-      if (initialValue) props.initialValue = initialValue
-      if (events.onMouseEnter) props.onMouseEnter = events.onMouseEnter
-      if (events.onMouseLeave) props.onMouseLeave = events.onMouseLeave
-      if (events.onFocus) props.onFocus = events.onFocus
-      if (events.onBlur) props.onBlur = events.onBlur
+        valueResolver: a => getStringAttr(a, 'value') ?? '',
+        initialValueResolver: a => {
+          const defaultValue = getStringAttr(a, 'defaultValue')
+          if (defaultValue) return defaultValue
+          return a.checked !== undefined
+            ? (getStringAttr(a, 'value') ?? '')
+            : undefined
+        },
+        mergeEvents: true,
+        parent: p,
+        index: i,
+        rawChildren
+      })
       applyAdditionalAttributes(
         attrs,
         props,
-        ['className', 'style', 'value', 'defaultValue', 'checked'],
+        EXCLUDE_VALUE_DEFAULT_CHECKED,
         addError
       )
       const node: Parent = {
@@ -492,28 +501,16 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       if (!key) return i
       const attrs = (directive.attributes || {}) as Record<string, unknown>
       warnReservedClassAttribute(attrs)
-      const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
-        attrs,
-        getGameData()
-      )
-      const placeholder =
-        typeof attrs.placeholder === 'string' ? attrs.placeholder : undefined
-      const initialValue =
-        typeof attrs.value === 'string'
-          ? attrs.value
-          : typeof attrs.defaultValue === 'string'
-            ? attrs.defaultValue
-            : undefined
-      const props: Record<string, unknown> = { stateKey: key }
-      if (classAttr)
-        props.className = (classAttr as string).split(/\s+/).filter(Boolean)
-      if (styleAttr) props.style = styleAttr
-      if (placeholder) props.placeholder = placeholder
-      if (initialValue) props.initialValue = initialValue
+      const { props } = normalizeDirectiveProps(attrs, getGameData(), {
+        stateKey: key,
+        placeholderResolver: a => getStringAttr(a, 'placeholder'),
+        initialValueResolver: a =>
+          getStringAttr(a, 'value') ?? getStringAttr(a, 'defaultValue')
+      })
       applyAdditionalAttributes(
         attrs,
         props,
-        ['className', 'style', 'placeholder', 'value', 'defaultValue'],
+        EXCLUDE_VALUE_DEFAULT_PLACEHOLDER,
         addError
       )
       const node: Parent = {
@@ -530,45 +527,29 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
       if (!key) return i
       const attrs = (container.attributes || {}) as Record<string, unknown>
       warnReservedClassAttribute(attrs)
-      const { className: classAttr = '', style: styleAttr } = interpolateAttrs(
-        attrs,
-        getGameData()
-      )
-      const placeholder =
-        typeof attrs.placeholder === 'string' ? attrs.placeholder : undefined
-      const initialValue =
-        typeof attrs.value === 'string'
-          ? attrs.value
-          : typeof attrs.defaultValue === 'string'
-            ? attrs.defaultValue
-            : undefined
       const rawChildren = stripLabel(
         runDirectiveBlock(
           expandIndentedCode(stripLabel(container.children as RootContent[]))
         )
       )
-      const { events, remaining } = collectInteractiveExtras(
-        p,
-        i,
-        interactiveEvents,
-        extractEventProps,
-        rawChildren
+      const { props, remainingChildren } = normalizeDirectiveProps(
+        attrs,
+        getGameData(),
+        {
+          stateKey: key,
+          placeholderResolver: a => getStringAttr(a, 'placeholder'),
+          initialValueResolver: a =>
+            getStringAttr(a, 'value') ?? getStringAttr(a, 'defaultValue'),
+          mergeEvents: true,
+          parent: p,
+          index: i,
+          rawChildren
+        }
       )
-
-      const props: Record<string, unknown> = { stateKey: key }
-      if (classAttr)
-        props.className = (classAttr as string).split(/\s+/).filter(Boolean)
-      if (styleAttr) props.style = styleAttr
-      if (placeholder) props.placeholder = placeholder
-      if (initialValue) props.initialValue = initialValue
-      if (events.onMouseEnter) props.onMouseEnter = events.onMouseEnter
-      if (events.onMouseLeave) props.onMouseLeave = events.onMouseLeave
-      if (events.onFocus) props.onFocus = events.onFocus
-      if (events.onBlur) props.onBlur = events.onBlur
       applyAdditionalAttributes(
         attrs,
         props,
-        ['className', 'style', 'placeholder', 'value', 'defaultValue'],
+        EXCLUDE_VALUE_DEFAULT_PLACEHOLDER,
         addError
       )
       const node: Parent = {
@@ -576,7 +557,7 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
         children: [],
         data: { hName: 'textarea', hProperties: props as Properties }
       }
-      const nodes = [node as RootContent, ...remaining]
+      const nodes = [node as RootContent, ...remainingChildren]
       const newIndex = replaceWithIndentation(directive, p, i, nodes)
       removeTrailingMarker(p, newIndex + nodes.length)
       return [SKIP, newIndex]
