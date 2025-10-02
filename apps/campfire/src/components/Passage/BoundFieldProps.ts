@@ -207,7 +207,7 @@ export const createBoundTextField = <Tag extends 'input' | 'textarea'>({
       setValue(target.value)
     }
 
-    return h(ElementTag, {
+    const mergedProps = {
       'data-testid': testId,
       className: mergeClasses(...baseClassNames, className),
       value: value ?? '',
@@ -216,7 +216,9 @@ export const createBoundTextField = <Tag extends 'input' | 'textarea'>({
       ...elementProps,
       ...directiveEvents,
       onInput: handleInput
-    } as BoundTextFieldAttributes<Tag> & Record<string, unknown>)
+    } satisfies BoundTextFieldAttributes<Tag>
+
+    return h(ElementTag, mergedProps)
   }
 
   return BoundTextField
