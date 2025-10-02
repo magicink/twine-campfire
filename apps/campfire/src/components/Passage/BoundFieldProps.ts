@@ -1,8 +1,9 @@
+import { h } from 'preact'
 import type { JSX } from 'preact'
 import { useEffect } from 'preact/hooks'
 import { useDirectiveEvents } from '@campfire/hooks/useDirectiveEvents'
 import { useGameStore } from '@campfire/state/useGameStore'
-import { parseDisabledAttr } from '@campfire/utils/core'
+import { mergeClasses, parseDisabledAttr } from '@campfire/utils/core'
 
 /** Base Tailwind CSS classes shared by form field components. */
 export const fieldBaseStyles =
@@ -121,4 +122,102 @@ export const useBoundField = <V>({
     onBlur
   )
   return { value, setValue, isDisabled, directiveEvents }
+}
+
+type BoundTextFieldElement<Tag extends 'input' | 'textarea'> =
+  Tag extends 'input' ? HTMLInputElement : HTMLTextAreaElement
+
+type BoundTextFieldAttributes<Tag extends 'input' | 'textarea'> =
+  Tag extends 'input'
+    ? JSX.InputHTMLAttributes<HTMLInputElement>
+    : JSX.TextareaHTMLAttributes<HTMLTextAreaElement>
+
+type BoundTextFieldProps<Tag extends 'input' | 'textarea'> =
+  BoundFieldElementProps<BoundTextFieldElement<Tag>, string>
+
+/**
+ * Options for {@link createBoundTextField}.
+ *
+ * @template Tag Element tag rendered by the bound text field.
+ */
+interface CreateBoundTextFieldOptions<Tag extends 'input' | 'textarea'> {
+  /** Element tag rendered by the component. */
+  tag: Tag
+  /** Base class names applied to the component. */
+  baseClassNames: string[]
+  /** Test identifier for the component. */
+  testId: string
+  /** Optional tweaks applied to the rendered element. */
+  applyElementProps?: (
+    props: BoundTextFieldProps<Tag>
+  ) => Partial<BoundTextFieldAttributes<Tag>>
+}
+
+/**
+ * Factory that creates components for bound text fields such as inputs and textareas.
+ *
+ * The generated component connects the field to the game state using
+ * {@link useBoundField}, merges shared props, and wires the standard `onInput`
+ * handler that persists the field value unless the event is prevented.
+ *
+ * @template Tag Element tag rendered by the bound text field.
+ * @param options - Factory options configuring the rendered element.
+ * @returns A component rendering the configured bound text field.
+ */
+export const createBoundTextField = <Tag extends 'input' | 'textarea'>({
+  tag,
+  baseClassNames,
+  testId,
+  applyElementProps
+}: CreateBoundTextFieldOptions<Tag>) => {
+  const ElementTag = tag
+  const BoundTextField = (props: BoundTextFieldProps<Tag>) => {
+    const {
+      stateKey,
+      className,
+      onMouseEnter,
+      onMouseLeave,
+      onFocus,
+      onBlur,
+      onInput,
+      initialValue,
+      disabled,
+      ...rest
+    } = props
+
+    const { value, setValue, isDisabled, directiveEvents } =
+      useBoundField<string>({
+        stateKey,
+        initialValue: initialValue ?? '',
+        disabled,
+        onMouseEnter,
+        onMouseLeave,
+        onFocus,
+        onBlur
+      })
+
+    const elementProps = applyElementProps?.(props) ?? {}
+
+    const handleInput: JSX.GenericEventHandler<
+      BoundTextFieldElement<Tag>
+    > = event => {
+      onInput?.(event)
+      if (event.defaultPrevented) return
+      const target = event.currentTarget as BoundTextFieldElement<Tag>
+      setValue(target.value)
+    }
+
+    return h(ElementTag, {
+      'data-testid': testId,
+      className: mergeClasses(...baseClassNames, className),
+      value: value ?? '',
+      disabled: isDisabled,
+      ...rest,
+      ...elementProps,
+      ...directiveEvents,
+      onInput: handleInput
+    } as BoundTextFieldAttributes<Tag> & Record<string, unknown>)
+  }
+
+  return BoundTextField
 }
