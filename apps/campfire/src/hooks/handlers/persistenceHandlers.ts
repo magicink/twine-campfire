@@ -84,39 +84,67 @@ export const createPersistenceHandlers = (ctx: PersistenceHandlerContext) => {
   } = ctx
 
   /**
-   * Saves the current game state to local storage.
+   * Wraps persistence operations with shared validation and loading state handling.
    *
    * @param directive - The directive node being processed.
    * @param parent - Parent node containing the directive.
    * @param index - Index of the directive within the parent.
+   * @param operation - Operation to execute with the resolved storage identifier.
+   * @returns The result of the operation or removal of the directive node.
    */
-  const handleSave: DirectiveHandler = (directive, parent, index) => {
+  type PersistentOperationResult =
+    | ReturnType<typeof addError>
+    | ReturnType<typeof removeNode>
+
+  const withPersistentOperation = (
+    directive: Parameters<DirectiveHandler>[0],
+    parent: Parameters<DirectiveHandler>[1],
+    index: Parameters<DirectiveHandler>[2],
+    operation: (id: string) => PersistentOperationResult
+  ): ReturnType<DirectiveHandler> => {
     const invalid = requireLeafDirective(directive, parent, index, addError)
     if (invalid !== undefined) return invalid
     const attrs = (directive.attributes || {}) as Record<string, unknown>
     const id = typeof attrs.id === 'string' ? attrs.id : 'campfire.save'
     setLoading(true)
     try {
-      if ('localStorage' in globalThis) {
-        const cps = getCheckpoints()
-        const state = getState()
-        const data = {
-          gameData: { ...(state.getState() as Record<string, unknown>) },
-          lockedKeys: { ...state.getLockedKeys() },
-          onceKeys: { ...state.getOnceKeys() },
-          checkpoints: { ...cps },
-          currentPassageId: getCurrentPassageId()
-        }
-        globalThis.localStorage.setItem(id, JSON.stringify(data))
+      const result = operation(id)
+      if (result !== undefined) {
+        return result
       }
-    } catch (error) {
-      console.error('Error saving game state:', error)
-      addError('Failed to save game state')
     } finally {
       setLoading(false)
     }
     return removeNode(parent, index)
   }
+
+  /**
+   * Saves the current game state to local storage.
+   *
+   * @param directive - The directive node being processed.
+   * @param parent - Parent node containing the directive.
+   * @param index - Index of the directive within the parent.
+   */
+  const handleSave: DirectiveHandler = (directive, parent, index) =>
+    withPersistentOperation(directive, parent, index, id => {
+      try {
+        if ('localStorage' in globalThis) {
+          const cps = getCheckpoints()
+          const state = getState()
+          const data = {
+            gameData: { ...(state.getState() as Record<string, unknown>) },
+            lockedKeys: { ...state.getLockedKeys() },
+            onceKeys: { ...state.getOnceKeys() },
+            checkpoints: { ...cps },
+            currentPassageId: getCurrentPassageId()
+          }
+          globalThis.localStorage.setItem(id, JSON.stringify(data))
+        }
+      } catch (error) {
+        console.error('Error saving game state:', error)
+        return addError('Failed to save game state')
+      }
+    })
 
   /**
    * Loads a game state from local storage.
@@ -125,46 +153,39 @@ export const createPersistenceHandlers = (ctx: PersistenceHandlerContext) => {
    * @param parent - Parent node containing the directive.
    * @param index - Index of the directive within the parent.
    */
-  const handleLoad: DirectiveHandler = (directive, parent, index) => {
-    const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (invalid !== undefined) return invalid
-    const attrs = (directive.attributes || {}) as Record<string, unknown>
-    const id = typeof attrs.id === 'string' ? attrs.id : 'campfire.save'
-    setLoading(true)
-    try {
-      if ('localStorage' in globalThis) {
-        const raw = globalThis.localStorage.getItem(id)
-        if (raw) {
-          const data = JSON.parse(raw) as {
-            gameData?: Record<string, unknown>
-            lockedKeys?: Record<string, true>
-            onceKeys?: Record<string, true>
-            checkpoints?: Record<string, Checkpoint<Record<string, unknown>>>
-            currentPassageId?: string
-          }
-          setGameStoreState({
-            gameData: { ...(data.gameData || {}) },
-            lockedKeys: { ...(data.lockedKeys || {}) },
-            onceKeys: { ...(data.onceKeys || {}) },
-            checkpoints: { ...(data.checkpoints || {}) }
-          })
-          if (data.currentPassageId) {
-            setCurrentPassage(data.currentPassageId)
-          } else {
-            const msg = 'Saved game state has no current passage'
-            console.error(msg)
-            addError(msg)
+  const handleLoad: DirectiveHandler = (directive, parent, index) =>
+    withPersistentOperation(directive, parent, index, id => {
+      try {
+        if ('localStorage' in globalThis) {
+          const raw = globalThis.localStorage.getItem(id)
+          if (raw) {
+            const data = JSON.parse(raw) as {
+              gameData?: Record<string, unknown>
+              lockedKeys?: Record<string, true>
+              onceKeys?: Record<string, true>
+              checkpoints?: Record<string, Checkpoint<Record<string, unknown>>>
+              currentPassageId?: string
+            }
+            setGameStoreState({
+              gameData: { ...(data.gameData || {}) },
+              lockedKeys: { ...(data.lockedKeys || {}) },
+              onceKeys: { ...(data.onceKeys || {}) },
+              checkpoints: { ...(data.checkpoints || {}) }
+            })
+            if (data.currentPassageId) {
+              setCurrentPassage(data.currentPassageId)
+            } else {
+              const msg = 'Saved game state has no current passage'
+              console.error(msg)
+              return addError(msg)
+            }
           }
         }
+      } catch (error) {
+        console.error('Error loading game state:', error)
+        return addError('Failed to load game state')
       }
-    } catch (error) {
-      console.error('Error loading game state:', error)
-      addError('Failed to load game state')
-    } finally {
-      setLoading(false)
-    }
-    return removeNode(parent, index)
-  }
+    })
 
   /**
    * Clears a saved game state from local storage.
@@ -173,24 +194,17 @@ export const createPersistenceHandlers = (ctx: PersistenceHandlerContext) => {
    * @param parent - Parent node containing the directive.
    * @param index - Index of the directive within the parent.
    */
-  const handleClearSave: DirectiveHandler = (directive, parent, index) => {
-    const invalid = requireLeafDirective(directive, parent, index, addError)
-    if (invalid !== undefined) return invalid
-    const attrs = (directive.attributes || {}) as Record<string, unknown>
-    const id = typeof attrs.id === 'string' ? attrs.id : 'campfire.save'
-    setLoading(true)
-    try {
-      if ('localStorage' in globalThis) {
-        globalThis.localStorage.removeItem(id)
+  const handleClearSave: DirectiveHandler = (directive, parent, index) =>
+    withPersistentOperation(directive, parent, index, id => {
+      try {
+        if ('localStorage' in globalThis) {
+          globalThis.localStorage.removeItem(id)
+        }
+      } catch (error) {
+        console.error('Error clearing saved game state:', error)
+        return addError('Failed to clear saved game state')
       }
-    } catch (error) {
-      console.error('Error clearing saved game state:', error)
-      addError('Failed to clear saved game state')
-    } finally {
-      setLoading(false)
-    }
-    return removeNode(parent, index)
-  }
+    })
 
   /**
    * Saves a checkpoint of the current game state.

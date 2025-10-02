@@ -11,6 +11,7 @@ import { Passage } from '@campfire/components/Passage/Passage'
 import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
 import { useGameStore } from '@campfire/state/useGameStore'
 import { resetStores } from '@campfire/test-utils/helpers'
+import { expectContainerDirectiveBehavior } from '@campfire/test-utils/formFieldTests'
 
 /**
  * Tests for Textarea directive attributes.
@@ -44,45 +45,11 @@ describe('Textarea directive', () => {
   })
 
   it('runs event directives when used as a container', async () => {
-    const passage: Element = {
-      type: 'element',
-      tagName: 'tw-passagedata',
-      properties: { pid: '1', name: 'Start' },
-      children: [
-        {
-          type: 'text',
-          value:
-            ':::textarea[bio]\n:::onFocus\n::set[focused=true]\n:::\n:::onMouseEnter\n::set[hovered=true]\n:::\n:::\n'
-        }
-      ]
-    }
-    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-    render(<Passage />)
-    const textarea = await screen.findByTestId('textarea')
-    act(() => {
-      ;(textarea as HTMLTextAreaElement).focus()
+    await expectContainerDirectiveBehavior({
+      directiveName: 'textarea',
+      directiveConfig: '[bio]',
+      testId: 'textarea'
     })
-    expect(useGameStore.getState().gameData.focused).toBe(true)
-    fireEvent.mouseEnter(textarea)
-    expect(useGameStore.getState().gameData.hovered).toBe(true)
-  })
-
-  it('removes directive markers for container textareas', async () => {
-    const passage: Element = {
-      type: 'element',
-      tagName: 'tw-passagedata',
-      properties: { pid: '1', name: 'Start' },
-      children: [
-        {
-          type: 'text',
-          value: ':::textarea[bio]\n:::\n'
-        }
-      ]
-    }
-    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-    render(<Passage />)
-    await screen.findByTestId('textarea')
-    expect(document.body.textContent).not.toContain(':::')
   })
 
   it('initializes state from value attribute', async () => {

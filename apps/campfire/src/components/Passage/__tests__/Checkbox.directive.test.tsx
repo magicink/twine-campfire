@@ -5,6 +5,7 @@ import { Passage } from '@campfire/components/Passage/Passage'
 import { useStoryDataStore } from '@campfire/state/useStoryDataStore'
 import { useGameStore } from '@campfire/state/useGameStore'
 import { resetStores } from '@campfire/test-utils/helpers'
+import { expectContainerDirectiveBehavior } from '@campfire/test-utils/formFieldTests'
 
 /**
  * Tests for Checkbox directive attributes.
@@ -34,45 +35,11 @@ describe('Checkbox directive', () => {
   })
 
   it('runs event directives when used as a container', async () => {
-    const passage: Element = {
-      type: 'element',
-      tagName: 'tw-passagedata',
-      properties: { pid: '1', name: 'Start' },
-      children: [
-        {
-          type: 'text',
-          value:
-            ':::checkbox[agree]\n:::onFocus\n::set[focused=true]\n:::\n:::onMouseEnter\n::set[hovered=true]\n:::\n:::\n'
-        }
-      ]
-    }
-    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-    render(<Passage />)
-    const button = await screen.findByTestId('checkbox')
-    act(() => {
-      ;(button as HTMLButtonElement).focus()
+    await expectContainerDirectiveBehavior({
+      directiveName: 'checkbox',
+      directiveConfig: '[agree]',
+      testId: 'checkbox'
     })
-    expect(useGameStore.getState().gameData.focused).toBe(true)
-    fireEvent.mouseEnter(button)
-    expect(useGameStore.getState().gameData.hovered).toBe(true)
-  })
-
-  it('removes directive markers for container checkboxes', async () => {
-    const passage: Element = {
-      type: 'element',
-      tagName: 'tw-passagedata',
-      properties: { pid: '1', name: 'Start' },
-      children: [
-        {
-          type: 'text',
-          value: ':::checkbox[agree]\n:::\n'
-        }
-      ]
-    }
-    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-    render(<Passage />)
-    await screen.findByTestId('checkbox')
-    expect(document.body.textContent).not.toContain(':::')
   })
 
   it('initializes state from value attribute', async () => {

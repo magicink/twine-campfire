@@ -8,9 +8,9 @@ import remarkCampfire, {
   remarkCampfireIndentation
 } from '@campfire/remark-campfire'
 import type { RootContent } from 'mdast'
-import type { ElementContent, Text as HastText } from 'hast'
+import type { Content, ElementContent } from 'hast'
 import i18next from 'i18next'
-import { QUOTE_PATTERN } from '@campfire/utils/core'
+import { extractQuoted, getPassageText } from '@campfire/utils/core'
 import {
   removeNode,
   replaceWithIndentation
@@ -75,17 +75,6 @@ export const createNavigationHandlers = (ctx: NavigationHandlerContext) => {
   } = ctx
 
   /**
-   * Extracts the content of a string wrapped in matching quotes or backticks.
-   *
-   * @param value - The raw string to inspect.
-   * @returns The inner string if quoted, otherwise undefined.
-   */
-  const getQuotedValue = (value: string): string | undefined => {
-    const match = value.trim().match(QUOTE_PATTERN)
-    return match ? match[2] : undefined
-  }
-
-  /**
    * Retrieves a string or numeric value from the game state by key.
    *
    * @param key - The game state key to read.
@@ -115,15 +104,16 @@ export const createNavigationHandlers = (ctx: NavigationHandlerContext) => {
     attrs: Record<string, unknown>
   ): string | undefined => {
     if (rawText) {
-      return (
-        getQuotedValue(rawText) ??
-        (NUMERIC_PATTERN.test(rawText) ? rawText : undefined)
-      )
+      const trimmed = rawText.trim()
+      const quoted = extractQuoted(trimmed)
+      if (quoted) return quoted
+      return NUMERIC_PATTERN.test(trimmed) ? trimmed : undefined
     }
-    const attr =
-      typeof attrs.passage === 'string' ? attrs.passage.trim() : undefined
-    if (!attr) return undefined
-    const quoted = getQuotedValue(attr)
+    const attrRaw =
+      typeof attrs.passage === 'string' ? attrs.passage : undefined
+    if (!attrRaw) return undefined
+    const attr = attrRaw.trim()
+    const quoted = extractQuoted(attr)
     if (quoted) return quoted
     if (NUMERIC_PATTERN.test(attr)) return attr
     return getStateValue(attr, getGameData())
@@ -181,7 +171,7 @@ export const createNavigationHandlers = (ctx: NavigationHandlerContext) => {
     if (invalid !== undefined) return invalid
     if (getIncludeDepth() > 0) return removeNode(parent, index)
     const raw = toString(directive).trim()
-    const title = getQuotedValue(raw)
+    const title = extractQuoted(raw)
     if (title) {
       document.title = i18next.t(title)
       markTitleOverridden()
@@ -231,11 +221,7 @@ export const createNavigationHandlers = (ctx: NavigationHandlerContext) => {
 
     if (!passage) return removeNode(p, i)
 
-    const text = passage.children
-      .map((child: ElementContent) =>
-        child.type === 'text' ? (child as HastText).value : ''
-      )
-      .join('')
+    const text = getPassageText(passage.children as Content[])
 
     const processor = unified()
       .use(remarkParse)
