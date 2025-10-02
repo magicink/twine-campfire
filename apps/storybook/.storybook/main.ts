@@ -19,6 +19,11 @@ const config: StorybookConfig = {
       ...(config.resolve.alias ?? {}),
       '@campfire': path.resolve(__dirname, '../../campfire/src')
     }
+    config.resolve.dedupe = [
+      ...(config.resolve.dedupe ?? []),
+      'preact',
+      'preact/hooks'
+    ]
     config.build ??= {}
     config.build.sourcemap = true
     return config
