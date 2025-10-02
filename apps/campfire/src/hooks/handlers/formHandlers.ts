@@ -192,19 +192,33 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
    * @param options - Configuration for value/placeholder/event handling.
    * @returns Normalized props and any remaining children nodes.
    */
+  type NormalizeDirectivePropsOptions =
+    | {
+        mergeEvents: true
+        stateKey: string
+        placeholderResolver?: (attrs: DirectiveAttributes) => string | undefined
+        initialValueResolver?: (
+          attrs: DirectiveAttributes
+        ) => string | undefined
+        valueResolver?: (attrs: DirectiveAttributes) => unknown
+        parent: Parent
+        index: number
+        rawChildren: RootContent[]
+      }
+    | {
+        mergeEvents?: false | undefined
+        stateKey: string
+        placeholderResolver?: (attrs: DirectiveAttributes) => string | undefined
+        initialValueResolver?: (
+          attrs: DirectiveAttributes
+        ) => string | undefined
+        valueResolver?: (attrs: DirectiveAttributes) => unknown
+      }
+
   const normalizeDirectiveProps = (
     attrs: DirectiveAttributes,
     interpolationContext: Record<string, unknown>,
-    options: {
-      stateKey: string
-      placeholderResolver?: (attrs: DirectiveAttributes) => string | undefined
-      initialValueResolver?: (attrs: DirectiveAttributes) => string | undefined
-      valueResolver?: (attrs: DirectiveAttributes) => unknown
-      mergeEvents?: boolean
-      parent?: Parent
-      index?: number
-      rawChildren?: RootContent[]
-    }
+    options: NormalizeDirectivePropsOptions
   ): { props: Record<string, unknown>; remainingChildren: RootContent[] } => {
     const {
       stateKey,
@@ -218,7 +232,8 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
     )
     const props: Record<string, unknown> = { stateKey }
     if (typeof classAttr === 'string' && classAttr.trim()) {
-      props.className = classAttr.split(/\s+/).filter(Boolean)
+      const trimmedClassAttr = classAttr.trim()
+      props.className = trimmedClassAttr.split(/\s+/).filter(Boolean)
     }
     if (styleAttr) props.style = styleAttr
     if (valueResolver) {
@@ -229,18 +244,14 @@ export const createFormHandlers = (ctx: FormHandlerContext) => {
     if (placeholder) props.placeholder = placeholder
     const initialValue = initialValueResolver?.(attrs)
     if (initialValue) props.initialValue = initialValue
-    if (
-      options.mergeEvents &&
-      options.parent &&
-      typeof options.index === 'number' &&
-      options.rawChildren
-    ) {
+    if (options.mergeEvents) {
+      const { parent, index, rawChildren } = options
       const { events, remaining } = collectInteractiveExtras(
-        options.parent,
-        options.index,
+        parent,
+        index,
         interactiveEvents,
         extractEventProps,
-        options.rawChildren
+        rawChildren
       )
       for (const [eventName, handler] of Object.entries(events)) {
         props[eventName] = handler
