@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.111.0](https://github.com/magicink/twine-campfire/compare/v1.110.0...v1.111.0) (2025-10-02)
+
+
+### Features
+
+* add passage text helper utility ([#801](https://github.com/magicink/twine-campfire/issues/801)) ([d2a4e96](https://github.com/magicink/twine-campfire/commit/d2a4e96f509f321177438f31819a7a55e8a06292))
+* refactor bound text field components ([#805](https://github.com/magicink/twine-campfire/issues/805)) ([85f57aa](https://github.com/magicink/twine-campfire/commit/85f57aab9fb283e9e3c87686153cac11cafcda09))
+
+
+### Bug Fixes
+
+* **storybook:** dedupe preact modules ([#806](https://github.com/magicink/twine-campfire/issues/806)) ([3816fd3](https://github.com/magicink/twine-campfire/commit/3816fd35ab676e593c7007141254241a9dcacae2))
+
 ## [1.110.0](https://github.com/magicink/twine-campfire/compare/v1.109.0...v1.110.0) (2025-09-30)
 
 
