@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.111.1](https://github.com/magicink/twine-campfire/compare/v1.111.0...v1.111.1) (2025-10-02)
+
+
+### Bug Fixes
+
+* remove version commit step from release workflow ([#809](https://github.com/magicink/twine-campfire/issues/809)) ([#810](https://github.com/magicink/twine-campfire/issues/810)) ([48fde58](https://github.com/magicink/twine-campfire/commit/48fde587c3ebc725992ce79b7eee2ecbafc972dc))
+
 ## [1.111.0](https://github.com/magicink/twine-campfire/compare/v1.110.0...v1.111.0) (2025-10-02)
 
 
