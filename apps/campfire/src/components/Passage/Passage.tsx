@@ -136,7 +136,7 @@ export const Passage = () => {
     if (!passage) return
     const passageId =
       typeof passage.properties?.pid === 'string'
-        ? (passage.properties.pid as string)
+        ? passage.properties.pid
         : undefined
     const isNewPassage = prevPassageId.current !== passageId
     if (isNewPassage) {
@@ -146,7 +146,7 @@ export const Passage = () => {
     }
     const passageName =
       typeof passage.properties?.name === 'string'
-        ? (passage.properties.name as string)
+        ? passage.properties.name
         : undefined
     if (!isTitleOverridden()) {
       const storyName = storyData.name as string | undefined
@@ -172,7 +172,7 @@ export const Passage = () => {
       }
       const id =
         typeof passage.properties?.pid === 'string'
-          ? (passage.properties.pid as string)
+          ? passage.properties.pid
           : undefined
       const text = getPassageText(passage.children as Content[])
       const cache = getPassageCache()

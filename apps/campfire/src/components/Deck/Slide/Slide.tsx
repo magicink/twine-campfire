@@ -32,7 +32,7 @@ export const Slide = ({
 
   useEffect(() => {
     runEnter()
-  }, [runEnter])
+  }, [])
 
   useEffect(() => {
     runExitRef.current = runExit
