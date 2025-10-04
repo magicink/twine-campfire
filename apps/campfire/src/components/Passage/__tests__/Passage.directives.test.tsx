@@ -1,4 +1,4 @@
-import { describe, it, beforeEach, expect } from 'bun:test'
+import { describe, it, beforeEach, expect, vi } from 'bun:test'
 import {
   render,
   screen,
@@ -386,6 +386,7 @@ describe('Passage trigger directives', () => {
   })
 
   it('uses wrapper child as the trigger label, overriding label attribute', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const passage: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
@@ -404,24 +405,32 @@ describe('Passage trigger directives', () => {
         }
       ]
     }
-    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-    render(<Passage />)
-    const button = await screen.findByRole('button', { name: 'Styled Label' })
-    const wrapper = button.querySelector(
-      '[data-testid="wrapper"]'
-    ) as HTMLElement
-    expect(wrapper).toBeTruthy()
-    expect(wrapper.className).toContain('campfire-wrapper')
-    expect(wrapper.className).toContain('fancy')
-    act(() => {
-      button.click()
-    })
-    await waitFor(() => {
-      expect(useGameStore.getState().gameData.fired).toBe(true)
-    })
+    try {
+      useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+      render(<Passage />)
+      const button = await screen.findByRole('button', { name: 'Styled Label' })
+      const wrapper = button.querySelector(
+        '[data-testid="wrapper"]'
+      ) as HTMLElement
+      expect(wrapper).toBeTruthy()
+      expect(wrapper.className).toContain('campfire-wrapper')
+      expect(wrapper.className).toContain('fancy')
+      act(() => {
+        button.click()
+      })
+      await waitFor(() => {
+        expect(useGameStore.getState().gameData.fired).toBe(true)
+      })
+      expect(errorSpy).toHaveBeenCalledWith(
+        'Only one wrapper directive is allowed inside a trigger'
+      )
+    } finally {
+      errorSpy.mockRestore()
+    }
   })
 
   it('enforces a single wrapper inside trigger and coerces invalid wrapper tag to span', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const passage: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
@@ -441,15 +450,30 @@ describe('Passage trigger directives', () => {
         }
       ]
     }
-    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-    render(<Passage />)
-    const button = await screen.findByRole('button', { name: 'First' })
-    const wrappers = button.querySelectorAll('[data-testid="wrapper"]')
-    expect(wrappers).toHaveLength(1)
-    expect((wrappers[0] as HTMLElement).tagName).toBe('SPAN')
+    try {
+      useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+      render(<Passage />)
+      const button = await screen.findByRole('button', { name: 'First' })
+      const wrappers = button.querySelectorAll('[data-testid="wrapper"]')
+      expect(wrappers).toHaveLength(1)
+      expect((wrappers[0] as HTMLElement).tagName).toBe('SPAN')
+      expect(errorSpy).toHaveBeenCalledWith(
+        expect.stringContaining(
+          'Only one wrapper directive is allowed inside a trigger'
+        )
+      )
+      expect(errorSpy).toHaveBeenCalledWith(
+        expect.stringContaining(
+          'Wrapper inside trigger must use an inline tag allowed within <button> (e.g., as="span")'
+        )
+      )
+    } finally {
+      errorSpy.mockRestore()
+    }
   })
 
   it('does not leave stray markers when wrapper is used as label', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const passage: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
@@ -466,9 +490,16 @@ describe('Passage trigger directives', () => {
         }
       ]
     }
-    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-    render(<Passage />)
-    await screen.findByRole('button', { name: 'Label' })
-    expect(document.body.textContent).not.toContain(':::')
+    try {
+      useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+      render(<Passage />)
+      await screen.findByRole('button', { name: 'Label' })
+      expect(document.body.textContent).not.toContain(':::')
+      expect(errorSpy).toHaveBeenCalledWith(
+        'Only one wrapper directive is allowed inside a trigger'
+      )
+    } finally {
+      errorSpy.mockRestore()
+    }
   })
 })

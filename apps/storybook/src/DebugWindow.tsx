@@ -76,30 +76,27 @@ export const DebugWindow = () => {
   const [jsxPassage, setJsxPassage] = useState('')
   const [translations, setTranslations] = useState<Record<string, unknown>>({})
   useEffect(() => {
-    const update = () => {
-      // Only update translations if i18next is initialized and store exists
+    const syncTranslations = () => {
       if (i18next.isInitialized && i18next.store) {
         setTranslations({ ...i18next.store.data })
       }
     }
 
-    // If i18next is already initialized, update immediately
     if (i18next.isInitialized) {
-      update()
+      syncTranslations()
     }
 
-    // Listen for i18next initialization
     const handleInitialized = () => {
-      update()
+      syncTranslations()
     }
 
     i18next.on('initialized', handleInitialized)
-    i18next.on('added', update)
-    i18next.on('removed', update)
+    i18next.on('added', syncTranslations)
+    i18next.on('removed', syncTranslations)
     return () => {
       i18next.off('initialized', handleInitialized)
-      i18next.off('added', update)
-      i18next.off('removed', update)
+      i18next.off('added', syncTranslations)
+      i18next.off('removed', syncTranslations)
     }
   }, [])
   const gameData = useGameStore.use.gameData()

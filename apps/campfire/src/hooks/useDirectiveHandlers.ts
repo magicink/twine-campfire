@@ -89,9 +89,6 @@ const ALLOWED_BATCH_DIRECTIVES = new Set(
 const BANNED_BATCH_DIRECTIVES = new Set(['batch'])
 
 /** Marker inserted to close directive blocks. */
-// TODO(campfire): Centralize marker parsing and end-of-block detection
-// across remark and handlers to avoid drift; add regression tests that
-// cover paragraph vs. bare-text markers, blank lines, and sibling directives.
 const DIRECTIVE_MARKER = ':::'
 
 /** Event directives supported by interactive elements. */
@@ -104,9 +101,6 @@ const INTERACTIVE_EVENTS = new Set([
 const IDENTIFIER_PATTERN = /^[A-Za-z_$][A-Za-z0-9_$]*$/
 
 export const useDirectiveHandlers = () => {
-  // TODO(campfire): This module is very large; consider splitting handlers
-  // into focused files (e.g., state, array, deck/slide, overlay) to improve
-  // maintainability and enable more targeted unit tests.
   const stateRef = useRef<StateManagerType<Record<string, unknown>>>()
   if (!stateRef.current) {
     stateRef.current = createStateManager<Record<string, unknown>>()
@@ -922,10 +916,6 @@ export const useDirectiveHandlers = () => {
           parent.children.splice(idx, 1)
           continue
         }
-        // TODO(campfire): Per spec, stop at first sibling directive node
-        // (do not fold it into the current container). Add regression tests
-        // to ensure we terminate correctly for both paragraph and bare-text
-        // markers.
         if (node.type === 'containerDirective' || isWhitespaceNode(node)) {
           pending.push(node)
           parent.children.splice(idx, 1)
@@ -1024,7 +1014,6 @@ export const useDirectiveHandlers = () => {
           if (child.type !== 'paragraph') return child
           const paragraph = child as Parent
           const data = paragraph.data as { hName?: unknown } | undefined
-          // Preserve paragraphs representing custom elements such as slideImage
           return data && typeof data.hName === 'string'
             ? paragraph
             : paragraph.children
@@ -1379,11 +1368,6 @@ export const useDirectiveHandlers = () => {
     if (normAttrs.allow) props.allow = normAttrs.allow
     if (normAttrs.referrerPolicy)
       props.referrerPolicy = normAttrs.referrerPolicy
-    // The value for allowFullScreen may come from either normAttrs or
-    // normRaw, and may be a boolean or a string. This fallback handles cases
-    // where the attribute is set as a string (e.g., from markdown or user
-    // input). If the value is the boolean true or the string 'true'
-    // (case-insensitive), enable allowFullScreen.
     const allowFullScreenRaw =
       normAttrs.allowFullScreen ?? normRaw['allowFullScreen']
     if (
@@ -1394,10 +1378,6 @@ export const useDirectiveHandlers = () => {
       props.allowFullScreen = true
     }
     applyAdditionalAttributes(mergedRaw, props, exclude, addError)
-    // Apply merged raw attributes first, then normalized/interpolated attributes
-    // to ensure normalized values take precedence. This order is intentional:
-    // attributes in normRaw (the normalized/interpolated version of mergedRaw)
-    // will overwrite those in mergedRaw if keys overlap.
     applyAdditionalAttributes(normRaw, props, exclude, addError)
     const data = {
       hName: 'slideEmbed',
@@ -1848,7 +1828,6 @@ export const useDirectiveHandlers = () => {
   }
 
   return useMemo(() => {
-    // noinspection JSUnusedGlobalSymbols
     const handlers = {
       ...stateDirectiveHandlers,
       show: handleShow,

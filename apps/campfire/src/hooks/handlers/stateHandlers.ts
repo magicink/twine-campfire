@@ -213,7 +213,6 @@ export const createStateHandlers = (ctx: StateHandlerContext) => {
       for (let i = 0; i < input.length; i++) {
         const ch = input[i]
         if (quote) {
-          // Count consecutive backslashes before the quote
           if (ch === quote) {
             let backslashCount = 0
             let j = i - 1

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'bun:test'
+import { beforeEach, describe, expect, it, vi } from 'bun:test'
 import type { Root, Text } from 'mdast'
 import type { ContainerDirective, LeafDirective } from 'mdast-util-directive'
 import { createStateHandlers } from '@campfire/hooks/handlers/stateHandlers'
@@ -29,6 +29,7 @@ describe('unset directive handler', () => {
   }
 
   it('rejects non-leaf unset directives', () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const { ctx, errors } = createContext()
     const { handlers } = createStateHandlers(ctx)
     const directive: ContainerDirective = {
@@ -40,11 +41,18 @@ describe('unset directive handler', () => {
     }
     const parent: Root = { type: 'root', children: [directive] }
 
-    const result = handlers.unset(directive, parent, 0)
+    try {
+      const result = handlers.unset(directive, parent, 0)
 
-    expect(result).toBe(0)
-    expect(parent.children).toHaveLength(0)
-    expect(errors).toContain('unset can only be used as a leaf directive')
+      expect(result).toBe(0)
+      expect(parent.children).toHaveLength(0)
+      expect(errors).toContain('unset can only be used as a leaf directive')
+      expect(errorSpy).toHaveBeenCalledWith(
+        'unset can only be used as a leaf directive'
+      )
+    } finally {
+      errorSpy.mockRestore()
+    }
   })
 
   it('derives keys from directive labels when attributes are missing', () => {

@@ -40,9 +40,7 @@ const safeInvoke = <T extends unknown[]>(
     ) {
       ;(result as Promise<unknown>).catch(() => {})
     }
-  } catch {
-    // ignore failures to avoid breaking unsupported browsers
-  }
+  } catch {}
 }
 
 /**
@@ -101,7 +99,6 @@ export const useOrientationController = () => {
       }
     }
 
-    // Default to portrait lock on mount.
     applyOrientation(false)
 
     if (isLandscapeAllowed()) {

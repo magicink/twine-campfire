@@ -1,4 +1,12 @@
-import { describe, it, expect, beforeEach, beforeAll, afterAll } from 'bun:test'
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  beforeAll,
+  afterAll,
+  spyOn
+} from 'bun:test'
 import { render } from '@testing-library/preact'
 import type { ComponentChild } from 'preact'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
@@ -7,18 +15,22 @@ import { useGameStore } from '@campfire/state/useGameStore'
 import { GlobalRegistrator } from '@happy-dom/global-registrator'
 
 let didRegisterHappyDom = false
+let originalConsoleError: typeof console.error
 
 beforeAll(() => {
   if (typeof document === 'undefined') {
     GlobalRegistrator.register()
     didRegisterHappyDom = true
   }
+  originalConsoleError = console.error
+  console.error = () => {}
 })
 
 afterAll(async () => {
   if (didRegisterHappyDom) {
     await GlobalRegistrator.unregister()
   }
+  console.error = originalConsoleError
 })
 
 let output: ComponentChild | null = null
@@ -125,9 +137,17 @@ Hi
 
   it('throws when using reserved class attribute', () => {
     const md = ':::text{class="bad"}\nOops\n:::'
-    expect(() => render(<MarkdownRunner markdown={md} />)).toThrow(
-      'class is a reserved attribute. Use className instead.'
-    )
+    const errorSpy = spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      expect(() => render(<MarkdownRunner markdown={md} />)).toThrow(
+        'class is a reserved attribute. Use className instead.'
+      )
+      expect(errorSpy).toHaveBeenCalledWith(
+        'class is a reserved attribute. Use className instead.'
+      )
+    } finally {
+      errorSpy.mockRestore()
+    }
   })
 
   it('applies text presets with overrides', () => {
@@ -162,22 +182,23 @@ Hi
   })
 
   it('records an error when preset is used as a container directive', () => {
-    const original = console.error
-    const logged: unknown[][] = []
-    console.error = (...args: unknown[]) => {
-      logged.push(args)
-    }
     const store = useGameStore.getState()
     store.clearErrors()
+    const errorSpy = spyOn(console, 'error').mockImplementation(() => {})
     const md =
       ':::preset{type="text" name="headline" x=12 y=24 size=28 color="blue"}\n' +
       ':::text{from="headline" size=36}\nHello\n:::'
-    render(<MarkdownRunner markdown={md} />)
-    expect(useGameStore.getState().errors).toContain(
-      'preset can only be used as a leaf directive'
-    )
-    expect(logged[0]?.[0]).toBe('preset can only be used as a leaf directive')
-    store.clearErrors()
-    console.error = original
+    try {
+      render(<MarkdownRunner markdown={md} />)
+      expect(useGameStore.getState().errors).toContain(
+        'preset can only be used as a leaf directive'
+      )
+      expect(errorSpy).toHaveBeenCalledWith(
+        'preset can only be used as a leaf directive'
+      )
+    } finally {
+      store.clearErrors()
+      errorSpy.mockRestore()
+    }
   })
 })

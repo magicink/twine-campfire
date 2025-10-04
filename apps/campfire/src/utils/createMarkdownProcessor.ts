@@ -18,22 +18,18 @@ import type { DirectiveHandler } from '@campfire/remark-campfire'
 import type { PluggableList } from 'unified'
 
 /**
- * Creates a unified processor that converts Markdown with Campfire directives
- * into Preact nodes.
+ * Builds a unified processor that renders Campfire markdown as Preact nodes.
  *
- * @param handlers - Directive handlers for remark-campfire.
- * @param components - Mapping of directive names to Preact components.
+ * @param handlers - remark-campfire directive handlers.
+ * @param components - Map of directive names to Preact components.
  * @param remarkPlugins - Optional remark plugins applied before remark-rehype.
- * @returns Configured unified processor.
+ * @returns Configured processor.
  */
 export const createMarkdownProcessor = (
   handlers: Record<string, DirectiveHandler>,
   components: Record<string, ComponentType<any>>,
   remarkPlugins: PluggableList = []
 ) =>
-  // TODO(campfire): Consider including remarkCampfireIndentation here to
-  // preserve directive indentation metadata end-to-end (currently done in
-  // directiveUtils). Validate plugin ordering with regression tests.
   unified()
     .use(remarkParse)
     .use(remarkGfm)

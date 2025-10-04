@@ -41,9 +41,7 @@ export const parseRange = (input: unknown): RangeValue => {
   if (typeof input === 'string') {
     try {
       obj = JSON.parse(input)
-    } catch {
-      // fall back to numeric parsing below
-    }
+    } catch {}
   }
   if (obj && typeof obj === 'object') {
     const data = obj as Record<string, unknown>

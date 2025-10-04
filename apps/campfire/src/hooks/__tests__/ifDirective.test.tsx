@@ -1,9 +1,23 @@
-import { describe, it, expect, beforeEach } from 'bun:test'
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
 import { render, fireEvent, waitFor } from '@testing-library/preact'
 import { Fragment } from 'preact/jsx-runtime'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
 import { renderDirectiveMarkdown } from '@campfire/components/Deck/Slide'
 import { useGameStore } from '@campfire/state/useGameStore'
+
+/**
+ * Blocks outbound network requests triggered by happy-dom during tests.
+ *
+ * @param _input - Ignored request input.
+ * @param _init - Ignored request options.
+ * @returns A resolved response with no content.
+ */
+const resolveEmptyFetch: typeof globalThis.fetch = async (
+  _input: RequestInfo | URL,
+  _init?: RequestInit
+) => new Response('', { status: 204 })
+
+let originalFetch: typeof globalThis.fetch = globalThis.fetch
 
 /**
  * Component used in tests to render markdown with directive handlers.
@@ -21,6 +35,12 @@ beforeEach(() => {
   document.body.innerHTML = ''
   const store = useGameStore.getState()
   store.reset()
+  originalFetch = globalThis.fetch
+  globalThis.fetch = resolveEmptyFetch
+})
+
+afterEach(() => {
+  globalThis.fetch = originalFetch
 })
 
 describe('if directive', () => {

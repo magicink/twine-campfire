@@ -308,7 +308,6 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
     const expr = extractExpressionFromDirective(container)
     const children = stripLabel(container.children as RootContent[])
 
-    // Collect sibling case/default directives until the closing marker.
     let cursor = i + 1
     while (cursor < p.children.length) {
       const sibling = p.children[cursor] as RootContent
@@ -474,7 +473,6 @@ export const createControlFlowHandlers = (ctx: ControlFlowHandlerContext) => {
     const newIndex = replaceWithIndentation(directive, p, i, [
       node as RootContent
     ])
-    // Remove closing directive markers after the if block, skipping whitespace-only nodes
     let markerIndex = newIndex + 1
     while (markerIndex < p.children.length) {
       const sibling = p.children[markerIndex] as RootContent

@@ -16,8 +16,8 @@ const resetStore = () => {
 
 beforeEach(() => {
   setupResizeObserver()
-  // @ts-expect-error override animate
-  HTMLElement.prototype.animate = () => new StubAnimation()
+  HTMLElement.prototype.animate = (() =>
+    new StubAnimation()) as typeof HTMLElement.prototype.animate
   resetStore()
   document.body.innerHTML = ''
 })
