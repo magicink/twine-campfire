@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'bun:test'
-import { unified } from 'unified'
+import { describe, it, expect, vi } from 'bun:test'
+import * as unifiedModule from 'unified'
 import remarkParse from 'remark-parse'
 import remarkDirective from 'remark-directive'
 import type { RootContent } from 'mdast'
@@ -12,7 +12,8 @@ import type { AttributeSpec } from '@campfire/utils/directiveUtils'
 
 describe('runDirectiveBlock', () => {
   it('executes directive handlers', () => {
-    const nodes = unified()
+    const nodes = unifiedModule
+      .unified()
       .use(remarkParse)
       .use(remarkDirective)
       .parse(':test[]').children as RootContent[]
@@ -25,24 +26,28 @@ describe('runDirectiveBlock', () => {
   })
 
   it('reuses processors for identical handler maps', () => {
-    const parse = () =>
-      unified().use(remarkParse).use(remarkDirective).parse(':test[]')
-        .children as RootContent[]
+    const createNodes = () =>
+      unifiedModule
+        .unified()
+        .use(remarkParse)
+        .use(remarkDirective)
+        .parse(':test[]').children as RootContent[]
     const handler: DirectiveHandler = () => {}
     const handlers = { test: handler }
 
-    const firstNodes = parse()
-    const start1 = performance.now()
-    runDirectiveBlock(firstNodes, handlers)
-    const firstTime = performance.now() - start1
+    const firstNodes = createNodes()
+    const secondNodes = createNodes()
 
-    const secondNodes = parse()
-    const start2 = performance.now()
-    runDirectiveBlock(secondNodes, handlers)
-    const secondTime = performance.now() - start2
+    const unifiedSpy = vi.spyOn(unifiedModule, 'unified')
 
-    // Allow generous tolerance to reduce flakiness on slower CI environments
-    expect(secondTime).toBeLessThan(firstTime * 2)
+    try {
+      runDirectiveBlock(firstNodes, handlers)
+      runDirectiveBlock(secondNodes, handlers)
+
+      expect(unifiedSpy).toHaveBeenCalledTimes(1)
+    } finally {
+      unifiedSpy.mockRestore()
+    }
   })
 })
 
