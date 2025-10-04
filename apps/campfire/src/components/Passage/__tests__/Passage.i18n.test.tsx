@@ -550,6 +550,7 @@ describe('Passage i18n directives', () => {
   })
 
   it('reports error when multiple pairs are provided', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const passage: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
@@ -562,15 +563,23 @@ describe('Passage i18n directives', () => {
       ]
     }
 
-    useStoryDataStore.setState({
-      passages: [passage],
-      currentPassageId: '1'
-    })
+    try {
+      useStoryDataStore.setState({
+        passages: [passage],
+        currentPassageId: '1'
+      })
 
-    render(<Passage />)
+      render(<Passage />)
 
-    await waitFor(() => {
-      expect(useGameStore.getState().errors.length).toBe(1)
-    })
+      await waitFor(() => {
+        expect(useGameStore.getState().errors.length).toBe(1)
+      })
+
+      expect(errorSpy).toHaveBeenCalledWith(
+        'Translations directive accepts only one namespace:key pair'
+      )
+    } finally {
+      errorSpy.mockRestore()
+    }
   })
 })
