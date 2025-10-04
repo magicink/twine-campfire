@@ -15,18 +15,22 @@ import { useGameStore } from '@campfire/state/useGameStore'
 import { GlobalRegistrator } from '@happy-dom/global-registrator'
 
 let didRegisterHappyDom = false
+let originalConsoleError: typeof console.error
 
 beforeAll(() => {
   if (typeof document === 'undefined') {
     GlobalRegistrator.register()
     didRegisterHappyDom = true
   }
+  originalConsoleError = console.error
+  console.error = () => {}
 })
 
 afterAll(async () => {
   if (didRegisterHappyDom) {
     await GlobalRegistrator.unregister()
   }
+  console.error = originalConsoleError
 })
 
 let output: ComponentChild | null = null
