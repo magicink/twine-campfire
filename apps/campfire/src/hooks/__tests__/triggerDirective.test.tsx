@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'bun:test'
+import { describe, it, expect, beforeEach, spyOn } from 'bun:test'
 import { render, act } from '@testing-library/preact'
 import type { ComponentChild } from 'preact'
 import { useDirectiveHandlers } from '@campfire/hooks/useDirectiveHandlers'
@@ -36,25 +36,33 @@ describe('trigger directive', () => {
       ':::\n' +
       '::set[fired=true]\n' +
       ':::\n\n'
-    render(<MarkdownRunner markdown={md} />)
-    const button = document.querySelector(
-      '[data-testid="trigger-button"]'
-    ) as HTMLButtonElement
-    const wrapper = button.querySelector(
-      '[data-testid="wrapper"]'
-    ) as HTMLElement
-    const image = wrapper.querySelector(
-      '[data-testid="slideImage"]'
-    ) as HTMLElement
-    expect(button).toBeTruthy()
-    expect(wrapper).toBeTruthy()
-    expect(wrapper.textContent).toContain('Run')
-    expect(image).toBeTruthy()
-    const img = image.querySelector('img') as HTMLImageElement
-    expect(img.getAttribute('src')).toBe('https://placehold.co/32')
-    act(() => {
-      button.click()
-    })
-    expect(useGameStore.getState().gameData.fired).toBe(true)
+    const errorSpy = spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      render(<MarkdownRunner markdown={md} />)
+      const button = document.querySelector(
+        '[data-testid="trigger-button"]'
+      ) as HTMLButtonElement
+      const wrapper = button.querySelector(
+        '[data-testid="wrapper"]'
+      ) as HTMLElement
+      const image = wrapper.querySelector(
+        '[data-testid="slideImage"]'
+      ) as HTMLElement
+      expect(button).toBeTruthy()
+      expect(wrapper).toBeTruthy()
+      expect(wrapper.textContent).toContain('Run')
+      expect(image).toBeTruthy()
+      const img = image.querySelector('img') as HTMLImageElement
+      expect(img.getAttribute('src')).toBe('https://placehold.co/32')
+      act(() => {
+        button.click()
+      })
+      expect(useGameStore.getState().gameData.fired).toBe(true)
+      expect(errorSpy).toHaveBeenCalledWith(
+        'Only one wrapper directive is allowed inside a trigger'
+      )
+    } finally {
+      errorSpy.mockRestore()
+    }
   })
 })

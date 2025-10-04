@@ -1,4 +1,4 @@
-import { describe, it, beforeEach, expect } from 'bun:test'
+import { describe, it, beforeEach, expect, vi } from 'bun:test'
 import { render, screen, waitFor, act } from '@testing-library/preact'
 import type { Element } from 'hast'
 import { Passage } from '@campfire/components/Passage/Passage'
@@ -61,6 +61,7 @@ describe('effect directive', () => {
   })
 
   it('ignores unsupported directives and logs an error', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const passage: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
@@ -72,15 +73,22 @@ describe('effect directive', () => {
         }
       ]
     }
-    useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
-    render(<Passage />)
-    await waitFor(() =>
-      expect((useGameStore.getState().gameData as any).a).toBe(1)
-    )
-    expect(
-      useGameStore
-        .getState()
-        .errors.some(e => e.startsWith('effect only supports directives'))
-    ).toBe(true)
+    try {
+      useStoryDataStore.setState({ passages: [passage], currentPassageId: '1' })
+      render(<Passage />)
+      await waitFor(() =>
+        expect((useGameStore.getState().gameData as any).a).toBe(1)
+      )
+      expect(
+        useGameStore
+          .getState()
+          .errors.some(e => e.startsWith('effect only supports directives'))
+      ).toBe(true)
+      expect(errorSpy).toHaveBeenCalledWith(
+        expect.stringContaining('effect only supports directives')
+      )
+    } finally {
+      errorSpy.mockRestore()
+    }
   })
 })

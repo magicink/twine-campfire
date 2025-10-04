@@ -255,6 +255,7 @@ describe('Passage i18n directives', () => {
   })
 
   it('resolves translations inside links', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const start: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
@@ -283,11 +284,18 @@ describe('Passage i18n directives', () => {
       currentPassageId: '1'
     })
 
-    render(<Passage />)
+    try {
+      render(<Passage />)
 
-    const button = await screen.findByRole('button', { name: 'Next' })
-    button.click()
-    expect(useStoryDataStore.getState().currentPassageId).toBe('Next')
+      const button = await screen.findByRole('button', { name: 'Next' })
+      button.click()
+      expect(useStoryDataStore.getState().currentPassageId).toBe('Next')
+      expect(errorSpy).toHaveBeenCalledWith(
+        'Only one wrapper directive is allowed inside a trigger'
+      )
+    } finally {
+      errorSpy.mockRestore()
+    }
   })
 
   it('logs an error when t is used as a container directive', async () => {
@@ -550,6 +558,7 @@ describe('Passage i18n directives', () => {
   })
 
   it('reports error when multiple pairs are provided', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const passage: Element = {
       type: 'element',
       tagName: 'tw-passagedata',
@@ -562,15 +571,23 @@ describe('Passage i18n directives', () => {
       ]
     }
 
-    useStoryDataStore.setState({
-      passages: [passage],
-      currentPassageId: '1'
-    })
+    try {
+      useStoryDataStore.setState({
+        passages: [passage],
+        currentPassageId: '1'
+      })
 
-    render(<Passage />)
+      render(<Passage />)
 
-    await waitFor(() => {
-      expect(useGameStore.getState().errors.length).toBe(1)
-    })
+      await waitFor(() => {
+        expect(useGameStore.getState().errors.length).toBe(1)
+      })
+
+      expect(errorSpy).toHaveBeenCalledWith(
+        'Translations directive accepts only one namespace:key pair'
+      )
+    } finally {
+      errorSpy.mockRestore()
+    }
   })
 })
