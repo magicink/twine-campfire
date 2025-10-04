@@ -2,32 +2,35 @@ import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
 
 import { evaluateUserScript } from '@campfire/components/Campfire/evaluateUserScript'
 
-let mockDoc: Pick<Document, 'getElementById'>
+/**
+ * Removes the test marker from the global scope between runs.
+ */
+const clearUserTestFlag = () => {
+  delete (globalThis as { userTest?: number }).userTest
+}
 
 beforeEach(() => {
-  mockDoc = {
-    getElementById: () => null
-  }
-  // ensure global variable cleared
-  delete (globalThis as { userTest?: number }).userTest
+  clearUserTestFlag()
 })
 
 afterEach(() => {
-  delete (globalThis as { userTest?: number }).userTest
+  clearUserTestFlag()
+  const existing = document.getElementById('twine-user-script')
+  existing?.remove()
 })
 
 describe('evaluateUserScript', () => {
   it('executes script when present', () => {
-    mockDoc.getElementById = () =>
-      ({
-        textContent: 'globalThis.userTest = 42'
-      }) as unknown as HTMLScriptElement
-    evaluateUserScript(mockDoc as unknown as Document)
+    const script = document.createElement('script')
+    script.id = 'twine-user-script'
+    script.textContent = 'globalThis.userTest = 42'
+    document.body.append(script)
+    evaluateUserScript(document)
     expect((globalThis as { userTest?: number }).userTest).toBe(42)
   })
 
   it('does nothing when no script is found', () => {
-    evaluateUserScript(mockDoc as unknown as Document)
+    evaluateUserScript(document)
     expect((globalThis as { userTest?: number }).userTest).toBeUndefined()
   })
 })

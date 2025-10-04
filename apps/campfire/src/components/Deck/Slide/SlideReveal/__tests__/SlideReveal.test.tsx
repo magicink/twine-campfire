@@ -71,9 +71,8 @@ describe('SlideReveal', () => {
         </Slide>
       </Deck>
     )
-    // Initially hidden (step 0)
-    const reveal = screen.queryByTestId('slide-reveal')
-    expect(reveal).toBeNull()
+    const hiddenBeforeAdvance = screen.queryByTestId('slide-reveal')
+    expect(hiddenBeforeAdvance).toBeNull()
     act(() => {
       useDeckStore.getState().next()
     })
@@ -146,8 +145,8 @@ describe('SlideReveal', () => {
     act(() => {
       useDeckStore.getState().next()
     })
-    // Still mounted during animation
-    expect(screen.getByText('Bye')).toBeTruthy()
+    const stillMountedDuringAnimation = screen.getByText('Bye')
+    expect(stillMountedDuringAnimation).toBeTruthy()
     await flushAnimations()
     expect(screen.queryByText('Bye')).toBeNull()
   })

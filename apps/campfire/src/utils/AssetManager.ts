@@ -74,9 +74,6 @@ export abstract class AssetManager<T extends LoadableAsset> {
   /** Map of in-flight load promises keyed by identifier. */
   protected inFlight: Map<string, Promise<T>> = new Map()
 
-  // TODO(campfire): Consider adding cache controls (max size/TTL/clear)
-  // and metrics for hit/miss to guide preloading strategies.
-
   /**
    * Retrieves the singleton instance for the derived manager.
    *

@@ -110,7 +110,7 @@ export const listSavedGames = (prefix = 'campfire.save'): SavedGame[] => {
         timestamp: data.timestamp
       })
     } catch {
-      // skip malformed entries
+      continue
     }
   }
   return saves

@@ -11,8 +11,11 @@ export const evaluateUserScript = (
   const el = doc.getElementById('twine-user-script') as HTMLScriptElement | null
   const code = el?.textContent
   if (!code) return
-  // Using the Function constructor executes the code in the global scope.
-  // eslint-disable-next-line no-new-func
-  const fn = new Function(code)
-  fn()
+  const script = doc.createElement('script')
+  script.type = el?.type || 'text/javascript'
+  script.textContent = code
+  const host = doc.head || doc.body || doc.documentElement
+  if (!host) return
+  host.append(script)
+  script.remove()
 }

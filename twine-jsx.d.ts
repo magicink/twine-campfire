@@ -1,7 +1,6 @@
-// Ambient declaration to allow using TwineJS custom elements in TSX/JSX
-// with Preact's JSX namespace. This augments JSX.IntrinsicElements so
-// TypeScript recognizes these tags without complaining.
-
+/**
+ * Augments JSX namespaces so Twine custom elements type-check in Preact.
+ */
 declare namespace JSX {
   type TwineElementProps<T extends HTMLElement = HTMLElement> =
     JSX.HTMLAttributes<T> & {
@@ -24,7 +23,9 @@ declare namespace JSX {
   }
 }
 
-// DOM-level augmentations so TS knows these custom tags in createElement/querySelector
+/**
+ * Enables DOM APIs to resolve Twine element names.
+ */
 interface HTMLElementTagNameMap {
   'tw-story': HTMLElement
   'tw-passage': HTMLElement
@@ -47,8 +48,9 @@ interface ElementTagNameMap {
   'tw-passagedata': HTMLElement
 }
 
-// Also augment Preact's JSX namespace for the automatic runtime without touching module exports
-// Preact defines types under `preact.JSX` or `JSXInternal` mapped to it; augmenting `preact.JSX` is safe.
+/**
+ * Mirrors the augmentation for the automatic JSX runtime.
+ */
 declare namespace preact.JSX {
   type TwineElementProps<T extends HTMLElement = HTMLElement> =
     preact.JSX.HTMLAttributes<T> & {

@@ -23,9 +23,6 @@ export const LoadingScreen = ({
   assets: Asset[]
   targetPassage: string
 }) => {
-  // TODO(campfire): Expose className overrides and document default
-  // `campfire-loading-*` classes with no styles; consider using CSS custom
-  // properties with oklch() colors for themeable progress visuals.
   const [progress, setProgress] = useState(0)
   const setCurrentPassage = useStoryDataStore.use.setCurrentPassage()
   const loadedRef = useRef(0)

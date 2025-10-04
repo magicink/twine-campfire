@@ -35,20 +35,19 @@ interface TranslateProps {
 export const Translate = ({ className, style, ...props }: TranslateProps) => {
   const addError = useGameStore.use.addError()
   const gameData = useGameStore.use.gameData()
-  // Subscribe to the active locale so translations re-render when it changes.
-  const lang = useGameStore(
+  const activeLocale = useGameStore(
     state => (state.gameData as Record<string, unknown>).lang
   )
   const { t } = useTranslation(undefined, { i18n: i18next })
   useEffect(() => {
     if (
-      typeof lang === 'string' &&
+      typeof activeLocale === 'string' &&
       i18next.isInitialized &&
-      i18next.resolvedLanguage !== lang
+      i18next.resolvedLanguage !== activeLocale
     ) {
-      void i18next.changeLanguage(lang)
+      void i18next.changeLanguage(activeLocale)
     }
-  }, [lang])
+  }, [activeLocale])
   let ns = props['data-i18n-ns']
   let tKey = props['data-i18n-key']
   const expr = props['data-i18n-expr']
@@ -110,7 +109,7 @@ export const Translate = ({ className, style, ...props }: TranslateProps) => {
   }
   return (
     <span
-      key={lang}
+      key={activeLocale}
       className={mergeClasses('campfire-translate', className)}
       style={mergedStyle}
       data-testid='translate'

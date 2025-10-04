@@ -54,9 +54,6 @@ export const useOverlayProcessor = (): void => {
   useEffect(() => {
     const controller = new AbortController()
     ;(async () => {
-      // TODO(campfire): Batch processing or yield to the event loop between
-      // passages to keep overlays responsive on large stories; surface parser
-      // errors to a user-visible channel instead of console-only.
       const items = [] as {
         name: string
         component: ComponentChild

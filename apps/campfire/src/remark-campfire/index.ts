@@ -49,12 +49,6 @@ export interface LangDirective extends Omit<TextDirective, 'attributes'> {
 /** RegExp matching safe characters in directive attribute values. */
 const SAFE_ATTR_VALUE_PATTERN = /^[\w\s.,:'"`{}\[\]$!;\-]*$/
 
-// TODO(campfire): Add comprehensive directive regression tests here:
-// - Attribute quoting rules (quoted stays string; state-key allowances)
-// - Marker-only paragraphs/text are preserved for handlers to delimit blocks
-// - Deck/slide/wrapper/trigger end-of-block detection remains robust with
-//   blank lines and mixed whitespace
-
 /**
  * Data structure for paragraph nodes that may include custom hast element
  * metadata.
@@ -263,11 +257,7 @@ const remarkCampfire =
         }
         if (node.type === 'paragraph' && parent && typeof index === 'number') {
           const paragraph = node as ParagraphWithData
-          // Preserve paragraphs transformed into custom elements
           if (paragraph.data?.hName) return
-          // TODO(campfire): Do not remove marker-only paragraphs/text at the
-          // remark stage. Double-check we only strip paragraphs that are truly
-          // whitespace-only. Add regression tests for this sentinel.
           const hasContent = paragraph.children.some(child => {
             return !(
               child.type === 'text' && (child as Text).value.trim() === ''

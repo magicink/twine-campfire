@@ -65,7 +65,7 @@ export interface StateChanges<T> {
   once: string[]
 }
 
-// disable prototype and circular checks for performance as game data is plain
+/** Creates lightweight clones without proto or circular tracking. */
 const clone = rfdc({ proto: false, circles: false })
 
 /**
