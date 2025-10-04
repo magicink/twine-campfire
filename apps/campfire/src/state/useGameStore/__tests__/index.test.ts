@@ -3,8 +3,10 @@ import { render, screen } from '@testing-library/preact'
 import { useGameStore, listSavedGames } from '../index'
 import { describe, it, expect, beforeEach } from 'bun:test'
 
-// Reset store state before each test
-beforeEach(() => {
+/**
+ * Restores the game store and local storage to a blank slate.
+ */
+const resetStoreState = () => {
   useGameStore.setState({
     gameData: {},
     lockedKeys: {},
@@ -15,7 +17,9 @@ beforeEach(() => {
   })
   useGameStore.getState().init({})
   localStorage.clear()
-})
+}
+
+beforeEach(resetStoreState)
 
 describe('useGameStore', () => {
   it('merges partial game data and resets state', () => {

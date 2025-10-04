@@ -26,8 +26,8 @@ const resetDeckStore = () => {
 
 beforeEach(() => {
   setupResizeObserver()
-  // @ts-expect-error override animate
-  HTMLElement.prototype.animate = () => new StubAnimation()
+  HTMLElement.prototype.animate = (() =>
+    new StubAnimation()) as typeof HTMLElement.prototype.animate
   resetDeckStore()
   resetStores()
   document.body.innerHTML = ''

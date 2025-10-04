@@ -10,8 +10,7 @@ declare global {
     cancelIdleCallback?: (handle: number) => void
   }
 
-  // eslint-disable-next-line no-var
-  var __campfirePassageCache:
+  let __campfirePassageCache:
     | Map<string, { text: string; content: ComponentChild }>
     | undefined
 }

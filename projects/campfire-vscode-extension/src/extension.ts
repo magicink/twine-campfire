@@ -1376,6 +1376,4 @@ export function activate(context: ExtensionContext): void {
 /**
  * Clean up any resources when the extension is deactivated.
  */
-export function deactivate(): void {
-  // No resources to dispose of because subscriptions are managed by VS Code.
-}
+export function deactivate(): void {}

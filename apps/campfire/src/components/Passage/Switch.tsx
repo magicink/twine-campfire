@@ -83,9 +83,6 @@ export const Switch = ({ test, cases, fallback }: SwitchProps) => {
           button: LinkButton,
           trigger: TriggerButton,
           if: If,
-          // Note: The Switch component is intentionally omitted from the components map to prevent a circular reference.
-          // Including Switch here would allow nested Switch components to recursively render each other, leading to infinite recursion and a stack overflow.
-          // This design choice ensures that Switch components cannot be rendered within the content processed by this processor.
           show: Show,
           translate: Translate,
           onExit: OnExit,

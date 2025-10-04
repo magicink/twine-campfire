@@ -29,7 +29,7 @@ type ReplacementNode = Text | Element
  * // The link will be converted to a button element
  */
 export default function rehypeCampfire(): (tree: Root) => void {
-  // Matches Harlowe-style links [[...]]
+  /** Pattern matching Harlowe-style link syntax. */
   const linkRegex = /\[\[([^\]]+?)]]/g
 
   function parseLink(raw: string): { text: string; target: string } {
@@ -99,9 +99,7 @@ export default function rehypeCampfire(): (tree: Root) => void {
           node.properties[key] = Array.isArray(raw)
             ? inner.children
             : JSON.stringify(inner.children)
-        } catch {
-          /* ignore */
-        }
+        } catch {}
       }
     }
     visit(

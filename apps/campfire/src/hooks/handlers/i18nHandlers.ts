@@ -90,7 +90,6 @@ export const createI18nHandlers = (ctx: I18nHandlerContext) => {
     if (invalid !== undefined) return invalid
     const locale = toString(directive).trim()
 
-    // Basic locale validation: e.g., "en", "en-US", "fr", "zh-CN"
     const LOCALE_PATTERN = /^[a-z]{2,3}(-[A-Z][a-zA-Z]{1,7})?$/
 
     if (

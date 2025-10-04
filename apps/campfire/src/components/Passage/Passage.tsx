@@ -134,16 +134,20 @@ export const Passage = () => {
 
   useEffect(() => {
     if (!passage) return
-    // `pid` is expected to be a string when present; cast to keep types concise
-    const id = passage.properties?.pid as string | undefined
-    const isNewPassage = prevPassageId.current !== id
+    const passageId =
+      typeof passage.properties?.pid === 'string'
+        ? passage.properties.pid
+        : undefined
+    const isNewPassage = prevPassageId.current !== passageId
     if (isNewPassage) {
-      prevPassageId.current = id
+      prevPassageId.current = passageId
       clearTitleOverride()
       resetDeck()
     }
-    // `name` is expected to be a string when present
-    const name = passage.properties?.name as string | undefined
+    const passageName =
+      typeof passage.properties?.name === 'string'
+        ? passage.properties.name
+        : undefined
     if (!isTitleOverridden()) {
       const storyName = storyData.name as string | undefined
       const separator =
@@ -151,7 +155,7 @@ export const Passage = () => {
       const showPassage =
         storyData['title-show-passage'] !== 'false' &&
         storyData['title-show-passage'] !== false
-      const title = buildTitle(storyName, name, separator, showPassage)
+      const title = buildTitle(storyName, passageName, separator, showPassage)
       if (title) {
         document.title = title
       }
@@ -166,7 +170,10 @@ export const Passage = () => {
         setContent(null)
         return
       }
-      const id = passage.properties?.pid as string | undefined
+      const id =
+        typeof passage.properties?.pid === 'string'
+          ? passage.properties.pid
+          : undefined
       const text = getPassageText(passage.children as Content[])
       const cache = getPassageCache()
       const shouldCache = id && canCachePassage(text)

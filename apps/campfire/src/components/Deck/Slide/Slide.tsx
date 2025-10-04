@@ -32,8 +32,6 @@ export const Slide = ({
 
   useEffect(() => {
     runEnter()
-    // Run once when the slide becomes active
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
