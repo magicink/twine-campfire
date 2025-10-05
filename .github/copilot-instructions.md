@@ -8,7 +8,7 @@
 ## Workflow
 
 1. Run `bun install` after cloning or switching branches.
-2. Run `bun tsc` (or `bun run typecheck`), `bun test`, and `bunx prettier . --write` before committing.
+2. Run `bun tsc` (or `bun run typecheck`), `bun test`, and `bunx prettier . --write` before committing. A refactor should generally remove more code than it adds.
 3. Run `bun run build` to refresh bundled output when needed.
 4. Use Conventional Commits for message formatting.
 
