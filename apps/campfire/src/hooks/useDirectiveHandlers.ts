@@ -1300,7 +1300,6 @@ export const useDirectiveHandlers = () => {
 
   /**
    * Builds props shared across slide asset directives like embed, image, and shape.
-   *
    * @param attrs - Interpolated directive attributes.
    * @param directiveKeys - Keys unique to the directive that should be excluded when spreading additional attributes.
    * @returns Shared layout props and the exclusion list for `applyAdditionalAttributes`.
@@ -1331,14 +1330,21 @@ export const useDirectiveHandlers = () => {
     }
   }
 
-  /**
-   * Converts an `embed` directive into a SlideEmbed element.
-   *
-   * @param directive - The embed directive node.
-   * @param parent - Parent node containing the directive.
-   * @param index - Index of the directive within its parent.
-   * @returns The index of the inserted node.
-   */
+  /** Applies additional slide asset attributes from raw maps. */
+  const applySlideAssetAdditionalAttributes = (
+    rawMaps: {
+      mergedRaw: Record<string, unknown>
+      normRaw: Record<string, unknown>
+    },
+    props: Record<string, unknown>,
+    exclude: readonly string[],
+    addError: typeof addError
+  ) => {
+    applyAdditionalAttributes(rawMaps.mergedRaw, props, exclude, addError)
+    applyAdditionalAttributes(rawMaps.normRaw, props, exclude, addError)
+  }
+
+  /** Converts an `embed` directive into a SlideEmbed element. */
   const handleEmbed: DirectiveHandler = (directive, parent, index) => {
     const pair = ensureParentIndex(parent, index)
     if (!pair) return
@@ -1358,6 +1364,7 @@ export const useDirectiveHandlers = () => {
       attrs,
       attrs.from
     )
+    const rawMaps = { mergedRaw, normRaw }
     const { props, exclude } = buildSlideAssetProps(normAttrs, [
       'src',
       'allow',
@@ -1377,8 +1384,7 @@ export const useDirectiveHandlers = () => {
     ) {
       props.allowFullScreen = true
     }
-    applyAdditionalAttributes(mergedRaw, props, exclude, addError)
-    applyAdditionalAttributes(normRaw, props, exclude, addError)
+    applySlideAssetAdditionalAttributes(rawMaps, props, exclude, addError)
     const data = {
       hName: 'slideEmbed',
       hProperties: props as Properties
@@ -1387,14 +1393,7 @@ export const useDirectiveHandlers = () => {
     return replaceWithIndentation(directive, p, i, [node as RootContent])
   }
 
-  /**
-   * Converts an `image` directive into a SlideImage element.
-   *
-   * @param directive - The image directive node.
-   * @param parent - Parent node containing the directive.
-   * @param index - Index of the directive within its parent.
-   * @returns The index of the inserted node.
-   */
+  /** Converts an `image` directive into a SlideImage element. */
   const handleImage: DirectiveHandler = (directive, parent, index) => {
     const pair = ensureParentIndex(parent, index)
     if (!pair) return
@@ -1414,11 +1413,11 @@ export const useDirectiveHandlers = () => {
       attrs,
       attrs.from
     )
+    const rawMaps = { mergedRaw, normRaw }
     const { props, exclude } = buildSlideAssetProps(normAttrs, ['src', 'alt'])
     props.src = normAttrs.src
     if (normAttrs.alt) props.alt = normAttrs.alt
-    applyAdditionalAttributes(mergedRaw, props, exclude, addError)
-    applyAdditionalAttributes(normRaw, props, exclude, addError)
+    applySlideAssetAdditionalAttributes(rawMaps, props, exclude, addError)
     const data = {
       hName: 'slideImage',
       hProperties: props as Properties
@@ -1427,14 +1426,7 @@ export const useDirectiveHandlers = () => {
     return replaceWithIndentation(directive, p, i, [node as RootContent])
   }
 
-  /**
-   * Converts a `:shape` directive into a SlideShape element.
-   *
-   * @param directive - The shape directive node.
-   * @param parent - Parent node containing the directive.
-   * @param index - Index of the directive within its parent.
-   * @returns The index of the inserted node.
-   */
+  /** Converts a `:shape` directive into a SlideShape element. */
   const handleShape: DirectiveHandler = (directive, parent, index) => {
     const pair = ensureParentIndex(parent, index)
     if (!pair) return
@@ -1460,6 +1452,7 @@ export const useDirectiveHandlers = () => {
       attrs,
       attrs.from
     )
+    const rawMaps = { mergedRaw, normRaw }
     const { props, exclude } = buildSlideAssetProps(
       normAttrs as ShapeAttrs & Record<string, unknown>,
       [
@@ -1488,8 +1481,7 @@ export const useDirectiveHandlers = () => {
     if (normAttrs.fill) props.fill = normAttrs.fill
     if (typeof normAttrs.radius === 'number') props.radius = normAttrs.radius
     if (typeof normAttrs.shadow === 'boolean') props.shadow = normAttrs.shadow
-    applyAdditionalAttributes(mergedRaw, props, exclude, addError)
-    applyAdditionalAttributes(normRaw, props, exclude, addError)
+    applySlideAssetAdditionalAttributes(rawMaps, props, exclude, addError)
     const node: Parent = {
       type: 'paragraph',
       children: [],
@@ -1498,12 +1490,7 @@ export const useDirectiveHandlers = () => {
     return replaceWithIndentation(directive, p, i, [node as RootContent])
   }
 
-  /**
-   * Builds a props object for the Slide component from extracted attributes.
-   *
-   * @param attrs - Extracted slide attributes.
-   * @returns Slide props object.
-   */
+  /** Builds Slide props from extracted attributes. */
   const buildSlideProps = (
     attrs: SlideAttrs,
     raw: Record<string, unknown> = {}

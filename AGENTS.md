@@ -1,6 +1,6 @@
 # Repository Guidelines
 
-- Run `bun tsc`, `bun test`, and `bunx prettier . --write` before committing.
+- Run `bun tsc`, `bun test`, and `bunx prettier . --write` before committing. A refactor should generally remove more code than it adds.
 - Write arrow functions when storing functions.
 - Give every function and component a JSDoc block.
 - Visual components need `data-testid` attributes and a default `campfire-{name}` class without styles.
