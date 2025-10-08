@@ -416,8 +416,7 @@ export const Deck = ({
         className
       )}
       style={{
-        background:
-          'var(--deck-bg,linear-gradient(to bottom,var(--color-gray-900),var(--color-gray-950)))',
+        background: 'var(--deck-bg,var(--color-gray-900))',
         ...themeStyle
       }}
       role='region'
