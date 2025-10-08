@@ -24,7 +24,7 @@ Most classes ship with no associated styles. `.campfire-passage` includes `h-ful
 The template exposes several CSS variables that map to Tailwind color scales:
 
 - `--color-gray-50` through `--color-gray-950` define a neutral gray range.
-- `--color-primary-50` through `--color-primary-950` alias the indigo palette. `--color-primary` defaults to `--color-primary-700`, and `--color-primary-foreground` uses `--color-gray-950`.
+- `--color-primary-50` through `--color-primary-950` alias the red palette. `--color-primary` defaults to `--color-primary-600`, and `--color-primary-foreground` uses `--color-gray-950`.
 - `--color-destructive-50` through `--color-destructive-950` alias the red palette. `--color-destructive` defaults to `--color-destructive-500`.
 - `--color-ring` derives from `--color-primary-500` and is used for focus indicators.
 - `--color-input` sets default borders and backgrounds for form fields.
