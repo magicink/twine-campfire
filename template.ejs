@@ -76,8 +76,8 @@
         --color-primary-900: var(--color-red-900);
         --color-primary-950: var(--color-red-950);
         --color-primary: var(--color-primary-600);
-        --color-primary-foreground: var(--color-gray-950);
-        --color-foreground: var(--color-gray-950);
+        --color-primary-foreground: var(--color-gray-50);
+        --color-foreground: var(--color-gray-50);
         --color-ring: var(--color-primary-500);
         --color-input: var(--color-gray-700);
         --color-muted-foreground: var(--color-gray-300);
@@ -109,6 +109,10 @@
         html {
           font-size: 22px;
           color-scheme: dark;
+        }
+        body {
+          color: var(--color-foreground);
+          background-color: var(--color-gray-800);
         }
         div,
         p,
@@ -147,6 +151,12 @@
         }
         tr:nth-child(even) {
           background-color: var(--color-gray-100);
+        }
+        .campfire-base {
+          @apply bg-[var(--color-gray-800)] text-[var(--color-gray-50)];
+        }
+        .campfire-passage {
+          @apply text-[var(--color-gray-50)];
         }
       }
     </style>
