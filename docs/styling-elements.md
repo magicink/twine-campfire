@@ -17,7 +17,7 @@ Campfire's visual components expose hook classes prefixed with `campfire-`, lett
 - `.campfire-show` – value display from the `show` directive
 - `.campfire-translate` – translated string from the `translate` directive
 
-Most classes ship with no associated styles. `.campfire-base` applies a dark gray background with light foreground text, `.campfire-passage` stretches passages to full height while keeping text light, `.campfire-deck-group` defaults deck slides to a `gray-900` backdrop with `gray-50` text, and `.campfire-link` and `.campfire-trigger` share a button style set for convenience.
+Most classes ship with no associated styles. `.campfire-base` applies a dark gray background with light foreground text, `.campfire-passage` stretches passages to full height while keeping text light, `.campfire-deck-group` defaults deck slides to a `gray-900` backdrop with `gray-50` text, and `.campfire-link` and `.campfire-trigger` share a button style set that gradients from `red-600` to `gray-950` with a subtle text shadow.
 
 ## Default color ranges
 
