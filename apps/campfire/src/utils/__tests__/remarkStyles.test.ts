@@ -2,6 +2,7 @@ import { describe, it, expect } from 'bun:test'
 import type { Root as MdRoot } from 'mdast'
 import type { Root as HastRoot } from 'hast'
 import {
+  checkboxStyles,
   remarkHeadingStyles,
   remarkParagraphStyles,
   rehypeTableStyles,
@@ -197,7 +198,14 @@ describe('rehypeChecklistButtons', () => {
     const btn = tree.children[0] as any
     expect(btn.tagName).toBe('button')
     expect(btn.properties['data-state']).toBe('checked')
-    expect(btn.properties.disabled).toBe(true)
+    expect(btn.properties['data-disabled']).toBe('true')
+    expect(btn.properties.tabindex).toBe('-1')
+    expect(btn.properties['aria-disabled']).toBe('true')
+    expect(btn.properties.className).toEqual([
+      'campfire-checkbox',
+      checkboxStyles,
+      'pointer-events-none'
+    ])
     expect(btn.children[0].tagName).toBe('span')
     expect(btn.children[0].children[0].tagName).toBe('svg')
   })

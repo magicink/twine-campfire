@@ -416,8 +416,7 @@ export const Deck = ({
         className
       )}
       style={{
-        background:
-          'var(--deck-bg,linear-gradient(to bottom,var(--color-gray-900),var(--color-gray-950)))',
+        background: 'var(--deck-bg,var(--color-gray-900))',
         ...themeStyle
       }}
       role='region'
@@ -429,7 +428,7 @@ export const Deck = ({
       <div
         ref={slideRef}
         className={mergeClasses(
-          'campfire-deck-group absolute left-1/2 top-1/2 origin-center rounded-2xl overflow-hidden shadow-[0_10px_30px_oklch(0_0_0_/_0.35)] bg-[var(--slide-bg,var(--color-gray-50))] text-[var(--slide-fg,var(--color-gray-950))]',
+          'campfire-deck-group absolute left-1/2 top-1/2 origin-center rounded-2xl overflow-hidden shadow-[0_10px_30px_oklch(0_0_0_/_0.35)] bg-[var(--slide-bg,var(--color-gray-900))] text-[var(--slide-fg,var(--color-gray-50))]',
           groupClassName
         )}
         style={{
