@@ -52,7 +52,12 @@ export const Checkbox = ({
       type='button'
       role='checkbox'
       data-testid='checkbox'
-      className={mergeClasses('campfire-checkbox', checkboxStyles, className)}
+      className={mergeClasses(
+        'campfire-checkbox',
+        checkboxStyles,
+        'disabled:cursor-not-allowed disabled:opacity-50',
+        className
+      )}
       aria-checked={checked}
       data-state={checked ? 'checked' : 'unchecked'}
       disabled={isDisabled}
