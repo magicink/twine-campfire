@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.112.0](https://github.com/magicink/twine-campfire/compare/v1.111.1...v1.112.0) (2025-10-09)
+
+
+### Features
+
+* retheme primary buttons with blood red gradient ([#816](https://github.com/magicink/twine-campfire/issues/816)) ([4774cc6](https://github.com/magicink/twine-campfire/commit/4774cc66264b037f242c56a2f5ec3ef657f6437b))
+
 ## [1.111.1](https://github.com/magicink/twine-campfire/compare/v1.111.0...v1.111.1) (2025-10-02)
 
 
