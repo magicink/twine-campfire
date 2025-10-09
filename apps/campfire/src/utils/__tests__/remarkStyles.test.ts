@@ -198,10 +198,13 @@ describe('rehypeChecklistButtons', () => {
     const btn = tree.children[0] as any
     expect(btn.tagName).toBe('button')
     expect(btn.properties['data-state']).toBe('checked')
-    expect(btn.properties.disabled).toBe(true)
+    expect(btn.properties['data-disabled']).toBe('true')
+    expect(btn.properties.tabindex).toBe('-1')
+    expect(btn.properties['aria-disabled']).toBe('true')
     expect(btn.properties.className).toEqual([
       'campfire-checkbox',
-      checkboxStyles
+      checkboxStyles,
+      'pointer-events-none'
     ])
     expect(btn.children[0].tagName).toBe('span')
     expect(btn.children[0].children[0].tagName).toBe('svg')

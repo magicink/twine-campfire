@@ -216,11 +216,17 @@ export const rehypeChecklistButtons =
             properties: {
               type: 'button',
               role: 'checkbox',
-              disabled: true,
+              tabindex: '-1',
               'aria-checked': checked ? 'true' : 'false',
+              'aria-disabled': 'true',
               'data-state': checked ? 'checked' : 'unchecked',
+              'data-disabled': 'true',
               'data-testid': 'checkbox',
-              className: ['campfire-checkbox', checkboxStyles]
+              className: [
+                'campfire-checkbox',
+                checkboxStyles,
+                'pointer-events-none'
+              ]
             },
             children: [
               {
