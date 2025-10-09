@@ -48,4 +48,13 @@ describe('Checkbox', () => {
     fireEvent.click(button)
     expect(button.querySelector('svg')).not.toBeNull()
   })
+
+  it('applies disabled styles when disabled', () => {
+    useGameStore.setState({ gameData: {} })
+    const { getByTestId } = render(<Checkbox stateKey='flag' disabled />)
+    const button = getByTestId('checkbox') as HTMLButtonElement
+    expect(button.disabled).toBe(true)
+    expect(button.className.split(' ')).toContain('cursor-not-allowed')
+    expect(button.className.split(' ')).toContain('opacity-50')
+  })
 })
