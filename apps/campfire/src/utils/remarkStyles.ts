@@ -215,6 +215,7 @@ export const rehypeChecklistButtons =
             tagName: 'button',
             properties: {
               type: 'button',
+              disabled: true,
               role: 'checkbox',
               tabindex: '-1',
               'aria-checked': checked ? 'true' : 'false',
