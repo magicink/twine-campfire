@@ -1,7 +1,8 @@
 import { mergeClasses } from '@campfire/utils/core'
 import {
   checkboxStyles,
-  checkboxIndicatorStyles
+  checkboxIndicatorStyles,
+  checkboxDisabledStyles
 } from '@campfire/utils/remarkStyles'
 import { useBoundField, type BoundFieldElementProps } from './BoundFieldProps'
 
@@ -52,7 +53,12 @@ export const Checkbox = ({
       type='button'
       role='checkbox'
       data-testid='checkbox'
-      className={mergeClasses('campfire-checkbox', checkboxStyles, className)}
+      className={mergeClasses(
+        'campfire-checkbox',
+        checkboxStyles,
+        isDisabled ? checkboxDisabledStyles : '',
+        className
+      )}
       aria-checked={checked}
       data-state={checked ? 'checked' : 'unchecked'}
       disabled={isDisabled}
